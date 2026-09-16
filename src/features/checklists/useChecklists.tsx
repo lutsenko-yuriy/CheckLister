@@ -8,7 +8,11 @@ import React, {
   useRef,
 } from 'react';
 import { ChecklistRepository } from './domain/checklistRepository';
-import { Checklist, createChecklist as buildChecklist } from './domain/models';
+import {
+  Checklist,
+  createChecklist as buildChecklist,
+  createItem as buildItem,
+} from './domain/models';
 
 interface State {
   checklists: Checklist[];
@@ -33,6 +37,11 @@ interface ChecklistsContextValue extends State {
   createChecklist(title: string): void;
   renameChecklist(id: string, title: string): void;
   deleteChecklist(id: string): void;
+  addItem(checklistId: string, text: string): void;
+  toggleItem(checklistId: string, itemId: string): void;
+  editItem(checklistId: string, itemId: string, text: string): void;
+  deleteItem(checklistId: string, itemId: string): void;
+  clearCheckedItems(checklistId: string): void;
 }
 
 const ChecklistsContext = createContext<ChecklistsContextValue | null>(null);
@@ -102,14 +111,93 @@ export function ChecklistsProvider({
     [persist, state.checklists],
   );
 
+  const updateChecklistItems = useCallback(
+    (
+      checklistId: string,
+      updateItems: (items: Checklist['items']) => Checklist['items'],
+    ) => {
+      persist(
+        state.checklists.map(checklist =>
+          checklist.id === checklistId
+            ? { ...checklist, items: updateItems(checklist.items) }
+            : checklist,
+        ),
+      );
+    },
+    [persist, state.checklists],
+  );
+
+  const addItem = useCallback(
+    (checklistId: string, text: string) => {
+      updateChecklistItems(checklistId, items => [
+        ...items,
+        buildItem(text),
+      ]);
+    },
+    [updateChecklistItems],
+  );
+
+  const toggleItem = useCallback(
+    (checklistId: string, itemId: string) => {
+      updateChecklistItems(checklistId, items =>
+        items.map(item =>
+          item.id === itemId ? { ...item, checked: !item.checked } : item,
+        ),
+      );
+    },
+    [updateChecklistItems],
+  );
+
+  const editItem = useCallback(
+    (checklistId: string, itemId: string, text: string) => {
+      updateChecklistItems(checklistId, items =>
+        items.map(item => (item.id === itemId ? { ...item, text } : item)),
+      );
+    },
+    [updateChecklistItems],
+  );
+
+  const deleteItem = useCallback(
+    (checklistId: string, itemId: string) => {
+      updateChecklistItems(checklistId, items =>
+        items.filter(item => item.id !== itemId),
+      );
+    },
+    [updateChecklistItems],
+  );
+
+  const clearCheckedItems = useCallback(
+    (checklistId: string) => {
+      updateChecklistItems(checklistId, items =>
+        items.filter(item => !item.checked),
+      );
+    },
+    [updateChecklistItems],
+  );
+
   const value = useMemo(
     () => ({
       ...state,
       createChecklist,
       renameChecklist,
       deleteChecklist,
+      addItem,
+      toggleItem,
+      editItem,
+      deleteItem,
+      clearCheckedItems,
     }),
-    [state, createChecklist, renameChecklist, deleteChecklist],
+    [
+      state,
+      createChecklist,
+      renameChecklist,
+      deleteChecklist,
+      addItem,
+      toggleItem,
+      editItem,
+      deleteItem,
+      clearCheckedItems,
+    ],
   );
 
   return (

@@ -124,6 +124,144 @@ describe('useChecklists', () => {
     expect(result.current.checklists[0].title).toBe('Packing');
   });
 
+  it('adds an item to a checklist and persists it', async () => {
+    const repo = new AsyncStorageChecklistRepository();
+    await repo.saveAll([{ id: '1', title: 'Groceries', items: [] }]);
+    const { result } = await renderHook(() => useChecklists(), {
+      wrapper: makeWrapper(repo),
+    });
+    await waitFor(() => expect(result.current.checklists).toHaveLength(1));
+
+    await act(async () => {
+      result.current.addItem('1', 'Milk');
+    });
+
+    await waitFor(() =>
+      expect(result.current.checklists[0].items).toHaveLength(1),
+    );
+    expect(result.current.checklists[0].items[0]).toMatchObject({
+      text: 'Milk',
+      checked: false,
+    });
+    const persisted = await repo.getAll();
+    expect(persisted[0].items[0]).toMatchObject({
+      text: 'Milk',
+      checked: false,
+    });
+  });
+
+  it("toggles an item's checked state and persists it", async () => {
+    const repo = new AsyncStorageChecklistRepository();
+    await repo.saveAll([
+      {
+        id: '1',
+        title: 'Groceries',
+        items: [{ id: 'a', text: 'Milk', checked: false }],
+      },
+    ]);
+    const { result } = await renderHook(() => useChecklists(), {
+      wrapper: makeWrapper(repo),
+    });
+    await waitFor(() => expect(result.current.checklists).toHaveLength(1));
+
+    await act(async () => {
+      result.current.toggleItem('1', 'a');
+    });
+    await waitFor(() =>
+      expect(result.current.checklists[0].items[0].checked).toBe(true),
+    );
+    expect((await repo.getAll())[0].items[0].checked).toBe(true);
+
+    await act(async () => {
+      result.current.toggleItem('1', 'a');
+    });
+    await waitFor(() =>
+      expect(result.current.checklists[0].items[0].checked).toBe(false),
+    );
+    expect((await repo.getAll())[0].items[0].checked).toBe(false);
+  });
+
+  it("edits an item's text and persists it", async () => {
+    const repo = new AsyncStorageChecklistRepository();
+    await repo.saveAll([
+      {
+        id: '1',
+        title: 'Groceries',
+        items: [{ id: 'a', text: 'Milk', checked: false }],
+      },
+    ]);
+    const { result } = await renderHook(() => useChecklists(), {
+      wrapper: makeWrapper(repo),
+    });
+    await waitFor(() => expect(result.current.checklists).toHaveLength(1));
+
+    await act(async () => {
+      result.current.editItem('1', 'a', 'Oat milk');
+    });
+
+    await waitFor(() =>
+      expect(result.current.checklists[0].items[0].text).toBe('Oat milk'),
+    );
+    expect((await repo.getAll())[0].items[0].text).toBe('Oat milk');
+  });
+
+  it('deletes an item and persists it', async () => {
+    const repo = new AsyncStorageChecklistRepository();
+    await repo.saveAll([
+      {
+        id: '1',
+        title: 'Groceries',
+        items: [
+          { id: 'a', text: 'Milk', checked: false },
+          { id: 'b', text: 'Eggs', checked: false },
+        ],
+      },
+    ]);
+    const { result } = await renderHook(() => useChecklists(), {
+      wrapper: makeWrapper(repo),
+    });
+    await waitFor(() => expect(result.current.checklists).toHaveLength(1));
+
+    await act(async () => {
+      result.current.deleteItem('1', 'a');
+    });
+
+    await waitFor(() =>
+      expect(result.current.checklists[0].items).toHaveLength(1),
+    );
+    expect(result.current.checklists[0].items[0].id).toBe('b');
+    expect((await repo.getAll())[0].items).toHaveLength(1);
+  });
+
+  it('clears all checked items on a checklist and persists it', async () => {
+    const repo = new AsyncStorageChecklistRepository();
+    await repo.saveAll([
+      {
+        id: '1',
+        title: 'Groceries',
+        items: [
+          { id: 'a', text: 'Milk', checked: true },
+          { id: 'b', text: 'Eggs', checked: false },
+          { id: 'c', text: 'Bread', checked: true },
+        ],
+      },
+    ]);
+    const { result } = await renderHook(() => useChecklists(), {
+      wrapper: makeWrapper(repo),
+    });
+    await waitFor(() => expect(result.current.checklists).toHaveLength(1));
+
+    await act(async () => {
+      result.current.clearCheckedItems('1');
+    });
+
+    await waitFor(() =>
+      expect(result.current.checklists[0].items).toHaveLength(1),
+    );
+    expect(result.current.checklists[0].items[0].id).toBe('b');
+    expect((await repo.getAll())[0].items).toHaveLength(1);
+  });
+
   it('does not throw when persisting fails, and logs the error', async () => {
     const consoleError = jest
       .spyOn(console, 'error')
