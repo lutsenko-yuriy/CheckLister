@@ -1,6 +1,12 @@
 # Analytics Events
 
-All events are sent via the analytics service abstraction (a thin wrapper around the underlying analytics SDK).
+All events are sent via the analytics service abstraction
+(`src/shared/analytics/AnalyticsService.ts`). Currently backed by
+`NoopAnalyticsService` — no real SDK is wired up, and no events are being
+collected. Swap in an SDK-backed implementation behind the same
+`AnalyticsService` interface if/when analytics is actually needed; the
+catalogue below must be kept up to date as events are added, regardless of
+which implementation is active.
 
 ---
 
