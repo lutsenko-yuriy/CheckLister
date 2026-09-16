@@ -1,7 +1,7 @@
 # Backlog
 
 Known issues and planned work that has not yet been released.
-Most of this file is generated from your PM tool — do not edit the milestone and unscheduled sections by hand. Source of truth: [CheckLister on GitHub Issues](N/A).
+Most of this file is generated from your PM tool — do not edit the milestone and unscheduled sections by hand. Source of truth: [CheckLister on GitHub Issues](https://github.com/lutsenko-yuriy/CheckLister/issues).
 The `## In Progress` section at the top is the one exception — it is maintained manually as part of the single-ticket-in-progress workflow.
 
 ---
