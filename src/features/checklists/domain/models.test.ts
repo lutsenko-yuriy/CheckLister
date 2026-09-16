@@ -1,4 +1,4 @@
-import { createChecklist, countUnchecked } from './models';
+import { createChecklist, countUnchecked, createItem } from './models';
 
 describe('createChecklist', () => {
   it('creates a checklist with the given title and no items', () => {
@@ -30,5 +30,20 @@ describe('countUnchecked', () => {
       ],
     };
     expect(countUnchecked(checklist)).toBe(2);
+  });
+});
+
+describe('createItem', () => {
+  it('creates an item with the given text, unchecked', () => {
+    const item = createItem('Milk');
+    expect(item.text).toBe('Milk');
+    expect(item.checked).toBe(false);
+    expect(item.id).toBeTruthy();
+  });
+
+  it('generates a different id for each item', () => {
+    const a = createItem('Milk');
+    const b = createItem('Eggs');
+    expect(a.id).not.toBe(b.id);
   });
 });
