@@ -92,16 +92,16 @@ cross-feature state coordination outgrows this.
 ## Dependencies
 
 - [React Navigation](https://reactnavigation.org/) (`@react-navigation/native` +
-  `@react-navigation/native-stack`) — screen navigation (Home →
-  ChecklistDetail → Run, plus History).
+  `@react-navigation/native-stack`, with `react-native-screens` as a peer
+  dependency) — screen navigation (Home → ChecklistDetail → Run, plus
+  History). Installed.
 - [`@react-native-async-storage/async-storage`](https://react-native-async-storage.github.io/async-storage/) —
-  local, on-device persistence for checklists and run history.
+  local, on-device persistence for checklists and run history. Installed.
 - [`react-native-draggable-flatlist`](https://github.com/computerjazz/react-native-draggable-flatlist)
   (with its peer deps `react-native-gesture-handler` and
-  `react-native-reanimated`) — drag-to-reorder for items and sections.
+  `react-native-reanimated`) — drag-to-reorder for items and sections. Not
+  yet installed — add it when implementing Feature 3.
 - `react-native-safe-area-context` — already installed; also a peer
   dependency of React Navigation.
-
-None of the above are installed yet — add them when implementing the first
-feature that needs them (Feature 1 needs navigation + AsyncStorage; Feature 3
-additionally needs the drag-to-reorder stack).
+- [`@testing-library/react-native`](https://callstack.github.io/react-native-testing-library/) —
+  dev dependency for hook and screen tests. Installed.
