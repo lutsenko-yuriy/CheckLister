@@ -16,8 +16,14 @@ import { analytics } from '../../../shared/analytics/AnalyticsService';
 type Props = NativeStackScreenProps<RootStackParamList, 'ChecklistDetail'>;
 
 export function ChecklistDetailScreen({ navigation, route }: Props) {
-  const { checklists, addItem, toggleItem, editItem, deleteItem, clearCheckedItems } =
-    useChecklists();
+  const {
+    checklists,
+    addItem,
+    toggleItem,
+    editItem,
+    deleteItem,
+    clearCheckedItems,
+  } = useChecklists();
   const checklist = checklists.find(c => c.id === route.params.checklistId);
   const [newItemText, setNewItemText] = useState('');
 

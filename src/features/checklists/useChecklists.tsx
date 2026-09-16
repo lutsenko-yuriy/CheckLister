@@ -129,10 +129,7 @@ export function ChecklistsProvider({
 
   const addItem = useCallback(
     (checklistId: string, text: string) => {
-      updateChecklistItems(checklistId, items => [
-        ...items,
-        buildItem(text),
-      ]);
+      updateChecklistItems(checklistId, items => [...items, buildItem(text)]);
     },
     [updateChecklistItems],
   );

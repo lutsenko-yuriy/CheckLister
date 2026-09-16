@@ -1,5 +1,10 @@
 import React from 'react';
-import { render, fireEvent, waitFor, screen } from '@testing-library/react-native';
+import {
+  render,
+  fireEvent,
+  waitFor,
+  screen,
+} from '@testing-library/react-native';
 import { ChecklistsProvider } from '../useChecklists';
 import { AsyncStorageChecklistRepository } from '../data/asyncStorageChecklistRepository';
 import { ChecklistDetailScreen } from './ChecklistDetailScreen';
@@ -46,10 +51,7 @@ describe('ChecklistDetailScreen', () => {
     await renderDetailScreen('1');
     await waitFor(() => screen.getByPlaceholderText('New item'));
 
-    await fireEvent.changeText(
-      screen.getByPlaceholderText('New item'),
-      'Milk',
-    );
+    await fireEvent.changeText(screen.getByPlaceholderText('New item'), 'Milk');
     await fireEvent.press(screen.getByText('Add'));
 
     await waitFor(() => expect(screen.getByText('Milk')).toBeTruthy());
@@ -73,12 +75,14 @@ describe('ChecklistDetailScreen', () => {
 
     await waitFor(() => {
       const style = screen.getByText('Milk').props.style;
-      const flattened = Array.isArray(style) ? Object.assign({}, ...style) : style;
+      const flattened = Array.isArray(style)
+        ? Object.assign({}, ...style)
+        : style;
       expect(flattened.textDecorationLine).toBe('line-through');
     });
   });
 
-  it('edits an item\'s text', async () => {
+  it("edits an item's text", async () => {
     const repo = new AsyncStorageChecklistRepository();
     await repo.saveAll([
       {
