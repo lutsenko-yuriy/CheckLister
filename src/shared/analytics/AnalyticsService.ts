@@ -2,7 +2,7 @@ export type AnalyticsProperties = Record<string, string | number | boolean>;
 
 export interface AnalyticsService {
   logEvent(name: string, properties?: AnalyticsProperties): void;
-  logScreenView(screenName: string): void;
+  logScreenView(screenName: string, properties?: AnalyticsProperties): void;
 }
 
 /**
@@ -13,7 +13,7 @@ export interface AnalyticsService {
 export class NoopAnalyticsService implements AnalyticsService {
   logEvent(_name: string, _properties?: AnalyticsProperties): void {}
 
-  logScreenView(_screenName: string): void {}
+  logScreenView(_screenName: string, _properties?: AnalyticsProperties): void {}
 }
 
 export const analytics: AnalyticsService = new NoopAnalyticsService();
