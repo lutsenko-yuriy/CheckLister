@@ -1,4 +1,4 @@
 export type RootStackParamList = {
   Home: undefined;
-  ChecklistDetail: {checklistId: string};
+  ChecklistDetail: { checklistId: string };
 };
