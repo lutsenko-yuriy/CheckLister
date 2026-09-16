@@ -7,7 +7,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 async function renderDetailScreen(checklistId: string) {
   return render(
-    <ChecklistsProvider>
+    <ChecklistsProvider repository={new AsyncStorageChecklistRepository()}>
       <ChecklistDetailScreen
         navigation={{ setOptions: jest.fn() } as any}
         route={{ params: { checklistId } } as any}

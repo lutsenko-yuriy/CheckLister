@@ -5,8 +5,8 @@ import React, {
   useEffect,
   useMemo,
   useReducer,
+  useRef,
 } from 'react';
-import { AsyncStorageChecklistRepository } from './data/asyncStorageChecklistRepository';
 import { ChecklistRepository } from './domain/checklistRepository';
 import { Checklist, createChecklist as buildChecklist } from './domain/models';
 
@@ -22,9 +22,8 @@ type Action =
 function reducer(state: State, action: Action): State {
   switch (action.type) {
     case 'LOADED':
-      return { checklists: action.checklists, loading: false };
     case 'SET':
-      return { ...state, checklists: action.checklists };
+      return { checklists: action.checklists, loading: false };
     default:
       return state;
   }
@@ -38,24 +37,27 @@ interface ChecklistsContextValue extends State {
 
 const ChecklistsContext = createContext<ChecklistsContextValue | null>(null);
 
-const defaultRepository = new AsyncStorageChecklistRepository();
-
 export function ChecklistsProvider({
   children,
-  repository = defaultRepository,
+  repository,
 }: {
   children: React.ReactNode;
-  repository?: ChecklistRepository;
+  repository: ChecklistRepository;
 }) {
   const [state, dispatch] = useReducer(reducer, {
     checklists: [],
     loading: true,
   });
+  // Tracks whether the in-memory state already reflects reality (either the
+  // initial load resolved, or a mutation happened first) so a slow initial
+  // `getAll()` can't clobber a mutation that raced ahead of it.
+  const hasLoadedOrMutatedRef = useRef(false);
 
   useEffect(() => {
     let cancelled = false;
     repository.getAll().then(checklists => {
-      if (!cancelled) {
+      if (!cancelled && !hasLoadedOrMutatedRef.current) {
+        hasLoadedOrMutatedRef.current = true;
         dispatch({ type: 'LOADED', checklists });
       }
     });
@@ -66,8 +68,11 @@ export function ChecklistsProvider({
 
   const persist = useCallback(
     (checklists: Checklist[]) => {
+      hasLoadedOrMutatedRef.current = true;
       dispatch({ type: 'SET', checklists });
-      repository.saveAll(checklists);
+      repository.saveAll(checklists).catch(error => {
+        console.error('Failed to persist checklists', error);
+      });
     },
     [repository],
   );

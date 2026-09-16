@@ -13,7 +13,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 async function renderHomeScreen(navigate: jest.Mock = jest.fn()) {
   return render(
-    <ChecklistsProvider>
+    <ChecklistsProvider repository={new AsyncStorageChecklistRepository()}>
       <HomeScreen navigation={{ navigate } as any} route={{} as any} />
     </ChecklistsProvider>,
   );
