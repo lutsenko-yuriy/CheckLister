@@ -1,0 +1,12 @@
+# Tool provider configuration — edit [providers] to switch tools without changing skill files.
+# Add a [<provider_name>] table below for any provider that needs project-specific settings.
+
+[providers]
+pm  = "github_issues"
+vcs = "github"
+
+[llm]
+lmstudio_base = "http://localhost:1234/v1"
+
+[core]
+model_tiers_path = "docs/MODEL_TIERS.md"
