@@ -1,4 +1,4 @@
-import {generateId} from '../../../shared/ids';
+import { generateId } from '../../../shared/ids';
 
 export interface Item {
   id: string;

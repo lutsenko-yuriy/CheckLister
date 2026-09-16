@@ -6,9 +6,9 @@ import React, {
   useMemo,
   useReducer,
 } from 'react';
-import {AsyncStorageChecklistRepository} from './data/asyncStorageChecklistRepository';
-import {ChecklistRepository} from './domain/checklistRepository';
-import {Checklist, createChecklist as buildChecklist} from './domain/models';
+import { AsyncStorageChecklistRepository } from './data/asyncStorageChecklistRepository';
+import { ChecklistRepository } from './domain/checklistRepository';
+import { Checklist, createChecklist as buildChecklist } from './domain/models';
 
 interface State {
   checklists: Checklist[];
@@ -16,15 +16,15 @@ interface State {
 }
 
 type Action =
-  | {type: 'LOADED'; checklists: Checklist[]}
-  | {type: 'SET'; checklists: Checklist[]};
+  | { type: 'LOADED'; checklists: Checklist[] }
+  | { type: 'SET'; checklists: Checklist[] };
 
 function reducer(state: State, action: Action): State {
   switch (action.type) {
     case 'LOADED':
-      return {checklists: action.checklists, loading: false};
+      return { checklists: action.checklists, loading: false };
     case 'SET':
-      return {...state, checklists: action.checklists};
+      return { ...state, checklists: action.checklists };
     default:
       return state;
   }
@@ -56,7 +56,7 @@ export function ChecklistsProvider({
     let cancelled = false;
     repository.getAll().then(checklists => {
       if (!cancelled) {
-        dispatch({type: 'LOADED', checklists});
+        dispatch({ type: 'LOADED', checklists });
       }
     });
     return () => {
@@ -66,7 +66,7 @@ export function ChecklistsProvider({
 
   const persist = useCallback(
     (checklists: Checklist[]) => {
-      dispatch({type: 'SET', checklists});
+      dispatch({ type: 'SET', checklists });
       repository.saveAll(checklists);
     },
     [repository],
@@ -83,7 +83,7 @@ export function ChecklistsProvider({
     (id: string, title: string) => {
       persist(
         state.checklists.map(checklist =>
-          checklist.id === id ? {...checklist, title} : checklist,
+          checklist.id === id ? { ...checklist, title } : checklist,
         ),
       );
     },

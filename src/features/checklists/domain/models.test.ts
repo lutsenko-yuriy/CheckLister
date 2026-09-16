@@ -1,4 +1,4 @@
-import {createChecklist, countUnchecked} from './models';
+import { createChecklist, countUnchecked } from './models';
 
 describe('createChecklist', () => {
   it('creates a checklist with the given title and no items', () => {
@@ -24,9 +24,9 @@ describe('countUnchecked', () => {
     const checklist = {
       ...createChecklist('Groceries'),
       items: [
-        {id: '1', text: 'Milk', checked: true},
-        {id: '2', text: 'Eggs', checked: false},
-        {id: '3', text: 'Bread', checked: false},
+        { id: '1', text: 'Milk', checked: true },
+        { id: '2', text: 'Eggs', checked: false },
+        { id: '3', text: 'Bread', checked: false },
       ],
     };
     expect(countUnchecked(checklist)).toBe(2);

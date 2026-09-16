@@ -1,10 +1,10 @@
 import React from 'react';
-import {renderHook, act, waitFor} from '@testing-library/react-native';
+import { renderHook, act, waitFor } from '@testing-library/react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {ChecklistsProvider, useChecklists} from './useChecklists';
-import {AsyncStorageChecklistRepository} from './data/asyncStorageChecklistRepository';
+import { ChecklistsProvider, useChecklists } from './useChecklists';
+import { AsyncStorageChecklistRepository } from './data/asyncStorageChecklistRepository';
 
-function wrapper({children}: {children: React.ReactNode}) {
+function wrapper({ children }: { children: React.ReactNode }) {
   return <ChecklistsProvider>{children}</ChecklistsProvider>;
 }
 
@@ -15,16 +15,16 @@ describe('useChecklists', () => {
 
   it('loads persisted checklists on mount', async () => {
     const repo = new AsyncStorageChecklistRepository();
-    await repo.saveAll([{id: '1', title: 'Groceries', items: []}]);
+    await repo.saveAll([{ id: '1', title: 'Groceries', items: [] }]);
 
-    const {result} = await renderHook(() => useChecklists(), {wrapper});
+    const { result } = await renderHook(() => useChecklists(), { wrapper });
 
     await waitFor(() => expect(result.current.checklists).toHaveLength(1));
     expect(result.current.checklists[0].title).toBe('Groceries');
   });
 
   it('creates a checklist and persists it', async () => {
-    const {result} = await renderHook(() => useChecklists(), {wrapper});
+    const { result } = await renderHook(() => useChecklists(), { wrapper });
     await waitFor(() => expect(result.current.loading).toBe(false));
 
     await act(async () => {
@@ -41,8 +41,8 @@ describe('useChecklists', () => {
 
   it('renames a checklist and persists the change', async () => {
     const repo = new AsyncStorageChecklistRepository();
-    await repo.saveAll([{id: '1', title: 'Old title', items: []}]);
-    const {result} = await renderHook(() => useChecklists(), {wrapper});
+    await repo.saveAll([{ id: '1', title: 'Old title', items: [] }]);
+    const { result } = await renderHook(() => useChecklists(), { wrapper });
     await waitFor(() => expect(result.current.checklists).toHaveLength(1));
 
     await act(async () => {
@@ -58,8 +58,8 @@ describe('useChecklists', () => {
 
   it('deletes a checklist and persists the change', async () => {
     const repo = new AsyncStorageChecklistRepository();
-    await repo.saveAll([{id: '1', title: 'Groceries', items: []}]);
-    const {result} = await renderHook(() => useChecklists(), {wrapper});
+    await repo.saveAll([{ id: '1', title: 'Groceries', items: [] }]);
+    const { result } = await renderHook(() => useChecklists(), { wrapper });
     await waitFor(() => expect(result.current.checklists).toHaveLength(1));
 
     await act(async () => {

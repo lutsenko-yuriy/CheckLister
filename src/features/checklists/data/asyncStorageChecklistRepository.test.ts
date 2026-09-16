@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {createChecklist} from '../domain/models';
-import {AsyncStorageChecklistRepository} from './asyncStorageChecklistRepository';
+import { createChecklist } from '../domain/models';
+import { AsyncStorageChecklistRepository } from './asyncStorageChecklistRepository';
 
 describe('AsyncStorageChecklistRepository', () => {
   afterEach(async () => {
@@ -14,7 +14,10 @@ describe('AsyncStorageChecklistRepository', () => {
 
   it('round-trips checklists through saveAll and getAll', async () => {
     const repo = new AsyncStorageChecklistRepository();
-    const checklists = [createChecklist('Groceries'), createChecklist('Packing')];
+    const checklists = [
+      createChecklist('Groceries'),
+      createChecklist('Packing'),
+    ];
 
     await repo.saveAll(checklists);
 

@@ -1,5 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {getJson, setJson} from './jsonStorage';
+import { getJson, setJson } from './jsonStorage';
 
 describe('jsonStorage', () => {
   afterEach(async () => {
@@ -12,9 +12,9 @@ describe('jsonStorage', () => {
   });
 
   it('round-trips a value through set and get', async () => {
-    await setJson('key', {a: 1, b: [2, 3]});
+    await setJson('key', { a: 1, b: [2, 3] });
     const value = await getJson('key', null);
-    expect(value).toEqual({a: 1, b: [2, 3]});
+    expect(value).toEqual({ a: 1, b: [2, 3] });
   });
 
   it('returns the fallback when stored JSON is corrupt', async () => {

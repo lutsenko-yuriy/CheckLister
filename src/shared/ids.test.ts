@@ -1,4 +1,4 @@
-import {generateId} from './ids';
+import { generateId } from './ids';
 
 describe('generateId', () => {
   it('returns a non-empty string', () => {
@@ -7,7 +7,7 @@ describe('generateId', () => {
   });
 
   it('returns a different value on each call', () => {
-    const ids = new Set(Array.from({length: 100}, () => generateId()));
+    const ids = new Set(Array.from({ length: 100 }, () => generateId()));
     expect(ids.size).toBe(100);
   });
 });

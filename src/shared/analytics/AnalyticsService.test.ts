@@ -1,9 +1,9 @@
-import {NoopAnalyticsService} from './AnalyticsService';
+import { NoopAnalyticsService } from './AnalyticsService';
 
 describe('NoopAnalyticsService', () => {
   it('does nothing on logEvent', () => {
     expect(() =>
-      new NoopAnalyticsService().logEvent('any_event', {foo: 'bar'}),
+      new NoopAnalyticsService().logEvent('any_event', { foo: 'bar' }),
     ).not.toThrow();
   });
 

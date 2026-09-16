@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import {
   Alert,
   FlatList,
@@ -8,15 +8,15 @@ import {
   TextInput,
   View,
 } from 'react-native';
-import type {NativeStackScreenProps} from '@react-navigation/native-stack';
-import {RootStackParamList} from '../../../navigation/types';
-import {useChecklists} from '../useChecklists';
-import {Checklist, countUnchecked} from '../domain/models';
+import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { RootStackParamList } from '../../../navigation/types';
+import { useChecklists } from '../useChecklists';
+import { Checklist, countUnchecked } from '../domain/models';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Home'>;
 
-export function HomeScreen({navigation}: Props) {
-  const {checklists, createChecklist} = useChecklists();
+export function HomeScreen({ navigation }: Props) {
+  const { checklists, createChecklist } = useChecklists();
   const [newTitle, setNewTitle] = useState('');
 
   const handleAdd = () => {
@@ -50,11 +50,11 @@ export function HomeScreen({navigation}: Props) {
         <FlatList
           data={checklists}
           keyExtractor={item => item.id}
-          renderItem={({item}) => (
+          renderItem={({ item }) => (
             <ChecklistRow
               checklist={item}
               onOpen={() =>
-                navigation.navigate('ChecklistDetail', {checklistId: item.id})
+                navigation.navigate('ChecklistDetail', { checklistId: item.id })
               }
             />
           )}
@@ -71,7 +71,7 @@ function ChecklistRow({
   checklist: Checklist;
   onOpen: () => void;
 }) {
-  const {renameChecklist, deleteChecklist} = useChecklists();
+  const { renameChecklist, deleteChecklist } = useChecklists();
   const [isEditing, setIsEditing] = useState(false);
   const [draftTitle, setDraftTitle] = useState(checklist.title);
 
@@ -93,7 +93,7 @@ function ChecklistRow({
       'Delete checklist?',
       'This will delete all of its items. This cannot be undone.',
       [
-        {text: 'Cancel', style: 'cancel'},
+        { text: 'Cancel', style: 'cancel' },
         {
           text: 'Delete',
           style: 'destructive',
@@ -117,7 +117,8 @@ function ChecklistRow({
         </Pressable>
         <Pressable
           onPress={() => setIsEditing(false)}
-          style={styles.actionButton}>
+          style={styles.actionButton}
+        >
           <Text>Cancel</Text>
         </Pressable>
       </View>

@@ -1,4 +1,4 @@
-import {Checklist} from './models';
+import { Checklist } from './models';
 
 export interface ChecklistRepository {
   getAll(): Promise<Checklist[]>;
