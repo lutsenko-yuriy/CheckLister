@@ -50,6 +50,8 @@ behaviour beyond a literal value, it is not trivial — use the full workflow in
       Invoke the plan skill for N/A-XX: <issue title>
       ```
       Produces a structured plan (dependencies, models, UI changes, test strategy, ordered phases, work units).
+
+      If the user asks to skip straight to implementation but the ticket meets this gate's criteria (multiple files, new domain entities, new dependencies, or architectural shifts), confirm once whether to skip planning anyway before proceeding — don't skip it silently just because implementation was requested directly.
    4. **Feature toggle.** For features introducing new user-facing behaviour: consider a remote-config-style kill-switch (default on) so the feature can be disabled without a release if a critical regression surfaces after shipping. If added, document it before writing any code.
    5. **Create the feature branch** from the latest default branch, before writing any code. Always include the ticket number after `feature/`:
       ```

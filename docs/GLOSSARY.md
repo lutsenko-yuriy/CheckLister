@@ -20,3 +20,10 @@ When a new term is introduced during a `brief` session, add it here before creat
 | commitment | pact |
 
 -->
+
+## Core concepts
+
+| Term | Definition | Code symbol |
+|---|---|---|
+| Checklist | A named list of items the user creates and manages (e.g. "Groceries") | `Checklist` |
+| Item | A single line entry within a checklist that can be checked off | `Item` |
