@@ -37,6 +37,9 @@ export function ChecklistDetailScreen({ navigation, route }: Props) {
         item_count: checklist.items.length,
       });
     }
+    // Deliberately keyed on checklist id only: this should fire once per
+    // screen visit, not re-fire every time item_count changes from a
+    // mutation on this same screen.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [checklist?.id]);
 
