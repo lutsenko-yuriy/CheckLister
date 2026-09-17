@@ -51,6 +51,27 @@ describe('AsyncStorageChecklistRepository', () => {
     expect(checklist.items[0].sectionId).toBeNull();
   });
 
+  it('clears a sectionId that references a section no longer present', async () => {
+    await AsyncStorage.setItem(
+      'checklists',
+      JSON.stringify([
+        {
+          id: '1',
+          title: 'Groceries',
+          sections: [],
+          items: [
+            { id: 'a', text: 'Milk', checked: false, sectionId: 'ghost' },
+          ],
+        },
+      ]),
+    );
+
+    const repo = new AsyncStorageChecklistRepository();
+    const [checklist] = await repo.getAll();
+
+    expect(checklist.items[0].sectionId).toBeNull();
+  });
+
   it('normalizes item order to the canonical section order on read', async () => {
     await AsyncStorage.setItem(
       'checklists',

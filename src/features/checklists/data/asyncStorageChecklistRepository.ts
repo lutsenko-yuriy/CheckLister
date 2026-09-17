@@ -5,15 +5,18 @@ import { Checklist, Item, normalizeChecklist } from '../domain/models';
 const STORAGE_KEY = 'checklists';
 
 function migrateChecklist(stored: Checklist): Checklist {
+  const sections = stored.sections ?? [];
+  const validSectionIds = new Set(sections.map(s => s.id));
   const items: Item[] = stored.items.map(item => ({
     ...item,
-    sectionId: item.sectionId ?? null,
+    sectionId:
+      item.sectionId !== null &&
+      item.sectionId !== undefined &&
+      validSectionIds.has(item.sectionId)
+        ? item.sectionId
+        : null,
   }));
-  return normalizeChecklist({
-    ...stored,
-    sections: stored.sections ?? [],
-    items,
-  });
+  return normalizeChecklist({ ...stored, sections, items });
 }
 
 export class AsyncStorageChecklistRepository implements ChecklistRepository {
