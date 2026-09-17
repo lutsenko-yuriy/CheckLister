@@ -12,7 +12,7 @@ import { colors } from '../shared/theme/colors';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
-function FlatBackButton(_props: NativeStackHeaderLeftProps) {
+function FlatBackButton(_props?: NativeStackHeaderLeftProps) {
   const navigation = useNavigation();
   return (
     <IconButton
@@ -42,7 +42,16 @@ export function RootNavigator() {
       <Stack.Screen
         name="ChecklistDetail"
         component={ChecklistDetailScreen}
-        options={{ headerLeft: FlatBackButton }}
+        options={{
+          headerLeft: FlatBackButton,
+          // iOS 26 gives header bar buttons a "Liquid Glass" pill background
+          // by default; hidesSharedBackground turns that off so the back
+          // button stays flat as CheL-14 requires. `headerLeft` alone
+          // handles Android and pre-26 iOS, where no such background exists.
+          unstable_headerLeftItems: () => [
+            { type: 'custom', element: <FlatBackButton />, hidesSharedBackground: true },
+          ],
+        }}
       />
     </Stack.Navigator>
   );
