@@ -2,9 +2,11 @@
 //
 // Real drag gestures aren't unit-testable; the ordering logic they trigger
 // lives in pure domain helpers instead (see domain/models.ts). This mock
-// renders rows in plain Views and exposes drag completion as an `onDrop`
-// prop on a testID-addressable host view per row, so screen tests can
-// drive it with `fireEvent(getByTestId('sortable-item-<id>'), 'drop', { to })`.
+// renders rows in plain Views and exposes drag start/completion as
+// `onDragStart`/`onDrop` props on a testID-addressable host view per row, so
+// screen tests can drive it with
+// `fireEvent(getByTestId('sortable-item-<id>'), 'dragStart')` and
+// `fireEvent(getByTestId('sortable-item-<id>'), 'drop', { to })`.
 //
 // `currentOrder` is module-level state populated by the most recent
 // `Sortable` render — safe because tests run one render pass at a time and
@@ -40,7 +42,12 @@ function Sortable({ data, renderItem, itemKeyExtractor = item => item.id }) {
   );
 }
 
-function SortableItem({ id, onDrop, children, style }) {
+function SortableItem({ id, onDragStart, onDrop, children, style }) {
+  const handleDragStart = () => {
+    const position = currentOrder.indexOf(id);
+    onDragStart?.(id, position);
+  };
+
   const handleDrop = ({ to }) => {
     const from = currentOrder.indexOf(id);
     if (from === -1 || to === from) {
@@ -57,7 +64,12 @@ function SortableItem({ id, onDrop, children, style }) {
 
   return React.createElement(
     View,
-    { testID: `sortable-item-${id}`, onDrop: handleDrop, style },
+    {
+      testID: `sortable-item-${id}`,
+      onDragStart: handleDragStart,
+      onDrop: handleDrop,
+      style,
+    },
     children,
   );
 }

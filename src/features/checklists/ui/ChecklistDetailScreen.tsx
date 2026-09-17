@@ -23,6 +23,8 @@ import {
   SectionHeader,
   SECTION_HEADER_HEIGHT,
 } from './components/SectionHeader';
+import { IconButton } from '../../../shared/ui/IconButton';
+import { colors } from '../../../shared/theme/colors';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'ChecklistDetail'>;
 
@@ -52,6 +54,7 @@ export function ChecklistDetailScreen({ navigation, route }: Props) {
   );
   const [isAddingSection, setIsAddingSection] = useState(false);
   const [newSectionName, setNewSectionName] = useState('');
+  const [draggedRowId, setDraggedRowId] = useState<string | null>(null);
 
   useLayoutEffect(() => {
     navigation.setOptions({ title: checklist?.title ?? 'Checklist' });
@@ -122,11 +125,16 @@ export function ChecklistDetailScreen({ navigation, route }: Props) {
     }
   };
 
+  const handleDragStart = (id: string) => {
+    setDraggedRowId(id);
+  };
+
   const handleDrop = (
     id: string,
     _position: number,
     allPositions?: { [rowId: string]: number },
   ) => {
+    setDraggedRowId(null);
     if (!allPositions) {
       return;
     }
@@ -216,9 +224,12 @@ export function ChecklistDetailScreen({ navigation, route }: Props) {
           onSubmitEditing={handleAdd}
           returnKeyType="done"
         />
-        <Pressable onPress={handleAdd} style={styles.addButton}>
-          <Text style={styles.addButtonText}>Add</Text>
-        </Pressable>
+        <IconButton
+          icon="add"
+          accessibilityLabel="Add"
+          onPress={handleAdd}
+          style={styles.addButton}
+        />
       </View>
 
       {isAddingSection ? (
@@ -232,26 +243,29 @@ export function ChecklistDetailScreen({ navigation, route }: Props) {
             returnKeyType="done"
             autoFocus
           />
-          <Pressable onPress={handleAddSection} style={styles.addButton}>
-            <Text style={styles.addButtonText}>Save</Text>
-          </Pressable>
-          <Pressable
+          <IconButton
+            icon="check"
+            accessibilityLabel="Save"
+            onPress={handleAddSection}
+            style={styles.addButton}
+          />
+          <IconButton
+            icon="close"
+            accessibilityLabel="Cancel"
             onPress={() => {
               setNewSectionName('');
               setIsAddingSection(false);
             }}
             style={styles.addButton}
-          >
-            <Text>Cancel</Text>
-          </Pressable>
+          />
         </View>
       ) : (
-        <Pressable
+        <IconButton
+          icon="create-new-folder"
+          accessibilityLabel="New section"
           onPress={() => setIsAddingSection(true)}
           style={styles.newSectionButton}
-        >
-          <Text style={styles.newSectionButtonText}>+ New section</Text>
-        </Pressable>
+        />
       )}
 
       {checklist.items.length === 0 && !hasSections ? (
@@ -287,6 +301,7 @@ export function ChecklistDetailScreen({ navigation, route }: Props) {
                 autoScrollDirection={autoScrollDirection}
                 itemsCount={itemsCount}
                 itemHeight={itemHeight}
+                onDragStart={handleDragStart}
                 onDrop={handleDrop}
               >
                 {row.kind === 'section' ? (
@@ -298,6 +313,7 @@ export function ChecklistDetailScreen({ navigation, route }: Props) {
                       }
                     }}
                     dragHandle={dragHandle}
+                    isDragging={id === draggedRowId}
                   />
                 ) : (
                   <ItemRow
@@ -310,6 +326,7 @@ export function ChecklistDetailScreen({ navigation, route }: Props) {
                     }}
                     onDelete={() => handleDelete(row.item.id)}
                     dragHandle={dragHandle}
+                    isDragging={id === draggedRowId}
                   />
                 )}
               </SortableItem>
@@ -349,11 +366,13 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 16,
+    backgroundColor: colors.background,
   },
   title: {
     fontSize: 20,
     fontWeight: '600',
     marginBottom: 16,
+    color: colors.text,
   },
   chipRow: {
     flexDirection: 'row',
@@ -361,21 +380,21 @@ const styles = StyleSheet.create({
   },
   chip: {
     borderWidth: 1,
-    borderColor: '#ccc',
+    borderColor: colors.border,
     borderRadius: 16,
     paddingHorizontal: 12,
     paddingVertical: 6,
     marginRight: 8,
   },
   chipSelected: {
-    backgroundColor: '#333',
-    borderColor: '#333',
+    backgroundColor: colors.primary,
+    borderColor: colors.primary,
   },
   chipText: {
-    color: '#333',
+    color: colors.text,
   },
   chipTextSelected: {
-    color: '#fff',
+    color: colors.onPrimary,
   },
   addRow: {
     flexDirection: 'row',
@@ -384,31 +403,26 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     borderWidth: 1,
-    borderColor: '#ccc',
+    borderColor: colors.border,
     borderRadius: 6,
     paddingHorizontal: 10,
     paddingVertical: 8,
+    backgroundColor: colors.surface,
+    color: colors.text,
   },
   addButton: {
     marginLeft: 8,
     justifyContent: 'center',
     paddingHorizontal: 14,
   },
-  addButtonText: {
-    fontWeight: '600',
-  },
   newSectionButton: {
     alignSelf: 'flex-start',
     marginBottom: 8,
   },
-  newSectionButtonText: {
-    color: '#333',
-    fontWeight: '600',
-  },
   emptyState: {
     textAlign: 'center',
     marginTop: 32,
-    color: '#666',
+    color: colors.textMuted,
   },
   dragHandle: {
     marginRight: 12,

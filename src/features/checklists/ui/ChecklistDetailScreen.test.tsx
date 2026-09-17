@@ -10,6 +10,7 @@ import { AsyncStorageChecklistRepository } from '../data/asyncStorageChecklistRe
 import { ChecklistDetailScreen } from './ChecklistDetailScreen';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Alert } from 'react-native';
+import { colors } from '../../../shared/theme/colors';
 
 async function renderDetailScreen(checklistId: string) {
   return render(
@@ -57,7 +58,7 @@ describe('ChecklistDetailScreen', () => {
     await waitFor(() => screen.getByPlaceholderText('New item'));
 
     await fireEvent.changeText(screen.getByPlaceholderText('New item'), 'Milk');
-    await fireEvent.press(screen.getByText('Add'));
+    await fireEvent.press(screen.getByLabelText('Add'));
 
     await waitFor(() => expect(screen.getByText('Milk')).toBeTruthy());
     expect(screen.getByPlaceholderText('New item').props.value).toBe('');
@@ -77,9 +78,9 @@ describe('ChecklistDetailScreen', () => {
     await renderDetailScreen('1');
     await waitFor(() => screen.getByText('Milk'));
 
-    await fireEvent.press(screen.getByText('Edit'));
+    await fireEvent.press(screen.getByLabelText('Edit'));
     await fireEvent.changeText(screen.getByDisplayValue('Milk'), 'Oat milk');
-    await fireEvent.press(screen.getByText('Save'));
+    await fireEvent.press(screen.getByLabelText('Save'));
 
     await waitFor(() => expect(screen.getByText('Oat milk')).toBeTruthy());
     expect((await repo.getAll())[0].items[0].text).toBe('Oat milk');
@@ -99,7 +100,7 @@ describe('ChecklistDetailScreen', () => {
     await renderDetailScreen('1');
     await waitFor(() => screen.getByText('Milk'));
 
-    await fireEvent.press(screen.getByText('Delete'));
+    await fireEvent.press(screen.getByLabelText('Delete'));
 
     await waitFor(() => expect(screen.queryByText('Milk')).toBeNull());
     expect((await repo.getAll())[0].items).toHaveLength(0);
@@ -117,14 +118,14 @@ describe('ChecklistDetailScreen', () => {
     ]);
 
     await renderDetailScreen('1');
-    await waitFor(() => screen.getByText('+ New section'));
+    await waitFor(() => screen.getByLabelText('New section'));
 
-    await fireEvent.press(screen.getByText('+ New section'));
+    await fireEvent.press(screen.getByLabelText('New section'));
     await fireEvent.changeText(
       screen.getByPlaceholderText('Section name'),
       'Produce',
     );
-    await fireEvent.press(screen.getByText('Save'));
+    await fireEvent.press(screen.getByLabelText('Save'));
 
     await waitFor(() =>
       expect(screen.getAllByText('Produce').length).toBeGreaterThan(0),
@@ -150,7 +151,7 @@ describe('ChecklistDetailScreen', () => {
       'Apple',
     );
     await fireEvent.press(screen.getByTestId('section-chip-produce'));
-    await fireEvent.press(screen.getByText('Add'));
+    await fireEvent.press(screen.getByLabelText('Add'));
 
     await waitFor(() => expect(screen.getByText('Apple')).toBeTruthy());
     expect((await repo.getAll())[0].items[0].sectionId).toBe('produce');
@@ -167,7 +168,7 @@ describe('ChecklistDetailScreen', () => {
     await waitFor(() => screen.getByText('No section'));
 
     await fireEvent.changeText(screen.getByPlaceholderText('New item'), 'Milk');
-    await fireEvent.press(screen.getByText('Add'));
+    await fireEvent.press(screen.getByLabelText('Add'));
 
     await waitFor(() => expect(screen.getByText('Milk')).toBeTruthy());
     expect((await repo.getAll())[0].items[0].sectionId).toBeNull();
@@ -220,13 +221,52 @@ describe('ChecklistDetailScreen', () => {
   });
 
   it('dragged item row shows an opaque, elevated style while active and reverts after drop', async () => {
-    // TODO: Seed a checklist with two items ("A", "B") and render ChecklistDetailScreen.
-    // TODO: Fire a `dragStart` event on `sortable-item-item:a` (mock's onDragStart prop).
-    // TODO: Assert the row's rendered style includes the opaque backgroundColor (colors.surface)
-    //       and the lift shadow/elevation properties.
-    // TODO: Fire `drop` on the same testID.
-    // TODO: Assert the row's style still has the opaque background but no longer includes
-    //       the lift shadow/elevation (back to resting state).
+    const repo = new AsyncStorageChecklistRepository();
+    await repo.saveAll([
+      {
+        id: '1',
+        title: 'Groceries',
+        items: [
+          { id: 'a', text: 'A', sectionId: null },
+          { id: 'b', text: 'B', sectionId: null },
+        ],
+        sections: [],
+      },
+    ]);
+
+    await renderDetailScreen('1');
+    await waitFor(() => screen.getByText('A'));
+
+    const row = screen.getByTestId('sortable-item-item:a');
+    const rowContent = () => (row.children[0] as any).props.style;
+
+    expect(rowContent()).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ backgroundColor: colors.surface }),
+      ]),
+    );
+
+    await fireEvent(row, 'dragStart');
+
+    expect(rowContent()).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ backgroundColor: colors.surface }),
+        expect.objectContaining({ elevation: expect.any(Number) }),
+      ]),
+    );
+
+    await fireEvent(row, 'drop', { to: 1 });
+
+    expect(rowContent()).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ backgroundColor: colors.surface }),
+      ]),
+    );
+    expect(rowContent()).not.toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ elevation: expect.any(Number) }),
+      ]),
+    );
   });
 
   it('moves an item to a different section via drag', async () => {
