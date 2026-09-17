@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
-import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { StyleSheet, Text, TextInput, View } from 'react-native';
 import { Item } from '../../domain/models';
+import { IconButton } from '../../../../shared/ui/IconButton';
+import { colors } from '../../../../shared/theme/colors';
 
 // ChecklistDetailScreen's Sortable list positions rows using this fixed
 // height, so the row's actual rendered height must never exceed it —
@@ -12,11 +14,13 @@ export function ItemRow({
   onEdit,
   onDelete,
   dragHandle,
+  isDragging = false,
 }: {
   item: Item;
   onEdit: (text: string) => void;
   onDelete: () => void;
   dragHandle: React.ReactNode;
+  isDragging?: boolean;
 }) {
   const [isEditing, setIsEditing] = useState(false);
   const [draftText, setDraftText] = useState(item.text);
@@ -36,40 +40,50 @@ export function ItemRow({
 
   if (isEditing) {
     return (
-      <View style={styles.row}>
+      <View style={[styles.row, isDragging && styles.rowDragging]}>
         <TextInput
           style={styles.input}
           value={draftText}
           onChangeText={setDraftText}
           autoFocus
         />
-        <Pressable onPress={save} style={styles.actionButton}>
-          <Text>Save</Text>
-        </Pressable>
-        <Pressable
+        <IconButton
+          icon="check"
+          accessibilityLabel="Save"
+          onPress={save}
+          style={styles.actionButton}
+        />
+        <IconButton
+          icon="close"
+          accessibilityLabel="Cancel"
           onPress={() => setIsEditing(false)}
           style={styles.actionButton}
-        >
-          <Text>Cancel</Text>
-        </Pressable>
+        />
       </View>
     );
   }
 
   return (
-    <View style={styles.row}>
+    <View style={[styles.row, isDragging && styles.rowDragging]}>
       {dragHandle}
       <View style={styles.rowBody}>
         <Text style={styles.itemText} numberOfLines={1}>
           {item.text}
         </Text>
       </View>
-      <Pressable onPress={startEditing} style={styles.actionButton}>
-        <Text>Edit</Text>
-      </Pressable>
-      <Pressable onPress={onDelete} style={styles.actionButton}>
-        <Text>Delete</Text>
-      </Pressable>
+      <IconButton
+        icon="edit"
+        accessibilityLabel="Edit"
+        onPress={startEditing}
+        style={styles.actionButton}
+      />
+      <IconButton
+        icon="delete"
+        accessibilityLabel="Delete"
+        onPress={onDelete}
+        color={colors.danger}
+        style={styles.actionButton}
+      />
     </View>
   );
 }
@@ -79,8 +93,17 @@ const styles = StyleSheet.create({
     height: ITEM_ROW_HEIGHT,
     flexDirection: 'row',
     alignItems: 'center',
+    paddingHorizontal: 4,
+    backgroundColor: colors.surface,
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: '#ccc',
+    borderBottomColor: colors.border,
+  },
+  rowDragging: {
+    shadowColor: colors.dragLift,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 1,
+    shadowRadius: 8,
+    elevation: 6,
   },
   rowBody: {
     flex: 1,
@@ -88,13 +111,16 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     borderWidth: 1,
-    borderColor: '#ccc',
+    borderColor: colors.border,
     borderRadius: 6,
     paddingHorizontal: 10,
     paddingVertical: 8,
+    backgroundColor: colors.background,
+    color: colors.text,
   },
   itemText: {
     fontSize: 16,
+    color: colors.text,
   },
   actionButton: {
     marginLeft: 12,
