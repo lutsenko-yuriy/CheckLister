@@ -21,7 +21,10 @@ function migrateChecklist(stored: Checklist): Checklist {
     /* eslint-enable @typescript-eslint/no-unused-vars */
     return rest;
   });
-  return { ...stored, items };
+  // Rebuild explicitly (rather than `{ ...stored, items }`) so a stray
+  // `sections` field from a pre-CheL-20 stored checklist does not ride
+  // along indefinitely.
+  return { id: stored.id, title: stored.title, items };
 }
 
 export class AsyncStorageChecklistRepository implements ChecklistRepository {
