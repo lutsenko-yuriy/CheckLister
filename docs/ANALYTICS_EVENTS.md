@@ -65,6 +65,37 @@ Fired when the user drags an item into a new position within a checklist (drop c
 | `from_index` | `number` | Item's index before the move |
 | `to_index` | `number` | Item's index after the move |
 
+<!-- Added for CheL-4: Checklist runs -->
+
+### `run_started`
+
+Fired when the user starts a new run from a checklist.
+
+| Property | Type | Description |
+|---|---|---|
+| `checklist_id` | `string` | The checklist the run was started from |
+| `item_count` | `number` | Number of items snapshotted into the run |
+
+### `run_item_toggled`
+
+Fired when the user checks or unchecks an item within a run.
+
+| Property | Type | Description |
+|---|---|---|
+| `checklist_id` | `string` | The checklist the run belongs to |
+| `checked` | `boolean` | Whether the item is now checked (`true`) or unchecked (`false`) |
+| `checked_count` | `number` | Number of items checked in the run after this toggle |
+| `item_count` | `number` | Total number of items in the run |
+
+### `run_completed`
+
+Fired when the user presses "Complete the checklist" (only possible once every item in the run is checked).
+
+| Property | Type | Description |
+|---|---|---|
+| `checklist_id` | `string` | The checklist the run belongs to |
+| `item_count` | `number` | Total number of items in the completed run |
+
 ---
 
 ## Screen Views
@@ -77,8 +108,9 @@ Fired when the user drags an item into a new position within a checklist (drop c
 | `screen_name` | When the screen opens |
 -->
 
-<!-- Added for N/A-2: Checklist items -->
+<!-- Added for N/A-2: Checklist items; screen_checklist_run row added for CheL-4 -->
 
 | Screen name | When tracked |
 |---|---|
 | `screen_checklist_detail` | When `ChecklistDetailScreen` mounts for a valid checklist, with `item_count: number` |
+| `screen_checklist_run` | When the run screen mounts, with `checklist_id: string`, `item_count: number` |

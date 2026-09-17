@@ -46,10 +46,12 @@ checklist belongs to the person using the device.
   exactly as in Feature 2, but scoped to that run only.
 - The run screen has a "Complete the checklist" button. It is only enabled
   once every item in the run is checked off.
-- A run cannot be left unfinished: the only way off the run screen is
-  pressing "Complete the checklist" once all items are checked. There is no
-  paused or resumable in-progress state — a run is either being actively
-  worked on or it is completed.
+- Leaving the run screen before completion (back button or gesture) prompts
+  an "Are you sure?" confirmation. Confirming discards the run entirely and
+  returns to the checklist; cancelling keeps the user on the run screen with
+  their progress intact. There is no paused or resumable in-progress state —
+  a discarded run cannot be recovered, and a run is otherwise either being
+  actively worked on or it is completed.
 
 ### Feature 5 — Checklist run history
 - The user must be able to view a history of all completed checklist runs,
