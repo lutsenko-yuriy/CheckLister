@@ -266,6 +266,149 @@ describe('useChecklists', () => {
     expect((await repo.getAll())[0].items).toHaveLength(1);
   });
 
+  it('adds an item to a given section', async () => {
+    const repo = new AsyncStorageChecklistRepository();
+    await repo.saveAll([
+      {
+        id: '1',
+        title: 'Groceries',
+        items: [],
+        sections: [{ id: 's1', name: 'Produce' }],
+      },
+    ]);
+    const { result } = await renderHook(() => useChecklists(), {
+      wrapper: makeWrapper(repo),
+    });
+    await waitFor(() => expect(result.current.checklists).toHaveLength(1));
+
+    await act(async () => {
+      result.current.addItem('1', 'Apple', 's1');
+    });
+
+    await waitFor(() =>
+      expect(result.current.checklists[0].items).toHaveLength(1),
+    );
+    expect(result.current.checklists[0].items[0]).toMatchObject({
+      text: 'Apple',
+      sectionId: 's1',
+    });
+  });
+
+  it('adds a section and persists it', async () => {
+    const repo = new AsyncStorageChecklistRepository();
+    await repo.saveAll([{ id: '1', title: 'Groceries', items: [], sections: [] }]);
+    const { result } = await renderHook(() => useChecklists(), {
+      wrapper: makeWrapper(repo),
+    });
+    await waitFor(() => expect(result.current.checklists).toHaveLength(1));
+
+    await act(async () => {
+      result.current.addSection('1', 'Produce');
+    });
+
+    await waitFor(() =>
+      expect(result.current.checklists[0].sections).toHaveLength(1),
+    );
+    expect(result.current.checklists[0].sections[0].name).toBe('Produce');
+    const persisted = await repo.getAll();
+    expect(persisted[0].sections[0].name).toBe('Produce');
+  });
+
+  it('deletes a section and falls its items back to the default section', async () => {
+    const repo = new AsyncStorageChecklistRepository();
+    await repo.saveAll([
+      {
+        id: '1',
+        title: 'Groceries',
+        sections: [{ id: 's1', name: 'Produce' }],
+        items: [{ id: 'a', text: 'Apple', checked: false, sectionId: 's1' }],
+      },
+    ]);
+    const { result } = await renderHook(() => useChecklists(), {
+      wrapper: makeWrapper(repo),
+    });
+    await waitFor(() => expect(result.current.checklists).toHaveLength(1));
+
+    await act(async () => {
+      result.current.deleteSection('1', 's1');
+    });
+
+    await waitFor(() =>
+      expect(result.current.checklists[0].sections).toHaveLength(0),
+    );
+    expect(result.current.checklists[0].items[0].sectionId).toBeNull();
+    const persisted = await repo.getAll();
+    expect(persisted[0].sections).toHaveLength(0);
+    expect(persisted[0].items[0].sectionId).toBeNull();
+  });
+
+  it('moves an item within a checklist and persists the new order', async () => {
+    const repo = new AsyncStorageChecklistRepository();
+    await repo.saveAll([
+      {
+        id: '1',
+        title: 'Groceries',
+        sections: [],
+        items: [
+          { id: 'a', text: 'A', checked: false, sectionId: null },
+          { id: 'b', text: 'B', checked: false, sectionId: null },
+        ],
+      },
+    ]);
+    const { result } = await renderHook(() => useChecklists(), {
+      wrapper: makeWrapper(repo),
+    });
+    await waitFor(() => expect(result.current.checklists).toHaveLength(1));
+
+    await act(async () => {
+      result.current.moveItem('1', 'a', null, 1);
+    });
+
+    await waitFor(() =>
+      expect(result.current.checklists[0].items.map(i => i.id)).toEqual([
+        'b',
+        'a',
+      ]),
+    );
+    const persisted = await repo.getAll();
+    expect(persisted[0].items.map(i => i.id)).toEqual(['b', 'a']);
+  });
+
+  it('moves a section within a checklist and persists the new order', async () => {
+    const repo = new AsyncStorageChecklistRepository();
+    await repo.saveAll([
+      {
+        id: '1',
+        title: 'Groceries',
+        sections: [
+          { id: 's1', name: 'Produce' },
+          { id: 's2', name: 'Dairy' },
+        ],
+        items: [
+          { id: 'a', text: 'Apple', checked: false, sectionId: 's1' },
+          { id: 'm', text: 'Milk', checked: false, sectionId: 's2' },
+        ],
+      },
+    ]);
+    const { result } = await renderHook(() => useChecklists(), {
+      wrapper: makeWrapper(repo),
+    });
+    await waitFor(() => expect(result.current.checklists).toHaveLength(1));
+
+    await act(async () => {
+      result.current.moveSection('1', 's2', 0);
+    });
+
+    await waitFor(() =>
+      expect(result.current.checklists[0].sections.map(s => s.id)).toEqual([
+        's2',
+        's1',
+      ]),
+    );
+    const persisted = await repo.getAll();
+    expect(persisted[0].sections.map(s => s.id)).toEqual(['s2', 's1']);
+  });
+
   it('does not throw when persisting fails, and logs the error', async () => {
     const consoleError = jest
       .spyOn(console, 'error')

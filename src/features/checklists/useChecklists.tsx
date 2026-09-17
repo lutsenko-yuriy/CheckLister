@@ -12,6 +12,9 @@ import {
   Checklist,
   createChecklist as buildChecklist,
   createItem as buildItem,
+  createSection as buildSection,
+  moveItem as moveItemInChecklist,
+  moveSection as moveSectionInChecklist,
 } from './domain/models';
 
 interface State {
@@ -37,11 +40,20 @@ interface ChecklistsContextValue extends State {
   createChecklist(title: string): void;
   renameChecklist(id: string, title: string): void;
   deleteChecklist(id: string): void;
-  addItem(checklistId: string, text: string): void;
+  addItem(checklistId: string, text: string, sectionId?: string | null): void;
   toggleItem(checklistId: string, itemId: string): void;
   editItem(checklistId: string, itemId: string, text: string): void;
   deleteItem(checklistId: string, itemId: string): void;
   clearCheckedItems(checklistId: string): void;
+  addSection(checklistId: string, name: string): void;
+  deleteSection(checklistId: string, sectionId: string): void;
+  moveItem(
+    checklistId: string,
+    itemId: string,
+    toSectionId: string | null,
+    toIndex: number,
+  ): void;
+  moveSection(checklistId: string, sectionId: string, toIndex: number): void;
 }
 
 const ChecklistsContext = createContext<ChecklistsContextValue | null>(null);
@@ -111,25 +123,36 @@ export function ChecklistsProvider({
     [persist, state.checklists],
   );
 
-  const updateChecklistItems = useCallback(
-    (
-      checklistId: string,
-      updateItems: (items: Checklist['items']) => Checklist['items'],
-    ) => {
+  const updateChecklist = useCallback(
+    (checklistId: string, updateFn: (checklist: Checklist) => Checklist) => {
       persist(
         state.checklists.map(checklist =>
-          checklist.id === checklistId
-            ? { ...checklist, items: updateItems(checklist.items) }
-            : checklist,
+          checklist.id === checklistId ? updateFn(checklist) : checklist,
         ),
       );
     },
     [persist, state.checklists],
   );
 
+  const updateChecklistItems = useCallback(
+    (
+      checklistId: string,
+      updateItems: (items: Checklist['items']) => Checklist['items'],
+    ) => {
+      updateChecklist(checklistId, checklist => ({
+        ...checklist,
+        items: updateItems(checklist.items),
+      }));
+    },
+    [updateChecklist],
+  );
+
   const addItem = useCallback(
-    (checklistId: string, text: string) => {
-      updateChecklistItems(checklistId, items => [...items, buildItem(text)]);
+    (checklistId: string, text: string, sectionId: string | null = null) => {
+      updateChecklistItems(checklistId, items => [
+        ...items,
+        buildItem(text, sectionId),
+      ]);
     },
     [updateChecklistItems],
   );
@@ -172,6 +195,54 @@ export function ChecklistsProvider({
     [updateChecklistItems],
   );
 
+  const addSection = useCallback(
+    (checklistId: string, name: string) => {
+      updateChecklist(checklistId, checklist => ({
+        ...checklist,
+        sections: [...checklist.sections, buildSection(name)],
+      }));
+    },
+    [updateChecklist],
+  );
+
+  const deleteSection = useCallback(
+    (checklistId: string, sectionId: string) => {
+      updateChecklist(checklistId, checklist => ({
+        ...checklist,
+        sections: checklist.sections.filter(
+          section => section.id !== sectionId,
+        ),
+        items: checklist.items.map(item =>
+          item.sectionId === sectionId ? { ...item, sectionId: null } : item,
+        ),
+      }));
+    },
+    [updateChecklist],
+  );
+
+  const moveItem = useCallback(
+    (
+      checklistId: string,
+      itemId: string,
+      toSectionId: string | null,
+      toIndex: number,
+    ) => {
+      updateChecklist(checklistId, checklist =>
+        moveItemInChecklist(checklist, itemId, toSectionId, toIndex),
+      );
+    },
+    [updateChecklist],
+  );
+
+  const moveSection = useCallback(
+    (checklistId: string, sectionId: string, toIndex: number) => {
+      updateChecklist(checklistId, checklist =>
+        moveSectionInChecklist(checklist, sectionId, toIndex),
+      );
+    },
+    [updateChecklist],
+  );
+
   const value = useMemo(
     () => ({
       ...state,
@@ -183,6 +254,10 @@ export function ChecklistsProvider({
       editItem,
       deleteItem,
       clearCheckedItems,
+      addSection,
+      deleteSection,
+      moveItem,
+      moveSection,
     }),
     [
       state,
@@ -194,6 +269,10 @@ export function ChecklistsProvider({
       editItem,
       deleteItem,
       clearCheckedItems,
+      addSection,
+      deleteSection,
+      moveItem,
+      moveSection,
     ],
   );
 
