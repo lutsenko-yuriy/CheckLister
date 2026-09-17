@@ -15,6 +15,12 @@ A record of all versioned releases. For planned work and known issues, see @docs
 
 ## [Unreleased]
 
+### [user]
+- You can now organize a checklist into named sections, and reorder items and sections by dragging them, right from the checklist detail screen. A chip picker above the "New item" input lets you add a new item straight into any section. Sections can also be deleted (with confirmation), returning their items to the default section.
+
+### [app]
+- CheL-3 (Reordering & sections) WU4: `ChecklistDetailScreen` renders `buildRows(checklist)` through `DraggableFlatList`, with extracted `ui/components/ItemRow.tsx` and new `ui/components/SectionHeader.tsx` handling drag handles; `resolveItemDrop`/`resolveSectionDrop` (`domain/models.ts`) convert a flat drag drop back into `moveItem`/`moveSection` calls. Fires all four approved analytics events (`item_reordered`, `item_moved_to_section`, `section_reordered`, `section_added`). `AnalyticsProperties` now allows `null` values.
+
 ### [wip]
 - CheL-3 (Reordering & sections) WU1: domain model (`Section`, `Item.sectionId`, `Checklist.sections`), `normalizeChecklist`, `moveItem`/`moveSection` ordering helpers, and storage-read migration/normalization — no UI change yet.
 - CheL-3 (Reordering & sections) WU2: `useChecklists` gains `addSection`, `deleteSection`, `moveItem`, `moveSection`, and a sectioned `addItem` — no UI change yet.
