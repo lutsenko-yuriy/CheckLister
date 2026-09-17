@@ -62,8 +62,8 @@ Each feature module (`checklists`, `runs`) is a vertical slice with its own
 domain/data/ui layers, matching the directory structure above.
 
 ### Domain
-Plain TypeScript: types and pure functions only (e.g. `isChecklistFullyChecked`,
-`isRunComplete`, `snapshotChecklistIntoRun`). No React, no React Native, no
+Plain TypeScript: types and pure functions only (e.g. `isRunComplete`,
+`snapshotChecklistIntoRun`). No React, no React Native, no
 `AsyncStorage` imports. Defines the repository *interface* for its feature
 (e.g. `ChecklistRepository`) that the data layer implements. May be imported
 by that feature's own `data/` and `ui/` layers.
