@@ -14,4 +14,6 @@
   [ ] X WUs remaining     <- optional
   ```
 
+- 2026-09-17: When a PR/MR is opened as part of the workflow (`FEATURE.md` step 9), automatically open it in the browser right after, instead of just reporting the URL in text. Saves a manual step of clicking/copying the link every time.
+
 ## Debrief summary
