@@ -14,7 +14,7 @@ describe('RunScreen', () => {
     // TODO: Verify all three item rows are present and each has accessibilityState={{ checked: false }}.
   });
 
-  it("tapping an item toggles its checked state", () => {
+  it('tapping an item toggles its checked state', () => {
     // TODO: Start a run with items A, B.
     // TODO: Render RunScreen.
     // TODO: Press item A's row.

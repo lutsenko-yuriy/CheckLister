@@ -15,6 +15,9 @@ A record of all versioned releases. For planned work and known issues, see @docs
 
 ## [Unreleased]
 
+### [wip]
+- CheL-4 WU1: Added the run domain model and pure helpers (`src/features/runs/domain/models.ts`: `startRun`, `toggleRunItem`, `isRunComplete`, `completeRun`, `checkedCount`) and an in-memory `useRuns` state hook (`src/features/runs/useRuns.tsx`), wired into `App.tsx`. No UI or user-facing change yet.
+
 ### [test]
 - CheL-4 WU0: Drafted red integration scenario stubs for checklist runs (`src/features/runs/ui/RunScreen.test.tsx`). No user-facing change yet.
 
