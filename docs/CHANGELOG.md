@@ -13,6 +13,11 @@ A record of all versioned releases. For planned work and known issues, see @docs
 - ...
 -->
 
+## [Unreleased]
+
+### [test]
+- CheL-4 WU0: Drafted red integration scenario stubs for checklist runs (`src/features/runs/ui/RunScreen.test.tsx`). No user-facing change yet.
+
 ## [0.6.0] — 2026-09-18 (PR #21 merged)
 
 ### Changed
