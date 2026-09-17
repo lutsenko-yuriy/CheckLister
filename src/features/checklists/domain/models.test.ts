@@ -6,7 +6,11 @@ import {
   normalizeChecklist,
   moveItem,
   moveSection,
+  buildRows,
+  resolveItemDrop,
+  resolveSectionDrop,
   Checklist,
+  Row,
 } from './models';
 
 describe('createChecklist', () => {
@@ -227,5 +231,99 @@ describe('createSection', () => {
     const a = createSection('Produce');
     const b = createSection('Dairy');
     expect(a.id).not.toBe(b.id);
+  });
+});
+
+describe('buildRows', () => {
+  function checklist(overrides: Partial<Checklist>): Checklist {
+    return { ...createChecklist('Groceries'), ...overrides };
+  }
+
+  it('renders no header rows when the checklist has no named sections', () => {
+    const milk = { id: 'milk', text: 'Milk', checked: false, sectionId: null };
+    const rows = buildRows(checklist({ items: [milk] }));
+    expect(rows).toEqual([{ kind: 'item', item: milk }]);
+  });
+
+  it('renders a default header once a named section exists, then each section header and its items', () => {
+    const produce = createSection('Produce');
+    const milk = { id: 'milk', text: 'Milk', checked: false, sectionId: null };
+    const apple = {
+      id: 'apple',
+      text: 'Apple',
+      checked: false,
+      sectionId: produce.id,
+    };
+    const rows = buildRows(
+      checklist({ sections: [produce], items: [milk, apple] }),
+    );
+    expect(rows).toEqual([
+      { kind: 'section', section: null },
+      { kind: 'item', item: milk },
+      { kind: 'section', section: produce },
+      { kind: 'item', item: apple },
+    ]);
+  });
+
+  it('renders a section header with no item rows when the section is empty', () => {
+    const produce = createSection('Produce');
+    const rows = buildRows(checklist({ sections: [produce], items: [] }));
+    expect(rows).toEqual([
+      { kind: 'section', section: null },
+      { kind: 'section', section: produce },
+    ]);
+  });
+});
+
+describe('resolveItemDrop', () => {
+  it('resolves the position within the same (default) section', () => {
+    const a = { id: 'a', text: 'A', checked: false, sectionId: null };
+    const b = { id: 'b', text: 'B', checked: false, sectionId: null };
+    const c = { id: 'c', text: 'C', checked: false, sectionId: null };
+    // Dropped so B and C moved ahead of A: new order is B, C, A.
+    const rows: Row[] = [
+      { kind: 'item', item: b },
+      { kind: 'item', item: c },
+      { kind: 'item', item: a },
+    ];
+    expect(resolveItemDrop(rows, 'a')).toEqual({
+      toSectionId: null,
+      toIndex: 2,
+    });
+  });
+
+  it('resolves the target section when dropped under a different header', () => {
+    const produce = createSection('Produce');
+    const milk = { id: 'milk', text: 'Milk', checked: false, sectionId: null };
+    const apple = {
+      id: 'apple',
+      text: 'Apple',
+      checked: false,
+      sectionId: produce.id,
+    };
+    const rows: Row[] = [
+      { kind: 'section', section: null },
+      { kind: 'section', section: produce },
+      { kind: 'item', item: apple },
+      { kind: 'item', item: milk },
+    ];
+    expect(resolveItemDrop(rows, 'milk')).toEqual({
+      toSectionId: produce.id,
+      toIndex: 1,
+    });
+  });
+});
+
+describe('resolveSectionDrop', () => {
+  it('resolves the new index among named sections', () => {
+    const produce = createSection('Produce');
+    const dairy = createSection('Dairy');
+    const rows: Row[] = [
+      { kind: 'section', section: null },
+      { kind: 'section', section: dairy },
+      { kind: 'section', section: produce },
+    ];
+    expect(resolveSectionDrop(rows, dairy.id)).toBe(0);
+    expect(resolveSectionDrop(rows, produce.id)).toBe(1);
   });
 });

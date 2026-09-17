@@ -118,3 +118,81 @@ export function moveSection(
 
   return normalizeChecklist({ ...checklist, sections: newSections });
 }
+
+// The flat, drag-ordered view of a checklist: a header row for each named
+// section (plus the implicit default section, once there's at least one
+// named section to distinguish it from) followed by that section's items.
+export type Row =
+  | { kind: 'section'; section: Section | null }
+  | { kind: 'item'; item: Item };
+
+export function buildRows(checklist: Checklist): Row[] {
+  const defaultItems = checklist.items.filter(item => item.sectionId === null);
+  const rows: Row[] = [];
+
+  if (checklist.sections.length > 0) {
+    rows.push({ kind: 'section', section: null });
+  }
+  rows.push(...defaultItems.map(item => ({ kind: 'item' as const, item })));
+
+  for (const section of checklist.sections) {
+    rows.push({ kind: 'section', section });
+    rows.push(
+      ...checklist.items
+        .filter(item => item.sectionId === section.id)
+        .map(item => ({ kind: 'item' as const, item })),
+    );
+  }
+
+  return rows;
+}
+
+// Given the reordered flat rows from a completed item drag, resolves which
+// section the dropped item now belongs to and its position within that
+// section — the shape `moveItem` expects.
+export function resolveItemDrop(
+  rows: Row[],
+  itemId: string,
+): { toSectionId: string | null; toIndex: number } {
+  const droppedAt = rows.findIndex(
+    row => row.kind === 'item' && row.item.id === itemId,
+  );
+
+  let toSectionId: string | null = null;
+  for (let i = droppedAt - 1; i >= 0; i -= 1) {
+    const row = rows[i];
+    if (row.kind === 'section') {
+      toSectionId = row.section ? row.section.id : null;
+      break;
+    }
+  }
+
+  let toIndex = 0;
+  for (let i = 0; i < droppedAt; i += 1) {
+    const row = rows[i];
+    if (row.kind === 'item' && row.item.sectionId === toSectionId) {
+      toIndex += 1;
+    }
+  }
+
+  return { toSectionId, toIndex };
+}
+
+// Given the reordered flat rows from a completed section-header drag,
+// resolves the section's new index among named sections — the shape
+// `moveSection` expects. The default section has no row of its own to drag.
+export function resolveSectionDrop(rows: Row[], sectionId: string): number {
+  const droppedAt = rows.findIndex(
+    row => row.kind === 'section' && row.section?.id === sectionId,
+  );
+
+  let toIndex = 0;
+  for (let i = 0; i < droppedAt; i += 1) {
+    const row = rows[i];
+    if (row.kind === 'section' && row.section !== null) {
+      toIndex += 1;
+    }
+  }
+
+  return toIndex;
+}
