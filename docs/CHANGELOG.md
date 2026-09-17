@@ -13,15 +13,11 @@ A record of all versioned releases. For planned work and known issues, see @docs
 - ...
 -->
 
-## [Unreleased]
+## [0.7.0] — 2026-09-18 (PR #25 merged)
 
-### [wip]
-- CheL-4 WU3: Added a "Start run" button to `ChecklistDetailScreen` (disabled for an empty checklist), which starts a run and navigates to the Run screen — the run feature is now reachable from the UI. Fires `run_started` analytics. Also fixed a WU2 gap found during this WU's simulator smoke test: the Run screen's header back button and swipe-back gesture were both disabled to force exits through the "Are you sure?" confirmation, but on iOS (no hardware back key) that left no way to leave an incomplete run at all. Restoring the header back button alone wasn't enough either — a manual `beforeRemove` listener can't safely block the iOS swipe-back gesture (it pops the native screen as part of the gesture animation itself, independent of JS, causing a "removed natively but didn't get removed from JS state" desync). Switched to React Navigation's `usePreventRemove` hook, which disables the native gesture itself while a run is active and incomplete, and re-enables it once the run completes or is discarded.
-- CheL-4 WU2: Added the run screen (`src/features/runs/ui/RunScreen.tsx`) with a `RunItemRow` component, registered the `Run` route (`src/navigation/types.ts`, `RootNavigator.tsx`) with its back button, header-left item, and swipe gesture all disabled, and wired an "Are you sure?" confirmation dialog on the `beforeRemove` navigation event — confirming discards the run, cancelling preserves progress. Fires `screen_checklist_run`, `run_item_toggled`, and `run_completed` analytics. Not yet reachable from the UI — there is no "Start run" entry point yet (WU3).
-- CheL-4 WU1: Added the run domain model and pure helpers (`src/features/runs/domain/models.ts`: `startRun`, `toggleRunItem`, `isRunComplete`, `completeRun`, `checkedCount`) and an in-memory `useRuns` state hook (`src/features/runs/useRuns.tsx`), wired into `App.tsx`. No UI or user-facing change yet.
-
-### [test]
-- CheL-4 WU0: Drafted red integration scenario stubs for checklist runs (`src/features/runs/ui/RunScreen.test.tsx`). No user-facing change yet.
+### Added
+- [user] CheL-4: You can now start a run of a checklist — a fresh, independent snapshot of its items, all unchecked. Check items off from the run screen (this never affects the checklist template itself), then finish with "Complete the checklist", enabled once every item is checked. Leaving the run screen before completion (back button or swipe gesture) prompts an "Are you sure?" confirmation; confirming discards the run and returns to the checklist, cancelling keeps your progress. A "Start run" button on the checklist screen is the entry point (disabled for an empty checklist).
+- [app] Domain: `src/features/runs/domain/models.ts` (`ChecklistRun`, `RunItem`, `startRun`, `toggleRunItem`, `isRunComplete`, `completeRun`, `checkedCount`). State: `useRuns` (`src/features/runs/useRuns.tsx`) — in-memory only, single active run, no repository or persistence yet (a discarded or unfinished run cannot be recovered; that's by design — see `docs/PRODUCT_SPEC.md` Feature 4). UI: `RunScreen.tsx` + `RunItemRow` component, wired into `RootNavigator` as the `Run` route; `ChecklistDetailScreen` gained the "Start run" button. The exit-confirmation lock uses React Navigation's `usePreventRemove` hook — a manual `beforeRemove` listener can't safely block the iOS swipe-back gesture (it pops the native screen as part of the gesture animation itself, independent of JS), so `usePreventRemove` was used instead, since it disables the native gesture at the native level while a run is active and incomplete. Fires `run_started`, `screen_checklist_run`, `run_item_toggled`, and `run_completed` analytics.
 
 ## [0.6.0] — 2026-09-18 (PR #21 merged)
 
