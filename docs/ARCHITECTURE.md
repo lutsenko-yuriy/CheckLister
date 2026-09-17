@@ -114,7 +114,16 @@ cross-feature state coordination outgrows this.
   (Feature 3 / CheL-3). Requires `GestureHandlerRootView` wrapping the app
   root, `react-native-reanimated/plugin` as the last entry in
   `babel.config.js`, and Jest transform/mocking setup for all three
-  packages.
+  packages. **Pinned to `react-native-reanimated@3.19.5`** —
+  `react-native-draggable-flatlist@4.0.3` (the latest published version)
+  hasn't been updated for Reanimated 4's `react-native-worklets` split and
+  throws `[Worklets] runOnUI can only be used with worklets` at runtime
+  against Reanimated 4.x. `metro.config.js` redirects
+  `react-native/Libraries/Renderer/shims/ReactNative` (removed in this RN
+  version, which is New Architecture/Fabric-only) to the Fabric shim purely
+  so Metro can statically resolve a dead code path inside Reanimated 3.x's
+  `findHostInstance` — revisit both the pin and the redirect together if
+  either dependency is ever upgraded.
 - `react-native-safe-area-context` — already installed; also a peer
   dependency of React Navigation.
 - [`@testing-library/react-native`](https://callstack.github.io/react-native-testing-library/) —
