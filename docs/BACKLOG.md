@@ -8,7 +8,7 @@ The `## In Progress` section at the top is the one exception — it is maintaine
 
 ## In Progress
 
-- CheL-3: Reordering & sections — WU2 merged, starting WU3 (drag dependencies & native/Jest wiring)
+- CheL-3: Reordering & sections — WU3 in review (drag dependencies & native/Jest wiring)
 
 ---
 
