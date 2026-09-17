@@ -13,6 +13,12 @@ A record of all versioned releases. For planned work and known issues, see @docs
 - ...
 -->
 
+## [0.5.0] — 2026-09-17 (PR #17 merged)
+
+### Changed
+- [user] CheL-14: The app's visual design is now consistent, modern, and lightweight — a light blue-ish color scheme replaces the previous white/gray/black look, the navigation header background matches the screen body with a flat back button (no more rounded bubble), item rows and section headers use an opaque background matching the rest of the screen (the item being dragged during reorder no longer lets the list behind it show through), and every text-only action button (Add, Edit, Delete, Rename, Save, Cancel, "New section") is now an icon button.
+- [app] Added `src/shared/theme/colors.ts` (the app's single color-token source) and `src/shared/ui/IconButton.tsx` (shared icon-only action button, backed by the new `react-native-vector-icons` dependency). Applied across `HomeScreen`, `ChecklistDetailScreen`, `ItemRow`, `SectionHeader`, and `RootNavigator`. A custom drag "lift" shadow effect was attempted but reverted after it was found to freeze the drag-to-reorder gesture (calling `setState` from the `Sortable` component's `onDragStart` mid-gesture); the opaque-background fix is unaffected since it does not depend on drag state.
+
 ## [0.4.0] — 2026-09-17 (PR #16 merged)
 
 ### Changed
