@@ -1,5 +1,12 @@
 import React, { useLayoutEffect, useRef } from 'react';
-import { Alert, FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
+import {
+  Alert,
+  FlatList,
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../../navigation/types';
 import { useRuns } from '../useRuns';
@@ -121,7 +128,10 @@ export function RunScreen({ navigation }: Props) {
         accessibilityRole="button"
         accessibilityLabel="Complete the checklist"
         accessibilityState={{ disabled: !complete }}
-        style={[styles.completeButton, !complete && styles.completeButtonDisabled]}
+        style={[
+          styles.completeButton,
+          !complete && styles.completeButtonDisabled,
+        ]}
       >
         <Text style={styles.completeButtonText}>Complete the checklist</Text>
       </Pressable>

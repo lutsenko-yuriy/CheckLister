@@ -5,7 +5,10 @@ import { RunItemRow } from './RunItemRow';
 describe('RunItemRow', () => {
   it('renders the item text', async () => {
     await render(
-      <RunItemRow item={{ id: 'a', text: 'Milk', checked: false }} onToggle={jest.fn()} />,
+      <RunItemRow
+        item={{ id: 'a', text: 'Milk', checked: false }}
+        onToggle={jest.fn()}
+      />,
     );
 
     expect(screen.getByText('Milk')).toBeTruthy();
@@ -13,7 +16,10 @@ describe('RunItemRow', () => {
 
   it('reflects checked state through accessibilityState', async () => {
     await render(
-      <RunItemRow item={{ id: 'a', text: 'Milk', checked: true }} onToggle={jest.fn()} />,
+      <RunItemRow
+        item={{ id: 'a', text: 'Milk', checked: true }}
+        onToggle={jest.fn()}
+      />,
     );
 
     const row = screen.getByRole('checkbox');
@@ -25,7 +31,10 @@ describe('RunItemRow', () => {
   it('calls onToggle when pressed', async () => {
     const onToggle = jest.fn();
     await render(
-      <RunItemRow item={{ id: 'a', text: 'Milk', checked: false }} onToggle={onToggle} />,
+      <RunItemRow
+        item={{ id: 'a', text: 'Milk', checked: false }}
+        onToggle={onToggle}
+      />,
     );
 
     await fireEvent.press(screen.getByRole('checkbox'));

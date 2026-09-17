@@ -50,7 +50,11 @@ export function RootNavigator() {
           // button stays flat as CheL-14 requires. `headerLeft` alone
           // handles Android and pre-26 iOS, where no such background exists.
           unstable_headerLeftItems: () => [
-            { type: 'custom', element: <FlatBackButton />, hidesSharedBackground: true },
+            {
+              type: 'custom',
+              element: <FlatBackButton />,
+              hidesSharedBackground: true,
+            },
           ],
         }}
       />

@@ -53,7 +53,10 @@ function Harness({
   );
 }
 
-async function renderRun(itemTexts: string[], navigation = createMockNavigation()) {
+async function renderRun(
+  itemTexts: string[],
+  navigation = createMockNavigation(),
+) {
   const checklist = {
     ...createChecklist('Groceries'),
     items: itemTexts.map(createItem),
@@ -109,7 +112,8 @@ describe('RunScreen', () => {
     await renderRun(['A', 'B']);
     await waitFor(() => screen.getByText('A'));
 
-    const completeButton = () => screen.getByLabelText('Complete the checklist');
+    const completeButton = () =>
+      screen.getByLabelText('Complete the checklist');
     expect(completeButton().props.accessibilityState).toEqual(
       expect.objectContaining({ disabled: true }),
     );
@@ -132,7 +136,10 @@ describe('RunScreen', () => {
       return null;
     }
 
-    const checklist = { ...createChecklist('Groceries'), items: [createItem('A')] };
+    const checklist = {
+      ...createChecklist('Groceries'),
+      items: [createItem('A')],
+    };
 
     await render(
       <RunsProvider>
@@ -216,7 +223,10 @@ describe('RunScreen', () => {
 
   it('pressing the visible back button also triggers the exit-confirmation flow', async () => {
     const navigation = createMockNavigation();
-    const checklist = { ...createChecklist('Groceries'), items: [createItem('A')] };
+    const checklist = {
+      ...createChecklist('Groceries'),
+      items: [createItem('A')],
+    };
 
     await render(
       <RunsProvider>
@@ -327,7 +337,9 @@ describe('RunScreen', () => {
       </RunsProvider>,
     );
 
-    await waitFor(() => expect(screen.getByText(/no active run/i)).toBeTruthy());
+    await waitFor(() =>
+      expect(screen.getByText(/no active run/i)).toBeTruthy(),
+    );
 
     await fireEvent.press(screen.getByLabelText('Back'));
     expect(navigation.goBack).toHaveBeenCalled();
