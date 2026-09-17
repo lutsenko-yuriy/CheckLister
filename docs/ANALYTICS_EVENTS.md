@@ -69,6 +69,48 @@ Fired when the user clears all checked items on a checklist in one action.
 | `checklist_id` | `string` | The checklist that was cleared |
 | `cleared_count` | `number` | Number of items removed by the clear action |
 
+<!-- Added for CheL-3: Reordering & sections -->
+
+### `item_reordered`
+
+Fired when the user drags an item into a new position within a checklist (drop completes).
+
+| Property | Type | Description |
+|---|---|---|
+| `checklist_id` | `string` | The checklist the item belongs to |
+| `from_index` | `number` | Item's index before the move |
+| `to_index` | `number` | Item's index after the move |
+| `section_id` | `string \| null` | Section the item ended up in (`null` = default section) |
+
+### `section_added`
+
+Fired when the user creates a new named section.
+
+| Property | Type | Description |
+|---|---|---|
+| `checklist_id` | `string` | The checklist the section was added to |
+| `section_count` | `number` | Total section count after the add |
+
+### `section_reordered`
+
+Fired when the user drags a section into a new position.
+
+| Property | Type | Description |
+|---|---|---|
+| `checklist_id` | `string` | The checklist the section belongs to |
+| `from_index` | `number` | Section's index before the move |
+| `to_index` | `number` | Section's index after the move |
+
+### `item_moved_to_section`
+
+Fired when an item's drag ends in a different section than it started in.
+
+| Property | Type | Description |
+|---|---|---|
+| `checklist_id` | `string` | The checklist the item belongs to |
+| `from_section_id` | `string \| null` | Section before the move |
+| `to_section_id` | `string \| null` | Section after the move |
+
 ---
 
 ## Screen Views
