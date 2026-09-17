@@ -8,6 +8,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { NavigationContainer } from '@react-navigation/native';
 import { AsyncStorageChecklistRepository } from './src/features/checklists/data/asyncStorageChecklistRepository';
 import { ChecklistsProvider } from './src/features/checklists/useChecklists';
+import { RunsProvider } from './src/features/runs/useRuns';
 import { RootNavigator } from './src/navigation/RootNavigator';
 
 const checklistRepository = new AsyncStorageChecklistRepository();
@@ -20,9 +21,11 @@ function App() {
       <SafeAreaProvider>
         <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
         <ChecklistsProvider repository={checklistRepository}>
-          <NavigationContainer>
-            <RootNavigator />
-          </NavigationContainer>
+          <RunsProvider>
+            <NavigationContainer>
+              <RootNavigator />
+            </NavigationContainer>
+          </RunsProvider>
         </ChecklistsProvider>
       </SafeAreaProvider>
     </GestureHandlerRootView>
