@@ -2,6 +2,9 @@ import React, { useState } from 'react';
 import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { Item } from '../../domain/models';
 
+// ChecklistDetailScreen's Sortable list positions rows using this fixed
+// height, so the row's actual rendered height must never exceed it —
+// hence the item text below is capped to one line.
 export const ITEM_ROW_HEIGHT = 56;
 
 export function ItemRow({
@@ -59,7 +62,10 @@ export function ItemRow({
     <View style={styles.row}>
       {dragHandle}
       <Pressable style={styles.rowBody} onPress={onToggle}>
-        <Text style={item.checked ? styles.itemTextChecked : styles.itemText}>
+        <Text
+          style={item.checked ? styles.itemTextChecked : styles.itemText}
+          numberOfLines={1}
+        >
           {item.text}
         </Text>
       </Pressable>

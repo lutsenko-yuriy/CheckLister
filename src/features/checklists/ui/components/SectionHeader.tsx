@@ -2,6 +2,9 @@ import React from 'react';
 import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
 import { Section } from '../../domain/models';
 
+// ChecklistDetailScreen's Sortable list positions rows using this fixed
+// height, so the row's actual rendered height must never exceed it —
+// hence the section name below is capped to one line.
 export const SECTION_HEADER_HEIGHT = 48;
 
 export function SectionHeader({
@@ -31,7 +34,9 @@ export function SectionHeader({
   return (
     <View style={styles.header}>
       {dragHandle}
-      <Text style={styles.headerText}>{section.name}</Text>
+      <Text style={styles.headerText} numberOfLines={1}>
+        {section.name}
+      </Text>
       <Pressable
         onPress={confirmDelete}
         style={styles.deleteButton}
