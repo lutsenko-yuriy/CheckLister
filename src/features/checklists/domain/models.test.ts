@@ -4,6 +4,8 @@ import {
   createItem,
   createSection,
   normalizeChecklist,
+  moveItem,
+  moveSection,
   Checklist,
 } from './models';
 
@@ -148,6 +150,69 @@ describe('normalizeChecklist', () => {
     const once = normalizeChecklist(c);
     const twice = normalizeChecklist(once);
     expect(twice.items.map(i => i.id)).toEqual(once.items.map(i => i.id));
+  });
+});
+
+describe('moveItem', () => {
+  function checklist(overrides: Partial<Checklist>): Checklist {
+    return { ...createChecklist('Groceries'), ...overrides };
+  }
+
+  it('reorders items within the same section', () => {
+    const c = checklist({
+      items: [
+        { id: 'a', text: 'A', checked: false, sectionId: null },
+        { id: 'b', text: 'B', checked: false, sectionId: null },
+        { id: 'c', text: 'C', checked: false, sectionId: null },
+      ],
+    });
+    const result = moveItem(c, 'a', null, 2);
+    expect(result.items.map(i => i.id)).toEqual(['b', 'c', 'a']);
+  });
+
+  it('moves an item into a different section', () => {
+    const produce = createSection('Produce');
+    const c = checklist({
+      sections: [produce],
+      items: [{ id: 'milk', text: 'Milk', checked: false, sectionId: null }],
+    });
+    const result = moveItem(c, 'milk', produce.id, 0);
+    expect(result.items[0]).toEqual(
+      expect.objectContaining({ id: 'milk', sectionId: produce.id }),
+    );
+  });
+
+  it('is a no-op when the item does not exist', () => {
+    const c = checklist({
+      items: [{ id: 'a', text: 'A', checked: false, sectionId: null }],
+    });
+    expect(moveItem(c, 'missing', null, 0)).toEqual(c);
+  });
+});
+
+describe('moveSection', () => {
+  function checklist(overrides: Partial<Checklist>): Checklist {
+    return { ...createChecklist('Groceries'), ...overrides };
+  }
+
+  it('reorders sections, carrying their items with them', () => {
+    const produce = createSection('Produce');
+    const dairy = createSection('Dairy');
+    const c = checklist({
+      sections: [produce, dairy],
+      items: [
+        { id: 'apple', text: 'Apple', checked: false, sectionId: produce.id },
+        { id: 'milk', text: 'Milk', checked: false, sectionId: dairy.id },
+      ],
+    });
+    const result = moveSection(c, dairy.id, 0);
+    expect(result.sections.map(s => s.id)).toEqual([dairy.id, produce.id]);
+    expect(result.items.map(i => i.id)).toEqual(['milk', 'apple']);
+  });
+
+  it('is a no-op when the section does not exist', () => {
+    const c = checklist({ sections: [createSection('Produce')] });
+    expect(moveSection(c, 'missing', 0)).toEqual(c);
   });
 });
 

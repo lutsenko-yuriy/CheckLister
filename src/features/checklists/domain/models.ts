@@ -67,3 +67,54 @@ export function normalizeChecklist(checklist: Checklist): Checklist {
     items: [...defaultItems, ...sectionedItems],
   };
 }
+
+export function moveItem(
+  checklist: Checklist,
+  itemId: string,
+  toSectionId: string | null,
+  toIndex: number,
+): Checklist {
+  const item = checklist.items.find(i => i.id === itemId);
+  if (!item) {
+    return checklist;
+  }
+
+  const remaining = checklist.items.filter(i => i.id !== itemId);
+  const movedItem: Item = { ...item, sectionId: toSectionId };
+
+  const groupItems = remaining.filter(i => i.sectionId === toSectionId);
+  const clampedIndex = Math.max(0, Math.min(toIndex, groupItems.length));
+  const anchor = groupItems[clampedIndex];
+  const insertAt = anchor
+    ? remaining.findIndex(i => i.id === anchor.id)
+    : remaining.length;
+
+  const newItems = [
+    ...remaining.slice(0, insertAt),
+    movedItem,
+    ...remaining.slice(insertAt),
+  ];
+
+  return normalizeChecklist({ ...checklist, items: newItems });
+}
+
+export function moveSection(
+  checklist: Checklist,
+  sectionId: string,
+  toIndex: number,
+): Checklist {
+  const section = checklist.sections.find(s => s.id === sectionId);
+  if (!section) {
+    return checklist;
+  }
+
+  const remaining = checklist.sections.filter(s => s.id !== sectionId);
+  const clampedIndex = Math.max(0, Math.min(toIndex, remaining.length));
+  const newSections = [
+    ...remaining.slice(0, clampedIndex),
+    section,
+    ...remaining.slice(clampedIndex),
+  ];
+
+  return normalizeChecklist({ ...checklist, sections: newSections });
+}
