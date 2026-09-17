@@ -8,7 +8,7 @@ The `## In Progress` section at the top is the one exception — it is maintaine
 
 ## In Progress
 
-- CheL-3: Reordering & sections — WU4 in review (sectioned draggable UI + analytics, final WU)
+_(nothing in progress)_
 
 ---
 

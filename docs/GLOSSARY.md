@@ -27,3 +27,4 @@ When a new term is introduced during a `brief` session, add it here before creat
 |---|---|---|
 | Checklist | A named list of items the user creates and manages (e.g. "Groceries") | `Checklist` |
 | Item | A single line entry within a checklist that can be checked off | `Item` |
+| Section | A user-named group of items within a checklist (e.g. "Produce"). Items not assigned to any section live in an implicit, unnamed default section that always renders first. | `Section` |
