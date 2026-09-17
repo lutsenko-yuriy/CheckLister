@@ -1,9 +1,10 @@
 import React, { useLayoutEffect, useState } from 'react';
-import { StyleSheet, Text, TextInput, View } from 'react-native';
+import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { Sortable, SortableItem } from 'react-native-reanimated-dnd';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../../navigation/types';
 import { useChecklists } from '../useChecklists';
+import { useRuns } from '../../runs/useRuns';
 import { analytics } from '../../../shared/analytics/AnalyticsService';
 import { ItemRow, ITEM_ROW_HEIGHT } from './components/ItemRow';
 import { IconButton } from '../../../shared/ui/IconButton';
@@ -14,6 +15,7 @@ type Props = NativeStackScreenProps<RootStackParamList, 'ChecklistDetail'>;
 export function ChecklistDetailScreen({ navigation, route }: Props) {
   const { checklists, addItem, editItem, deleteItem, moveItem } =
     useChecklists();
+  const { startRun } = useRuns();
   const checklist = checklists.find(c => c.id === route.params.checklistId);
   const [newItemText, setNewItemText] = useState('');
 
@@ -61,6 +63,15 @@ export function ChecklistDetailScreen({ navigation, route }: Props) {
     analytics.logEvent('item_deleted', { checklist_id: checklistId });
   };
 
+  const handleStartRun = () => {
+    startRun(checklist);
+    analytics.logEvent('run_started', {
+      checklist_id: checklistId,
+      item_count: checklist.items.length,
+    });
+    navigation.navigate('Run', { checklistId });
+  };
+
   const handleDrop = (
     id: string,
     _position: number,
@@ -103,6 +114,20 @@ export function ChecklistDetailScreen({ navigation, route }: Props) {
           style={styles.addButton}
         />
       </View>
+
+      <Pressable
+        onPress={handleStartRun}
+        disabled={checklist.items.length === 0}
+        accessibilityRole="button"
+        accessibilityLabel="Start run"
+        accessibilityState={{ disabled: checklist.items.length === 0 }}
+        style={[
+          styles.startRunButton,
+          checklist.items.length === 0 && styles.startRunButtonDisabled,
+        ]}
+      >
+        <Text style={styles.startRunButtonText}>Start run</Text>
+      </Pressable>
 
       {checklist.items.length === 0 ? (
         <Text style={styles.emptyState}>No items yet.</Text>
@@ -193,6 +218,21 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: 32,
     color: colors.textMuted,
+  },
+  startRunButton: {
+    backgroundColor: colors.primary,
+    borderRadius: 6,
+    paddingVertical: 12,
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  startRunButtonDisabled: {
+    backgroundColor: colors.border,
+  },
+  startRunButtonText: {
+    color: colors.onPrimary,
+    fontWeight: '600',
+    fontSize: 16,
   },
   dragHandle: {
     marginRight: 12,

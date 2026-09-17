@@ -10,16 +10,28 @@ import { AsyncStorageChecklistRepository } from '../data/asyncStorageChecklistRe
 import { ChecklistDetailScreen } from './ChecklistDetailScreen';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { colors } from '../../../shared/theme/colors';
+import { RunsProvider } from '../../runs/useRuns';
+import { analytics } from '../../../shared/analytics/AnalyticsService';
 
-async function renderDetailScreen(checklistId: string) {
-  return render(
+function createMockNavigation() {
+  return { setOptions: jest.fn(), navigate: jest.fn() };
+}
+
+async function renderDetailScreen(
+  checklistId: string,
+  navigation = createMockNavigation(),
+) {
+  const utils = await render(
     <ChecklistsProvider repository={new AsyncStorageChecklistRepository()}>
-      <ChecklistDetailScreen
-        navigation={{ setOptions: jest.fn() } as any}
-        route={{ params: { checklistId } } as any}
-      />
+      <RunsProvider>
+        <ChecklistDetailScreen
+          navigation={navigation as any}
+          route={{ params: { checklistId } } as any}
+        />
+      </RunsProvider>
     </ChecklistsProvider>,
   );
+  return { navigation, ...utils };
 }
 
 describe('ChecklistDetailScreen', () => {
@@ -153,5 +165,46 @@ describe('ChecklistDetailScreen', () => {
     expect(rowContent).toEqual(
       expect.objectContaining({ backgroundColor: colors.surface }),
     );
+  });
+
+  // CheL-4 WU3: "Start run" entry point.
+  it('disables "Start run" for an empty checklist', async () => {
+    const repo = new AsyncStorageChecklistRepository();
+    await repo.saveAll([{ id: '1', title: 'Groceries', items: [] }]);
+
+    await renderDetailScreen('1');
+    await waitFor(() => screen.getByText('Groceries'));
+
+    // TODO: replace with the actual accessibility label once implemented.
+    const button = screen.getByLabelText('Start run');
+    expect(button.props.accessibilityState?.disabled).toBe(true);
+  });
+
+  it('starts a run and navigates to the Run screen on press', async () => {
+    const repo = new AsyncStorageChecklistRepository();
+    await repo.saveAll([
+      {
+        id: '1',
+        title: 'Groceries',
+        items: [
+          { id: 'a', text: 'Milk' },
+          { id: 'b', text: 'Eggs' },
+        ],
+      },
+    ]);
+    const logEventSpy = jest.spyOn(analytics, 'logEvent');
+
+    const { navigation } = await renderDetailScreen('1');
+    await waitFor(() => screen.getByText('Groceries'));
+
+    await fireEvent.press(screen.getByLabelText('Start run'));
+
+    expect(navigation.navigate).toHaveBeenCalledWith('Run', {
+      checklistId: '1',
+    });
+    expect(logEventSpy).toHaveBeenCalledWith('run_started', {
+      checklist_id: '1',
+      item_count: 2,
+    });
   });
 });
