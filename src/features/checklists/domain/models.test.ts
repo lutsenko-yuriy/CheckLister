@@ -1,4 +1,9 @@
-import { createChecklist, countUnchecked, createItem } from './models';
+import {
+  createChecklist,
+  countUnchecked,
+  createItem,
+  createSection,
+} from './models';
 
 describe('createChecklist', () => {
   it('creates a checklist with the given title and no items', () => {
@@ -6,6 +11,10 @@ describe('createChecklist', () => {
     expect(checklist.title).toBe('Groceries');
     expect(checklist.items).toEqual([]);
     expect(checklist.id).toBeTruthy();
+  });
+
+  it('creates a checklist with no sections', () => {
+    expect(createChecklist('Groceries').sections).toEqual([]);
   });
 
   it('generates a different id for each checklist', () => {
@@ -44,6 +53,28 @@ describe('createItem', () => {
   it('generates a different id for each item', () => {
     const a = createItem('Milk');
     const b = createItem('Eggs');
+    expect(a.id).not.toBe(b.id);
+  });
+
+  it('defaults to the default section (sectionId null) when none is given', () => {
+    expect(createItem('Milk').sectionId).toBeNull();
+  });
+
+  it('assigns the given sectionId when provided', () => {
+    expect(createItem('Milk', 'section-1').sectionId).toBe('section-1');
+  });
+});
+
+describe('createSection', () => {
+  it('creates a section with the given name', () => {
+    const section = createSection('Produce');
+    expect(section.name).toBe('Produce');
+    expect(section.id).toBeTruthy();
+  });
+
+  it('generates a different id for each section', () => {
+    const a = createSection('Produce');
+    const b = createSection('Dairy');
     expect(a.id).not.toBe(b.id);
   });
 });
