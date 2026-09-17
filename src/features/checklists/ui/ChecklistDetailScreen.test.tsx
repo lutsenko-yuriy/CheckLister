@@ -9,7 +9,6 @@ import { ChecklistsProvider } from '../useChecklists';
 import { AsyncStorageChecklistRepository } from '../data/asyncStorageChecklistRepository';
 import { ChecklistDetailScreen } from './ChecklistDetailScreen';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Alert } from 'react-native';
 import { colors } from '../../../shared/theme/colors';
 
 async function renderDetailScreen(checklistId: string) {
@@ -30,9 +29,7 @@ describe('ChecklistDetailScreen', () => {
 
   it("shows the checklist's title and a placeholder for items", async () => {
     const repo = new AsyncStorageChecklistRepository();
-    await repo.saveAll([
-      { id: '1', title: 'Groceries', items: [], sections: [] },
-    ]);
+    await repo.saveAll([{ id: '1', title: 'Groceries', items: [] }]);
 
     await renderDetailScreen('1');
 
@@ -50,9 +47,7 @@ describe('ChecklistDetailScreen', () => {
 
   it('adds an item from the input and clears it afterwards', async () => {
     const repo = new AsyncStorageChecklistRepository();
-    await repo.saveAll([
-      { id: '1', title: 'Groceries', items: [], sections: [] },
-    ]);
+    await repo.saveAll([{ id: '1', title: 'Groceries', items: [] }]);
 
     await renderDetailScreen('1');
     await waitFor(() => screen.getByPlaceholderText('New item'));
@@ -70,8 +65,7 @@ describe('ChecklistDetailScreen', () => {
       {
         id: '1',
         title: 'Groceries',
-        items: [{ id: 'a', text: 'Milk', sectionId: null }],
-        sections: [],
+        items: [{ id: 'a', text: 'Milk' }],
       },
     ]);
 
@@ -92,8 +86,7 @@ describe('ChecklistDetailScreen', () => {
       {
         id: '1',
         title: 'Groceries',
-        items: [{ id: 'a', text: 'Milk', sectionId: null }],
-        sections: [],
+        items: [{ id: 'a', text: 'Milk' }],
       },
     ]);
 
@@ -106,111 +99,29 @@ describe('ChecklistDetailScreen', () => {
     expect((await repo.getAll())[0].items).toHaveLength(0);
   });
 
-  // CheL-3: Reordering & sections.
   // Drag gestures are driven through a mocked react-native-reanimated-dnd
   // (__mocks__/react-native-reanimated-dnd.js) that exposes drag completion
-  // as `fireEvent(getByTestId('sortable-item-<rowId>'), 'drop', { to })`.
+  // as `fireEvent(getByTestId('sortable-item-<itemId>'), 'drop', { to })`.
 
-  it('adds a named section and shows it as a header', async () => {
-    const repo = new AsyncStorageChecklistRepository();
-    await repo.saveAll([
-      { id: '1', title: 'Groceries', items: [], sections: [] },
-    ]);
-
-    await renderDetailScreen('1');
-    await waitFor(() => screen.getByLabelText('New section'));
-
-    await fireEvent.press(screen.getByLabelText('New section'));
-    await fireEvent.changeText(
-      screen.getByPlaceholderText('Section name'),
-      'Produce',
-    );
-    await fireEvent.press(screen.getByLabelText('Save'));
-
-    await waitFor(() =>
-      expect(screen.getAllByText('Produce').length).toBeGreaterThan(0),
-    );
-    expect((await repo.getAll())[0].sections.map(s => s.name)).toEqual([
-      'Produce',
-    ]);
-  });
-
-  it('shows a section chip for each section when adding an item, and assigns the item to the picked chip', async () => {
-    const repo = new AsyncStorageChecklistRepository();
-    const produce = { id: 'produce', name: 'Produce' };
-    await repo.saveAll([
-      { id: '1', title: 'Groceries', items: [], sections: [produce] },
-    ]);
-
-    await renderDetailScreen('1');
-    await waitFor(() => screen.getByTestId('section-chip-default'));
-    expect(screen.getByTestId('section-chip-produce')).toBeTruthy();
-
-    await fireEvent.changeText(
-      screen.getByPlaceholderText('New item'),
-      'Apple',
-    );
-    await fireEvent.press(screen.getByTestId('section-chip-produce'));
-    await fireEvent.press(screen.getByLabelText('Add'));
-
-    await waitFor(() => expect(screen.getByText('Apple')).toBeTruthy());
-    expect((await repo.getAll())[0].items[0].sectionId).toBe('produce');
-  });
-
-  it('adds an item without picking a section into the default section', async () => {
-    const repo = new AsyncStorageChecklistRepository();
-    const produce = { id: 'produce', name: 'Produce' };
-    await repo.saveAll([
-      { id: '1', title: 'Groceries', items: [], sections: [produce] },
-    ]);
-
-    await renderDetailScreen('1');
-    await waitFor(() => screen.getByText('No section'));
-
-    await fireEvent.changeText(screen.getByPlaceholderText('New item'), 'Milk');
-    await fireEvent.press(screen.getByLabelText('Add'));
-
-    await waitFor(() => expect(screen.getByText('Milk')).toBeTruthy());
-    expect((await repo.getAll())[0].items[0].sectionId).toBeNull();
-  });
-
-  it('does not show any section chips or default-section header when the checklist has no named sections', async () => {
-    const repo = new AsyncStorageChecklistRepository();
-    await repo.saveAll([
-      {
-        id: '1',
-        title: 'Groceries',
-        items: [{ id: 'a', text: 'Milk', sectionId: null }],
-        sections: [],
-      },
-    ]);
-
-    await renderDetailScreen('1');
-    await waitFor(() => screen.getByText('Milk'));
-
-    expect(screen.queryByText('No section')).toBeNull();
-  });
-
-  it('reorders items within the same section via drag', async () => {
+  it('reorders items via drag', async () => {
     const repo = new AsyncStorageChecklistRepository();
     await repo.saveAll([
       {
         id: '1',
         title: 'Groceries',
         items: [
-          { id: 'a', text: 'A', sectionId: null },
-          { id: 'b', text: 'B', sectionId: null },
-          { id: 'c', text: 'C', sectionId: null },
+          { id: 'a', text: 'A' },
+          { id: 'b', text: 'B' },
+          { id: 'c', text: 'C' },
         ],
-        sections: [],
       },
     ]);
 
     await renderDetailScreen('1');
     await waitFor(() => screen.getByText('A'));
 
-    // Row 0 ('A') dropped at row 2 (after 'C'): new order is B, C, A.
-    await fireEvent(screen.getByTestId('sortable-item-item:a'), 'drop', {
+    // Item 'A' dropped at index 2 (after 'C'): new order is B, C, A.
+    await fireEvent(screen.getByTestId('sortable-item-a'), 'drop', {
       to: 2,
     });
 
@@ -227,142 +138,20 @@ describe('ChecklistDetailScreen', () => {
         id: '1',
         title: 'Groceries',
         items: [
-          { id: 'a', text: 'A', sectionId: null },
-          { id: 'b', text: 'B', sectionId: null },
+          { id: 'a', text: 'A' },
+          { id: 'b', text: 'B' },
         ],
-        sections: [],
       },
     ]);
 
     await renderDetailScreen('1');
     await waitFor(() => screen.getByText('A'));
 
-    const row = screen.getByTestId('sortable-item-item:a');
+    const row = screen.getByTestId('sortable-item-a');
     const rowContent = (row.children[0] as any).props.style;
 
     expect(rowContent).toEqual(
       expect.objectContaining({ backgroundColor: colors.surface }),
     );
-  });
-
-  it('moves an item to a different section via drag', async () => {
-    const repo = new AsyncStorageChecklistRepository();
-    const produce = { id: 'produce', name: 'Produce' };
-    await repo.saveAll([
-      {
-        id: '1',
-        title: 'Groceries',
-        items: [{ id: 'milk', text: 'Milk', sectionId: null }],
-        sections: [produce],
-      },
-    ]);
-
-    await renderDetailScreen('1');
-    await waitFor(() => screen.getByText('Milk'));
-
-    // Rows: [0] default header, [1] Milk, [2] Produce header.
-    // Drop Milk (row 1) after the Produce header (row 2).
-    await fireEvent(screen.getByTestId('sortable-item-item:milk'), 'drop', {
-      to: 2,
-    });
-
-    await waitFor(async () => {
-      const items = (await repo.getAll())[0].items;
-      expect(items[0].sectionId).toBe('produce');
-    });
-  });
-
-  it('reorders sections via drag, carrying their items with them', async () => {
-    const repo = new AsyncStorageChecklistRepository();
-    const produce = { id: 'produce', name: 'Produce' };
-    const dairy = { id: 'dairy', name: 'Dairy' };
-    await repo.saveAll([
-      {
-        id: '1',
-        title: 'Groceries',
-        items: [
-          { id: 'apple', text: 'Apple', sectionId: 'produce' },
-          { id: 'milk', text: 'Milk', sectionId: 'dairy' },
-        ],
-        sections: [produce, dairy],
-      },
-    ]);
-
-    await renderDetailScreen('1');
-    await waitFor(() => screen.getByText('Apple'));
-
-    // Rows: [0] default header, [1] Produce header, [2] Apple, [3] Dairy header, [4] Milk.
-    // Drag the Dairy header (row 3) above Produce (to row 1).
-    await fireEvent(screen.getByTestId('sortable-item-section:dairy'), 'drop', {
-      to: 1,
-    });
-
-    await waitFor(async () => {
-      const persisted = (await repo.getAll())[0];
-      expect(persisted.sections.map(s => s.id)).toEqual(['dairy', 'produce']);
-    });
-    expect((await repo.getAll())[0].items.map(i => i.id)).toEqual([
-      'milk',
-      'apple',
-    ]);
-  });
-
-  it('deletes a section, with confirmation, and falls its items back to the default section', async () => {
-    const repo = new AsyncStorageChecklistRepository();
-    const produce = { id: 'produce', name: 'Produce' };
-    await repo.saveAll([
-      {
-        id: '1',
-        title: 'Groceries',
-        items: [{ id: 'apple', text: 'Apple', sectionId: 'produce' }],
-        sections: [produce],
-      },
-    ]);
-    const alertSpy = jest
-      .spyOn(Alert, 'alert')
-      .mockImplementation((_title, _message, buttons) => {
-        buttons?.find(b => b.text === 'Delete')?.onPress?.();
-      });
-
-    await renderDetailScreen('1');
-    await waitFor(() =>
-      expect(screen.getAllByText('Produce').length).toBeGreaterThan(0),
-    );
-
-    await fireEvent.press(screen.getByTestId('delete-section-produce'));
-
-    await waitFor(() => expect(screen.queryByText('Produce')).toBeNull());
-    expect(screen.getByText('Apple')).toBeTruthy();
-    expect((await repo.getAll())[0].sections).toHaveLength(0);
-    expect((await repo.getAll())[0].items[0].sectionId).toBeNull();
-
-    alertSpy.mockRestore();
-  });
-
-  it('cancels section deletion when the confirm dialog is declined', async () => {
-    const repo = new AsyncStorageChecklistRepository();
-    const produce = { id: 'produce', name: 'Produce' };
-    await repo.saveAll([
-      {
-        id: '1',
-        title: 'Groceries',
-        items: [{ id: 'apple', text: 'Apple', sectionId: 'produce' }],
-        sections: [produce],
-      },
-    ]);
-    const alertSpy = jest.spyOn(Alert, 'alert').mockImplementation(() => {});
-
-    await renderDetailScreen('1');
-    await waitFor(() =>
-      expect(screen.getAllByText('Produce').length).toBeGreaterThan(0),
-    );
-
-    await fireEvent.press(screen.getByTestId('delete-section-produce'));
-
-    expect(screen.getAllByText('Produce').length).toBeGreaterThan(0);
-    expect(screen.getByText('Apple')).toBeTruthy();
-    expect((await repo.getAll())[0].sections).toHaveLength(1);
-
-    alertSpy.mockRestore();
   });
 });

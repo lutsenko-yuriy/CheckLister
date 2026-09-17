@@ -8,7 +8,6 @@ function item(overrides: Partial<Item> = {}): Item {
   return {
     id: 'a',
     text: 'Milk',
-    sectionId: null,
     ...overrides,
   };
 }

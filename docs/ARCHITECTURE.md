@@ -23,16 +23,14 @@ src/
 ├── features/
 │   ├── checklists/
 │   │   ├── domain/
-│   │   │   ├── models.ts           # Checklist, Section, Item types + pure helpers
-│   │   │   │                       # (ordering/reordering, section add/delete,
-│   │   │   │                       #  legacy-data normalization — see below)
+│   │   │   ├── models.ts           # Checklist, Item types + pure helpers (reordering)
 │   │   │   └── checklistRepository.ts   # Repository interface
 │   │   ├── data/
 │   │   │   └── asyncStorageChecklistRepository.ts
 │   │   ├── ui/
 │   │   │   ├── HomeScreen.tsx
 │   │   │   ├── ChecklistDetailScreen.tsx
-│   │   │   └── components/         # ChecklistListItem, ItemRow, SectionHeader, ...
+│   │   │   └── components/         # ChecklistListItem, ItemRow, ...
 │   │   └── useChecklists.ts        # Context + hook exposing checklist state to UI
 │   └── runs/
 │       ├── domain/
@@ -75,15 +73,6 @@ by that feature's own `data/` and `ui/` layers.
 (a run is built from a checklist snapshot). `checklists/domain` must never
 import from `runs/*` — the dependency is one-directional.
 
-**Sections (CheL-3):** `Checklist.sections` holds only user-named sections,
-in display order. The default/unnamed section has no entry in `sections` —
-it is implicit, represented by `Item.sectionId === null`, always renders
-first, and cannot be renamed, reordered, or deleted. `Checklist.items`
-stays one flat array, always persisted in canonical display order (default
-section's items, then each named section's items in `sections` order);
-`normalizeChecklist` enforces this invariant and is applied on every read
-and after every mutation.
-
 ### Data
 Implements the domain layer's repository interface using `AsyncStorage` (via
 `shared/storage/jsonStorage.ts`). Owns serialization and storage keys. May
@@ -113,17 +102,15 @@ cross-feature state coordination outgrows this.
   local, on-device persistence for checklists and run history. Installed.
 - [`react-native-reanimated-dnd`](https://github.com/entropyconquers/react-native-reanimated-dnd)
   (with its peer deps `react-native-gesture-handler`, `react-native-reanimated`,
-  and `react-native-worklets`) — drag-to-reorder for items and sections
-  (Feature 3 / CheL-3), via its `Sortable`/`SortableItem`/`SortableItem.Handle`
-  components. Requires `GestureHandlerRootView` wrapping the app root and
+  and `react-native-worklets`) — drag-to-reorder for checklist items
+  (Feature 3), via its `Sortable`/`SortableItem`/`SortableItem.Handle`
+  components, rendering `checklist.items` directly. Requires
+  `GestureHandlerRootView` wrapping the app root and
   `react-native-reanimated/plugin` as the last entry in `babel.config.js`.
   Chosen over `react-native-draggable-flatlist` (tried first): that library's
   compiled worklets predate Reanimated 4's `react-native-worklets` split and
   throw `[Worklets] runOnUI can only be used with worklets` at runtime;
   `react-native-reanimated-dnd` explicitly targets Reanimated 4 + worklets.
-  Its `Sortable` component is flat-list-only (no built-in section headers),
-  which is why `ChecklistDetailScreen` flattens the checklist into rows via
-  `domain/models.ts`'s `buildRows` before handing them to it.
 - `react-native-safe-area-context` — already installed; also a peer
   dependency of React Navigation.
 - [`@testing-library/react-native`](https://callstack.github.io/react-native-testing-library/) —

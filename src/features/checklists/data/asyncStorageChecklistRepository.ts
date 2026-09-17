@@ -1,30 +1,30 @@
 import { getJson, setJson } from '../../../shared/storage/jsonStorage';
 import { ChecklistRepository } from '../domain/checklistRepository';
-import { Checklist, Item, normalizeChecklist } from '../domain/models';
+import { Checklist, Item } from '../domain/models';
 
 const STORAGE_KEY = 'checklists';
 
 function migrateChecklist(stored: Checklist): Checklist {
-  const sections = stored.sections ?? [];
-  const validSectionIds = new Set(sections.map(s => s.id));
   const items: Item[] = stored.items.map(item => {
-    // Drop the legacy `checked` field: checklists (templates) no longer
-    // carry checked state — see CheL-15.
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { checked: _checked, ...rest } = item as Item & {
+    // Drop legacy fields no longer part of the Item shape: `checked`
+    // (checklists stopped carrying checked state, see CheL-15) and
+    // `sectionId` (sections were removed entirely, see CheL-20).
+    /* eslint-disable @typescript-eslint/no-unused-vars */
+    const {
+      checked: _checked,
+      sectionId: _sectionId,
+      ...rest
+    } = item as Item & {
       checked?: boolean;
+      sectionId?: string | null;
     };
-    return {
-      ...rest,
-      sectionId:
-        rest.sectionId !== null &&
-        rest.sectionId !== undefined &&
-        validSectionIds.has(rest.sectionId)
-          ? rest.sectionId
-          : null,
-    };
+    /* eslint-enable @typescript-eslint/no-unused-vars */
+    return rest;
   });
-  return normalizeChecklist({ ...stored, sections, items });
+  // Rebuild explicitly (rather than `{ ...stored, items }`) so a stray
+  // `sections` field from a pre-CheL-20 stored checklist does not ride
+  // along indefinitely.
+  return { id: stored.id, title: stored.title, items };
 }
 
 export class AsyncStorageChecklistRepository implements ChecklistRepository {

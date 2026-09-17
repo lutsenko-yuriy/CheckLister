@@ -13,6 +13,12 @@ A record of all versioned releases. For planned work and known issues, see @docs
 - ...
 -->
 
+## [0.6.0] — 2026-09-18 (PR #21 merged)
+
+### Changed
+- [user] CheL-20: Removed the sections feature. A checklist's items are now always shown as one flat list — there is no more grouping into named sections, no section chip picker when adding an item, and no way to create, reorder, or delete a section. Reordering items by dragging them is unchanged.
+- [app] Domain: removed `Section`, `Item.sectionId`, `Checklist.sections`, `normalizeChecklist`, `moveSection`, `resolveSectionDrop`, `Row`, and `buildRows` (`domain/models.ts`); `moveItem`/`createItem` simplified to plain flat-list signatures. State: `useChecklists` drops `addSection`/`deleteSection`/`moveSection`. UI: `ChecklistDetailScreen` renders `checklist.items` directly through `Sortable`; deleted `ui/components/SectionHeader.tsx`. Analytics: removed `section_added`, `section_reordered`, and `item_moved_to_section` events, and `item_reordered`'s `section_id` property. Data: `AsyncStorageChecklistRepository`'s migration now also strips any legacy `sectionId`/`sections` fields on read and no longer carries them forward on re-save.
+
 ## [0.5.0] — 2026-09-17 (PR #17 merged)
 
 ### Changed

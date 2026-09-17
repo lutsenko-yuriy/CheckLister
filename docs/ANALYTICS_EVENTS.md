@@ -51,7 +51,9 @@ Fired when the user deletes an item.
 |---|---|---|
 | `checklist_id` | `string` | The checklist the item belonged to |
 
-<!-- Added for CheL-3: Reordering & sections -->
+<!-- Added for CheL-3: Reordering & sections; section_id property removed
+     and section_added/section_reordered/item_moved_to_section events
+     removed for CheL-20 (sections feature removed). -->
 
 ### `item_reordered`
 
@@ -62,36 +64,6 @@ Fired when the user drags an item into a new position within a checklist (drop c
 | `checklist_id` | `string` | The checklist the item belongs to |
 | `from_index` | `number` | Item's index before the move |
 | `to_index` | `number` | Item's index after the move |
-| `section_id` | `string \| null` | Section the item ended up in (`null` = default section) |
-
-### `section_added`
-
-Fired when the user creates a new named section.
-
-| Property | Type | Description |
-|---|---|---|
-| `checklist_id` | `string` | The checklist the section was added to |
-| `section_count` | `number` | Total section count after the add |
-
-### `section_reordered`
-
-Fired when the user drags a section into a new position.
-
-| Property | Type | Description |
-|---|---|---|
-| `checklist_id` | `string` | The checklist the section belongs to |
-| `from_index` | `number` | Section's index before the move |
-| `to_index` | `number` | Section's index after the move |
-
-### `item_moved_to_section`
-
-Fired when an item's drag ends in a different section than it started in.
-
-| Property | Type | Description |
-|---|---|---|
-| `checklist_id` | `string` | The checklist the item belongs to |
-| `from_section_id` | `string \| null` | Section before the move |
-| `to_section_id` | `string \| null` | Section after the move |
 
 ---
 

@@ -33,16 +33,9 @@ checklist belongs to the person using the device.
   its own. Checking items off only ever happens within a run (Feature 4) —
   see Feature 4 for why.
 
-### Feature 3 — Reordering & sections
+### Feature 3 — Reordering
 - The user must be able to reorder items within a checklist by dragging them
   into a new position.
-- The user can optionally group items into named sections within a single
-  checklist (e.g. "Produce" / "Dairy" within a Groceries checklist), and
-  reorder sections the same way as items.
-- Items added without picking a section go into a default, unnamed section
-  at the top of the checklist.
-- The user can delete a named section (with confirmation); its items fall
-  back into the default section rather than being deleted.
 
 ### Feature 4 — Checklist runs
 - From a checklist, the user must be able to start a new run: this creates a
