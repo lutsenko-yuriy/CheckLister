@@ -273,6 +273,7 @@ export function ChecklistDetailScreen({ navigation, route }: Props) {
       ) : (
         <Sortable
           data={rows}
+          style={styles.sortableList}
           itemKeyExtractor={row => row.id}
           itemHeight={row =>
             row.kind === 'section' ? SECTION_HEADER_HEIGHT : ITEM_ROW_HEIGHT
@@ -427,5 +428,8 @@ const styles = StyleSheet.create({
   dragHandle: {
     marginRight: 12,
     paddingHorizontal: 4,
+  },
+  sortableList: {
+    backgroundColor: colors.background,
   },
 });
