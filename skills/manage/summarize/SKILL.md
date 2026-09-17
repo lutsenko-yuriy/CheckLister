@@ -6,7 +6,7 @@ output_style: CONCISE
 description: Present the current backlog at session start. Fetches open issues from the PM tool, shows the active milestone and completion percentage, groups work by label, and asks "What goes into the next release?" Invoke at the start of every session before any work begins.
 ---
 
-The project management tool is **GitHub Issues**. The issue identifier prefix is **N/A** (e.g. `N/A-12`).
+The project management tool is **GitHub Issues**. The issue identifier prefix is **CheL** (e.g. `CheL-12`).
 
 ---
 

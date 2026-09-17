@@ -8,7 +8,7 @@ When porting to a different PM tool, replace this file — skill logic stays unc
 | Setting | Value |
 |---|---|
 | Tool | `GitHub Issues` (e.g. Linear, Jira, GitHub Issues, GitLab) |
-| Issue prefix | `N/A` (e.g. `APP`, `PROJ`, `HAB`) |
+| Issue prefix | `CheL` (e.g. `APP`, `PROJ`, `HAB`) |
 
 ## Workspace IDs
 
