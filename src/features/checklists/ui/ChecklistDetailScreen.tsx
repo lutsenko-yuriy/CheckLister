@@ -54,7 +54,6 @@ export function ChecklistDetailScreen({ navigation, route }: Props) {
   );
   const [isAddingSection, setIsAddingSection] = useState(false);
   const [newSectionName, setNewSectionName] = useState('');
-  const [draggedRowId, setDraggedRowId] = useState<string | null>(null);
 
   useLayoutEffect(() => {
     navigation.setOptions({ title: checklist?.title ?? 'Checklist' });
@@ -125,16 +124,11 @@ export function ChecklistDetailScreen({ navigation, route }: Props) {
     }
   };
 
-  const handleDragStart = (id: string) => {
-    setDraggedRowId(id);
-  };
-
   const handleDrop = (
     id: string,
     _position: number,
     allPositions?: { [rowId: string]: number },
   ) => {
-    setDraggedRowId(null);
     if (!allPositions) {
       return;
     }
@@ -302,7 +296,6 @@ export function ChecklistDetailScreen({ navigation, route }: Props) {
                 autoScrollDirection={autoScrollDirection}
                 itemsCount={itemsCount}
                 itemHeight={itemHeight}
-                onDragStart={handleDragStart}
                 onDrop={handleDrop}
               >
                 {row.kind === 'section' ? (
@@ -314,7 +307,6 @@ export function ChecklistDetailScreen({ navigation, route }: Props) {
                       }
                     }}
                     dragHandle={dragHandle}
-                    isDragging={id === draggedRowId}
                   />
                 ) : (
                   <ItemRow
@@ -327,7 +319,6 @@ export function ChecklistDetailScreen({ navigation, route }: Props) {
                     }}
                     onDelete={() => handleDelete(row.item.id)}
                     dragHandle={dragHandle}
-                    isDragging={id === draggedRowId}
                   />
                 )}
               </SortableItem>

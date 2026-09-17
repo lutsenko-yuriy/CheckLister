@@ -13,12 +13,10 @@ export function SectionHeader({
   section,
   onDelete,
   dragHandle,
-  isDragging = false,
 }: {
   section: Section | null;
   onDelete: () => void;
   dragHandle: React.ReactNode;
-  isDragging?: boolean;
 }) {
   if (!section) {
     return <View style={styles.header} />;
@@ -36,7 +34,7 @@ export function SectionHeader({
   };
 
   return (
-    <View style={[styles.header, isDragging && styles.headerDragging]}>
+    <View style={styles.header}>
       {dragHandle}
       <Text style={styles.headerText} numberOfLines={1}>
         {section.name}
@@ -60,13 +58,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 4,
     backgroundColor: colors.surface,
-  },
-  headerDragging: {
-    shadowColor: colors.dragLift,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 1,
-    shadowRadius: 8,
-    elevation: 6,
   },
   headerText: {
     flex: 1,

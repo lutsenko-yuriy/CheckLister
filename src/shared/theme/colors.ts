@@ -11,5 +11,4 @@ export const colors = {
   textMuted: '#5C7189',
   danger: '#D64545',
   onPrimary: '#FFFFFF',
-  dragLift: 'rgba(47, 111, 238, 0.28)',
 };

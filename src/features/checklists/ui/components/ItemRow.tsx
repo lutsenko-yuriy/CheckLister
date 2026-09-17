@@ -14,13 +14,11 @@ export function ItemRow({
   onEdit,
   onDelete,
   dragHandle,
-  isDragging = false,
 }: {
   item: Item;
   onEdit: (text: string) => void;
   onDelete: () => void;
   dragHandle: React.ReactNode;
-  isDragging?: boolean;
 }) {
   const [isEditing, setIsEditing] = useState(false);
   const [draftText, setDraftText] = useState(item.text);
@@ -40,7 +38,7 @@ export function ItemRow({
 
   if (isEditing) {
     return (
-      <View style={[styles.row, isDragging && styles.rowDragging]}>
+      <View style={styles.row}>
         <TextInput
           style={styles.input}
           value={draftText}
@@ -64,7 +62,7 @@ export function ItemRow({
   }
 
   return (
-    <View style={[styles.row, isDragging && styles.rowDragging]}>
+    <View style={styles.row}>
       {dragHandle}
       <View style={styles.rowBody}>
         <Text style={styles.itemText} numberOfLines={1}>
@@ -97,13 +95,6 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surface,
     borderBottomWidth: StyleSheet.hairlineWidth,
     borderBottomColor: colors.border,
-  },
-  rowDragging: {
-    shadowColor: colors.dragLift,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 1,
-    shadowRadius: 8,
-    elevation: 6,
   },
   rowBody: {
     flex: 1,

@@ -220,7 +220,7 @@ describe('ChecklistDetailScreen', () => {
     });
   });
 
-  it('dragged item row shows an opaque, elevated style while active and reverts after drop', async () => {
+  it('item row has an opaque background so rows behind it never show through while reordering', async () => {
     const repo = new AsyncStorageChecklistRepository();
     await repo.saveAll([
       {
@@ -238,34 +238,10 @@ describe('ChecklistDetailScreen', () => {
     await waitFor(() => screen.getByText('A'));
 
     const row = screen.getByTestId('sortable-item-item:a');
-    const rowContent = () => (row.children[0] as any).props.style;
+    const rowContent = (row.children[0] as any).props.style;
 
-    expect(rowContent()).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({ backgroundColor: colors.surface }),
-      ]),
-    );
-
-    await fireEvent(row, 'dragStart');
-
-    expect(rowContent()).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({ backgroundColor: colors.surface }),
-        expect.objectContaining({ elevation: expect.any(Number) }),
-      ]),
-    );
-
-    await fireEvent(row, 'drop', { to: 1 });
-
-    expect(rowContent()).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({ backgroundColor: colors.surface }),
-      ]),
-    );
-    expect(rowContent()).not.toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({ elevation: expect.any(Number) }),
-      ]),
+    expect(rowContent).toEqual(
+      expect.objectContaining({ backgroundColor: colors.surface }),
     );
   });
 
