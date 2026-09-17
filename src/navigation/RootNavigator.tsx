@@ -62,12 +62,21 @@ export function RootNavigator() {
         name="Run"
         component={RunScreen}
         options={{
-          headerBackVisible: false,
-          headerLeft: () => null,
-          // Same iOS-26 escape hatch as ChecklistDetail's back button, used
-          // here to guarantee no back affordance renders at all.
-          unstable_headerLeftItems: () => [],
-          gestureEnabled: false,
+          // No gestureEnabled/headerLeft suppression here: RunScreen uses
+          // usePreventRemove, which disables native-stack's swipe-back
+          // gesture at the native level itself while a run is active and
+          // incomplete (unlike a manual beforeRemove listener, which can
+          // only block JS-dispatched actions and would desync from a native
+          // swipe gesture already in progress). Same flat back button as
+          // ChecklistDetail otherwise.
+          headerLeft: FlatBackButton,
+          unstable_headerLeftItems: () => [
+            {
+              type: 'custom',
+              element: <FlatBackButton />,
+              hidesSharedBackground: true,
+            },
+          ],
         }}
       />
     </Stack.Navigator>

@@ -70,7 +70,13 @@ below). May be imported by that feature's own `data/` and `ui/` layers.
 
 **Cross-feature rule:** `runs/domain` may import types from `checklists/domain`
 (a run is built from a checklist snapshot). `checklists/domain` must never
-import from `runs/*` — the dependency is one-directional.
+import from `runs/*` — the dependency is one-directional at the domain layer.
+
+At the UI layer the dependency runs the other way: `ChecklistDetailScreen`
+(in `checklists/ui`) imports `useRuns` from `runs/useRuns` to power its
+"Start run" button (CheL-4 WU3) — the entry point into a run necessarily
+lives on the checklist screen. `runs/ui` must never import from
+`checklists/ui` or `checklists/useChecklists` in the other direction.
 
 ### Data
 Implements the domain layer's repository interface using `AsyncStorage` (via

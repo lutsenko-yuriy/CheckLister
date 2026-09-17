@@ -7,6 +7,11 @@ import {
   act,
 } from '@testing-library/react-native';
 import { Alert } from 'react-native';
+import {
+  NavigationContainer,
+  createNavigationContainerRef,
+} from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { RunsProvider, useRuns } from '../useRuns';
 import { RunScreen } from './RunScreen';
@@ -14,27 +19,25 @@ import { analytics } from '../../../shared/analytics/AnalyticsService';
 import { createChecklist, createItem } from '../../checklists/domain/models';
 import { AsyncStorageChecklistRepository } from '../../checklists/data/asyncStorageChecklistRepository';
 
-function createMockNavigation() {
-  const listeners: Record<string, (event: any) => void> = {};
-  return {
-    setOptions: jest.fn(),
-    goBack: jest.fn(),
-    dispatch: jest.fn(),
-    addListener: jest.fn((event: string, callback: (event: any) => void) => {
-      listeners[event] = callback;
-      return jest.fn();
-    }),
-    emit: (event: string, payload: any) => listeners[event]?.(payload),
-  };
+// usePreventRemove (used by RunScreen to safely gate the swipe-back gesture,
+// not just JS-dispatched actions — see RunScreen.tsx) calls useNavigation()
+// and useRoute() internally, so it needs a real navigator in the tree rather
+// than a mocked `navigation` prop. A Placeholder screen sits behind "Run" so
+// goBack() has somewhere to go.
+type TestParamList = { Placeholder: undefined; Run: { checklistId: string } };
+const Stack = createNativeStackNavigator<TestParamList>();
+
+function PlaceholderScreen() {
+  return null;
 }
 
-function Harness({
+function RunHarness({
   checklist,
-  navigation,
-}: {
-  checklist: ReturnType<typeof createChecklist>;
-  navigation: any;
-}) {
+  ...props
+}: { checklist: ReturnType<typeof createChecklist> } & Record<
+  string,
+  unknown
+>) {
   const { startRun } = useRuns();
   const started = useRef(false);
 
@@ -45,30 +48,66 @@ function Harness({
     }
   }, [checklist, startRun]);
 
-  return (
-    <RunScreen
-      navigation={navigation}
-      route={{ params: { checklistId: checklist.id } } as any}
-    />
-  );
+  return <RunScreen {...(props as any)} />;
 }
 
-async function renderRun(
-  itemTexts: string[],
-  navigation = createMockNavigation(),
-) {
+async function renderRun(itemTexts: string[], extra: React.ReactNode = null) {
   const checklist = {
     ...createChecklist('Groceries'),
     items: itemTexts.map(createItem),
   };
+  const navigationRef = createNavigationContainerRef<TestParamList>();
 
   const utils = await render(
     <RunsProvider>
-      <Harness checklist={checklist} navigation={navigation} />
+      <NavigationContainer
+        ref={navigationRef}
+        initialState={{
+          index: 1,
+          routes: [
+            { name: 'Placeholder' },
+            { name: 'Run', params: { checklistId: checklist.id } },
+          ],
+        }}
+      >
+        <Stack.Navigator screenOptions={{ headerShown: false }}>
+          <Stack.Screen name="Placeholder" component={PlaceholderScreen} />
+          <Stack.Screen name="Run">
+            {props => <RunHarness checklist={checklist} {...props} />}
+          </Stack.Screen>
+        </Stack.Navigator>
+      </NavigationContainer>
+      {extra}
     </RunsProvider>,
   );
 
-  return { checklist, navigation, ...utils };
+  return { checklist, navigationRef, ...utils };
+}
+
+async function renderRunWithoutStarting() {
+  const navigationRef = createNavigationContainerRef<TestParamList>();
+
+  const utils = await render(
+    <RunsProvider>
+      <NavigationContainer
+        ref={navigationRef}
+        initialState={{
+          index: 1,
+          routes: [
+            { name: 'Placeholder' },
+            { name: 'Run', params: { checklistId: '1' } },
+          ],
+        }}
+      >
+        <Stack.Navigator screenOptions={{ headerShown: false }}>
+          <Stack.Screen name="Placeholder" component={PlaceholderScreen} />
+          <Stack.Screen name="Run" component={RunScreen} />
+        </Stack.Navigator>
+      </NavigationContainer>
+    </RunsProvider>,
+  );
+
+  return { navigationRef, ...utils };
 }
 
 describe('RunScreen', () => {
@@ -127,7 +166,6 @@ describe('RunScreen', () => {
   });
 
   it('completing the run pops the screen and clears the active run', async () => {
-    const navigation = createMockNavigation();
     let capturedActiveRun: unknown;
 
     function Observer() {
@@ -136,28 +174,23 @@ describe('RunScreen', () => {
       return null;
     }
 
-    const checklist = {
-      ...createChecklist('Groceries'),
-      items: [createItem('A')],
-    };
-
-    await render(
-      <RunsProvider>
-        <Harness checklist={checklist} navigation={navigation} />
-        <Observer />
-      </RunsProvider>,
-    );
+    const { navigationRef } = await renderRun(['A'], <Observer />);
     await waitFor(() => screen.getByText('A'));
 
     await fireEvent.press(screen.getByText('A'));
-    await fireEvent.press(screen.getByLabelText('Complete the checklist'));
+    await act(async () => {
+      fireEvent.press(screen.getByLabelText('Complete the checklist'));
+    });
 
-    expect(navigation.goBack).toHaveBeenCalled();
+    await waitFor(() =>
+      expect(navigationRef.current?.getCurrentRoute()?.name).toBe(
+        'Placeholder',
+      ),
+    );
     expect(capturedActiveRun).toBeNull();
   });
 
   it('exiting before completion prompts confirmation; confirming discards the run, cancelling preserves it', async () => {
-    const navigation = createMockNavigation();
     let capturedActiveRun: unknown;
 
     function Observer() {
@@ -166,17 +199,7 @@ describe('RunScreen', () => {
       return null;
     }
 
-    const checklist = {
-      ...createChecklist('Groceries'),
-      items: [createItem('A'), createItem('B')],
-    };
-
-    await render(
-      <RunsProvider>
-        <Harness checklist={checklist} navigation={navigation} />
-        <Observer />
-      </RunsProvider>,
-    );
+    const { navigationRef } = await renderRun(['A', 'B'], <Observer />);
     await waitFor(() => screen.getByText('A'));
     await fireEvent.press(screen.getByText('A'));
 
@@ -185,21 +208,17 @@ describe('RunScreen', () => {
       .mockImplementation((_title, _msg, buttons) => {
         buttons?.find(b => b.text === 'Cancel')?.onPress?.();
       });
-    const preventDefault = jest.fn();
     await act(async () => {
-      navigation.emit('beforeRemove', {
-        preventDefault,
-        data: { action: { type: 'GO_BACK' } },
-      });
+      navigationRef.current?.goBack();
     });
 
-    expect(preventDefault).toHaveBeenCalled();
     expect(alertSpy).toHaveBeenCalledWith(
       'Are you sure?',
       expect.any(String),
       expect.any(Array),
     );
-    // Cancelled: progress preserved.
+    // Cancelled: progress preserved, still on the Run screen.
+    expect(navigationRef.current?.getCurrentRoute()?.name).toBe('Run');
     const rowA = screen.getByText('A').parent?.parent;
     expect(rowA?.props.accessibilityState).toEqual(
       expect.objectContaining({ checked: true }),
@@ -209,60 +228,47 @@ describe('RunScreen', () => {
     alertSpy.mockImplementation((_title, _msg, buttons) => {
       buttons?.find(b => b.text === 'Discard')?.onPress?.();
     });
-    const preventDefault2 = jest.fn();
     await act(async () => {
-      navigation.emit('beforeRemove', {
-        preventDefault: preventDefault2,
-        data: { action: { type: 'GO_BACK' } },
-      });
+      navigationRef.current?.goBack();
     });
 
+    await waitFor(() =>
+      expect(navigationRef.current?.getCurrentRoute()?.name).toBe(
+        'Placeholder',
+      ),
+    );
     expect(capturedActiveRun).toBeNull();
-    expect(navigation.dispatch).toHaveBeenCalledWith({ type: 'GO_BACK' });
-  });
-
-  it('pressing the visible back button also triggers the exit-confirmation flow', async () => {
-    const navigation = createMockNavigation();
-    const checklist = {
-      ...createChecklist('Groceries'),
-      items: [createItem('A')],
-    };
-
-    await render(
-      <RunsProvider>
-        <Harness checklist={checklist} navigation={navigation} />
-      </RunsProvider>,
-    );
-    await waitFor(() => screen.getByText('A'));
-
-    const alertSpy = jest.spyOn(Alert, 'alert').mockImplementation(() => {});
-    await act(async () => {
-      navigation.emit('beforeRemove', {
-        preventDefault: jest.fn(),
-        data: { action: { type: 'GO_BACK' } },
-      });
-    });
-
-    expect(alertSpy).toHaveBeenCalledWith(
-      'Are you sure?',
-      expect.any(String),
-      expect.any(Array),
-    );
   });
 
   it('logs run analytics with the documented properties', async () => {
     const logEventSpy = jest.spyOn(analytics, 'logEvent');
     const logScreenViewSpy = jest.spyOn(analytics, 'logScreenView');
-    const navigation = createMockNavigation();
+
     const checklist = {
       ...createChecklist('Groceries'),
       id: '1',
       items: [createItem('A'), createItem('B')],
     };
-
+    const navigationRef = createNavigationContainerRef<TestParamList>();
     await render(
       <RunsProvider>
-        <Harness checklist={checklist} navigation={navigation} />
+        <NavigationContainer
+          ref={navigationRef}
+          initialState={{
+            index: 1,
+            routes: [
+              { name: 'Placeholder' },
+              { name: 'Run', params: { checklistId: checklist.id } },
+            ],
+          }}
+        >
+          <Stack.Navigator screenOptions={{ headerShown: false }}>
+            <Stack.Screen name="Placeholder" component={PlaceholderScreen} />
+            <Stack.Screen name="Run">
+              {props => <RunHarness checklist={checklist} {...props} />}
+            </Stack.Screen>
+          </Stack.Navigator>
+        </NavigationContainer>
       </RunsProvider>,
     );
     await waitFor(() => screen.getByText('A'));
@@ -281,7 +287,9 @@ describe('RunScreen', () => {
     });
 
     await fireEvent.press(screen.getByText('B'));
-    await fireEvent.press(screen.getByLabelText('Complete the checklist'));
+    await act(async () => {
+      fireEvent.press(screen.getByLabelText('Complete the checklist'));
+    });
 
     expect(logEventSpy).toHaveBeenCalledWith('run_completed', {
       checklist_id: '1',
@@ -302,19 +310,36 @@ describe('RunScreen', () => {
       },
     ]);
 
-    const navigation = createMockNavigation();
     const checklist = (await repo.getAll())[0];
-
+    const navigationRef = createNavigationContainerRef<TestParamList>();
     await render(
       <RunsProvider>
-        <Harness checklist={checklist} navigation={navigation} />
+        <NavigationContainer
+          ref={navigationRef}
+          initialState={{
+            index: 1,
+            routes: [
+              { name: 'Placeholder' },
+              { name: 'Run', params: { checklistId: checklist.id } },
+            ],
+          }}
+        >
+          <Stack.Navigator screenOptions={{ headerShown: false }}>
+            <Stack.Screen name="Placeholder" component={PlaceholderScreen} />
+            <Stack.Screen name="Run">
+              {props => <RunHarness checklist={checklist} {...props} />}
+            </Stack.Screen>
+          </Stack.Navigator>
+        </NavigationContainer>
       </RunsProvider>,
     );
     await waitFor(() => screen.getByText('A'));
 
     await fireEvent.press(screen.getByText('A'));
     await fireEvent.press(screen.getByText('B'));
-    await fireEvent.press(screen.getByLabelText('Complete the checklist'));
+    await act(async () => {
+      fireEvent.press(screen.getByLabelText('Complete the checklist'));
+    });
 
     const stored = (await repo.getAll())[0];
     expect(stored.items).toEqual([
@@ -326,22 +351,17 @@ describe('RunScreen', () => {
   });
 
   it('shows a defensive empty state if the screen mounts with no active run', async () => {
-    const navigation = createMockNavigation();
-
-    await render(
-      <RunsProvider>
-        <RunScreen
-          navigation={navigation as any}
-          route={{ params: { checklistId: '1' } } as any}
-        />
-      </RunsProvider>,
-    );
+    const { navigationRef } = await renderRunWithoutStarting();
 
     await waitFor(() =>
       expect(screen.getByText(/no active run/i)).toBeTruthy(),
     );
 
     await fireEvent.press(screen.getByLabelText('Back'));
-    expect(navigation.goBack).toHaveBeenCalled();
+    await waitFor(() =>
+      expect(navigationRef.current?.getCurrentRoute()?.name).toBe(
+        'Placeholder',
+      ),
+    );
   });
 });

@@ -1,4 +1,4 @@
-import React, { useLayoutEffect, useRef } from 'react';
+import React, { useEffect, useLayoutEffect, useState } from 'react';
 import {
   Alert,
   FlatList,
@@ -8,6 +8,7 @@ import {
   View,
 } from 'react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { usePreventRemove } from '@react-navigation/native';
 import { RootStackParamList } from '../../../navigation/types';
 import { useRuns } from '../useRuns';
 import { checkedCount, isRunComplete } from '../domain/models';
@@ -19,11 +20,13 @@ type Props = NativeStackScreenProps<RootStackParamList, 'Run'>;
 
 export function RunScreen({ navigation }: Props) {
   const { activeRun, toggleItem, completeRun, clearRun } = useRuns();
-  // A ref (not state) so the beforeRemove listener always reads the latest
-  // value synchronously — handleComplete sets this and calls goBack() in the
-  // same tick, before a state update would have re-rendered the listener's
-  // closure.
-  const justCompletedRef = useRef(false);
+  // State (not a ref): usePreventRemove needs a value it can react to across
+  // renders — it disables native-stack's swipe-back gesture at the native
+  // level while true, not just the JS-side beforeRemove event, avoiding a
+  // "removed natively but didn't get removed from JS state" desync that a
+  // manual beforeRemove + e.preventDefault() listener cannot prevent for the
+  // swipe gesture (only for JS-dispatched actions like a header back press).
+  const [justCompleted, setJustCompleted] = useState(false);
 
   useLayoutEffect(() => {
     navigation.setOptions({ title: activeRun?.checklistTitle ?? 'Run' });
@@ -42,31 +45,35 @@ export function RunScreen({ navigation }: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeRun?.id]);
 
-  useLayoutEffect(
-    () =>
-      navigation.addListener('beforeRemove', e => {
-        if (justCompletedRef.current) {
-          return;
-        }
-        e.preventDefault();
-        Alert.alert(
-          'Are you sure?',
-          'Leaving now will discard this run. Your progress will not be saved.',
-          [
-            { text: 'Cancel', style: 'cancel' },
-            {
-              text: 'Discard',
-              style: 'destructive',
-              onPress: () => {
-                clearRun();
-                navigation.dispatch(e.data.action);
-              },
-            },
-          ],
-        );
-      }),
-    [navigation, clearRun],
-  );
+  usePreventRemove(!!activeRun && !justCompleted, ({ data }) => {
+    Alert.alert(
+      'Are you sure?',
+      'Leaving now will discard this run. Your progress will not be saved.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Discard',
+          style: 'destructive',
+          onPress: () => {
+            clearRun();
+            navigation.dispatch(data.action);
+          },
+        },
+      ],
+    );
+  });
+
+  // Deferred to an effect (not called inline in handleComplete) so
+  // usePreventRemove's internal listener has already re-rendered with
+  // justCompleted=true — and therefore preventRemove=false — before goBack()
+  // runs; calling goBack() synchronously in the same tick as the state
+  // update would race against that re-render.
+  useEffect(() => {
+    if (justCompleted) {
+      clearRun();
+      navigation.goBack();
+    }
+  }, [justCompleted, navigation, clearRun]);
 
   if (!activeRun) {
     return (
@@ -99,10 +106,8 @@ export function RunScreen({ navigation }: Props) {
       checklist_id: activeRun.checklistId,
       item_count: activeRun.items.length,
     });
-    justCompletedRef.current = true;
     completeRun();
-    clearRun();
-    navigation.goBack();
+    setJustCompleted(true);
   };
 
   const complete = isRunComplete(activeRun);
@@ -152,8 +157,9 @@ const styles = StyleSheet.create({
   },
   completeButton: {
     marginTop: 16,
+    marginBottom: 16,
     backgroundColor: colors.primary,
-    borderRadius: 8,
+    borderRadius: 14,
     paddingVertical: 14,
     alignItems: 'center',
   },
