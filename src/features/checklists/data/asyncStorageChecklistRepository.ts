@@ -1,30 +1,25 @@
 import { getJson, setJson } from '../../../shared/storage/jsonStorage';
 import { ChecklistRepository } from '../domain/checklistRepository';
-import { Checklist, Item, normalizeChecklist } from '../domain/models';
+import { Checklist, Item } from '../domain/models';
 
 const STORAGE_KEY = 'checklists';
 
 function migrateChecklist(stored: Checklist): Checklist {
-  const sections = stored.sections ?? [];
-  const validSectionIds = new Set(sections.map(s => s.id));
   const items: Item[] = stored.items.map(item => {
     // Drop the legacy `checked` field: checklists (templates) no longer
     // carry checked state — see CheL-15.
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { checked: _checked, ...rest } = item as Item & {
+    const {
+      checked: _checked,
+      sectionId: _sectionId,
+      ...rest
+    } = item as Item & {
       checked?: boolean;
+      sectionId?: string | null;
     };
-    return {
-      ...rest,
-      sectionId:
-        rest.sectionId !== null &&
-        rest.sectionId !== undefined &&
-        validSectionIds.has(rest.sectionId)
-          ? rest.sectionId
-          : null,
-    };
+    return rest;
   });
-  return normalizeChecklist({ ...stored, sections, items });
+  return { ...stored, items };
 }
 
 export class AsyncStorageChecklistRepository implements ChecklistRepository {
