@@ -28,7 +28,7 @@ describe('ChecklistDetailScreen', () => {
 
   it("shows the checklist's title and a placeholder for items", async () => {
     const repo = new AsyncStorageChecklistRepository();
-    await repo.saveAll([{ id: '1', title: 'Groceries', items: [] }]);
+    await repo.saveAll([{ id: '1', title: 'Groceries', items: [], sections: [] }]);
 
     await renderDetailScreen('1');
 
@@ -46,7 +46,7 @@ describe('ChecklistDetailScreen', () => {
 
   it('adds an item from the input and clears it afterwards', async () => {
     const repo = new AsyncStorageChecklistRepository();
-    await repo.saveAll([{ id: '1', title: 'Groceries', items: [] }]);
+    await repo.saveAll([{ id: '1', title: 'Groceries', items: [], sections: [] }]);
 
     await renderDetailScreen('1');
     await waitFor(() => screen.getByPlaceholderText('New item'));
@@ -64,7 +64,8 @@ describe('ChecklistDetailScreen', () => {
       {
         id: '1',
         title: 'Groceries',
-        items: [{ id: 'a', text: 'Milk', checked: false }],
+        items: [{ id: 'a', text: 'Milk', checked: false, sectionId: null }],
+        sections: [],
       },
     ]);
 
@@ -88,7 +89,8 @@ describe('ChecklistDetailScreen', () => {
       {
         id: '1',
         title: 'Groceries',
-        items: [{ id: 'a', text: 'Milk', checked: false }],
+        items: [{ id: 'a', text: 'Milk', checked: false, sectionId: null }],
+        sections: [],
       },
     ]);
 
@@ -109,7 +111,8 @@ describe('ChecklistDetailScreen', () => {
       {
         id: '1',
         title: 'Groceries',
-        items: [{ id: 'a', text: 'Milk', checked: false }],
+        items: [{ id: 'a', text: 'Milk', checked: false, sectionId: null }],
+        sections: [],
       },
     ]);
 
@@ -129,9 +132,10 @@ describe('ChecklistDetailScreen', () => {
         id: '1',
         title: 'Groceries',
         items: [
-          { id: 'a', text: 'Milk', checked: false },
-          { id: 'b', text: 'Eggs', checked: false },
+          { id: 'a', text: 'Milk', checked: false, sectionId: null },
+          { id: 'b', text: 'Eggs', checked: false, sectionId: null },
         ],
+        sections: [],
       },
     ]);
 
