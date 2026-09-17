@@ -7,7 +7,7 @@ import {
   TextInput,
   View,
 } from 'react-native';
-import DraggableFlatList from 'react-native-draggable-flatlist';
+import { Sortable, SortableItem } from 'react-native-reanimated-dnd';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../../navigation/types';
 import { useChecklists } from '../useChecklists';
@@ -18,10 +18,21 @@ import {
   Row,
 } from '../domain/models';
 import { analytics } from '../../../shared/analytics/AnalyticsService';
-import { ItemRow } from './components/ItemRow';
-import { SectionHeader } from './components/SectionHeader';
+import { ItemRow, ITEM_ROW_HEIGHT } from './components/ItemRow';
+import {
+  SectionHeader,
+  SECTION_HEADER_HEIGHT,
+} from './components/SectionHeader';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'ChecklistDetail'>;
+
+type SortableRow = Row & { id: string };
+
+function rowId(row: Row): string {
+  return row.kind === 'item'
+    ? `item:${row.item.id}`
+    : `section:${row.section ? row.section.id : 'default'}`;
+}
 
 export function ChecklistDetailScreen({ navigation, route }: Props) {
   const {
@@ -69,7 +80,10 @@ export function ChecklistDetailScreen({ navigation, route }: Props) {
   }
 
   const checklistId = checklist.id;
-  const rows = buildRows(checklist);
+  const rows: SortableRow[] = buildRows(checklist).map(row => ({
+    ...row,
+    id: rowId(row),
+  }));
 
   const handleAdd = () => {
     const text = newItemText.trim();
@@ -127,17 +141,27 @@ export function ChecklistDetailScreen({ navigation, route }: Props) {
     }
   };
 
-  const handleDragEnd = ({ data, from }: { data: Row[]; from: number }) => {
-    const draggedRow = rows[from];
+  const handleDrop = (
+    id: string,
+    _position: number,
+    allPositions?: { [rowId: string]: number },
+  ) => {
+    if (!allPositions) {
+      return;
+    }
+    const draggedRow = rows.find(row => row.id === id);
     if (!draggedRow) {
       return;
     }
+    const newRows = rows
+      .slice()
+      .sort((a, b) => (allPositions[a.id] ?? 0) - (allPositions[b.id] ?? 0));
 
     if (draggedRow.kind === 'item') {
       const itemId = draggedRow.item.id;
       const fromIndex = checklist.items.findIndex(i => i.id === itemId);
       const fromSectionId = draggedRow.item.sectionId;
-      const { toSectionId, toIndex } = resolveItemDrop(data, itemId);
+      const { toSectionId, toIndex } = resolveItemDrop(newRows, itemId);
 
       moveItem(checklistId, itemId, toSectionId, toIndex);
 
@@ -158,7 +182,7 @@ export function ChecklistDetailScreen({ navigation, route }: Props) {
     } else if (draggedRow.section) {
       const sectionId = draggedRow.section.id;
       const fromIndex = checklist.sections.findIndex(s => s.id === sectionId);
-      const toIndex = resolveSectionDrop(data, sectionId);
+      const toIndex = resolveSectionDrop(newRows, sectionId);
 
       moveSection(checklistId, sectionId, toIndex);
 
@@ -259,51 +283,65 @@ export function ChecklistDetailScreen({ navigation, route }: Props) {
       {checklist.items.length === 0 && !hasSections ? (
         <Text style={styles.emptyState}>No items yet.</Text>
       ) : (
-        <DraggableFlatList
-          testID="draggable-flatlist"
+        <Sortable
           data={rows}
-          keyExtractor={(row: Row) =>
-            row.kind === 'item'
-              ? `item:${row.item.id}`
-              : `section:${row.section ? row.section.id : 'default'}`
+          itemKeyExtractor={row => row.id}
+          itemHeight={row =>
+            row.kind === 'section' ? SECTION_HEADER_HEIGHT : ITEM_ROW_HEIGHT
           }
-          onDragEnd={handleDragEnd}
           renderItem={({
             item: row,
-            drag,
-            isActive,
-          }: {
-            item: Row;
-            drag: () => void;
-            isActive: boolean;
-          }) =>
-            row.kind === 'section' ? (
-              <SectionHeader
-                section={row.section}
-                onDelete={() => {
-                  if (row.section) {
-                    handleDeleteSection(row.section.id);
-                  }
-                }}
-                drag={drag}
-                isActive={isActive}
-              />
-            ) : (
-              <ItemRow
-                item={row.item}
-                onToggle={() => handleToggle(row.item)}
-                onEdit={text => {
-                  editItem(checklistId, row.item.id, text);
-                  analytics.logEvent('item_edited', {
-                    checklist_id: checklistId,
-                  });
-                }}
-                onDelete={() => handleDelete(row.item.id)}
-                drag={drag}
-                isActive={isActive}
-              />
-            )
-          }
+            id,
+            positions,
+            lowerBound,
+            autoScrollDirection,
+            itemsCount,
+            itemHeight,
+          }) => {
+            const dragHandle = (
+              <SortableItem.Handle style={styles.dragHandle}>
+                <Text>≡</Text>
+              </SortableItem.Handle>
+            );
+            return (
+              <SortableItem
+                key={id}
+                id={id}
+                data={row}
+                positions={positions}
+                lowerBound={lowerBound}
+                autoScrollDirection={autoScrollDirection}
+                itemsCount={itemsCount}
+                itemHeight={itemHeight}
+                onDrop={handleDrop}
+              >
+                {row.kind === 'section' ? (
+                  <SectionHeader
+                    section={row.section}
+                    onDelete={() => {
+                      if (row.section) {
+                        handleDeleteSection(row.section.id);
+                      }
+                    }}
+                    dragHandle={dragHandle}
+                  />
+                ) : (
+                  <ItemRow
+                    item={row.item}
+                    onToggle={() => handleToggle(row.item)}
+                    onEdit={text => {
+                      editItem(checklistId, row.item.id, text);
+                      analytics.logEvent('item_edited', {
+                        checklist_id: checklistId,
+                      });
+                    }}
+                    onDelete={() => handleDelete(row.item.id)}
+                    dragHandle={dragHandle}
+                  />
+                )}
+              </SortableItem>
+            );
+          }}
         />
       )}
     </View>
@@ -405,5 +443,9 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: 32,
     color: '#666',
+  },
+  dragHandle: {
+    marginRight: 12,
+    paddingHorizontal: 4,
   },
 });

@@ -1,5 +1,6 @@
 import React from 'react';
 import { render, fireEvent, screen } from '@testing-library/react-native';
+import { Text } from 'react-native';
 import { ItemRow } from './ItemRow';
 import { Item } from '../../domain/models';
 
@@ -21,8 +22,7 @@ describe('ItemRow', () => {
         onToggle={jest.fn()}
         onEdit={jest.fn()}
         onDelete={jest.fn()}
-        drag={jest.fn()}
-        isActive={false}
+        dragHandle={<Text>Handle</Text>}
       />,
     );
     expect(screen.getByText('Milk')).toBeTruthy();
@@ -36,28 +36,24 @@ describe('ItemRow', () => {
         onToggle={onToggle}
         onEdit={jest.fn()}
         onDelete={jest.fn()}
-        drag={jest.fn()}
-        isActive={false}
+        dragHandle={<Text>Handle</Text>}
       />,
     );
     fireEvent.press(screen.getByText('Milk'));
     expect(onToggle).toHaveBeenCalled();
   });
 
-  it('calls drag on a long press of the drag handle', async () => {
-    const drag = jest.fn();
+  it('renders the provided drag handle', async () => {
     await render(
       <ItemRow
         item={item()}
         onToggle={jest.fn()}
         onEdit={jest.fn()}
         onDelete={jest.fn()}
-        drag={drag}
-        isActive={false}
+        dragHandle={<Text>Handle</Text>}
       />,
     );
-    fireEvent(screen.getByLabelText('Drag to reorder'), 'longPress');
-    expect(drag).toHaveBeenCalled();
+    expect(screen.getByText('Handle')).toBeTruthy();
   });
 
   it('edits the item text via Edit/Save', async () => {
@@ -68,8 +64,7 @@ describe('ItemRow', () => {
         onToggle={jest.fn()}
         onEdit={onEdit}
         onDelete={jest.fn()}
-        drag={jest.fn()}
-        isActive={false}
+        dragHandle={<Text>Handle</Text>}
       />,
     );
     await fireEvent.press(screen.getByText('Edit'));
@@ -86,8 +81,7 @@ describe('ItemRow', () => {
         onToggle={jest.fn()}
         onEdit={jest.fn()}
         onDelete={onDelete}
-        drag={jest.fn()}
-        isActive={false}
+        dragHandle={<Text>Handle</Text>}
       />,
     );
     fireEvent.press(screen.getByText('Delete'));

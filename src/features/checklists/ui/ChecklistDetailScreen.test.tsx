@@ -160,9 +160,9 @@ describe('ChecklistDetailScreen', () => {
   });
 
   // CheL-3: Reordering & sections.
-  // Drag gestures are driven through a mocked react-native-draggable-flatlist
-  // (WU3 infra, __mocks__/react-native-draggable-flatlist.js) that exposes
-  // drag completion as `fireEvent(getByTestId('draggable-flatlist'), 'dragEnd', { from, to })`.
+  // Drag gestures are driven through a mocked react-native-reanimated-dnd
+  // (__mocks__/react-native-reanimated-dnd.js) that exposes drag completion
+  // as `fireEvent(getByTestId('sortable-item-<rowId>'), 'drop', { to })`.
 
   it('adds a named section and shows it as a header', async () => {
     const repo = new AsyncStorageChecklistRepository();
@@ -263,8 +263,7 @@ describe('ChecklistDetailScreen', () => {
     await waitFor(() => screen.getByText('A'));
 
     // Row 0 ('A') dropped at row 2 (after 'C'): new order is B, C, A.
-    await fireEvent(screen.getByTestId('draggable-flatlist'), 'dragEnd', {
-      from: 0,
+    await fireEvent(screen.getByTestId('sortable-item-item:a'), 'drop', {
       to: 2,
     });
 
@@ -291,8 +290,7 @@ describe('ChecklistDetailScreen', () => {
 
     // Rows: [0] default header, [1] Milk, [2] Produce header.
     // Drop Milk (row 1) after the Produce header (row 2).
-    await fireEvent(screen.getByTestId('draggable-flatlist'), 'dragEnd', {
-      from: 1,
+    await fireEvent(screen.getByTestId('sortable-item-item:milk'), 'drop', {
       to: 2,
     });
 
@@ -323,8 +321,7 @@ describe('ChecklistDetailScreen', () => {
 
     // Rows: [0] default header, [1] Produce header, [2] Apple, [3] Dairy header, [4] Milk.
     // Drag the Dairy header (row 3) above Produce (to row 1).
-    await fireEvent(screen.getByTestId('draggable-flatlist'), 'dragEnd', {
-      from: 3,
+    await fireEvent(screen.getByTestId('sortable-item-section:dairy'), 'drop', {
       to: 1,
     });
 

@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, fireEvent, screen } from '@testing-library/react-native';
-import { Alert } from 'react-native';
+import { Alert, Text } from 'react-native';
 import { SectionHeader } from './SectionHeader';
 import { Section } from '../../domain/models';
 
@@ -12,23 +12,33 @@ describe('SectionHeader', () => {
       <SectionHeader
         section={produce}
         onDelete={jest.fn()}
-        drag={jest.fn()}
-        isActive={false}
+        dragHandle={<Text>Handle</Text>}
       />,
     );
     expect(screen.getByText('Produce')).toBeTruthy();
   });
 
-  it('renders no name or actions for the default (null) section', async () => {
+  it('renders the provided drag handle', async () => {
+    await render(
+      <SectionHeader
+        section={produce}
+        onDelete={jest.fn()}
+        dragHandle={<Text>Handle</Text>}
+      />,
+    );
+    expect(screen.getByText('Handle')).toBeTruthy();
+  });
+
+  it('renders no name, actions, or drag handle for the default (null) section', async () => {
     await render(
       <SectionHeader
         section={null}
         onDelete={jest.fn()}
-        drag={jest.fn()}
-        isActive={false}
+        dragHandle={<Text>Handle</Text>}
       />,
     );
     expect(screen.queryByText('Delete')).toBeNull();
+    expect(screen.queryByText('Handle')).toBeNull();
   });
 
   it('confirms before deleting, and only calls onDelete when confirmed', async () => {
@@ -44,8 +54,7 @@ describe('SectionHeader', () => {
       <SectionHeader
         section={produce}
         onDelete={onDelete}
-        drag={jest.fn()}
-        isActive={false}
+        dragHandle={<Text>Handle</Text>}
       />,
     );
     fireEvent.press(screen.getByText('Delete'));
@@ -63,27 +72,12 @@ describe('SectionHeader', () => {
       <SectionHeader
         section={produce}
         onDelete={onDelete}
-        drag={jest.fn()}
-        isActive={false}
+        dragHandle={<Text>Handle</Text>}
       />,
     );
     fireEvent.press(screen.getByText('Delete'));
 
     expect(onDelete).not.toHaveBeenCalled();
     alertSpy.mockRestore();
-  });
-
-  it('calls drag on a long press of the drag handle', async () => {
-    const drag = jest.fn();
-    await render(
-      <SectionHeader
-        section={produce}
-        onDelete={jest.fn()}
-        drag={drag}
-        isActive={false}
-      />,
-    );
-    fireEvent(screen.getByLabelText('Drag to reorder section'), 'longPress');
-    expect(drag).toHaveBeenCalled();
   });
 });

@@ -2,19 +2,19 @@ import React from 'react';
 import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
 import { Section } from '../../domain/models';
 
+export const SECTION_HEADER_HEIGHT = 48;
+
 export function SectionHeader({
   section,
   onDelete,
-  drag,
-  isActive,
+  dragHandle,
 }: {
   section: Section | null;
   onDelete: () => void;
-  drag: () => void;
-  isActive: boolean;
+  dragHandle: React.ReactNode;
 }) {
   if (!section) {
-    return <View style={[styles.header, styles.defaultHeader]} />;
+    return <View style={styles.header} />;
   }
 
   const confirmDelete = () => {
@@ -29,14 +29,8 @@ export function SectionHeader({
   };
 
   return (
-    <View style={[styles.header, isActive && styles.headerActive]}>
-      <Pressable
-        onLongPress={drag}
-        style={styles.dragHandle}
-        accessibilityLabel="Drag to reorder section"
-      >
-        <Text>≡</Text>
-      </Pressable>
+    <View style={styles.header}>
+      {dragHandle}
       <Text style={styles.headerText}>{section.name}</Text>
       <Pressable
         onPress={confirmDelete}
@@ -51,20 +45,9 @@ export function SectionHeader({
 
 const styles = StyleSheet.create({
   header: {
+    height: SECTION_HEADER_HEIGHT,
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 8,
-    marginTop: 12,
-  },
-  defaultHeader: {
-    marginTop: 0,
-  },
-  headerActive: {
-    backgroundColor: '#f0f0f0',
-  },
-  dragHandle: {
-    marginRight: 12,
-    paddingHorizontal: 4,
   },
   headerText: {
     flex: 1,

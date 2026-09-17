@@ -108,22 +108,19 @@ cross-feature state coordination outgrows this.
   History). Installed.
 - [`@react-native-async-storage/async-storage`](https://react-native-async-storage.github.io/async-storage/) —
   local, on-device persistence for checklists and run history. Installed.
-- [`react-native-draggable-flatlist`](https://github.com/computerjazz/react-native-draggable-flatlist)
-  (with its peer deps `react-native-gesture-handler` and
-  `react-native-reanimated`) — drag-to-reorder for items and sections
-  (Feature 3 / CheL-3). Requires `GestureHandlerRootView` wrapping the app
-  root, `react-native-reanimated/plugin` as the last entry in
-  `babel.config.js`, and Jest transform/mocking setup for all three
-  packages. **Pinned to `react-native-reanimated@3.19.5`** —
-  `react-native-draggable-flatlist@4.0.3` (the latest published version)
-  hasn't been updated for Reanimated 4's `react-native-worklets` split and
-  throws `[Worklets] runOnUI can only be used with worklets` at runtime
-  against Reanimated 4.x. `metro.config.js` redirects
-  `react-native/Libraries/Renderer/shims/ReactNative` (removed in this RN
-  version, which is New Architecture/Fabric-only) to the Fabric shim purely
-  so Metro can statically resolve a dead code path inside Reanimated 3.x's
-  `findHostInstance` — revisit both the pin and the redirect together if
-  either dependency is ever upgraded.
+- [`react-native-reanimated-dnd`](https://github.com/entropyconquers/react-native-reanimated-dnd)
+  (with its peer deps `react-native-gesture-handler`, `react-native-reanimated`,
+  and `react-native-worklets`) — drag-to-reorder for items and sections
+  (Feature 3 / CheL-3), via its `Sortable`/`SortableItem`/`SortableItem.Handle`
+  components. Requires `GestureHandlerRootView` wrapping the app root and
+  `react-native-reanimated/plugin` as the last entry in `babel.config.js`.
+  Chosen over `react-native-draggable-flatlist` (tried first): that library's
+  compiled worklets predate Reanimated 4's `react-native-worklets` split and
+  throw `[Worklets] runOnUI can only be used with worklets` at runtime;
+  `react-native-reanimated-dnd` explicitly targets Reanimated 4 + worklets.
+  Its `Sortable` component is flat-list-only (no built-in section headers),
+  which is why `ChecklistDetailScreen` flattens the checklist into rows via
+  `domain/models.ts`'s `buildRows` before handing them to it.
 - `react-native-safe-area-context` — already installed; also a peer
   dependency of React Navigation.
 - [`@testing-library/react-native`](https://callstack.github.io/react-native-testing-library/) —

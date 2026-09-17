@@ -2,20 +2,20 @@ import React, { useState } from 'react';
 import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { Item } from '../../domain/models';
 
+export const ITEM_ROW_HEIGHT = 56;
+
 export function ItemRow({
   item,
   onToggle,
   onEdit,
   onDelete,
-  drag,
-  isActive,
+  dragHandle,
 }: {
   item: Item;
   onToggle: () => void;
   onEdit: (text: string) => void;
   onDelete: () => void;
-  drag: () => void;
-  isActive: boolean;
+  dragHandle: React.ReactNode;
 }) {
   const [isEditing, setIsEditing] = useState(false);
   const [draftText, setDraftText] = useState(item.text);
@@ -56,14 +56,8 @@ export function ItemRow({
   }
 
   return (
-    <View style={[styles.row, isActive && styles.rowActive]}>
-      <Pressable
-        onLongPress={drag}
-        style={styles.dragHandle}
-        accessibilityLabel="Drag to reorder"
-      >
-        <Text>≡</Text>
-      </Pressable>
+    <View style={styles.row}>
+      {dragHandle}
       <Pressable style={styles.rowBody} onPress={onToggle}>
         <Text style={item.checked ? styles.itemTextChecked : styles.itemText}>
           {item.text}
@@ -81,18 +75,11 @@ export function ItemRow({
 
 const styles = StyleSheet.create({
   row: {
+    height: ITEM_ROW_HEIGHT,
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 12,
     borderBottomWidth: StyleSheet.hairlineWidth,
     borderBottomColor: '#ccc',
-  },
-  rowActive: {
-    backgroundColor: '#f0f0f0',
-  },
-  dragHandle: {
-    marginRight: 12,
-    paddingHorizontal: 4,
   },
   rowBody: {
     flex: 1,
