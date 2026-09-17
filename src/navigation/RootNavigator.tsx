@@ -62,12 +62,19 @@ export function RootNavigator() {
         name="Run"
         component={RunScreen}
         options={{
-          headerBackVisible: false,
-          headerLeft: () => null,
-          // Same iOS-26 escape hatch as ChecklistDetail's back button, used
-          // here to guarantee no back affordance renders at all.
-          unstable_headerLeftItems: () => [],
-          gestureEnabled: false,
+          // React Navigation's beforeRemove event fires for the header back
+          // button, the swipe-back gesture, and Android's hardware back key
+          // alike (all dispatch a GO_BACK action) — so RunScreen's listener
+          // already intercepts every exit path with no need to disable any
+          // of them here. Same flat back button as ChecklistDetail.
+          headerLeft: FlatBackButton,
+          unstable_headerLeftItems: () => [
+            {
+              type: 'custom',
+              element: <FlatBackButton />,
+              hidesSharedBackground: true,
+            },
+          ],
         }}
       />
     </Stack.Navigator>
