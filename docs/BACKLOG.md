@@ -8,7 +8,7 @@ The `## In Progress` section at the top is the one exception — it is maintaine
 
 ## In Progress
 
-_(nothing in progress)_
+- CheL-4: Checklist runs — WU1 merged, starting WU2 (run screen, route, exit-confirmation lock, analytics)
 
 ---
 
