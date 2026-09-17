@@ -2,7 +2,8 @@
  * @format
  */
 
-import { StatusBar, useColorScheme } from 'react-native';
+import { StatusBar, StyleSheet, useColorScheme } from 'react-native';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { NavigationContainer } from '@react-navigation/native';
 import { AsyncStorageChecklistRepository } from './src/features/checklists/data/asyncStorageChecklistRepository';
@@ -15,15 +16,21 @@ function App() {
   const isDarkMode = useColorScheme() === 'dark';
 
   return (
-    <SafeAreaProvider>
-      <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
-      <ChecklistsProvider repository={checklistRepository}>
-        <NavigationContainer>
-          <RootNavigator />
-        </NavigationContainer>
-      </ChecklistsProvider>
-    </SafeAreaProvider>
+    <GestureHandlerRootView style={styles.root}>
+      <SafeAreaProvider>
+        <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
+        <ChecklistsProvider repository={checklistRepository}>
+          <NavigationContainer>
+            <RootNavigator />
+          </NavigationContainer>
+        </ChecklistsProvider>
+      </SafeAreaProvider>
+    </GestureHandlerRootView>
   );
 }
+
+const styles = StyleSheet.create({
+  root: { flex: 1 },
+});
 
 export default App;
