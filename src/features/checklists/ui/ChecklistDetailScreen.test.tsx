@@ -9,6 +9,7 @@ import { ChecklistsProvider } from '../useChecklists';
 import { AsyncStorageChecklistRepository } from '../data/asyncStorageChecklistRepository';
 import { ChecklistDetailScreen } from './ChecklistDetailScreen';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Alert } from 'react-native';
 
 async function renderDetailScreen(checklistId: string) {
   return render(
@@ -28,7 +29,9 @@ describe('ChecklistDetailScreen', () => {
 
   it("shows the checklist's title and a placeholder for items", async () => {
     const repo = new AsyncStorageChecklistRepository();
-    await repo.saveAll([{ id: '1', title: 'Groceries', items: [], sections: [] }]);
+    await repo.saveAll([
+      { id: '1', title: 'Groceries', items: [], sections: [] },
+    ]);
 
     await renderDetailScreen('1');
 
@@ -46,7 +49,9 @@ describe('ChecklistDetailScreen', () => {
 
   it('adds an item from the input and clears it afterwards', async () => {
     const repo = new AsyncStorageChecklistRepository();
-    await repo.saveAll([{ id: '1', title: 'Groceries', items: [], sections: [] }]);
+    await repo.saveAll([
+      { id: '1', title: 'Groceries', items: [], sections: [] },
+    ]);
 
     await renderDetailScreen('1');
     await waitFor(() => screen.getByPlaceholderText('New item'));
@@ -154,75 +159,242 @@ describe('ChecklistDetailScreen', () => {
     expect((await repo.getAll())[0].items).toHaveLength(1);
   });
 
-  // CheL-3: Reordering & sections — stubs below, filled in during implementation.
-  // Drag gestures are driven through a mocked react-native-draggable-flatlist
-  // (WU3 infra) that exposes onDragEnd({ from, to }) via a testID-addressable
-  // trigger.
+  // CheL-3: Reordering & sections.
+  // Drag gestures are driven through a mocked react-native-reanimated-dnd
+  // (__mocks__/react-native-reanimated-dnd.js) that exposes drag completion
+  // as `fireEvent(getByTestId('sortable-item-<rowId>'), 'drop', { to })`.
 
   it('adds a named section and shows it as a header', async () => {
-    // TODO: Seed a checklist with no sections.
-    // TODO: Render detail screen.
-    // TODO: Trigger "add section" flow, enter name "Produce", save.
-    // TODO: Verify a "Produce" header renders in the list.
+    const repo = new AsyncStorageChecklistRepository();
+    await repo.saveAll([
+      { id: '1', title: 'Groceries', items: [], sections: [] },
+    ]);
+
+    await renderDetailScreen('1');
+    await waitFor(() => screen.getByText('+ New section'));
+
+    await fireEvent.press(screen.getByText('+ New section'));
+    await fireEvent.changeText(
+      screen.getByPlaceholderText('Section name'),
+      'Produce',
+    );
+    await fireEvent.press(screen.getByText('Save'));
+
+    await waitFor(() =>
+      expect(screen.getAllByText('Produce').length).toBeGreaterThan(0),
+    );
+    expect((await repo.getAll())[0].sections.map(s => s.name)).toEqual([
+      'Produce',
+    ]);
   });
 
   it('shows a section chip for each section when adding an item, and assigns the item to the picked chip', async () => {
-    // TODO: Seed a checklist with an existing named section "Produce".
-    // TODO: Render detail screen.
-    // TODO: Verify a "Produce" chip is visible above the add-item input (and a "No section" chip).
-    // TODO: Type an item's text, select the "Produce" chip, press Add.
-    // TODO: Verify the new item appears under the "Produce" header.
+    const repo = new AsyncStorageChecklistRepository();
+    const produce = { id: 'produce', name: 'Produce' };
+    await repo.saveAll([
+      { id: '1', title: 'Groceries', items: [], sections: [produce] },
+    ]);
+
+    await renderDetailScreen('1');
+    await waitFor(() => screen.getByTestId('section-chip-default'));
+    expect(screen.getByTestId('section-chip-produce')).toBeTruthy();
+
+    await fireEvent.changeText(
+      screen.getByPlaceholderText('New item'),
+      'Apple',
+    );
+    await fireEvent.press(screen.getByTestId('section-chip-produce'));
+    await fireEvent.press(screen.getByText('Add'));
+
+    await waitFor(() => expect(screen.getByText('Apple')).toBeTruthy());
+    expect((await repo.getAll())[0].items[0].sectionId).toBe('produce');
   });
 
   it('adds an item without picking a section into the default section', async () => {
-    // TODO: Seed a checklist with an existing named section "Produce".
-    // TODO: Render detail screen.
-    // TODO: Type item text, leave "No section" selected (default), press Add.
-    // TODO: Verify the item appears above the "Produce" header (default section, no header of its own).
+    const repo = new AsyncStorageChecklistRepository();
+    const produce = { id: 'produce', name: 'Produce' };
+    await repo.saveAll([
+      { id: '1', title: 'Groceries', items: [], sections: [produce] },
+    ]);
+
+    await renderDetailScreen('1');
+    await waitFor(() => screen.getByText('No section'));
+
+    await fireEvent.changeText(screen.getByPlaceholderText('New item'), 'Milk');
+    await fireEvent.press(screen.getByText('Add'));
+
+    await waitFor(() => expect(screen.getByText('Milk')).toBeTruthy());
+    expect((await repo.getAll())[0].items[0].sectionId).toBeNull();
   });
 
   it('does not show any section chips or default-section header when the checklist has no named sections', async () => {
-    // TODO: Seed a checklist with only unsectioned items.
-    // TODO: Render detail screen.
-    // TODO: Verify no section chips are rendered and no header row appears — list looks like today's flat list.
+    const repo = new AsyncStorageChecklistRepository();
+    await repo.saveAll([
+      {
+        id: '1',
+        title: 'Groceries',
+        items: [{ id: 'a', text: 'Milk', checked: false, sectionId: null }],
+        sections: [],
+      },
+    ]);
+
+    await renderDetailScreen('1');
+    await waitFor(() => screen.getByText('Milk'));
+
+    expect(screen.queryByText('No section')).toBeNull();
   });
 
   it('reorders items within the same section via drag', async () => {
-    // TODO: Seed a checklist with items A, B, C, all unsectioned.
-    // TODO: Render detail screen.
-    // TODO: Fire the mocked drag-end trigger moving row A to row C's position.
-    // TODO: Verify the rendered order is now B, C, A.
-    // TODO: Verify the persisted repository order matches.
+    const repo = new AsyncStorageChecklistRepository();
+    await repo.saveAll([
+      {
+        id: '1',
+        title: 'Groceries',
+        items: [
+          { id: 'a', text: 'A', checked: false, sectionId: null },
+          { id: 'b', text: 'B', checked: false, sectionId: null },
+          { id: 'c', text: 'C', checked: false, sectionId: null },
+        ],
+        sections: [],
+      },
+    ]);
+
+    await renderDetailScreen('1');
+    await waitFor(() => screen.getByText('A'));
+
+    // Row 0 ('A') dropped at row 2 (after 'C'): new order is B, C, A.
+    await fireEvent(screen.getByTestId('sortable-item-item:a'), 'drop', {
+      to: 2,
+    });
+
+    await waitFor(async () => {
+      const items = (await repo.getAll())[0].items;
+      expect(items.map(i => i.text)).toEqual(['B', 'C', 'A']);
+    });
   });
 
   it('moves an item to a different section via drag', async () => {
-    // TODO: Seed a checklist with section "Produce" and an unsectioned item "Milk".
-    // TODO: Render detail screen.
-    // TODO: Fire the mocked drag-end trigger moving "Milk"'s row to a position under the "Produce" header.
-    // TODO: Verify "Milk" now renders under "Produce".
-    // TODO: Verify the persisted item's sectionId matches the "Produce" section.
+    const repo = new AsyncStorageChecklistRepository();
+    const produce = { id: 'produce', name: 'Produce' };
+    await repo.saveAll([
+      {
+        id: '1',
+        title: 'Groceries',
+        items: [{ id: 'milk', text: 'Milk', checked: false, sectionId: null }],
+        sections: [produce],
+      },
+    ]);
+
+    await renderDetailScreen('1');
+    await waitFor(() => screen.getByText('Milk'));
+
+    // Rows: [0] default header, [1] Milk, [2] Produce header.
+    // Drop Milk (row 1) after the Produce header (row 2).
+    await fireEvent(screen.getByTestId('sortable-item-item:milk'), 'drop', {
+      to: 2,
+    });
+
+    await waitFor(async () => {
+      const items = (await repo.getAll())[0].items;
+      expect(items[0].sectionId).toBe('produce');
+    });
   });
 
   it('reorders sections via drag, carrying their items with them', async () => {
-    // TODO: Seed a checklist with sections "Produce" (item "Apple") and "Dairy" (item "Milk"), in that order.
-    // TODO: Render detail screen.
-    // TODO: Fire the mocked drag-end trigger moving the "Dairy" header above "Produce".
-    // TODO: Verify rendered order is Dairy header -> Milk -> Produce header -> Apple.
-    // TODO: Verify persisted sections order matches.
+    const repo = new AsyncStorageChecklistRepository();
+    const produce = { id: 'produce', name: 'Produce' };
+    const dairy = { id: 'dairy', name: 'Dairy' };
+    await repo.saveAll([
+      {
+        id: '1',
+        title: 'Groceries',
+        items: [
+          { id: 'apple', text: 'Apple', checked: false, sectionId: 'produce' },
+          { id: 'milk', text: 'Milk', checked: false, sectionId: 'dairy' },
+        ],
+        sections: [produce, dairy],
+      },
+    ]);
+
+    await renderDetailScreen('1');
+    await waitFor(() => screen.getByText('Apple'));
+
+    // Rows: [0] default header, [1] Produce header, [2] Apple, [3] Dairy header, [4] Milk.
+    // Drag the Dairy header (row 3) above Produce (to row 1).
+    await fireEvent(screen.getByTestId('sortable-item-section:dairy'), 'drop', {
+      to: 1,
+    });
+
+    await waitFor(async () => {
+      const persisted = (await repo.getAll())[0];
+      expect(persisted.sections.map(s => s.id)).toEqual(['dairy', 'produce']);
+    });
+    expect((await repo.getAll())[0].items.map(i => i.id)).toEqual([
+      'milk',
+      'apple',
+    ]);
   });
 
   it('deletes a section, with confirmation, and falls its items back to the default section', async () => {
-    // TODO: Seed a checklist with section "Produce" containing item "Apple".
-    // TODO: Render detail screen.
-    // TODO: Press the "Produce" header's delete action.
-    // TODO: Confirm the deletion in the confirm dialog.
-    // TODO: Verify the "Produce" header is gone and "Apple" still renders (now in the default section).
-    // TODO: Verify persisted checklist has no "Produce" section and "Apple"'s sectionId is null.
+    const repo = new AsyncStorageChecklistRepository();
+    const produce = { id: 'produce', name: 'Produce' };
+    await repo.saveAll([
+      {
+        id: '1',
+        title: 'Groceries',
+        items: [
+          { id: 'apple', text: 'Apple', checked: false, sectionId: 'produce' },
+        ],
+        sections: [produce],
+      },
+    ]);
+    const alertSpy = jest
+      .spyOn(Alert, 'alert')
+      .mockImplementation((_title, _message, buttons) => {
+        buttons?.find(b => b.text === 'Delete')?.onPress?.();
+      });
+
+    await renderDetailScreen('1');
+    await waitFor(() =>
+      expect(screen.getAllByText('Produce').length).toBeGreaterThan(0),
+    );
+
+    await fireEvent.press(screen.getByTestId('delete-section-produce'));
+
+    await waitFor(() => expect(screen.queryByText('Produce')).toBeNull());
+    expect(screen.getByText('Apple')).toBeTruthy();
+    expect((await repo.getAll())[0].sections).toHaveLength(0);
+    expect((await repo.getAll())[0].items[0].sectionId).toBeNull();
+
+    alertSpy.mockRestore();
   });
 
   it('cancels section deletion when the confirm dialog is declined', async () => {
-    // TODO: Seed a checklist with section "Produce" containing item "Apple".
-    // TODO: Press delete on "Produce", then decline/cancel the confirm dialog.
-    // TODO: Verify "Produce" header and "Apple" are unchanged, and nothing was persisted differently.
+    const repo = new AsyncStorageChecklistRepository();
+    const produce = { id: 'produce', name: 'Produce' };
+    await repo.saveAll([
+      {
+        id: '1',
+        title: 'Groceries',
+        items: [
+          { id: 'apple', text: 'Apple', checked: false, sectionId: 'produce' },
+        ],
+        sections: [produce],
+      },
+    ]);
+    const alertSpy = jest.spyOn(Alert, 'alert').mockImplementation(() => {});
+
+    await renderDetailScreen('1');
+    await waitFor(() =>
+      expect(screen.getAllByText('Produce').length).toBeGreaterThan(0),
+    );
+
+    await fireEvent.press(screen.getByTestId('delete-section-produce'));
+
+    expect(screen.getAllByText('Produce').length).toBeGreaterThan(0);
+    expect(screen.getByText('Apple')).toBeTruthy();
+    expect((await repo.getAll())[0].sections).toHaveLength(1);
+
+    alertSpy.mockRestore();
   });
 });

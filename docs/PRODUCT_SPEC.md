@@ -45,6 +45,8 @@ checklist belongs to the person using the device.
   reorder sections the same way as items.
 - Items added without picking a section go into a default, unnamed section
   at the top of the checklist.
+- The user can delete a named section (with confirmation); its items fall
+  back into the default section rather than being deleted.
 
 ### Feature 4 — Checklist runs
 - From a checklist, the user must be able to start a new run: this creates a

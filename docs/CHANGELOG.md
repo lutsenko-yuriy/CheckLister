@@ -13,15 +13,11 @@ A record of all versioned releases. For planned work and known issues, see @docs
 - ...
 -->
 
-## [Unreleased]
+## [0.3.0] — 2026-09-17 (PR #12 merged)
 
-### [wip]
-- CheL-3 (Reordering & sections) WU1: domain model (`Section`, `Item.sectionId`, `Checklist.sections`), `normalizeChecklist`, `moveItem`/`moveSection` ordering helpers, and storage-read migration/normalization — no UI change yet.
-- CheL-3 (Reordering & sections) WU2: `useChecklists` gains `addSection`, `deleteSection`, `moveItem`, `moveSection`, and a sectioned `addItem` — no UI change yet.
-- CheL-3 (Reordering & sections) WU3: adds and wires `react-native-draggable-flatlist`, `react-native-gesture-handler`, and `react-native-reanimated` (native config, Babel plugin, Jest mocks) — no UI change yet.
-
-### [test]
-- Draft integration-scenario stubs for CheL-3 (Reordering & sections) — no behaviour change yet.
+### Added
+- [user] CheL-3: You can now organize a checklist into named sections, and reorder items and sections by dragging them, right from the checklist detail screen. A chip picker above the "New item" input lets you add a new item straight into any section. Sections can also be deleted (with confirmation), returning their items to the default section.
+- [app] Domain: `Section`, `Item.sectionId`, `Checklist.sections`, `normalizeChecklist`, `buildRows`, `moveItem`/`moveSection`/`resolveItemDrop`/`resolveSectionDrop` ordering helpers, and storage-read migration/normalization (`domain/models.ts`). State: `useChecklists` gains `addSection`, `deleteSection`, `moveItem`, `moveSection`, and a sectioned `addItem`. UI: `ChecklistDetailScreen` renders `buildRows(checklist)` through `react-native-reanimated-dnd`'s `Sortable`/`SortableItem`/`SortableItem.Handle`, with extracted `ui/components/ItemRow.tsx` and new `ui/components/SectionHeader.tsx` handling drag handles. Fires all four approved analytics events (`item_reordered`, `item_moved_to_section`, `section_reordered`, `section_added`); `AnalyticsProperties` now allows `null` values.
 
 ## [0.2.0] — 2026-09-17 (PR #7 merged)
 

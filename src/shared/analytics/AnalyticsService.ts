@@ -1,4 +1,7 @@
-export type AnalyticsProperties = Record<string, string | number | boolean>;
+export type AnalyticsProperties = Record<
+  string,
+  string | number | boolean | null
+>;
 
 export interface AnalyticsService {
   logEvent(name: string, properties?: AnalyticsProperties): void;
