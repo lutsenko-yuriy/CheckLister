@@ -40,7 +40,7 @@ describe('HomeScreen', () => {
       screen.getByPlaceholderText('New checklist title'),
       'Groceries',
     );
-    await fireEvent.press(screen.getByText('Add'));
+    await fireEvent.press(screen.getByLabelText('Add'));
 
     await waitFor(() => expect(screen.getByText('Groceries')).toBeTruthy());
     expect(screen.getByPlaceholderText('New checklist title').props.value).toBe(
@@ -110,12 +110,12 @@ describe('HomeScreen', () => {
     await renderHomeScreen();
     await waitFor(() => screen.getByText('Old title'));
 
-    await fireEvent.press(screen.getByText('Rename'));
+    await fireEvent.press(screen.getByLabelText('Rename'));
     await fireEvent.changeText(
       screen.getByDisplayValue('Old title'),
       'New title',
     );
-    await fireEvent.press(screen.getByText('Save'));
+    await fireEvent.press(screen.getByLabelText('Save'));
 
     await waitFor(() => expect(screen.getByText('New title')).toBeTruthy());
     expect(await repo.getAll()).toEqual([
@@ -134,7 +134,7 @@ describe('HomeScreen', () => {
 
     await renderHomeScreen();
     await waitFor(() => screen.getByText('Groceries'));
-    await fireEvent.press(screen.getByText('Delete'));
+    await fireEvent.press(screen.getByLabelText('Delete'));
 
     await waitFor(() =>
       expect(screen.getByText(/no checklists yet/i)).toBeTruthy(),
@@ -151,7 +151,7 @@ describe('HomeScreen', () => {
 
     await renderHomeScreen();
     await waitFor(() => screen.getByText('Groceries'));
-    await fireEvent.press(screen.getByText('Delete'));
+    await fireEvent.press(screen.getByLabelText('Delete'));
 
     expect(screen.getByText('Groceries')).toBeTruthy();
     expect(await repo.getAll()).toHaveLength(1);

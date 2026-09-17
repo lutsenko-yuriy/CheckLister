@@ -37,7 +37,7 @@ describe('SectionHeader', () => {
         dragHandle={<Text>Handle</Text>}
       />,
     );
-    expect(screen.queryByText('Delete')).toBeNull();
+    expect(screen.queryByLabelText('Delete')).toBeNull();
     expect(screen.queryByText('Handle')).toBeNull();
   });
 
@@ -57,7 +57,7 @@ describe('SectionHeader', () => {
         dragHandle={<Text>Handle</Text>}
       />,
     );
-    fireEvent.press(screen.getByText('Delete'));
+    fireEvent.press(screen.getByLabelText('Delete'));
 
     expect(alertSpy).toHaveBeenCalled();
     expect(onDelete).toHaveBeenCalled();
@@ -75,7 +75,7 @@ describe('SectionHeader', () => {
         dragHandle={<Text>Handle</Text>}
       />,
     );
-    fireEvent.press(screen.getByText('Delete'));
+    fireEvent.press(screen.getByLabelText('Delete'));
 
     expect(onDelete).not.toHaveBeenCalled();
     alertSpy.mockRestore();

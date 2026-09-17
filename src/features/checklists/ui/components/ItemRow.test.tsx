@@ -48,9 +48,9 @@ describe('ItemRow', () => {
         dragHandle={<Text>Handle</Text>}
       />,
     );
-    await fireEvent.press(screen.getByText('Edit'));
+    await fireEvent.press(screen.getByLabelText('Edit'));
     await fireEvent.changeText(screen.getByDisplayValue('Milk'), 'Oat milk');
-    await fireEvent.press(screen.getByText('Save'));
+    await fireEvent.press(screen.getByLabelText('Save'));
     expect(onEdit).toHaveBeenCalledWith('Oat milk');
   });
 
@@ -64,7 +64,7 @@ describe('ItemRow', () => {
         dragHandle={<Text>Handle</Text>}
       />,
     );
-    fireEvent.press(screen.getByText('Delete'));
+    fireEvent.press(screen.getByLabelText('Delete'));
     expect(onDelete).toHaveBeenCalled();
   });
 });

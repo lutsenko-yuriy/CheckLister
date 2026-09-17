@@ -48,7 +48,10 @@ src/
 └── shared/
     ├── storage/
     │   └── jsonStorage.ts          # Thin typed wrapper over AsyncStorage (get/set JSON by key)
-    └── ui/                         # Cross-feature presentational components (Button, ConfirmDialog, EmptyState, ...)
+    ├── theme/
+    │   └── colors.ts               # Single source of truth for the app's light-blue color palette
+    └── ui/                         # Cross-feature presentational components
+        └── IconButton.tsx          # Shared icon-only action button (Pressable + vector icon glyph)
 
 test/
 └── features/                       # Mirrors src/features/
@@ -125,3 +128,14 @@ cross-feature state coordination outgrows this.
   dependency of React Navigation.
 - [`@testing-library/react-native`](https://callstack.github.io/react-native-testing-library/) —
   dev dependency for hook and screen tests. Installed.
+- [`react-native-vector-icons`](https://github.com/oblador/react-native-vector-icons) —
+  icon-only action buttons (CheL-14). Chosen over `@expo/vector-icons` since this
+  is a bare React Native CLI project, not Expo-managed. Uses the bundled
+  `MaterialIcons` font only. The package's own podspec (`s.resources =
+  "Fonts/*.ttf"`) and `fonts.gradle` (applied from `android/app/build.gradle`)
+  already bundle every font file — do not also add the font manually via
+  `react-native.config.js`/`react-native-asset`, that duplicates the same file
+  into the iOS bundle and breaks the build ("Multiple commands produce
+  MaterialIcons.ttf"). iOS still needs the font declared in
+  `ios/CheckLister/Info.plist`'s `UIAppFonts` so it's registered at runtime;
+  run `pod install` after adding the dependency.

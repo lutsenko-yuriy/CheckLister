@@ -12,6 +12,8 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../../navigation/types';
 import { useChecklists } from '../useChecklists';
 import { Checklist } from '../domain/models';
+import { IconButton } from '../../../shared/ui/IconButton';
+import { colors } from '../../../shared/theme/colors';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Home'>;
 
@@ -39,9 +41,12 @@ export function HomeScreen({ navigation }: Props) {
           onSubmitEditing={handleAdd}
           returnKeyType="done"
         />
-        <Pressable onPress={handleAdd} style={styles.addButton}>
-          <Text style={styles.addButtonText}>Add</Text>
-        </Pressable>
+        <IconButton
+          icon="add"
+          accessibilityLabel="Add"
+          onPress={handleAdd}
+          style={styles.addButton}
+        />
       </View>
 
       {checklists.length === 0 ? (
@@ -112,15 +117,18 @@ function ChecklistRow({
           onChangeText={setDraftTitle}
           autoFocus
         />
-        <Pressable onPress={save} style={styles.actionButton}>
-          <Text>Save</Text>
-        </Pressable>
-        <Pressable
+        <IconButton
+          icon="check"
+          accessibilityLabel="Save"
+          onPress={save}
+          style={styles.actionButton}
+        />
+        <IconButton
+          icon="close"
+          accessibilityLabel="Cancel"
           onPress={() => setIsEditing(false)}
           style={styles.actionButton}
-        >
-          <Text>Cancel</Text>
-        </Pressable>
+        />
       </View>
     );
   }
@@ -136,12 +144,19 @@ function ChecklistRow({
           </Text>
         )}
       </Pressable>
-      <Pressable onPress={startEditing} style={styles.actionButton}>
-        <Text>Rename</Text>
-      </Pressable>
-      <Pressable onPress={confirmDelete} style={styles.actionButton}>
-        <Text>Delete</Text>
-      </Pressable>
+      <IconButton
+        icon="edit"
+        accessibilityLabel="Rename"
+        onPress={startEditing}
+        style={styles.actionButton}
+      />
+      <IconButton
+        icon="delete"
+        accessibilityLabel="Delete"
+        onPress={confirmDelete}
+        color={colors.danger}
+        style={styles.actionButton}
+      />
     </View>
   );
 }
@@ -150,6 +165,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 16,
+    backgroundColor: colors.background,
   },
   addRow: {
     flexDirection: 'row',
@@ -158,39 +174,41 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     borderWidth: 1,
-    borderColor: '#ccc',
+    borderColor: colors.border,
     borderRadius: 6,
     paddingHorizontal: 10,
     paddingVertical: 8,
+    backgroundColor: colors.surface,
+    color: colors.text,
   },
   addButton: {
     marginLeft: 8,
     justifyContent: 'center',
     paddingHorizontal: 14,
   },
-  addButtonText: {
-    fontWeight: '600',
-  },
   emptyState: {
     textAlign: 'center',
     marginTop: 32,
-    color: '#666',
+    color: colors.textMuted,
   },
   row: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingVertical: 12,
+    paddingHorizontal: 4,
+    backgroundColor: colors.surface,
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: '#ccc',
+    borderBottomColor: colors.border,
   },
   rowBody: {
     flex: 1,
   },
   rowTitle: {
     fontSize: 16,
+    color: colors.text,
   },
   rowSubtitle: {
-    color: '#666',
+    color: colors.textMuted,
     marginTop: 2,
   },
   actionButton: {

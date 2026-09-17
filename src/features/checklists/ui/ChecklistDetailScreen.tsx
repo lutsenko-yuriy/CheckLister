@@ -23,6 +23,8 @@ import {
   SectionHeader,
   SECTION_HEADER_HEIGHT,
 } from './components/SectionHeader';
+import { IconButton } from '../../../shared/ui/IconButton';
+import { colors } from '../../../shared/theme/colors';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'ChecklistDetail'>;
 
@@ -216,9 +218,12 @@ export function ChecklistDetailScreen({ navigation, route }: Props) {
           onSubmitEditing={handleAdd}
           returnKeyType="done"
         />
-        <Pressable onPress={handleAdd} style={styles.addButton}>
-          <Text style={styles.addButtonText}>Add</Text>
-        </Pressable>
+        <IconButton
+          icon="add"
+          accessibilityLabel="Add"
+          onPress={handleAdd}
+          style={styles.addButton}
+        />
       </View>
 
       {isAddingSection ? (
@@ -232,26 +237,29 @@ export function ChecklistDetailScreen({ navigation, route }: Props) {
             returnKeyType="done"
             autoFocus
           />
-          <Pressable onPress={handleAddSection} style={styles.addButton}>
-            <Text style={styles.addButtonText}>Save</Text>
-          </Pressable>
-          <Pressable
+          <IconButton
+            icon="check"
+            accessibilityLabel="Save"
+            onPress={handleAddSection}
+            style={styles.addButton}
+          />
+          <IconButton
+            icon="close"
+            accessibilityLabel="Cancel"
             onPress={() => {
               setNewSectionName('');
               setIsAddingSection(false);
             }}
             style={styles.addButton}
-          >
-            <Text>Cancel</Text>
-          </Pressable>
+          />
         </View>
       ) : (
-        <Pressable
+        <IconButton
+          icon="create-new-folder"
+          accessibilityLabel="New section"
           onPress={() => setIsAddingSection(true)}
           style={styles.newSectionButton}
-        >
-          <Text style={styles.newSectionButtonText}>+ New section</Text>
-        </Pressable>
+        />
       )}
 
       {checklist.items.length === 0 && !hasSections ? (
@@ -259,6 +267,7 @@ export function ChecklistDetailScreen({ navigation, route }: Props) {
       ) : (
         <Sortable
           data={rows}
+          style={styles.sortableList}
           itemKeyExtractor={row => row.id}
           itemHeight={row =>
             row.kind === 'section' ? SECTION_HEADER_HEIGHT : ITEM_ROW_HEIGHT
@@ -349,11 +358,13 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 16,
+    backgroundColor: colors.background,
   },
   title: {
     fontSize: 20,
     fontWeight: '600',
     marginBottom: 16,
+    color: colors.text,
   },
   chipRow: {
     flexDirection: 'row',
@@ -361,21 +372,21 @@ const styles = StyleSheet.create({
   },
   chip: {
     borderWidth: 1,
-    borderColor: '#ccc',
+    borderColor: colors.border,
     borderRadius: 16,
     paddingHorizontal: 12,
     paddingVertical: 6,
     marginRight: 8,
   },
   chipSelected: {
-    backgroundColor: '#333',
-    borderColor: '#333',
+    backgroundColor: colors.primary,
+    borderColor: colors.primary,
   },
   chipText: {
-    color: '#333',
+    color: colors.text,
   },
   chipTextSelected: {
-    color: '#fff',
+    color: colors.onPrimary,
   },
   addRow: {
     flexDirection: 'row',
@@ -384,34 +395,32 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     borderWidth: 1,
-    borderColor: '#ccc',
+    borderColor: colors.border,
     borderRadius: 6,
     paddingHorizontal: 10,
     paddingVertical: 8,
+    backgroundColor: colors.surface,
+    color: colors.text,
   },
   addButton: {
     marginLeft: 8,
     justifyContent: 'center',
     paddingHorizontal: 14,
   },
-  addButtonText: {
-    fontWeight: '600',
-  },
   newSectionButton: {
     alignSelf: 'flex-start',
     marginBottom: 8,
   },
-  newSectionButtonText: {
-    color: '#333',
-    fontWeight: '600',
-  },
   emptyState: {
     textAlign: 'center',
     marginTop: 32,
-    color: '#666',
+    color: colors.textMuted,
   },
   dragHandle: {
     marginRight: 12,
     paddingHorizontal: 4,
+  },
+  sortableList: {
+    backgroundColor: colors.background,
   },
 });
