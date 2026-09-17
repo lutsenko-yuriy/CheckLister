@@ -31,4 +31,45 @@ describe('AsyncStorageChecklistRepository', () => {
     const secondInstance = new AsyncStorageChecklistRepository();
     expect(await secondInstance.getAll()).toEqual([checklist]);
   });
+
+  it('migrates legacy checklists saved before sections existed', async () => {
+    await AsyncStorage.setItem(
+      'checklists',
+      JSON.stringify([
+        {
+          id: '1',
+          title: 'Groceries',
+          items: [{ id: 'a', text: 'Milk', checked: false }],
+        },
+      ]),
+    );
+
+    const repo = new AsyncStorageChecklistRepository();
+    const [checklist] = await repo.getAll();
+
+    expect(checklist.sections).toEqual([]);
+    expect(checklist.items[0].sectionId).toBeNull();
+  });
+
+  it('normalizes item order to the canonical section order on read', async () => {
+    await AsyncStorage.setItem(
+      'checklists',
+      JSON.stringify([
+        {
+          id: '1',
+          title: 'Groceries',
+          sections: [{ id: 's1', name: 'Produce' }],
+          items: [
+            { id: 'apple', text: 'Apple', checked: false, sectionId: 's1' },
+            { id: 'milk', text: 'Milk', checked: false, sectionId: null },
+          ],
+        },
+      ]),
+    );
+
+    const repo = new AsyncStorageChecklistRepository();
+    const [checklist] = await repo.getAll();
+
+    expect(checklist.items.map(i => i.id)).toEqual(['milk', 'apple']);
+  });
 });
