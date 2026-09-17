@@ -16,4 +16,6 @@
 
 - 2026-09-17: When a PR/MR is opened as part of the workflow (`FEATURE.md` step 9), automatically open it in the browser right after, instead of just reporting the URL in text. Saves a manual step of clicking/copying the link every time.
 
+- 2026-09-17: There's no dedicated "run scenarios" skill, and none seems needed: scenarios in this project aren't a separate suite/harness, they're just Jest/RNTL stub tests colocated in the same `*.test.tsx` files as everything else (per `skills/shared/project-config.md`'s component-test harness). `npm test` runs them together with unit/integration tests automatically. Worth confirming this stays true if an e2e/Detox harness is ever added — at that point "run scenarios" might need to become its own step/skill.
+
 ## Debrief summary
