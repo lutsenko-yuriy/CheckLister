@@ -3,5 +3,6 @@
 ## Notes
 
 - 2026-09-17: When setting up a project's ticket prefix (`skills/shared/pm-tool-mapping.md`), the setup process should explicitly ask the user for a prefix. If the user gives no answer, default to the initials derived from the project name (e.g. "CheckLister" / "check_lister" / "check lister" / "check-lister" -> "CL"), rather than leaving a placeholder like "N/A" unfilled.
+- 2026-09-17: Consider adding a visual progress representation for multi-WU tickets, shown after every WU completes. Something like a vertical checklist/timeline: a collapsed "[v] X WUs done" summary line (hidden if none done yet) followed by one line per WU showing its number, short description, and status (e.g. "[v] WU<N>: <short description> - done"), connected top-to-bottom like a progress list. Would help make ticket progress legible at a glance across WU cycles.
 
 ## Debrief summary
