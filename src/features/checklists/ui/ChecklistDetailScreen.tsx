@@ -38,10 +38,8 @@ export function ChecklistDetailScreen({ navigation, route }: Props) {
   const {
     checklists,
     addItem,
-    toggleItem,
     editItem,
     deleteItem,
-    clearCheckedItems,
     addSection,
     deleteSection,
     moveItem,
@@ -98,26 +96,9 @@ export function ChecklistDetailScreen({ navigation, route }: Props) {
     setNewItemText('');
   };
 
-  const handleToggle = (item: { id: string; checked: boolean }) => {
-    toggleItem(checklistId, item.id);
-    analytics.logEvent('item_toggled', {
-      checklist_id: checklistId,
-      checked: !item.checked,
-    });
-  };
-
   const handleDelete = (itemId: string) => {
     deleteItem(checklistId, itemId);
     analytics.logEvent('item_deleted', { checklist_id: checklistId });
-  };
-
-  const handleClearChecked = () => {
-    const clearedCount = checklist.items.filter(item => item.checked).length;
-    clearCheckedItems(checklistId);
-    analytics.logEvent('checked_items_cleared', {
-      checklist_id: checklistId,
-      cleared_count: clearedCount,
-    });
   };
 
   const handleAddSection = () => {
@@ -196,7 +177,6 @@ export function ChecklistDetailScreen({ navigation, route }: Props) {
     // real entry in `sections` and can't be reordered.
   };
 
-  const hasCheckedItems = checklist.items.some(item => item.checked);
   const hasSections = checklist.sections.length > 0;
 
   return (
@@ -274,12 +254,6 @@ export function ChecklistDetailScreen({ navigation, route }: Props) {
         </Pressable>
       )}
 
-      {hasCheckedItems && (
-        <Pressable onPress={handleClearChecked} style={styles.clearButton}>
-          <Text style={styles.clearButtonText}>Clear checked</Text>
-        </Pressable>
-      )}
-
       {checklist.items.length === 0 && !hasSections ? (
         <Text style={styles.emptyState}>No items yet.</Text>
       ) : (
@@ -328,7 +302,6 @@ export function ChecklistDetailScreen({ navigation, route }: Props) {
                 ) : (
                   <ItemRow
                     item={row.item}
-                    onToggle={() => handleToggle(row.item)}
                     onEdit={text => {
                       editItem(checklistId, row.item.id, text);
                       analytics.logEvent('item_edited', {
@@ -431,13 +404,6 @@ const styles = StyleSheet.create({
   newSectionButtonText: {
     color: '#333',
     fontWeight: '600',
-  },
-  clearButton: {
-    alignSelf: 'flex-end',
-    marginBottom: 8,
-  },
-  clearButtonText: {
-    color: '#c00',
   },
   emptyState: {
     textAlign: 'center',

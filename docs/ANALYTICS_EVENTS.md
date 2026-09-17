@@ -35,15 +35,6 @@ Fired when the user submits new item text on the checklist detail screen.
 | `checklist_id` | `string` | The checklist the item was added to |
 | `item_count` | `number` | Total item count on the checklist after the add |
 
-### `item_toggled`
-
-Fired when the user taps an item to check or uncheck it.
-
-| Property | Type | Description |
-|---|---|---|
-| `checklist_id` | `string` | The checklist the item belongs to |
-| `checked` | `boolean` | The item's new checked state |
-
 ### `item_edited`
 
 Fired when the user saves an edit to an existing item's text.
@@ -59,15 +50,6 @@ Fired when the user deletes an item.
 | Property | Type | Description |
 |---|---|---|
 | `checklist_id` | `string` | The checklist the item belonged to |
-
-### `checked_items_cleared`
-
-Fired when the user clears all checked items on a checklist in one action.
-
-| Property | Type | Description |
-|---|---|---|
-| `checklist_id` | `string` | The checklist that was cleared |
-| `cleared_count` | `number` | Number of items removed by the clear action |
 
 <!-- Added for CheL-3: Reordering & sections -->
 

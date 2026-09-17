@@ -72,6 +72,29 @@ describe('AsyncStorageChecklistRepository', () => {
     expect(checklist.items[0].sectionId).toBeNull();
   });
 
+  it('strips a legacy checked field from items on read', async () => {
+    await AsyncStorage.setItem(
+      'checklists',
+      JSON.stringify([
+        {
+          id: '1',
+          title: 'Groceries',
+          sections: [],
+          items: [{ id: 'a', text: 'Milk', checked: true, sectionId: null }],
+        },
+      ]),
+    );
+
+    const repo = new AsyncStorageChecklistRepository();
+    const [checklist] = await repo.getAll();
+
+    expect(checklist.items[0]).toEqual({
+      id: 'a',
+      text: 'Milk',
+      sectionId: null,
+    });
+  });
+
   it('normalizes item order to the canonical section order on read', async () => {
     await AsyncStorage.setItem(
       'checklists',

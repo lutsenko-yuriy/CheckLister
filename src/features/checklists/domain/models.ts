@@ -3,7 +3,6 @@ import { generateId } from '../../../shared/ids';
 export interface Item {
   id: string;
   text: string;
-  checked: boolean;
   sectionId: string | null;
 }
 
@@ -28,10 +27,6 @@ export function createChecklist(title: string): Checklist {
   };
 }
 
-export function countUnchecked(checklist: Checklist): number {
-  return checklist.items.filter(item => !item.checked).length;
-}
-
 export function createItem(
   text: string,
   sectionId: string | null = null,
@@ -39,7 +34,6 @@ export function createItem(
   return {
     id: generateId(),
     text,
-    checked: false,
     sectionId,
   };
 }

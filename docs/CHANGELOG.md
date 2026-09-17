@@ -13,6 +13,12 @@ A record of all versioned releases. For planned work and known issues, see @docs
 - ...
 -->
 
+## [0.4.0] — 2026-09-17 (PR #16 merged)
+
+### Changed
+- [user] CheL-15: A checklist is now a reusable template only — you can no longer check items off (or "Clear checked") directly on the checklist itself; that's reserved for a checklist run once runs ship. The home screen now shows a plain item count (e.g. "7 items") instead of "X of Y left".
+- [app] Domain: removed `Item.checked` and `countUnchecked` (`domain/models.ts`). State: removed `toggleItem`/`clearCheckedItems` from `useChecklists`. UI: `ItemRow` and `ChecklistDetailScreen` drop the toggle/clear-checked affordances; `HomeScreen` renders a plain item count. Data: `AsyncStorageChecklistRepository`'s migration now strips any legacy `checked` field on read. Analytics: removed `item_toggled` and `checked_items_cleared`.
+
 ## [0.3.0] — 2026-09-17 (PR #12 merged)
 
 ### Added

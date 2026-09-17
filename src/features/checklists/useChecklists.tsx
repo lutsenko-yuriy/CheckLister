@@ -41,10 +41,8 @@ interface ChecklistsContextValue extends State {
   renameChecklist(id: string, title: string): void;
   deleteChecklist(id: string): void;
   addItem(checklistId: string, text: string, sectionId?: string | null): void;
-  toggleItem(checklistId: string, itemId: string): void;
   editItem(checklistId: string, itemId: string, text: string): void;
   deleteItem(checklistId: string, itemId: string): void;
-  clearCheckedItems(checklistId: string): void;
   addSection(checklistId: string, name: string): void;
   deleteSection(checklistId: string, sectionId: string): void;
   moveItem(
@@ -157,17 +155,6 @@ export function ChecklistsProvider({
     [updateChecklistItems],
   );
 
-  const toggleItem = useCallback(
-    (checklistId: string, itemId: string) => {
-      updateChecklistItems(checklistId, items =>
-        items.map(item =>
-          item.id === itemId ? { ...item, checked: !item.checked } : item,
-        ),
-      );
-    },
-    [updateChecklistItems],
-  );
-
   const editItem = useCallback(
     (checklistId: string, itemId: string, text: string) => {
       updateChecklistItems(checklistId, items =>
@@ -181,15 +168,6 @@ export function ChecklistsProvider({
     (checklistId: string, itemId: string) => {
       updateChecklistItems(checklistId, items =>
         items.filter(item => item.id !== itemId),
-      );
-    },
-    [updateChecklistItems],
-  );
-
-  const clearCheckedItems = useCallback(
-    (checklistId: string) => {
-      updateChecklistItems(checklistId, items =>
-        items.filter(item => !item.checked),
       );
     },
     [updateChecklistItems],
@@ -250,10 +228,8 @@ export function ChecklistsProvider({
       renameChecklist,
       deleteChecklist,
       addItem,
-      toggleItem,
       editItem,
       deleteItem,
-      clearCheckedItems,
       addSection,
       deleteSection,
       moveItem,
@@ -265,10 +241,8 @@ export function ChecklistsProvider({
       renameChecklist,
       deleteChecklist,
       addItem,
-      toggleItem,
       editItem,
       deleteItem,
-      clearCheckedItems,
       addSection,
       deleteSection,
       moveItem,

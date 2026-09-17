@@ -63,38 +63,13 @@ describe('ChecklistDetailScreen', () => {
     expect(screen.getByPlaceholderText('New item').props.value).toBe('');
   });
 
-  it("toggles an item's checked style when tapped", async () => {
-    const repo = new AsyncStorageChecklistRepository();
-    await repo.saveAll([
-      {
-        id: '1',
-        title: 'Groceries',
-        items: [{ id: 'a', text: 'Milk', checked: false, sectionId: null }],
-        sections: [],
-      },
-    ]);
-
-    await renderDetailScreen('1');
-    await waitFor(() => screen.getByText('Milk'));
-
-    await fireEvent.press(screen.getByText('Milk'));
-
-    await waitFor(() => {
-      const style = screen.getByText('Milk').props.style;
-      const flattened = Array.isArray(style)
-        ? Object.assign({}, ...style)
-        : style;
-      expect(flattened.textDecorationLine).toBe('line-through');
-    });
-  });
-
   it("edits an item's text", async () => {
     const repo = new AsyncStorageChecklistRepository();
     await repo.saveAll([
       {
         id: '1',
         title: 'Groceries',
-        items: [{ id: 'a', text: 'Milk', checked: false, sectionId: null }],
+        items: [{ id: 'a', text: 'Milk', sectionId: null }],
         sections: [],
       },
     ]);
@@ -116,7 +91,7 @@ describe('ChecklistDetailScreen', () => {
       {
         id: '1',
         title: 'Groceries',
-        items: [{ id: 'a', text: 'Milk', checked: false, sectionId: null }],
+        items: [{ id: 'a', text: 'Milk', sectionId: null }],
         sections: [],
       },
     ]);
@@ -128,35 +103,6 @@ describe('ChecklistDetailScreen', () => {
 
     await waitFor(() => expect(screen.queryByText('Milk')).toBeNull());
     expect((await repo.getAll())[0].items).toHaveLength(0);
-  });
-
-  it('shows "Clear checked" only when an item is checked, and clears on press', async () => {
-    const repo = new AsyncStorageChecklistRepository();
-    await repo.saveAll([
-      {
-        id: '1',
-        title: 'Groceries',
-        items: [
-          { id: 'a', text: 'Milk', checked: false, sectionId: null },
-          { id: 'b', text: 'Eggs', checked: false, sectionId: null },
-        ],
-        sections: [],
-      },
-    ]);
-
-    await renderDetailScreen('1');
-    await waitFor(() => screen.getByText('Milk'));
-    expect(screen.queryByText('Clear checked')).toBeNull();
-
-    await fireEvent.press(screen.getByText('Milk'));
-    await waitFor(() => expect(screen.getByText('Clear checked')).toBeTruthy());
-
-    await fireEvent.press(screen.getByText('Clear checked'));
-
-    await waitFor(() => expect(screen.queryByText('Milk')).toBeNull());
-    expect(screen.getByText('Eggs')).toBeTruthy();
-    expect(screen.queryByText('Clear checked')).toBeNull();
-    expect((await repo.getAll())[0].items).toHaveLength(1);
   });
 
   // CheL-3: Reordering & sections.
@@ -233,7 +179,7 @@ describe('ChecklistDetailScreen', () => {
       {
         id: '1',
         title: 'Groceries',
-        items: [{ id: 'a', text: 'Milk', checked: false, sectionId: null }],
+        items: [{ id: 'a', text: 'Milk', sectionId: null }],
         sections: [],
       },
     ]);
@@ -251,9 +197,9 @@ describe('ChecklistDetailScreen', () => {
         id: '1',
         title: 'Groceries',
         items: [
-          { id: 'a', text: 'A', checked: false, sectionId: null },
-          { id: 'b', text: 'B', checked: false, sectionId: null },
-          { id: 'c', text: 'C', checked: false, sectionId: null },
+          { id: 'a', text: 'A', sectionId: null },
+          { id: 'b', text: 'B', sectionId: null },
+          { id: 'c', text: 'C', sectionId: null },
         ],
         sections: [],
       },
@@ -280,7 +226,7 @@ describe('ChecklistDetailScreen', () => {
       {
         id: '1',
         title: 'Groceries',
-        items: [{ id: 'milk', text: 'Milk', checked: false, sectionId: null }],
+        items: [{ id: 'milk', text: 'Milk', sectionId: null }],
         sections: [produce],
       },
     ]);
@@ -309,8 +255,8 @@ describe('ChecklistDetailScreen', () => {
         id: '1',
         title: 'Groceries',
         items: [
-          { id: 'apple', text: 'Apple', checked: false, sectionId: 'produce' },
-          { id: 'milk', text: 'Milk', checked: false, sectionId: 'dairy' },
+          { id: 'apple', text: 'Apple', sectionId: 'produce' },
+          { id: 'milk', text: 'Milk', sectionId: 'dairy' },
         ],
         sections: [produce, dairy],
       },
@@ -342,9 +288,7 @@ describe('ChecklistDetailScreen', () => {
       {
         id: '1',
         title: 'Groceries',
-        items: [
-          { id: 'apple', text: 'Apple', checked: false, sectionId: 'produce' },
-        ],
+        items: [{ id: 'apple', text: 'Apple', sectionId: 'produce' }],
         sections: [produce],
       },
     ]);
@@ -376,9 +320,7 @@ describe('ChecklistDetailScreen', () => {
       {
         id: '1',
         title: 'Groceries',
-        items: [
-          { id: 'apple', text: 'Apple', checked: false, sectionId: 'produce' },
-        ],
+        items: [{ id: 'apple', text: 'Apple', sectionId: 'produce' }],
         sections: [produce],
       },
     ]);

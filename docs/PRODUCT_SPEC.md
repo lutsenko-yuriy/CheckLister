@@ -23,19 +23,15 @@ checklist belongs to the person using the device.
   all of its items and cannot be undone; the user must confirm before it
   happens.
 - The user can optionally see, at a glance on the home screen, how many
-  items in each checklist are still unchecked (e.g. "3 of 7 left").
+  items are in each checklist (e.g. "7 items").
 
 ### Feature 2 — Checklist items
 - The user must be able to add an item to a checklist by typing its text.
-- The user must be able to check an item off (mark complete) and uncheck it
-  again by tapping it.
 - The user must be able to edit the text of an existing item.
 - The user must be able to delete an item.
-- Checked items must remain visible in the checklist (shown with a
-  strikethrough / checked style) rather than disappearing, so the user can
-  review or uncheck them.
-- The user can optionally clear all checked items from a checklist in one
-  action, once they're done with it (e.g. after a shopping trip).
+- A checklist is a reusable template: it has no checked/unchecked state of
+  its own. Checking items off only ever happens within a run (Feature 4) —
+  see Feature 4 for why.
 
 ### Feature 3 — Reordering & sections
 - The user must be able to reorder items within a checklist by dragging them

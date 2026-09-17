@@ -33,7 +33,9 @@ describe('useChecklists', () => {
 
   it('loads persisted checklists on mount', async () => {
     const repo = new AsyncStorageChecklistRepository();
-    await repo.saveAll([{ id: '1', title: 'Groceries', items: [], sections: [] }]);
+    await repo.saveAll([
+      { id: '1', title: 'Groceries', items: [], sections: [] },
+    ]);
 
     const { result } = await renderHook(() => useChecklists(), {
       wrapper: makeWrapper(repo),
@@ -64,7 +66,9 @@ describe('useChecklists', () => {
 
   it('renames a checklist and persists the change', async () => {
     const repo = new AsyncStorageChecklistRepository();
-    await repo.saveAll([{ id: '1', title: 'Old title', items: [], sections: [] }]);
+    await repo.saveAll([
+      { id: '1', title: 'Old title', items: [], sections: [] },
+    ]);
     const { result } = await renderHook(() => useChecklists(), {
       wrapper: makeWrapper(repo),
     });
@@ -83,7 +87,9 @@ describe('useChecklists', () => {
 
   it('deletes a checklist and persists the change', async () => {
     const repo = new AsyncStorageChecklistRepository();
-    await repo.saveAll([{ id: '1', title: 'Groceries', items: [], sections: [] }]);
+    await repo.saveAll([
+      { id: '1', title: 'Groceries', items: [], sections: [] },
+    ]);
     const { result } = await renderHook(() => useChecklists(), {
       wrapper: makeWrapper(repo),
     });
@@ -126,7 +132,9 @@ describe('useChecklists', () => {
 
   it('adds an item to a checklist and persists it', async () => {
     const repo = new AsyncStorageChecklistRepository();
-    await repo.saveAll([{ id: '1', title: 'Groceries', items: [], sections: [] }]);
+    await repo.saveAll([
+      { id: '1', title: 'Groceries', items: [], sections: [] },
+    ]);
     const { result } = await renderHook(() => useChecklists(), {
       wrapper: makeWrapper(repo),
     });
@@ -141,45 +149,11 @@ describe('useChecklists', () => {
     );
     expect(result.current.checklists[0].items[0]).toMatchObject({
       text: 'Milk',
-      checked: false,
     });
     const persisted = await repo.getAll();
     expect(persisted[0].items[0]).toMatchObject({
       text: 'Milk',
-      checked: false,
     });
-  });
-
-  it("toggles an item's checked state and persists it", async () => {
-    const repo = new AsyncStorageChecklistRepository();
-    await repo.saveAll([
-      {
-        id: '1',
-        title: 'Groceries',
-        items: [{ id: 'a', text: 'Milk', checked: false, sectionId: null }],
-        sections: [],
-      },
-    ]);
-    const { result } = await renderHook(() => useChecklists(), {
-      wrapper: makeWrapper(repo),
-    });
-    await waitFor(() => expect(result.current.checklists).toHaveLength(1));
-
-    await act(async () => {
-      result.current.toggleItem('1', 'a');
-    });
-    await waitFor(() =>
-      expect(result.current.checklists[0].items[0].checked).toBe(true),
-    );
-    expect((await repo.getAll())[0].items[0].checked).toBe(true);
-
-    await act(async () => {
-      result.current.toggleItem('1', 'a');
-    });
-    await waitFor(() =>
-      expect(result.current.checklists[0].items[0].checked).toBe(false),
-    );
-    expect((await repo.getAll())[0].items[0].checked).toBe(false);
   });
 
   it("edits an item's text and persists it", async () => {
@@ -188,7 +162,7 @@ describe('useChecklists', () => {
       {
         id: '1',
         title: 'Groceries',
-        items: [{ id: 'a', text: 'Milk', checked: false, sectionId: null }],
+        items: [{ id: 'a', text: 'Milk', sectionId: null }],
         sections: [],
       },
     ]);
@@ -214,8 +188,8 @@ describe('useChecklists', () => {
         id: '1',
         title: 'Groceries',
         items: [
-          { id: 'a', text: 'Milk', checked: false, sectionId: null },
-          { id: 'b', text: 'Eggs', checked: false, sectionId: null },
+          { id: 'a', text: 'Milk', sectionId: null },
+          { id: 'b', text: 'Eggs', sectionId: null },
         ],
         sections: [],
       },
@@ -227,36 +201,6 @@ describe('useChecklists', () => {
 
     await act(async () => {
       result.current.deleteItem('1', 'a');
-    });
-
-    await waitFor(() =>
-      expect(result.current.checklists[0].items).toHaveLength(1),
-    );
-    expect(result.current.checklists[0].items[0].id).toBe('b');
-    expect((await repo.getAll())[0].items).toHaveLength(1);
-  });
-
-  it('clears all checked items on a checklist and persists it', async () => {
-    const repo = new AsyncStorageChecklistRepository();
-    await repo.saveAll([
-      {
-        id: '1',
-        title: 'Groceries',
-        items: [
-          { id: 'a', text: 'Milk', checked: true, sectionId: null },
-          { id: 'b', text: 'Eggs', checked: false, sectionId: null },
-          { id: 'c', text: 'Bread', checked: true, sectionId: null },
-        ],
-        sections: [],
-      },
-    ]);
-    const { result } = await renderHook(() => useChecklists(), {
-      wrapper: makeWrapper(repo),
-    });
-    await waitFor(() => expect(result.current.checklists).toHaveLength(1));
-
-    await act(async () => {
-      result.current.clearCheckedItems('1');
     });
 
     await waitFor(() =>
@@ -296,7 +240,9 @@ describe('useChecklists', () => {
 
   it('adds a section and persists it', async () => {
     const repo = new AsyncStorageChecklistRepository();
-    await repo.saveAll([{ id: '1', title: 'Groceries', items: [], sections: [] }]);
+    await repo.saveAll([
+      { id: '1', title: 'Groceries', items: [], sections: [] },
+    ]);
     const { result } = await renderHook(() => useChecklists(), {
       wrapper: makeWrapper(repo),
     });
@@ -321,7 +267,7 @@ describe('useChecklists', () => {
         id: '1',
         title: 'Groceries',
         sections: [{ id: 's1', name: 'Produce' }],
-        items: [{ id: 'a', text: 'Apple', checked: false, sectionId: 's1' }],
+        items: [{ id: 'a', text: 'Apple', sectionId: 's1' }],
       },
     ]);
     const { result } = await renderHook(() => useChecklists(), {
@@ -350,8 +296,8 @@ describe('useChecklists', () => {
         title: 'Groceries',
         sections: [],
         items: [
-          { id: 'a', text: 'A', checked: false, sectionId: null },
-          { id: 'b', text: 'B', checked: false, sectionId: null },
+          { id: 'a', text: 'A', sectionId: null },
+          { id: 'b', text: 'B', sectionId: null },
         ],
       },
     ]);
@@ -385,8 +331,8 @@ describe('useChecklists', () => {
           { id: 's2', name: 'Dairy' },
         ],
         items: [
-          { id: 'a', text: 'Apple', checked: false, sectionId: 's1' },
-          { id: 'm', text: 'Milk', checked: false, sectionId: 's2' },
+          { id: 'a', text: 'Apple', sectionId: 's1' },
+          { id: 'm', text: 'Milk', sectionId: 's2' },
         ],
       },
     ]);

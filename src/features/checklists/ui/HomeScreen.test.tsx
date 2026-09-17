@@ -48,15 +48,15 @@ describe('HomeScreen', () => {
     );
   });
 
-  it('shows the unchecked item count only once a checklist has items', async () => {
+  it('shows the item count only once a checklist has items', async () => {
     const repo = new AsyncStorageChecklistRepository();
     await repo.saveAll([
       {
         id: '1',
         title: 'Groceries',
         items: [
-          { id: 'a', text: 'Milk', checked: true, sectionId: null },
-          { id: 'b', text: 'Eggs', checked: false, sectionId: null },
+          { id: 'a', text: 'Milk', sectionId: null },
+          { id: 'b', text: 'Eggs', sectionId: null },
         ],
         sections: [],
       },
@@ -65,14 +65,31 @@ describe('HomeScreen', () => {
 
     await renderHomeScreen();
 
-    await waitFor(() => expect(screen.getByText('1 of 2 left')).toBeTruthy());
-    expect(screen.queryByText(/left/, { exact: false })).toBeTruthy();
+    await waitFor(() => expect(screen.getByText('2 items')).toBeTruthy());
     expect(screen.getByText('Empty list')).toBeTruthy();
+  });
+
+  it('uses the singular form for a single-item checklist', async () => {
+    const repo = new AsyncStorageChecklistRepository();
+    await repo.saveAll([
+      {
+        id: '1',
+        title: 'Groceries',
+        items: [{ id: 'a', text: 'Milk', sectionId: null }],
+        sections: [],
+      },
+    ]);
+
+    await renderHomeScreen();
+
+    await waitFor(() => expect(screen.getByText('1 item')).toBeTruthy());
   });
 
   it('navigates to the checklist detail screen when a row is pressed', async () => {
     const repo = new AsyncStorageChecklistRepository();
-    await repo.saveAll([{ id: '1', title: 'Groceries', items: [], sections: [] }]);
+    await repo.saveAll([
+      { id: '1', title: 'Groceries', items: [], sections: [] },
+    ]);
     const navigate = jest.fn();
 
     await renderHomeScreen(navigate);
@@ -86,7 +103,9 @@ describe('HomeScreen', () => {
 
   it('renames a checklist', async () => {
     const repo = new AsyncStorageChecklistRepository();
-    await repo.saveAll([{ id: '1', title: 'Old title', items: [], sections: [] }]);
+    await repo.saveAll([
+      { id: '1', title: 'Old title', items: [], sections: [] },
+    ]);
 
     await renderHomeScreen();
     await waitFor(() => screen.getByText('Old title'));
@@ -106,7 +125,9 @@ describe('HomeScreen', () => {
 
   it('deletes a checklist after the user confirms', async () => {
     const repo = new AsyncStorageChecklistRepository();
-    await repo.saveAll([{ id: '1', title: 'Groceries', items: [], sections: [] }]);
+    await repo.saveAll([
+      { id: '1', title: 'Groceries', items: [], sections: [] },
+    ]);
     jest.spyOn(Alert, 'alert').mockImplementation((_title, _msg, buttons) => {
       buttons?.find(button => button.text === 'Delete')?.onPress?.();
     });
@@ -123,7 +144,9 @@ describe('HomeScreen', () => {
 
   it('does not delete a checklist if the user cancels', async () => {
     const repo = new AsyncStorageChecklistRepository();
-    await repo.saveAll([{ id: '1', title: 'Groceries', items: [], sections: [] }]);
+    await repo.saveAll([
+      { id: '1', title: 'Groceries', items: [], sections: [] },
+    ]);
     jest.spyOn(Alert, 'alert').mockImplementation(() => {});
 
     await renderHomeScreen();

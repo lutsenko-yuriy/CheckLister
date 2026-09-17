@@ -9,13 +9,11 @@ export const ITEM_ROW_HEIGHT = 56;
 
 export function ItemRow({
   item,
-  onToggle,
   onEdit,
   onDelete,
   dragHandle,
 }: {
   item: Item;
-  onToggle: () => void;
   onEdit: (text: string) => void;
   onDelete: () => void;
   dragHandle: React.ReactNode;
@@ -61,14 +59,11 @@ export function ItemRow({
   return (
     <View style={styles.row}>
       {dragHandle}
-      <Pressable style={styles.rowBody} onPress={onToggle}>
-        <Text
-          style={item.checked ? styles.itemTextChecked : styles.itemText}
-          numberOfLines={1}
-        >
+      <View style={styles.rowBody}>
+        <Text style={styles.itemText} numberOfLines={1}>
           {item.text}
         </Text>
-      </Pressable>
+      </View>
       <Pressable onPress={startEditing} style={styles.actionButton}>
         <Text>Edit</Text>
       </Pressable>
@@ -100,11 +95,6 @@ const styles = StyleSheet.create({
   },
   itemText: {
     fontSize: 16,
-  },
-  itemTextChecked: {
-    fontSize: 16,
-    textDecorationLine: 'line-through',
-    color: '#999',
   },
   actionButton: {
     marginLeft: 12,
