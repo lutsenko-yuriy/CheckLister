@@ -62,11 +62,13 @@ export function RootNavigator() {
         name="Run"
         component={RunScreen}
         options={{
-          // React Navigation's beforeRemove event fires for the header back
-          // button, the swipe-back gesture, and Android's hardware back key
-          // alike (all dispatch a GO_BACK action) — so RunScreen's listener
-          // already intercepts every exit path with no need to disable any
-          // of them here. Same flat back button as ChecklistDetail.
+          // No gestureEnabled/headerLeft suppression here: RunScreen uses
+          // usePreventRemove, which disables native-stack's swipe-back
+          // gesture at the native level itself while a run is active and
+          // incomplete (unlike a manual beforeRemove listener, which can
+          // only block JS-dispatched actions and would desync from a native
+          // swipe gesture already in progress). Same flat back button as
+          // ChecklistDetail otherwise.
           headerLeft: FlatBackButton,
           unstable_headerLeftItems: () => [
             {
