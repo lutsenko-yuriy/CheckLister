@@ -6,9 +6,10 @@ const STORAGE_KEY = 'checklists';
 
 function migrateChecklist(stored: Checklist): Checklist {
   const items: Item[] = stored.items.map(item => {
-    // Drop the legacy `checked` field: checklists (templates) no longer
-    // carry checked state — see CheL-15.
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    // Drop legacy fields no longer part of the Item shape: `checked`
+    // (checklists stopped carrying checked state, see CheL-15) and
+    // `sectionId` (sections were removed entirely, see CheL-20).
+    /* eslint-disable @typescript-eslint/no-unused-vars */
     const {
       checked: _checked,
       sectionId: _sectionId,
@@ -17,6 +18,7 @@ function migrateChecklist(stored: Checklist): Checklist {
       checked?: boolean;
       sectionId?: string | null;
     };
+    /* eslint-enable @typescript-eslint/no-unused-vars */
     return rest;
   });
   return { ...stored, items };
