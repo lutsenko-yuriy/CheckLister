@@ -16,6 +16,7 @@ A record of all versioned releases. For planned work and known issues, see @docs
 ## [Unreleased]
 
 ### [wip]
+- CheL-4 WU2: Added the run screen (`src/features/runs/ui/RunScreen.tsx`) with a `RunItemRow` component, registered the `Run` route (`src/navigation/types.ts`, `RootNavigator.tsx`) with its back button, header-left item, and swipe gesture all disabled, and wired an "Are you sure?" confirmation dialog on the `beforeRemove` navigation event — confirming discards the run, cancelling preserves progress. Fires `screen_checklist_run`, `run_item_toggled`, and `run_completed` analytics. Not yet reachable from the UI — there is no "Start run" entry point yet (WU3).
 - CheL-4 WU1: Added the run domain model and pure helpers (`src/features/runs/domain/models.ts`: `startRun`, `toggleRunItem`, `isRunComplete`, `completeRun`, `checkedCount`) and an in-memory `useRuns` state hook (`src/features/runs/useRuns.tsx`), wired into `App.tsx`. No UI or user-facing change yet.
 
 ### [test]
