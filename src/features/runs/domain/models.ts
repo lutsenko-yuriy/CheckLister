@@ -29,7 +29,10 @@ export function startRun(checklist: Checklist): ChecklistRun {
   };
 }
 
-export function toggleRunItem(run: ChecklistRun, runItemId: string): ChecklistRun {
+export function toggleRunItem(
+  run: ChecklistRun,
+  runItemId: string,
+): ChecklistRun {
   const item = run.items.find(i => i.id === runItemId);
   if (!item) {
     return run;

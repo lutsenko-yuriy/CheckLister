@@ -40,7 +40,10 @@ describe('startRun', () => {
   });
 
   it('snapshots the checklist id and title', () => {
-    const checklist = { ...createChecklist('Groceries'), items: [createItem('Milk')] };
+    const checklist = {
+      ...createChecklist('Groceries'),
+      items: [createItem('Milk')],
+    };
 
     const run = startRun(checklist);
 
@@ -49,7 +52,10 @@ describe('startRun', () => {
   });
 
   it('starts with completedAt as null', () => {
-    const checklist = { ...createChecklist('Groceries'), items: [createItem('Milk')] };
+    const checklist = {
+      ...createChecklist('Groceries'),
+      items: [createItem('Milk')],
+    };
 
     const run = startRun(checklist);
 
@@ -83,7 +89,10 @@ describe('toggleRunItem', () => {
   });
 
   it('does not mutate the original run (immutability)', () => {
-    const checklist = { ...createChecklist('Groceries'), items: [createItem('Milk')] };
+    const checklist = {
+      ...createChecklist('Groceries'),
+      items: [createItem('Milk')],
+    };
     const run = startRun(checklist);
 
     toggleRunItem(run, run.items[0].id);
@@ -92,7 +101,10 @@ describe('toggleRunItem', () => {
   });
 
   it('returns the run unchanged when the id is unknown', () => {
-    const checklist = { ...createChecklist('Groceries'), items: [createItem('Milk')] };
+    const checklist = {
+      ...createChecklist('Groceries'),
+      items: [createItem('Milk')],
+    };
     const run = startRun(checklist);
 
     const result = toggleRunItem(run, 'not-a-real-id');
@@ -101,10 +113,16 @@ describe('toggleRunItem', () => {
   });
 
   it('toggling twice returns the item to its original state', () => {
-    const checklist = { ...createChecklist('Groceries'), items: [createItem('Milk')] };
+    const checklist = {
+      ...createChecklist('Groceries'),
+      items: [createItem('Milk')],
+    };
     const run = startRun(checklist);
 
-    const result = toggleRunItem(toggleRunItem(run, run.items[0].id), run.items[0].id);
+    const result = toggleRunItem(
+      toggleRunItem(run, run.items[0].id),
+      run.items[0].id,
+    );
 
     expect(result.items[0].checked).toBe(false);
   });
@@ -146,7 +164,10 @@ describe('isRunComplete', () => {
 
 describe('completeRun', () => {
   it('stamps completedAt with the injected date', () => {
-    const checklist = { ...createChecklist('Groceries'), items: [createItem('Milk')] };
+    const checklist = {
+      ...createChecklist('Groceries'),
+      items: [createItem('Milk')],
+    };
     const run = startRun(checklist);
     const now = new Date('2026-09-18T12:00:00.000Z');
 
