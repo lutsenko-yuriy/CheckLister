@@ -221,7 +221,7 @@ const styles = StyleSheet.create({
   },
   startRunButton: {
     backgroundColor: colors.primary,
-    borderRadius: 6,
+    borderRadius: 14,
     paddingVertical: 12,
     alignItems: 'center',
     marginBottom: 12,

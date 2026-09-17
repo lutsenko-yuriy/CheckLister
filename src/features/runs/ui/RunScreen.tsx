@@ -152,8 +152,9 @@ const styles = StyleSheet.create({
   },
   completeButton: {
     marginTop: 16,
+    marginBottom: 16,
     backgroundColor: colors.primary,
-    borderRadius: 8,
+    borderRadius: 14,
     paddingVertical: 14,
     alignItems: 'center',
   },
