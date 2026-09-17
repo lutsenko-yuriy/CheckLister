@@ -7,6 +7,7 @@ import { useNavigation } from '@react-navigation/native';
 import { RootStackParamList } from './types';
 import { HomeScreen } from '../features/checklists/ui/HomeScreen';
 import { ChecklistDetailScreen } from '../features/checklists/ui/ChecklistDetailScreen';
+import { RunScreen } from '../features/runs/ui/RunScreen';
 import { IconButton } from '../shared/ui/IconButton';
 import { colors } from '../shared/theme/colors';
 
@@ -51,6 +52,18 @@ export function RootNavigator() {
           unstable_headerLeftItems: () => [
             { type: 'custom', element: <FlatBackButton />, hidesSharedBackground: true },
           ],
+        }}
+      />
+      <Stack.Screen
+        name="Run"
+        component={RunScreen}
+        options={{
+          headerBackVisible: false,
+          headerLeft: () => null,
+          // Same iOS-26 escape hatch as ChecklistDetail's back button, used
+          // here to guarantee no back affordance renders at all.
+          unstable_headerLeftItems: () => [],
+          gestureEnabled: false,
         }}
       />
     </Stack.Navigator>
