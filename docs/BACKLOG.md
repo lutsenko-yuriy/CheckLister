@@ -8,7 +8,7 @@ The `## In Progress` section at the top is the one exception — it is maintaine
 
 ## In Progress
 
-- CheL-4: Checklist runs — WU1 merged, starting WU2 (run screen, route, exit-confirmation lock, analytics)
+- CheL-4: Checklist runs — WU2 merged, starting WU3 ("Start run" entry point + docs)
 
 ---
 
