@@ -13,6 +13,11 @@ A record of all versioned releases. For planned work and known issues, see @docs
 - ...
 -->
 
+## [Unreleased]
+
+### [test]
+- Draft integration-scenario stubs for CheL-3 (Reordering & sections) — no behaviour change yet.
+
 ## [0.2.0] — 2026-09-17 (PR #7 merged)
 
 ### Added
