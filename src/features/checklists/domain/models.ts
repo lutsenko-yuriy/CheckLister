@@ -23,3 +23,11 @@ export function createChecklist(title: string): Checklist {
 export function countUnchecked(checklist: Checklist): number {
   return checklist.items.filter(item => !item.checked).length;
 }
+
+export function createItem(text: string): Item {
+  return {
+    id: generateId(),
+    text,
+    checked: false,
+  };
+}

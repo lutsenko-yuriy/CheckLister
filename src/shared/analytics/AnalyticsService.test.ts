@@ -12,4 +12,10 @@ describe('NoopAnalyticsService', () => {
       new NoopAnalyticsService().logScreenView('AnyScreen'),
     ).not.toThrow();
   });
+
+  it('does nothing on logScreenView with properties', () => {
+    expect(() =>
+      new NoopAnalyticsService().logScreenView('AnyScreen', { foo: 'bar' }),
+    ).not.toThrow();
+  });
 });
