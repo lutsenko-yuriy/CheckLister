@@ -15,6 +15,9 @@ A record of all versioned releases. For planned work and known issues, see @docs
 
 ## [Unreleased]
 
+### [wip]
+- CheL-3 (Reordering & sections) WU1: domain model (`Section`, `Item.sectionId`, `Checklist.sections`), `normalizeChecklist`, `moveItem`/`moveSection` ordering helpers, and storage-read migration/normalization — no UI change yet.
+
 ### [test]
 - Draft integration-scenario stubs for CheL-3 (Reordering & sections) — no behaviour change yet.
 

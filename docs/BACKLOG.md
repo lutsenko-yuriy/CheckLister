@@ -8,7 +8,7 @@ The `## In Progress` section at the top is the one exception — it is maintaine
 
 ## In Progress
 
-_(nothing in progress)_
+- CheL-3: Reordering & sections — WU1 merged, starting WU2 (useChecklists section & reorder actions)
 
 ---
 

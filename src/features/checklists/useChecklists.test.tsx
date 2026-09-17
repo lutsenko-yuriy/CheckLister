@@ -33,7 +33,7 @@ describe('useChecklists', () => {
 
   it('loads persisted checklists on mount', async () => {
     const repo = new AsyncStorageChecklistRepository();
-    await repo.saveAll([{ id: '1', title: 'Groceries', items: [] }]);
+    await repo.saveAll([{ id: '1', title: 'Groceries', items: [], sections: [] }]);
 
     const { result } = await renderHook(() => useChecklists(), {
       wrapper: makeWrapper(repo),
@@ -64,7 +64,7 @@ describe('useChecklists', () => {
 
   it('renames a checklist and persists the change', async () => {
     const repo = new AsyncStorageChecklistRepository();
-    await repo.saveAll([{ id: '1', title: 'Old title', items: [] }]);
+    await repo.saveAll([{ id: '1', title: 'Old title', items: [], sections: [] }]);
     const { result } = await renderHook(() => useChecklists(), {
       wrapper: makeWrapper(repo),
     });
@@ -83,7 +83,7 @@ describe('useChecklists', () => {
 
   it('deletes a checklist and persists the change', async () => {
     const repo = new AsyncStorageChecklistRepository();
-    await repo.saveAll([{ id: '1', title: 'Groceries', items: [] }]);
+    await repo.saveAll([{ id: '1', title: 'Groceries', items: [], sections: [] }]);
     const { result } = await renderHook(() => useChecklists(), {
       wrapper: makeWrapper(repo),
     });
@@ -126,7 +126,7 @@ describe('useChecklists', () => {
 
   it('adds an item to a checklist and persists it', async () => {
     const repo = new AsyncStorageChecklistRepository();
-    await repo.saveAll([{ id: '1', title: 'Groceries', items: [] }]);
+    await repo.saveAll([{ id: '1', title: 'Groceries', items: [], sections: [] }]);
     const { result } = await renderHook(() => useChecklists(), {
       wrapper: makeWrapper(repo),
     });
@@ -156,7 +156,8 @@ describe('useChecklists', () => {
       {
         id: '1',
         title: 'Groceries',
-        items: [{ id: 'a', text: 'Milk', checked: false }],
+        items: [{ id: 'a', text: 'Milk', checked: false, sectionId: null }],
+        sections: [],
       },
     ]);
     const { result } = await renderHook(() => useChecklists(), {
@@ -187,7 +188,8 @@ describe('useChecklists', () => {
       {
         id: '1',
         title: 'Groceries',
-        items: [{ id: 'a', text: 'Milk', checked: false }],
+        items: [{ id: 'a', text: 'Milk', checked: false, sectionId: null }],
+        sections: [],
       },
     ]);
     const { result } = await renderHook(() => useChecklists(), {
@@ -212,9 +214,10 @@ describe('useChecklists', () => {
         id: '1',
         title: 'Groceries',
         items: [
-          { id: 'a', text: 'Milk', checked: false },
-          { id: 'b', text: 'Eggs', checked: false },
+          { id: 'a', text: 'Milk', checked: false, sectionId: null },
+          { id: 'b', text: 'Eggs', checked: false, sectionId: null },
         ],
+        sections: [],
       },
     ]);
     const { result } = await renderHook(() => useChecklists(), {
@@ -240,10 +243,11 @@ describe('useChecklists', () => {
         id: '1',
         title: 'Groceries',
         items: [
-          { id: 'a', text: 'Milk', checked: true },
-          { id: 'b', text: 'Eggs', checked: false },
-          { id: 'c', text: 'Bread', checked: true },
+          { id: 'a', text: 'Milk', checked: true, sectionId: null },
+          { id: 'b', text: 'Eggs', checked: false, sectionId: null },
+          { id: 'c', text: 'Bread', checked: true, sectionId: null },
         ],
+        sections: [],
       },
     ]);
     const { result } = await renderHook(() => useChecklists(), {
