@@ -24,6 +24,8 @@ src/
 │   ├── checklists/
 │   │   ├── domain/
 │   │   │   ├── models.ts           # Checklist, Section, Item types + pure helpers
+│   │   │   │                       # (ordering/reordering, section add/delete,
+│   │   │   │                       #  legacy-data normalization — see below)
 │   │   │   └── checklistRepository.ts   # Repository interface
 │   │   ├── data/
 │   │   │   └── asyncStorageChecklistRepository.ts
@@ -70,6 +72,15 @@ by that feature's own `data/` and `ui/` layers.
 (a run is built from a checklist snapshot). `checklists/domain` must never
 import from `runs/*` — the dependency is one-directional.
 
+**Sections (CheL-3):** `Checklist.sections` holds only user-named sections,
+in display order. The default/unnamed section has no entry in `sections` —
+it is implicit, represented by `Item.sectionId === null`, always renders
+first, and cannot be renamed, reordered, or deleted. `Checklist.items`
+stays one flat array, always persisted in canonical display order (default
+section's items, then each named section's items in `sections` order);
+`normalizeChecklist` enforces this invariant and is applied on every read
+and after every mutation.
+
 ### Data
 Implements the domain layer's repository interface using `AsyncStorage` (via
 `shared/storage/jsonStorage.ts`). Owns serialization and storage keys. May
@@ -99,8 +110,11 @@ cross-feature state coordination outgrows this.
   local, on-device persistence for checklists and run history. Installed.
 - [`react-native-draggable-flatlist`](https://github.com/computerjazz/react-native-draggable-flatlist)
   (with its peer deps `react-native-gesture-handler` and
-  `react-native-reanimated`) — drag-to-reorder for items and sections. Not
-  yet installed — add it when implementing Feature 3.
+  `react-native-reanimated`) — drag-to-reorder for items and sections
+  (Feature 3 / CheL-3). Requires `GestureHandlerRootView` wrapping the app
+  root, `react-native-reanimated/plugin` as the last entry in
+  `babel.config.js`, and Jest transform/mocking setup for all three
+  packages.
 - `react-native-safe-area-context` — already installed; also a peer
   dependency of React Navigation.
 - [`@testing-library/react-native`](https://callstack.github.io/react-native-testing-library/) —

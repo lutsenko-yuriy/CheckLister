@@ -149,4 +149,76 @@ describe('ChecklistDetailScreen', () => {
     expect(screen.queryByText('Clear checked')).toBeNull();
     expect((await repo.getAll())[0].items).toHaveLength(1);
   });
+
+  // CheL-3: Reordering & sections — stubs below, filled in during implementation.
+  // Drag gestures are driven through a mocked react-native-draggable-flatlist
+  // (WU3 infra) that exposes onDragEnd({ from, to }) via a testID-addressable
+  // trigger.
+
+  it('adds a named section and shows it as a header', async () => {
+    // TODO: Seed a checklist with no sections.
+    // TODO: Render detail screen.
+    // TODO: Trigger "add section" flow, enter name "Produce", save.
+    // TODO: Verify a "Produce" header renders in the list.
+  });
+
+  it('shows a section chip for each section when adding an item, and assigns the item to the picked chip', async () => {
+    // TODO: Seed a checklist with an existing named section "Produce".
+    // TODO: Render detail screen.
+    // TODO: Verify a "Produce" chip is visible above the add-item input (and a "No section" chip).
+    // TODO: Type an item's text, select the "Produce" chip, press Add.
+    // TODO: Verify the new item appears under the "Produce" header.
+  });
+
+  it('adds an item without picking a section into the default section', async () => {
+    // TODO: Seed a checklist with an existing named section "Produce".
+    // TODO: Render detail screen.
+    // TODO: Type item text, leave "No section" selected (default), press Add.
+    // TODO: Verify the item appears above the "Produce" header (default section, no header of its own).
+  });
+
+  it('does not show any section chips or default-section header when the checklist has no named sections', async () => {
+    // TODO: Seed a checklist with only unsectioned items.
+    // TODO: Render detail screen.
+    // TODO: Verify no section chips are rendered and no header row appears — list looks like today's flat list.
+  });
+
+  it('reorders items within the same section via drag', async () => {
+    // TODO: Seed a checklist with items A, B, C, all unsectioned.
+    // TODO: Render detail screen.
+    // TODO: Fire the mocked drag-end trigger moving row A to row C's position.
+    // TODO: Verify the rendered order is now B, C, A.
+    // TODO: Verify the persisted repository order matches.
+  });
+
+  it('moves an item to a different section via drag', async () => {
+    // TODO: Seed a checklist with section "Produce" and an unsectioned item "Milk".
+    // TODO: Render detail screen.
+    // TODO: Fire the mocked drag-end trigger moving "Milk"'s row to a position under the "Produce" header.
+    // TODO: Verify "Milk" now renders under "Produce".
+    // TODO: Verify the persisted item's sectionId matches the "Produce" section.
+  });
+
+  it('reorders sections via drag, carrying their items with them', async () => {
+    // TODO: Seed a checklist with sections "Produce" (item "Apple") and "Dairy" (item "Milk"), in that order.
+    // TODO: Render detail screen.
+    // TODO: Fire the mocked drag-end trigger moving the "Dairy" header above "Produce".
+    // TODO: Verify rendered order is Dairy header -> Milk -> Produce header -> Apple.
+    // TODO: Verify persisted sections order matches.
+  });
+
+  it('deletes a section, with confirmation, and falls its items back to the default section', async () => {
+    // TODO: Seed a checklist with section "Produce" containing item "Apple".
+    // TODO: Render detail screen.
+    // TODO: Press the "Produce" header's delete action.
+    // TODO: Confirm the deletion in the confirm dialog.
+    // TODO: Verify the "Produce" header is gone and "Apple" still renders (now in the default section).
+    // TODO: Verify persisted checklist has no "Produce" section and "Apple"'s sectionId is null.
+  });
+
+  it('cancels section deletion when the confirm dialog is declined', async () => {
+    // TODO: Seed a checklist with section "Produce" containing item "Apple".
+    // TODO: Press delete on "Produce", then decline/cancel the confirm dialog.
+    // TODO: Verify "Produce" header and "Apple" are unchanged, and nothing was persisted differently.
+  });
 });

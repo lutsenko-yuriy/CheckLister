@@ -37,9 +37,9 @@ When setting up the project, fill in every `{{placeholder}}`. Skills stay unchan
 
 | Setting | Value |
 |---|---|
-| Integration test directory | `e2e/` (not yet added; e.g. Detox) |
-| Test harness file | `N/A` (no integration harness yet) |
-| Harness class / entry point | `N/A` |
+| Integration test directory | Colocated `*.test.tsx` files next to each screen/component under `src/features/<feature>/ui/` (no separate `e2e/` harness — see below) |
+| Test harness file | `@testing-library/react-native` — component-level integration tests render a full screen and drive it via user-facing queries/interactions, no Detox/device harness yet |
+| Harness class / entry point | `render()` / `fireEvent` from `@testing-library/react-native`, e.g. as used in `src/features/checklists/ui/ChecklistDetailScreen.test.tsx` |
 | Unit / integration test command | `npm test` (Jest, via `@react-native/jest-preset`) |
 
 ## Version management
