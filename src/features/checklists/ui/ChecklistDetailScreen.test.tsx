@@ -219,6 +219,16 @@ describe('ChecklistDetailScreen', () => {
     });
   });
 
+  it('dragged item row shows an opaque, elevated style while active and reverts after drop', async () => {
+    // TODO: Seed a checklist with two items ("A", "B") and render ChecklistDetailScreen.
+    // TODO: Fire a `dragStart` event on `sortable-item-item:a` (mock's onDragStart prop).
+    // TODO: Assert the row's rendered style includes the opaque backgroundColor (colors.surface)
+    //       and the lift shadow/elevation properties.
+    // TODO: Fire `drop` on the same testID.
+    // TODO: Assert the row's style still has the opaque background but no longer includes
+    //       the lift shadow/elevation (back to resting state).
+  });
+
   it('moves an item to a different section via drag', async () => {
     const repo = new AsyncStorageChecklistRepository();
     const produce = { id: 'produce', name: 'Produce' };
