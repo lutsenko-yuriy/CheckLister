@@ -68,18 +68,11 @@ List all files written and the `/command-name` to invoke the skill.
 
 **Routing rule:** only spawn when the target model differs from the current session model.
 
-**The script stub below is currently disabled.** No LM Studio (or other local model) provider is configured for this project — every skill runs directly in the current Claude Code session instead. Until a local-model provider is configured again (see `skill_router.toml`), write every command stub as a **direct-include stub** regardless of `needs_session_tools`:
+**Script stub** (`needs_session_tools: true`, or `lm-studio` alias) — gated behind `skill_router.toml`'s `[llm]` `router_enabled` flag, so the router is only actually invoked once a local model is really available; when `false` (the current setting — no LM Studio instance is running for this project), every skill falls straight through to running directly in the Claude Code session instead:
 ```
-@skills/<path>/SKILL.md
-
-$ARGUMENTS
-```
-For no-argument skills, omit the trailing `$ARGUMENTS` line.
-
-**Script stub** (`needs_session_tools: true`, or `lm-studio` alias) — kept for reference, not currently used:
-```
-Run via Bash: `python3 scripts/skill_router skills/<path>/SKILL.md --args '$ARGUMENTS'`
-If the script exits non-zero (LM Studio unavailable or model not loaded), fall back to reading `skills/<path>/SKILL.md` and executing it yourself.
+Check `skill_router.toml`'s `[llm]` `router_enabled` flag.
+- If `true`: run via Bash: `python3 scripts/skill_router skills/<path>/SKILL.md --args '$ARGUMENTS'`. If the script exits non-zero (LM Studio unavailable or model not loaded), fall back to reading `skills/<path>/SKILL.md` and executing it yourself.
+- If `false` or unset: skip the router — read `skills/<path>/SKILL.md` and execute it yourself directly.
 
 $ARGUMENTS
 ```
