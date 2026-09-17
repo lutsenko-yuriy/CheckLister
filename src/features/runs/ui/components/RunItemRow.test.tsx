@@ -1,0 +1,44 @@
+import React from 'react';
+import { render, fireEvent, screen } from '@testing-library/react-native';
+import { RunItemRow } from './RunItemRow';
+
+describe('RunItemRow', () => {
+  it('renders the item text', async () => {
+    await render(
+      <RunItemRow
+        item={{ id: 'a', text: 'Milk', checked: false }}
+        onToggle={jest.fn()}
+      />,
+    );
+
+    expect(screen.getByText('Milk')).toBeTruthy();
+  });
+
+  it('reflects checked state through accessibilityState', async () => {
+    await render(
+      <RunItemRow
+        item={{ id: 'a', text: 'Milk', checked: true }}
+        onToggle={jest.fn()}
+      />,
+    );
+
+    const row = screen.getByRole('checkbox');
+    expect(row.props.accessibilityState).toEqual(
+      expect.objectContaining({ checked: true }),
+    );
+  });
+
+  it('calls onToggle when pressed', async () => {
+    const onToggle = jest.fn();
+    await render(
+      <RunItemRow
+        item={{ id: 'a', text: 'Milk', checked: false }}
+        onToggle={onToggle}
+      />,
+    );
+
+    await fireEvent.press(screen.getByRole('checkbox'));
+
+    expect(onToggle).toHaveBeenCalledTimes(1);
+  });
+});
