@@ -1,6 +1,5 @@
 import {
   createChecklist,
-  countUnchecked,
   createItem,
   createSection,
   normalizeChecklist,
@@ -32,29 +31,10 @@ describe('createChecklist', () => {
   });
 });
 
-describe('countUnchecked', () => {
-  it('returns 0 for a checklist with no items', () => {
-    expect(countUnchecked(createChecklist('Empty'))).toBe(0);
-  });
-
-  it('counts only the unchecked items', () => {
-    const checklist = {
-      ...createChecklist('Groceries'),
-      items: [
-        { id: '1', text: 'Milk', checked: true, sectionId: null },
-        { id: '2', text: 'Eggs', checked: false, sectionId: null },
-        { id: '3', text: 'Bread', checked: false, sectionId: null },
-      ],
-    };
-    expect(countUnchecked(checklist)).toBe(2);
-  });
-});
-
 describe('createItem', () => {
-  it('creates an item with the given text, unchecked', () => {
+  it('creates an item with the given text', () => {
     const item = createItem('Milk');
     expect(item.text).toBe('Milk');
-    expect(item.checked).toBe(false);
     expect(item.id).toBeTruthy();
   });
 
@@ -81,8 +61,8 @@ describe('normalizeChecklist', () => {
   it('keeps a checklist with no sections unchanged', () => {
     const c = checklist({
       items: [
-        { id: 'a', text: 'Milk', checked: false, sectionId: null },
-        { id: 'b', text: 'Eggs', checked: false, sectionId: null },
+        { id: 'a', text: 'Milk', sectionId: null },
+        { id: 'b', text: 'Eggs', sectionId: null },
       ],
     });
     expect(normalizeChecklist(c).items.map(i => i.id)).toEqual(['a', 'b']);
@@ -93,8 +73,8 @@ describe('normalizeChecklist', () => {
     const c = checklist({
       sections: [produce],
       items: [
-        { id: 'apple', text: 'Apple', checked: false, sectionId: produce.id },
-        { id: 'milk', text: 'Milk', checked: false, sectionId: null },
+        { id: 'apple', text: 'Apple', sectionId: produce.id },
+        { id: 'milk', text: 'Milk', sectionId: null },
       ],
     });
     expect(normalizeChecklist(c).items.map(i => i.id)).toEqual([
@@ -109,8 +89,8 @@ describe('normalizeChecklist', () => {
     const c = checklist({
       sections: [dairy, produce],
       items: [
-        { id: 'apple', text: 'Apple', checked: false, sectionId: produce.id },
-        { id: 'milk', text: 'Milk', checked: false, sectionId: dairy.id },
+        { id: 'apple', text: 'Apple', sectionId: produce.id },
+        { id: 'milk', text: 'Milk', sectionId: dairy.id },
       ],
     });
     expect(normalizeChecklist(c).items.map(i => i.id)).toEqual([
@@ -124,8 +104,8 @@ describe('normalizeChecklist', () => {
     const c = checklist({
       sections: [produce],
       items: [
-        { id: 'banana', text: 'Banana', checked: false, sectionId: produce.id },
-        { id: 'apple', text: 'Apple', checked: false, sectionId: produce.id },
+        { id: 'banana', text: 'Banana', sectionId: produce.id },
+        { id: 'apple', text: 'Apple', sectionId: produce.id },
       ],
     });
     expect(normalizeChecklist(c).items.map(i => i.id)).toEqual([
@@ -137,7 +117,7 @@ describe('normalizeChecklist', () => {
   it('falls back items whose sectionId matches no current section to the default section', () => {
     const c = checklist({
       sections: [],
-      items: [{ id: 'a', text: 'Milk', checked: false, sectionId: 'ghost' }],
+      items: [{ id: 'a', text: 'Milk', sectionId: 'ghost' }],
     });
     expect(normalizeChecklist(c).items.map(i => i.id)).toEqual(['a']);
   });
@@ -147,8 +127,8 @@ describe('normalizeChecklist', () => {
     const c = checklist({
       sections: [produce],
       items: [
-        { id: 'milk', text: 'Milk', checked: false, sectionId: null },
-        { id: 'apple', text: 'Apple', checked: false, sectionId: produce.id },
+        { id: 'milk', text: 'Milk', sectionId: null },
+        { id: 'apple', text: 'Apple', sectionId: produce.id },
       ],
     });
     const once = normalizeChecklist(c);
@@ -165,9 +145,9 @@ describe('moveItem', () => {
   it('reorders items within the same section', () => {
     const c = checklist({
       items: [
-        { id: 'a', text: 'A', checked: false, sectionId: null },
-        { id: 'b', text: 'B', checked: false, sectionId: null },
-        { id: 'c', text: 'C', checked: false, sectionId: null },
+        { id: 'a', text: 'A', sectionId: null },
+        { id: 'b', text: 'B', sectionId: null },
+        { id: 'c', text: 'C', sectionId: null },
       ],
     });
     const result = moveItem(c, 'a', null, 2);
@@ -178,7 +158,7 @@ describe('moveItem', () => {
     const produce = createSection('Produce');
     const c = checklist({
       sections: [produce],
-      items: [{ id: 'milk', text: 'Milk', checked: false, sectionId: null }],
+      items: [{ id: 'milk', text: 'Milk', sectionId: null }],
     });
     const result = moveItem(c, 'milk', produce.id, 0);
     expect(result.items[0]).toEqual(
@@ -188,7 +168,7 @@ describe('moveItem', () => {
 
   it('is a no-op when the item does not exist', () => {
     const c = checklist({
-      items: [{ id: 'a', text: 'A', checked: false, sectionId: null }],
+      items: [{ id: 'a', text: 'A', sectionId: null }],
     });
     expect(moveItem(c, 'missing', null, 0)).toEqual(c);
   });
@@ -205,8 +185,8 @@ describe('moveSection', () => {
     const c = checklist({
       sections: [produce, dairy],
       items: [
-        { id: 'apple', text: 'Apple', checked: false, sectionId: produce.id },
-        { id: 'milk', text: 'Milk', checked: false, sectionId: dairy.id },
+        { id: 'apple', text: 'Apple', sectionId: produce.id },
+        { id: 'milk', text: 'Milk', sectionId: dairy.id },
       ],
     });
     const result = moveSection(c, dairy.id, 0);
@@ -240,18 +220,18 @@ describe('buildRows', () => {
   }
 
   it('renders no header rows when the checklist has no named sections', () => {
-    const milk = { id: 'milk', text: 'Milk', checked: false, sectionId: null };
+    const milk = { id: 'milk', text: 'Milk', sectionId: null };
     const rows = buildRows(checklist({ items: [milk] }));
     expect(rows).toEqual([{ kind: 'item', item: milk }]);
   });
 
   it('renders a default header once a named section exists, then each section header and its items', () => {
     const produce = createSection('Produce');
-    const milk = { id: 'milk', text: 'Milk', checked: false, sectionId: null };
+    const milk = { id: 'milk', text: 'Milk', sectionId: null };
     const apple = {
       id: 'apple',
       text: 'Apple',
-      checked: false,
+
       sectionId: produce.id,
     };
     const rows = buildRows(
@@ -277,9 +257,9 @@ describe('buildRows', () => {
 
 describe('resolveItemDrop', () => {
   it('resolves the position within the same (default) section', () => {
-    const a = { id: 'a', text: 'A', checked: false, sectionId: null };
-    const b = { id: 'b', text: 'B', checked: false, sectionId: null };
-    const c = { id: 'c', text: 'C', checked: false, sectionId: null };
+    const a = { id: 'a', text: 'A', sectionId: null };
+    const b = { id: 'b', text: 'B', sectionId: null };
+    const c = { id: 'c', text: 'C', sectionId: null };
     // Dropped so B and C moved ahead of A: new order is B, C, A.
     const rows: Row[] = [
       { kind: 'item', item: b },
@@ -294,11 +274,11 @@ describe('resolveItemDrop', () => {
 
   it('resolves the target section when dropped under a different header', () => {
     const produce = createSection('Produce');
-    const milk = { id: 'milk', text: 'Milk', checked: false, sectionId: null };
+    const milk = { id: 'milk', text: 'Milk', sectionId: null };
     const apple = {
       id: 'apple',
       text: 'Apple',
-      checked: false,
+
       sectionId: produce.id,
     };
     const rows: Row[] = [

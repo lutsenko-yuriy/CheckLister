@@ -8,18 +8,16 @@ function item(overrides: Partial<Item> = {}): Item {
   return {
     id: 'a',
     text: 'Milk',
-    checked: false,
     sectionId: null,
     ...overrides,
   };
 }
 
 describe('ItemRow', () => {
-  it('renders the item text unchecked by default', async () => {
+  it('renders the item text', async () => {
     await render(
       <ItemRow
         item={item()}
-        onToggle={jest.fn()}
         onEdit={jest.fn()}
         onDelete={jest.fn()}
         dragHandle={<Text>Handle</Text>}
@@ -28,26 +26,10 @@ describe('ItemRow', () => {
     expect(screen.getByText('Milk')).toBeTruthy();
   });
 
-  it('calls onToggle when the item text is pressed', async () => {
-    const onToggle = jest.fn();
-    await render(
-      <ItemRow
-        item={item()}
-        onToggle={onToggle}
-        onEdit={jest.fn()}
-        onDelete={jest.fn()}
-        dragHandle={<Text>Handle</Text>}
-      />,
-    );
-    fireEvent.press(screen.getByText('Milk'));
-    expect(onToggle).toHaveBeenCalled();
-  });
-
   it('renders the provided drag handle', async () => {
     await render(
       <ItemRow
         item={item()}
-        onToggle={jest.fn()}
         onEdit={jest.fn()}
         onDelete={jest.fn()}
         dragHandle={<Text>Handle</Text>}
@@ -61,7 +43,6 @@ describe('ItemRow', () => {
     await render(
       <ItemRow
         item={item()}
-        onToggle={jest.fn()}
         onEdit={onEdit}
         onDelete={jest.fn()}
         dragHandle={<Text>Handle</Text>}
@@ -78,7 +59,6 @@ describe('ItemRow', () => {
     await render(
       <ItemRow
         item={item()}
-        onToggle={jest.fn()}
         onEdit={jest.fn()}
         onDelete={onDelete}
         dragHandle={<Text>Handle</Text>}

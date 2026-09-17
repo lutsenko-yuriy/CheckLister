@@ -11,7 +11,7 @@ import {
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../../navigation/types';
 import { useChecklists } from '../useChecklists';
-import { Checklist, countUnchecked } from '../domain/models';
+import { Checklist } from '../domain/models';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Home'>;
 
@@ -125,15 +125,14 @@ function ChecklistRow({
     );
   }
 
-  const unchecked = countUnchecked(checklist);
-
   return (
     <View style={styles.row}>
       <Pressable style={styles.rowBody} onPress={onOpen}>
         <Text style={styles.rowTitle}>{checklist.title}</Text>
         {checklist.items.length > 0 && (
           <Text style={styles.rowSubtitle}>
-            {unchecked} of {checklist.items.length} left
+            {checklist.items.length} item
+            {checklist.items.length === 1 ? '' : 's'}
           </Text>
         )}
       </Pressable>
