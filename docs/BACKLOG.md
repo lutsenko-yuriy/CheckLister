@@ -8,7 +8,7 @@ The `## In Progress` section at the top is the one exception — it is maintaine
 
 ## In Progress
 
-_(nothing in progress)_
+- CheL-3: Reordering & sections — WU1 in review ([PR #9](https://github.com/lutsenko-yuriy/CheckLister/pull/9))
 
 ---
 
