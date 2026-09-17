@@ -68,7 +68,15 @@ List all files written and the `/command-name` to invoke the skill.
 
 **Routing rule:** only spawn when the target model differs from the current session model.
 
-**Script stub** (`needs_session_tools: true`, or `lm-studio` alias):
+**The script stub below is currently disabled.** No LM Studio (or other local model) provider is configured for this project — every skill runs directly in the current Claude Code session instead. Until a local-model provider is configured again (see `skill_router.toml`), write every command stub as a **direct-include stub** regardless of `needs_session_tools`:
+```
+@skills/<path>/SKILL.md
+
+$ARGUMENTS
+```
+For no-argument skills, omit the trailing `$ARGUMENTS` line.
+
+**Script stub** (`needs_session_tools: true`, or `lm-studio` alias) — kept for reference, not currently used:
 ```
 Run via Bash: `python3 scripts/skill_router skills/<path>/SKILL.md --args '$ARGUMENTS'`
 If the script exits non-zero (LM Studio unavailable or model not loaded), fall back to reading `skills/<path>/SKILL.md` and executing it yourself.

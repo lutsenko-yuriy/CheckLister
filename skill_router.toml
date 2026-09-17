@@ -5,6 +5,13 @@
 pm  = "github_issues"
 vcs = "github"
 
+# DISABLED: no LM Studio (or other local model) instance is available for this
+# project — every skill currently runs directly in the Claude Code session
+# instead of being routed to a local model. All `.claude/commands/*.md` stubs
+# were switched from the script-stub (router) format to direct-include stubs
+# accordingly. Re-enable by restoring the script-stub format (see
+# skills/configure/calibrate/resources/stub-formats.md) once a local model is
+# available again.
 [llm]
 lmstudio_base = "http://localhost:1234/v1"
 

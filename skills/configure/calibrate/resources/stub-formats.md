@@ -2,7 +2,7 @@
 
 - **Spawn up** (`opus`) — target is more capable than the session model; use the Agent routing stub.
 - **Run locally** (same alias as session) — spawning adds cold-start overhead with no benefit; use the passthrough format.
-- **Route to local model** (`lm-studio`) — use the script stub.
+- **Route to local model** (`lm-studio`) — use the script stub. **Currently disabled: no LM Studio (or other local model) provider is configured for this project.** Do not assign `lm-studio` to any tier until that changes; use the passthrough format for those tiers instead.
 
 ---
 
@@ -33,7 +33,7 @@ $ARGUMENTS
 $ARGUMENTS
 ```
 
-**Script stub** (`lm-studio` alias, or `needs_session_tools: true`):
+**Script stub** (`lm-studio` alias, or `needs_session_tools: true`) — kept for reference, not currently used (see routing rule above):
 
 _With arguments:_
 ```markdown
