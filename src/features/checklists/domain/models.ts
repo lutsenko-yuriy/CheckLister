@@ -47,3 +47,23 @@ export function createSection(name: string): Section {
     name,
   };
 }
+
+export function normalizeChecklist(checklist: Checklist): Checklist {
+  const validSectionIds = new Set(checklist.sections.map(s => s.id));
+  const effectiveSectionId = (item: Item): string | null =>
+    item.sectionId !== null && validSectionIds.has(item.sectionId)
+      ? item.sectionId
+      : null;
+
+  const defaultItems = checklist.items.filter(
+    item => effectiveSectionId(item) === null,
+  );
+  const sectionedItems = checklist.sections.flatMap(section =>
+    checklist.items.filter(item => effectiveSectionId(item) === section.id),
+  );
+
+  return {
+    ...checklist,
+    items: [...defaultItems, ...sectionedItems],
+  };
+}
