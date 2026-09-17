@@ -33,12 +33,12 @@ describe('SectionHeader', () => {
 
   it('confirms before deleting, and only calls onDelete when confirmed', async () => {
     const onDelete = jest.fn();
-    const alertSpy = jest.spyOn(Alert, 'alert').mockImplementation(
-      (_title, _message, buttons) => {
+    const alertSpy = jest
+      .spyOn(Alert, 'alert')
+      .mockImplementation((_title, _message, buttons) => {
         const deleteButton = buttons?.find(b => b.text === 'Delete');
         deleteButton?.onPress?.();
-      },
-    );
+      });
 
     await render(
       <SectionHeader
@@ -57,9 +57,7 @@ describe('SectionHeader', () => {
 
   it('does not call onDelete when the confirm dialog is cancelled', async () => {
     const onDelete = jest.fn();
-    const alertSpy = jest
-      .spyOn(Alert, 'alert')
-      .mockImplementation(() => {});
+    const alertSpy = jest.spyOn(Alert, 'alert').mockImplementation(() => {});
 
     await render(
       <SectionHeader

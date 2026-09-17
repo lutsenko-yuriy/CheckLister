@@ -32,7 +32,10 @@ export function countUnchecked(checklist: Checklist): number {
   return checklist.items.filter(item => !item.checked).length;
 }
 
-export function createItem(text: string, sectionId: string | null = null): Item {
+export function createItem(
+  text: string,
+  sectionId: string | null = null,
+): Item {
   return {
     id: generateId(),
     text,

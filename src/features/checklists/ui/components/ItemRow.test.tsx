@@ -4,7 +4,13 @@ import { ItemRow } from './ItemRow';
 import { Item } from '../../domain/models';
 
 function item(overrides: Partial<Item> = {}): Item {
-  return { id: 'a', text: 'Milk', checked: false, sectionId: null, ...overrides };
+  return {
+    id: 'a',
+    text: 'Milk',
+    checked: false,
+    sectionId: null,
+    ...overrides,
+  };
 }
 
 describe('ItemRow', () => {

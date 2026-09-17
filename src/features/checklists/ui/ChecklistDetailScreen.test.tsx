@@ -29,7 +29,9 @@ describe('ChecklistDetailScreen', () => {
 
   it("shows the checklist's title and a placeholder for items", async () => {
     const repo = new AsyncStorageChecklistRepository();
-    await repo.saveAll([{ id: '1', title: 'Groceries', items: [], sections: [] }]);
+    await repo.saveAll([
+      { id: '1', title: 'Groceries', items: [], sections: [] },
+    ]);
 
     await renderDetailScreen('1');
 
@@ -47,7 +49,9 @@ describe('ChecklistDetailScreen', () => {
 
   it('adds an item from the input and clears it afterwards', async () => {
     const repo = new AsyncStorageChecklistRepository();
-    await repo.saveAll([{ id: '1', title: 'Groceries', items: [], sections: [] }]);
+    await repo.saveAll([
+      { id: '1', title: 'Groceries', items: [], sections: [] },
+    ]);
 
     await renderDetailScreen('1');
     await waitFor(() => screen.getByPlaceholderText('New item'));
@@ -162,7 +166,9 @@ describe('ChecklistDetailScreen', () => {
 
   it('adds a named section and shows it as a header', async () => {
     const repo = new AsyncStorageChecklistRepository();
-    await repo.saveAll([{ id: '1', title: 'Groceries', items: [], sections: [] }]);
+    await repo.saveAll([
+      { id: '1', title: 'Groceries', items: [], sections: [] },
+    ]);
 
     await renderDetailScreen('1');
     await waitFor(() => screen.getByText('+ New section'));
@@ -214,10 +220,7 @@ describe('ChecklistDetailScreen', () => {
     await renderDetailScreen('1');
     await waitFor(() => screen.getByText('No section'));
 
-    await fireEvent.changeText(
-      screen.getByPlaceholderText('New item'),
-      'Milk',
-    );
+    await fireEvent.changeText(screen.getByPlaceholderText('New item'), 'Milk');
     await fireEvent.press(screen.getByText('Add'));
 
     await waitFor(() => expect(screen.getByText('Milk')).toBeTruthy());
@@ -342,18 +345,22 @@ describe('ChecklistDetailScreen', () => {
       {
         id: '1',
         title: 'Groceries',
-        items: [{ id: 'apple', text: 'Apple', checked: false, sectionId: 'produce' }],
+        items: [
+          { id: 'apple', text: 'Apple', checked: false, sectionId: 'produce' },
+        ],
         sections: [produce],
       },
     ]);
-    const alertSpy = jest.spyOn(Alert, 'alert').mockImplementation(
-      (_title, _message, buttons) => {
+    const alertSpy = jest
+      .spyOn(Alert, 'alert')
+      .mockImplementation((_title, _message, buttons) => {
         buttons?.find(b => b.text === 'Delete')?.onPress?.();
-      },
-    );
+      });
 
     await renderDetailScreen('1');
-    await waitFor(() => expect(screen.getAllByText('Produce').length).toBeGreaterThan(0));
+    await waitFor(() =>
+      expect(screen.getAllByText('Produce').length).toBeGreaterThan(0),
+    );
 
     await fireEvent.press(screen.getByTestId('delete-section-produce'));
 
@@ -372,14 +379,18 @@ describe('ChecklistDetailScreen', () => {
       {
         id: '1',
         title: 'Groceries',
-        items: [{ id: 'apple', text: 'Apple', checked: false, sectionId: 'produce' }],
+        items: [
+          { id: 'apple', text: 'Apple', checked: false, sectionId: 'produce' },
+        ],
         sections: [produce],
       },
     ]);
     const alertSpy = jest.spyOn(Alert, 'alert').mockImplementation(() => {});
 
     await renderDetailScreen('1');
-    await waitFor(() => expect(screen.getAllByText('Produce').length).toBeGreaterThan(0));
+    await waitFor(() =>
+      expect(screen.getAllByText('Produce').length).toBeGreaterThan(0),
+    );
 
     await fireEvent.press(screen.getByTestId('delete-section-produce'));
 
