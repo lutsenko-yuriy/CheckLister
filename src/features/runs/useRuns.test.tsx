@@ -154,6 +154,13 @@ describe('useRuns', () => {
   });
 
   it('does not let a late initial load overwrite a completed run', async () => {
+    const olderEntry: RunHistoryEntry = {
+      id: 'older',
+      checklistId: 'older-checklist',
+      checklistTitle: 'Packing',
+      itemCount: 4,
+      completedAt: '2026-09-17T08:00:00.000Z',
+    };
     let resolveLoad!: (entries: RunHistoryEntry[]) => void;
     const repository: RunRepository = {
       getAll: jest.fn(
@@ -175,11 +182,45 @@ describe('useRuns', () => {
     await act(async () => {
       result.current.startRun(checklist);
     });
-    await act(async () => result.current.completeRun());
-    await act(async () => resolveLoad([]));
+    await act(async () => {
+      const completion = result.current.completeRun();
+      resolveLoad([olderEntry]);
+      await completion;
+    });
 
-    expect(result.current.history).toHaveLength(1);
+    expect(result.current.history.map(entry => entry.id)).toEqual([
+      result.current.activeRun!.id,
+      'older',
+    ]);
+    expect(repository.saveAll).toHaveBeenCalledWith(result.current.history);
     expect(result.current.historyLoading).toBe(false);
+  });
+
+  it('keeps the active run recoverable when history persistence fails', async () => {
+    const repository: RunRepository = {
+      getAll: jest.fn().mockResolvedValue([]),
+      saveAll: jest.fn().mockRejectedValue(new Error('storage failed')),
+    };
+    const { result } = await renderHook(() => useRuns(), {
+      wrapper: makeWrapper(repository),
+    });
+    const checklist = {
+      ...createChecklist('Groceries'),
+      items: [createItem('Milk')],
+    };
+    await waitFor(() => expect(result.current.historyLoading).toBe(false));
+    await act(async () => {
+      result.current.startRun(checklist);
+    });
+
+    await act(async () => {
+      await expect(result.current.completeRun()).rejects.toThrow(
+        'storage failed',
+      );
+    });
+
+    expect(result.current.activeRun?.completedAt).toBeNull();
+    expect(result.current.history).toEqual([]);
   });
 
   it('throws when used outside a RunsProvider', async () => {

@@ -83,22 +83,24 @@ export function RunsProvider({
     history: [],
     historyLoading: true,
   });
-  const hasLoadedOrMutatedRef = useRef(false);
+  const historyRef = useRef<RunHistoryEntry[]>([]);
+  const initialLoadRef = useRef<Promise<RunHistoryEntry[]> | null>(null);
 
   useEffect(() => {
     let cancelled = false;
-    repository
-      .getAll()
+    const initialLoad = repository.getAll();
+    initialLoadRef.current = initialLoad;
+    initialLoad
       .then(history => {
-        if (!cancelled && !hasLoadedOrMutatedRef.current) {
-          hasLoadedOrMutatedRef.current = true;
+        if (!cancelled) {
+          historyRef.current = history;
           dispatch({ type: 'LOADED', history });
         }
       })
       .catch(error => {
         console.error('Failed to load run history', error);
-        if (!cancelled && !hasLoadedOrMutatedRef.current) {
-          hasLoadedOrMutatedRef.current = true;
+        if (!cancelled) {
+          historyRef.current = [];
           dispatch({ type: 'LOADED', history: [] });
         }
       });
@@ -122,17 +124,21 @@ export function RunsProvider({
 
     const completedRun = markRunComplete(state.activeRun, new Date());
     const entry = toRunHistoryEntry(completedRun);
-    const history = [entry, ...state.history].sort((a, b) =>
+    let existingHistory = historyRef.current;
+    if (state.historyLoading && initialLoadRef.current) {
+      try {
+        existingHistory = await initialLoadRef.current;
+      } catch {
+        existingHistory = [];
+      }
+    }
+    const history = [entry, ...existingHistory].sort((a, b) =>
       b.completedAt.localeCompare(a.completedAt),
     );
-    hasLoadedOrMutatedRef.current = true;
+    await repository.saveAll(history);
+    historyRef.current = history;
     dispatch({ type: 'COMPLETE', run: completedRun, history });
-    try {
-      await repository.saveAll(history);
-    } catch (error) {
-      console.error('Failed to persist run history', error);
-    }
-  }, [repository, state.activeRun, state.history]);
+  }, [repository, state.activeRun, state.historyLoading]);
 
   const clearRun = useCallback(() => {
     dispatch({ type: 'CLEAR' });

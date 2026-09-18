@@ -93,6 +93,9 @@ export function RunScreen({ navigation }: Props) {
   }
 
   const handleToggle = (runItemId: string, wasChecked: boolean) => {
+    if (isCompleting) {
+      return;
+    }
     toggleItem(runItemId);
     analytics.logEvent('run_item_toggled', {
       checklist_id: activeRun.checklistId,
@@ -107,12 +110,20 @@ export function RunScreen({ navigation }: Props) {
       return;
     }
     setIsCompleting(true);
-    analytics.logEvent('run_completed', {
-      checklist_id: activeRun.checklistId,
-      item_count: activeRun.items.length,
-    });
-    await completeRun();
-    setJustCompleted(true);
+    try {
+      await completeRun();
+      analytics.logEvent('run_completed', {
+        checklist_id: activeRun.checklistId,
+        item_count: activeRun.items.length,
+      });
+      setJustCompleted(true);
+    } catch {
+      setIsCompleting(false);
+      Alert.alert(
+        'Could not complete run',
+        'This run has not been saved. Please try again.',
+      );
+    }
   };
 
   const complete = isRunComplete(activeRun);

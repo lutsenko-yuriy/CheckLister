@@ -19,6 +19,7 @@ import { analytics } from '../../../shared/analytics/AnalyticsService';
 import { createChecklist, createItem } from '../../checklists/domain/models';
 import { AsyncStorageChecklistRepository } from '../../checklists/data/asyncStorageChecklistRepository';
 import { AsyncStorageRunRepository } from '../data/asyncStorageRunRepository';
+import { RunRepository } from '../domain/runRepository';
 
 // usePreventRemove (used by RunScreen to safely gate the swipe-back gesture,
 // not just JS-dispatched actions — see RunScreen.tsx) calls useNavigation()
@@ -53,7 +54,11 @@ function RunHarness({
   return <RunScreen {...(props as any)} />;
 }
 
-async function renderRun(itemTexts: string[], extra: React.ReactNode = null) {
+async function renderRun(
+  itemTexts: string[],
+  extra: React.ReactNode = null,
+  repository: RunRepository = runRepository,
+) {
   const checklist = {
     ...createChecklist('Groceries'),
     items: itemTexts.map(createItem),
@@ -61,7 +66,7 @@ async function renderRun(itemTexts: string[], extra: React.ReactNode = null) {
   const navigationRef = createNavigationContainerRef<TestParamList>();
 
   const utils = await render(
-    <RunsProvider repository={runRepository}>
+    <RunsProvider repository={repository}>
       <NavigationContainer
         ref={navigationRef}
         initialState={{
@@ -197,6 +202,30 @@ describe('RunScreen', () => {
         itemCount: 1,
       }),
     ]);
+  });
+
+  it('keeps the run open and reports an error when history cannot be saved', async () => {
+    const failingRepository: RunRepository = {
+      getAll: jest.fn().mockResolvedValue([]),
+      saveAll: jest.fn().mockRejectedValue(new Error('storage failed')),
+    };
+    const alertSpy = jest.spyOn(Alert, 'alert').mockImplementation(() => {});
+    const { navigationRef } = await renderRun(['A'], null, failingRepository);
+    await waitFor(() => screen.getByText('A'));
+
+    await fireEvent.press(screen.getByText('A'));
+    await act(async () => {
+      fireEvent.press(screen.getByLabelText('Complete the checklist'));
+    });
+
+    await waitFor(() =>
+      expect(alertSpy).toHaveBeenCalledWith(
+        'Could not complete run',
+        expect.stringContaining('not been saved'),
+      ),
+    );
+    expect(navigationRef.current?.getCurrentRoute()?.name).toBe('Run');
+    expect(screen.getByText('1 of 1 checked')).toBeTruthy();
   });
 
   it('exiting before completion prompts confirmation; confirming discards the run, cancelling preserves it', async () => {
