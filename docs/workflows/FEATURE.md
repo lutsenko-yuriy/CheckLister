@@ -4,6 +4,10 @@ Use this workflow for new features, enhancements, and planned changes.
 For bugs, CI failures, regressions, or infrastructure breakage, use `docs/workflows/TROUBLESHOOT.md` instead.
 For research-only tickets (no code change, just an investigation and a decision), use `docs/workflows/RESEARCH.md`.
 
+Follow [the scenario policy](SCENARIOS.md) for **every ticket**. Define named
+verification scenarios before implementation; select the appropriate test layer
+and record execution evidence before review.
+
 Follow TDD: write or update tests **before** implementing the feature or fix. Red → Green → Refactor.
 
 @skills/shared/decision-guidelines.md
@@ -26,8 +30,9 @@ no architecture surface. Tag it `[trivial]` and take the short path instead of t
 workflow above:
 
 1. Ticket created (via `/brief` or directly).
-2. Change made directly on a feature branch — skip `analyze`/`plan`/`draft-scenarios`,
-   same as any change with no user-facing flow.
+2. Record a proportionate verification scenario (for example, check the rendered
+   replacement text), then change it on a feature branch. Skip `analyze`/`plan`
+   and a separate scenario-stub commit; scenario definition and verification still apply.
 3. PR/MR opened.
 4. `/debrief` — skip the review loop (step 10) entirely; a trivial diff doesn't carry
    architectural or runtime risk worth two review passes.
@@ -59,11 +64,16 @@ behaviour beyond a literal value, it is not trivial — use the full workflow in
       git checkout -b feature/N/A-XX-<short-description> origin/main
       ```
       If the branch already exists, rebase it onto `origin/main` first so the PR/MR diff contains only the new work. **Before merging**, rebase onto `origin/main` again so the branch is current and the merge lands cleanly.
-   6. **Draft scenarios.** For every ticket with user-facing flows: invoke `draft-scenarios` and wait for approval.
+   6. **Draft scenarios.** For every ticket: invoke `draft-scenarios` using
+      [SCENARIOS.md](SCENARIOS.md). Reuse an already approved scenario set; otherwise
+      present it for approval before implementation.
       ```
       Invoke the draft-scenarios skill for N/A-XX: <issue title>
       ```
-      Reads the ticket (and any `plan` comment), drafts scenario/integration-test stubs with `// TODO:`-style comments. `implement` fills in driver code per WU and makes them green. Pure infrastructure or CI-only changes with no user-facing flows may skip this gate.
+      Reads the ticket and plan, maps acceptance criteria to named scenarios, and
+      chooses Maestro, Jest, command tests, or concrete evidence checks. `implement`
+      turns executable drafts into real assertions. Infrastructure/CI and other
+      non-UI tickets use appropriate verification scenarios rather than skipping this gate.
 
    **A note on CI/infrastructure tickets:** for tickets that bring up a new CI/infrastructure target (a new test job, a new emulator/environment, first real-target timing), expect the scope to balloon once real failures start surfacing — this class of issue can only be caught by running against the real target, not in planning. If it does balloon, split the ticket: merge the CI wiring/job setup on its own once it's mechanically correct, and track scenario/flakiness stabilization as a separate follow-up ticket rather than blocking the original PR/MR on every fix.
 
@@ -102,7 +112,8 @@ behaviour beyond a literal value, it is not trivial — use the full workflow in
 
    **Never commit a CHANGELOG entry with no classification tag if your project's `docs/VERSIONING.md` requires one.**
 8. Commit all changes with a descriptive message.
-9. Push to the remote and open a PR/MR — all in parallel, except the checklist gate below which comes first:
+9. Record scenario execution evidence per [SCENARIOS.md](SCENARIOS.md), then push
+   to the remote and open a PR/MR — all in parallel, except the checklist gate below which comes first:
 
    If this ticket's WU0 was a verification checklist rather than integration scenarios (see `docs/workflows/MULTI_WU.md`), and this is the final WU: run every **[agent]** item yourself and ask the user to confirm every **[human]** item now, before doing any of the following. Do not proceed on an unexecuted checklist.
 
