@@ -13,3 +13,12 @@ _(nothing in progress)_
 ---
 
 <!-- Milestone sections and unscheduled items are regenerated here by the product-owner-merge skill after every merged PR/MR. -->
+
+## Unscheduled
+
+- [CheL-5: Checklist run history](https://github.com/lutsenko-yuriy/CheckLister/issues/5)
+- [CheL-28: Smoke tests: checklist item editing on iOS](https://github.com/lutsenko-yuriy/CheckLister/issues/28)
+- [CheL-29: Smoke tests: drag-to-reorder on iOS](https://github.com/lutsenko-yuriy/CheckLister/issues/29)
+- [CheL-30: Smoke tests: checklist persistence across app restarts](https://github.com/lutsenko-yuriy/CheckLister/issues/30)
+- [CheL-31: Smoke tests: local Android emulator coverage](https://github.com/lutsenko-yuriy/CheckLister/issues/31)
+- [CheL-32: Separate and review the every-ticket scenario workflow policy](https://github.com/lutsenko-yuriy/CheckLister/issues/32)
