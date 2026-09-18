@@ -29,13 +29,30 @@ Retrieve the full details of each issue passed in (title, description, acceptanc
 
 Read `docs/ARCHITECTURE.md`, `docs/PRODUCT_SPEC.md`, and the source files most relevant to the work. Use search tools to locate existing models, repositories, view models, and UI files. Name real files and classes — do not invent hypothetical ones.
 
-### 3. Produce the implementation plan
+### 3. Estimate the change size
+
+Estimate the likely change size before deciding whether the ticket fits one
+production WU:
+
+- Estimate changed lines separately for production code, tests/scenarios, and
+  documentation/configuration.
+- Estimate the number of substantive files. Exclude generated files, lockfiles,
+  and purely mechanical formatting-only changes.
+- Treat more than approximately 500 changed lines or more than 10 substantive
+  files in one WU as a soft review checkpoint.
+- When the checkpoint is exceeded, try to propose cohesive WUs of roughly
+  250–350 changed lines and 10 or fewer substantive files.
+- These are guidelines, not hard limits. A larger cohesive slice may remain one
+  WU when splitting would make it harder to implement or understand, but the
+  plan must state that rationale explicitly.
+
+### 4. Produce the implementation plan
 
 Use this format exactly. Omit a section entirely if it has no content.
 
 @skills/design/plan/resources/plan-template.md
 
-### 4. Post the plan as a PM comment
+### 5. Post the plan as a PM comment
 
 Post the full plan text as a comment on the primary issue so `implement` can reference it.
 
@@ -46,11 +63,11 @@ Post the full plan text as a comment on the primary issue so `implement` can ref
 | GitHub Issues | `gh issue comment {number} --body "..."` |
 | GitLab | `glab issue note create {number} --message "..."` |
 
-### 5. Present and wait
+### 6. Present and wait
 
 Show the plan to the user and wait for approval or adjustments. Do not proceed until the user explicitly approves.
 
-### 6. Update ARCHITECTURE.md (after approval)
+### 7. Update ARCHITECTURE.md (after approval)
 
 If the plan introduces new layers, directories, classes, or dependencies not already in `docs/ARCHITECTURE.md`, update that file now. Keep the existing structure — add to it, do not rewrite it.
 

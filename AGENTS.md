@@ -66,6 +66,10 @@ Details and directory layout: @docs/ARCHITECTURE.md.
 Follow [CODE_STYLE.md](CODE_STYLE.md). ESLint and Prettier remain the mechanical
 sources of truth where their configured rules apply.
 
+`CODE_STYLE.md` is a required project-bootstrap artifact: create it before the
+first feature implementation and extend its code-smell catalogue whenever a
+recurring convention or smell is discovered.
+
 ## Versioning
 
 Update the version name whenever a new `CHANGELOG.md` entry is added — no separate approval needed.
