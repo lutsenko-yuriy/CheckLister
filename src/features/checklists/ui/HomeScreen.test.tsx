@@ -10,13 +10,22 @@ import { ChecklistsProvider } from '../useChecklists';
 import { AsyncStorageChecklistRepository } from '../data/asyncStorageChecklistRepository';
 import { HomeScreen } from './HomeScreen';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { RunsProvider } from '../../runs/useRuns';
+import { AsyncStorageRunRepository } from '../../runs/data/asyncStorageRunRepository';
 
-async function renderHomeScreen(navigate: jest.Mock = jest.fn()) {
-  return render(
+async function renderHomeScreen(
+  navigate: jest.Mock = jest.fn(),
+  runRepository = new AsyncStorageRunRepository(),
+) {
+  const navigation = { navigate, setOptions: jest.fn() };
+  const utils = await render(
     <ChecklistsProvider repository={new AsyncStorageChecklistRepository()}>
-      <HomeScreen navigation={{ navigate } as any} route={{} as any} />
+      <RunsProvider repository={runRepository}>
+        <HomeScreen navigation={navigation as any} route={{} as any} />
+      </RunsProvider>
     </ChecklistsProvider>,
   );
+  return { navigation, ...utils };
 }
 
 describe('HomeScreen', () => {
@@ -30,6 +39,42 @@ describe('HomeScreen', () => {
     await waitFor(() =>
       expect(screen.getByText(/no checklists yet/i)).toBeTruthy(),
     );
+  });
+
+  it('hides the global history action when no completed runs exist', async () => {
+    const { navigation } = await renderHomeScreen();
+
+    await waitFor(() => expect(navigation.setOptions).toHaveBeenCalled());
+    const calls = navigation.setOptions.mock.calls;
+    expect(calls[calls.length - 1][0].headerRight).toBeUndefined();
+  });
+
+  it('shows a global history action and navigates to unfiltered history', async () => {
+    const runRepository = new AsyncStorageRunRepository();
+    await runRepository.saveAll([
+      {
+        id: 'run-1',
+        checklistId: 'deleted-checklist',
+        checklistTitle: 'Deleted checklist',
+        itemCount: 2,
+        completedAt: '2026-09-18T12:00:00.000Z',
+      },
+    ]);
+    const navigate = jest.fn();
+    const { navigation } = await renderHomeScreen(navigate, runRepository);
+
+    await waitFor(() => {
+      const calls = navigation.setOptions.mock.calls;
+      expect(calls[calls.length - 1][0].headerRight).toEqual(
+        expect.any(Function),
+      );
+    });
+    const calls = navigation.setOptions.mock.calls;
+    const HeaderAction = calls[calls.length - 1][0].headerRight;
+    const header = await render(<HeaderAction />);
+    fireEvent.press(header.getByLabelText('Run history'));
+
+    expect(navigate).toHaveBeenCalledWith('RunHistory', {});
   });
 
   it('creates a checklist from the title input and clears it afterwards', async () => {

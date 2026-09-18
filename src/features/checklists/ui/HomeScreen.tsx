@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useLayoutEffect, useState } from 'react';
 import {
   Alert,
   FlatList,
@@ -14,12 +14,30 @@ import { useChecklists } from '../useChecklists';
 import { Checklist } from '../domain/models';
 import { IconButton } from '../../../shared/ui/IconButton';
 import { colors } from '../../../shared/theme/colors';
+import { useRuns } from '../../runs/useRuns';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Home'>;
 
 export function HomeScreen({ navigation }: Props) {
   const { checklists, createChecklist } = useChecklists();
+  const { history, historyLoading } = useRuns();
   const [newTitle, setNewTitle] = useState('');
+
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerRight:
+        !historyLoading && history.length > 0
+          ? () => (
+              <IconButton
+                icon="history"
+                accessibilityLabel="Run history"
+                onPress={() => navigation.navigate('RunHistory', {})}
+                color={colors.text}
+              />
+            )
+          : undefined,
+    });
+  }, [history.length, historyLoading, navigation]);
 
   const handleAdd = () => {
     const title = newTitle.trim();

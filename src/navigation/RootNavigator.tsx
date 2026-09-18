@@ -8,6 +8,7 @@ import { RootStackParamList } from './types';
 import { HomeScreen } from '../features/checklists/ui/HomeScreen';
 import { ChecklistDetailScreen } from '../features/checklists/ui/ChecklistDetailScreen';
 import { RunScreen } from '../features/runs/ui/RunScreen';
+import { RunHistoryScreen } from '../features/runs/ui/RunHistoryScreen';
 import { IconButton } from '../shared/ui/IconButton';
 import { colors } from '../shared/theme/colors';
 
@@ -69,6 +70,21 @@ export function RootNavigator() {
           // only block JS-dispatched actions and would desync from a native
           // swipe gesture already in progress). Same flat back button as
           // ChecklistDetail otherwise.
+          headerLeft: FlatBackButton,
+          unstable_headerLeftItems: () => [
+            {
+              type: 'custom',
+              element: <FlatBackButton />,
+              hidesSharedBackground: true,
+            },
+          ],
+        }}
+      />
+      <Stack.Screen
+        name="RunHistory"
+        component={RunHistoryScreen}
+        options={{
+          title: 'Run history',
           headerLeft: FlatBackButton,
           unstable_headerLeftItems: () => [
             {

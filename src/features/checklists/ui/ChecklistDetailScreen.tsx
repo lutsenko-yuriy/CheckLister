@@ -15,13 +15,34 @@ type Props = NativeStackScreenProps<RootStackParamList, 'ChecklistDetail'>;
 export function ChecklistDetailScreen({ navigation, route }: Props) {
   const { checklists, addItem, editItem, deleteItem, moveItem } =
     useChecklists();
-  const { startRun } = useRuns();
+  const { startRun, history, historyLoading } = useRuns();
   const checklist = checklists.find(c => c.id === route.params.checklistId);
   const [newItemText, setNewItemText] = useState('');
+  const hasHistory = history.some(
+    entry => entry.checklistId === route.params.checklistId,
+  );
 
   useLayoutEffect(() => {
-    navigation.setOptions({ title: checklist?.title ?? 'Checklist' });
-  }, [navigation, checklist?.title]);
+    navigation.setOptions({
+      title: checklist?.title ?? 'Checklist',
+      headerRight:
+        checklist && !historyLoading && hasHistory
+          ? () => (
+              <IconButton
+                icon="history"
+                accessibilityLabel="Run history"
+                onPress={() =>
+                  navigation.navigate('RunHistory', {
+                    checklistId: checklist.id,
+                    checklistTitle: checklist.title,
+                  })
+                }
+                color={colors.text}
+              />
+            )
+          : undefined,
+    });
+  }, [checklist, hasHistory, historyLoading, navigation]);
 
   useLayoutEffect(() => {
     if (checklist) {

@@ -11,6 +11,7 @@ import { ChecklistDetailScreen } from './ChecklistDetailScreen';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { colors } from '../../../shared/theme/colors';
 import { RunsProvider } from '../../runs/useRuns';
+import { AsyncStorageRunRepository } from '../../runs/data/asyncStorageRunRepository';
 import { analytics } from '../../../shared/analytics/AnalyticsService';
 
 function createMockNavigation() {
@@ -20,10 +21,11 @@ function createMockNavigation() {
 async function renderDetailScreen(
   checklistId: string,
   navigation = createMockNavigation(),
+  runRepository = new AsyncStorageRunRepository(),
 ) {
   const utils = await render(
     <ChecklistsProvider repository={new AsyncStorageChecklistRepository()}>
-      <RunsProvider>
+      <RunsProvider repository={runRepository}>
         <ChecklistDetailScreen
           navigation={navigation as any}
           route={{ params: { checklistId } } as any}
@@ -55,6 +57,69 @@ describe('ChecklistDetailScreen', () => {
     await waitFor(() =>
       expect(screen.getByText(/checklist not found/i)).toBeTruthy(),
     );
+  });
+
+  it('hides checklist history when there are no completed runs for it', async () => {
+    const checklistRepository = new AsyncStorageChecklistRepository();
+    await checklistRepository.saveAll([
+      { id: '1', title: 'Groceries', items: [] },
+    ]);
+    const runRepository = new AsyncStorageRunRepository();
+    await runRepository.saveAll([
+      {
+        id: 'other-run',
+        checklistId: 'other',
+        checklistTitle: 'Packing',
+        itemCount: 2,
+        completedAt: '2026-09-18T12:00:00.000Z',
+      },
+    ]);
+
+    const { navigation } = await renderDetailScreen(
+      '1',
+      createMockNavigation(),
+      runRepository,
+    );
+
+    await waitFor(() => expect(screen.getByText('Groceries')).toBeTruthy());
+    const calls = navigation.setOptions.mock.calls;
+    expect(calls[calls.length - 1][0].headerRight).toBeUndefined();
+  });
+
+  it('opens history filtered to the current checklist', async () => {
+    const checklistRepository = new AsyncStorageChecklistRepository();
+    await checklistRepository.saveAll([
+      { id: '1', title: 'Groceries', items: [] },
+    ]);
+    const runRepository = new AsyncStorageRunRepository();
+    await runRepository.saveAll([
+      {
+        id: 'run-1',
+        checklistId: '1',
+        checklistTitle: 'Groceries',
+        itemCount: 2,
+        completedAt: '2026-09-18T12:00:00.000Z',
+      },
+    ]);
+    const navigation = createMockNavigation();
+
+    await renderDetailScreen('1', navigation, runRepository);
+
+    await waitFor(() => {
+      const calls = navigation.setOptions.mock.calls;
+      expect(calls[calls.length - 1][0].headerRight).toEqual(
+        expect.any(Function),
+      );
+    });
+    const calls = navigation.setOptions.mock.calls;
+    const HeaderAction = calls[calls.length - 1][0].headerRight;
+    const header = await render(<HeaderAction />);
+    fireEvent.press(header.getByLabelText('Run history'));
+
+    expect(navigation.navigate).toHaveBeenCalledWith('RunHistory', {
+      checklistId: '1',
+      checklistTitle: 'Groceries',
+    });
   });
 
   it('adds an item from the input and clears it afterwards', async () => {
