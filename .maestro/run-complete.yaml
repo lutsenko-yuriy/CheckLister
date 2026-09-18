@@ -1,0 +1,31 @@
+appId: org.reactjs.native.example.CheckLister
+name: Complete a run and start fresh
+---
+- runFlow: helpers/create-checklist.yaml
+- tapOn: Start run
+- assertVisible: 0 of 2 checked
+- assertVisible:
+    text: Complete the checklist
+    enabled: false
+- tapOn: .*Smoke first.*
+- assertVisible: 1 of 2 checked
+- assertVisible:
+    text: Complete the checklist
+    enabled: false
+- tapOn: .*Smoke first.*
+- assertVisible: 0 of 2 checked
+- tapOn: .*Smoke first.*
+- tapOn: .*Smoke second.*
+- assertVisible: 2 of 2 checked
+- assertVisible:
+    text: Complete the checklist
+    enabled: true
+- tapOn: Complete the checklist
+- assertVisible: Start run
+- assertNotVisible: Are you sure\?
+- assertVisible: .*Smoke first.*
+- assertVisible: .*Smoke second.*
+- tapOn: Start run
+- assertVisible: 0 of 2 checked
+- runFlow: helpers/discard-run.yaml
+- runFlow: helpers/delete-checklist.yaml

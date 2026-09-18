@@ -1,0 +1,36 @@
+appId: org.reactjs.native.example.CheckLister
+name: Confirm native swipe without breaking subsequent navigation
+---
+- runFlow: helpers/create-checklist.yaml
+# Positive control: this edge gesture navigates on an unprotected screen.
+- swipe:
+    start: 0%, 50%
+    end: 90%, 50%
+    duration: 500
+- assertVisible: New checklist title
+- tapOn: ${output.title}.*
+- tapOn: Start run
+- tapOn: .*Smoke first.*
+- assertVisible: 1 of 2 checked
+- swipe:
+    start: 0%, 50%
+    end: 90%, 50%
+    duration: 500
+- assertVisible: 1 of 2 checked
+- assertVisible: Are you sure\?
+- tapOn: Cancel
+- assertVisible: 1 of 2 checked
+# Prove the native screen is still interactive after cancelling the swipe.
+- tapOn: .*Smoke second.*
+- assertVisible: 2 of 2 checked
+- tapOn: .*Smoke second.*
+- assertVisible: 1 of 2 checked
+- tapOn: Back
+- assertVisible: Are you sure\?
+- tapOn: Cancel
+- assertVisible: 1 of 2 checked
+- runFlow: helpers/discard-run.yaml
+- tapOn: Start run
+- assertVisible: 0 of 2 checked
+- runFlow: helpers/discard-run.yaml
+- runFlow: helpers/delete-checklist.yaml

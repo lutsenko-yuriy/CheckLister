@@ -1,0 +1,26 @@
+appId: org.reactjs.native.example.CheckLister
+---
+- evalScript: ${output.title = 'Smoke ' + Date.now() + '-' + Math.floor(Math.random() * 1000000)}
+- launchApp:
+    clearState: false
+- assertVisible: New checklist title
+- tapOn: New checklist title
+- inputText: ${output.title}
+- pressKey: Enter
+- scrollUntilVisible:
+    element:
+      text: ${output.title}
+    direction: DOWN
+- tapOn: ${output.title}
+- assertVisible:
+    text: Start run
+    enabled: false
+- tapOn: New item
+- inputText: Smoke first
+- pressKey: Enter
+- tapOn: New item
+- inputText: Smoke second
+- pressKey: Enter
+- assertVisible:
+    text: Start run
+    enabled: true

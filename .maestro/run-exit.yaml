@@ -1,0 +1,16 @@
+appId: org.reactjs.native.example.CheckLister
+name: Cancel exit preserves progress and discard resets it
+---
+- runFlow: helpers/create-checklist.yaml
+- tapOn: Start run
+- tapOn: .*Smoke first.*
+- assertVisible: 1 of 2 checked
+- tapOn: Back
+- assertVisible: Are you sure\?
+- tapOn: Cancel
+- assertVisible: 1 of 2 checked
+- runFlow: helpers/discard-run.yaml
+- tapOn: Start run
+- assertVisible: 0 of 2 checked
+- runFlow: helpers/discard-run.yaml
+- runFlow: helpers/delete-checklist.yaml
