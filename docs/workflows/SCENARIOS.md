@@ -23,7 +23,7 @@ rendered-text check; it does not need new test infrastructure.
 - **App interactions:** add or update executable Maestro flows for affected
   user journeys, alongside Jest tests for component/domain behavior. A mocked
   navigator or a TODO stub alone does not verify a real navigation/gesture flow.
-  Use `.maestro/` and [SMOKE_TESTS.md](../SMOKE_TESTS.md). State the target platform;
+  Use `.maestro/` and [SCENARIOS.md](../SCENARIOS.md). State the target platform;
   an iOS pass is not evidence for Android. Until Android tooling lands in CheL-31,
   record Android coverage as a named manual scenario or an explicit follow-up,
   not as an automated pass.
