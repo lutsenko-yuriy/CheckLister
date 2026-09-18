@@ -15,13 +15,44 @@ type Props = NativeStackScreenProps<RootStackParamList, 'ChecklistDetail'>;
 export function ChecklistDetailScreen({ navigation, route }: Props) {
   const { checklists, addItem, editItem, deleteItem, moveItem } =
     useChecklists();
-  const { startRun } = useRuns();
+  const { startRun, history, historyLoading } = useRuns();
   const checklist = checklists.find(c => c.id === route.params.checklistId);
   const [newItemText, setNewItemText] = useState('');
+  const hasHistory = history.some(
+    entry => entry.checklistId === route.params.checklistId,
+  );
 
   useLayoutEffect(() => {
-    navigation.setOptions({ title: checklist?.title ?? 'Checklist' });
-  }, [navigation, checklist?.title]);
+    const showHistory = Boolean(checklist) && !historyLoading && hasHistory;
+    const historyButton = () => (
+      <IconButton
+        icon="history"
+        accessibilityLabel="Run history"
+        onPress={() =>
+          checklist &&
+          navigation.navigate('RunHistory', {
+            checklistId: checklist.id,
+            checklistTitle: checklist.title,
+          })
+        }
+        color={colors.text}
+      />
+    );
+
+    navigation.setOptions({
+      title: checklist?.title ?? 'Checklist',
+      headerRight: showHistory ? historyButton : undefined,
+      unstable_headerRightItems: showHistory
+        ? () => [
+            {
+              type: 'custom',
+              element: historyButton(),
+              hidesSharedBackground: true,
+            },
+          ]
+        : undefined,
+    });
+  }, [checklist, hasHistory, historyLoading, navigation]);
 
   useLayoutEffect(() => {
     if (checklist) {

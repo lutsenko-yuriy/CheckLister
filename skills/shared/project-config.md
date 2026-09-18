@@ -15,7 +15,7 @@ When setting up the project, fill in every `{{placeholder}}`. Skills stay unchan
 |---|---|
 | Framework | `React Native 0.87 / TypeScript` |
 | State management | `React built-in state (useState/useContext)` — revisit if complexity grows |
-| Local persistence | `@react-native-async-storage/async-storage` (not yet added) |
+| Local persistence | `@react-native-async-storage/async-storage` (installed) |
 
 ## Project management
 
@@ -37,10 +37,10 @@ When setting up the project, fill in every `{{placeholder}}`. Skills stay unchan
 
 | Setting | Value |
 |---|---|
-| Integration test directory | Colocated `*.test.tsx` files next to each screen/component under `src/features/<feature>/ui/` (no separate `e2e/` harness — see below) |
-| Test harness file | `@testing-library/react-native` — component-level integration tests render a full screen and drive it via user-facing queries/interactions, no Detox/device harness yet |
-| Harness class / entry point | `render()` / `fireEvent` from `@testing-library/react-native`, e.g. as used in `src/features/checklists/ui/ChecklistDetailScreen.test.tsx` |
-| Unit / integration test command | `npm test` (Jest, via `@react-native/jest-preset`) |
+| Integration test directory | `.maestro/*.yaml` for installed-app iOS scenarios; colocated `*.test.tsx` files under `src/features/<feature>/ui/` for component-level integration |
+| Test harness file | `docs/SCENARIOS.md` and `.maestro/helpers/*.yaml` for Maestro; `@testing-library/react-native` for component tests |
+| Harness class / entry point | `npm run scenarios:ios -- <UDID>` for Maestro; `render()` / `fireEvent` for component tests |
+| Unit / integration test command | `npm test` (Jest) plus `npm run scenarios:ios -- <UDID>` against the installed iOS app |
 
 ## Version management
 

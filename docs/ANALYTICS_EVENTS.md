@@ -110,7 +110,10 @@ Fired when the user presses "Complete the checklist" (only possible once every i
 
 <!-- Added for N/A-2: Checklist items; screen_checklist_run row added for CheL-4 -->
 
+<!-- Added for CheL-5: Checklist run history -->
+
 | Screen name | When tracked |
 |---|---|
 | `screen_checklist_detail` | When `ChecklistDetailScreen` mounts for a valid checklist, with `item_count: number` |
 | `screen_checklist_run` | When the run screen mounts, with `checklist_id: string`, `item_count: number` |
+| `screen_run_history` | When the run history screen mounts, with `scope: string` (`all` or `checklist`), `entry_count: number`, and `checklist_id: string` when filtered to one checklist |

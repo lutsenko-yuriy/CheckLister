@@ -54,13 +54,19 @@ checklist belongs to the person using the device.
   actively worked on or it is completed.
 
 ### Feature 5 — Checklist run history
-- The user must be able to view a history of all completed checklist runs,
-  across all checklists.
-- Each history entry must show which checklist the run was for and when it
-  was completed.
-- Because a run only ever gets saved to history by pressing "Complete the
-  checklist," every history entry represents a fully checked-off run — there
-  are no partial or abandoned runs in history.
+- From the home screen, the user can open a newest-first history of completed
+  runs across all checklists. This entry point is shown only when at least one
+  completed run exists.
+- From a checklist screen, the user can open a newest-first history filtered to
+  that checklist. This entry point is shown only when that checklist has at
+  least one completed run.
+- Each history entry shows the checklist name and a secondary line in the form
+  "X items • Run on <date>". The item count, checklist name, and completion
+  date are immutable snapshots from that exact run.
+- Completed-run history remains available after its source checklist is changed
+  or deleted.
+- Only runs finished by pressing "Complete the checklist" are saved. Partial,
+  abandoned, and discarded runs never appear.
 
 ## Out of scope for v1
 

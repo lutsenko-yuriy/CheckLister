@@ -18,6 +18,8 @@ import { RunScreen } from './RunScreen';
 import { analytics } from '../../../shared/analytics/AnalyticsService';
 import { createChecklist, createItem } from '../../checklists/domain/models';
 import { AsyncStorageChecklistRepository } from '../../checklists/data/asyncStorageChecklistRepository';
+import { AsyncStorageRunRepository } from '../data/asyncStorageRunRepository';
+import { RunRepository } from '../domain/runRepository';
 
 // usePreventRemove (used by RunScreen to safely gate the swipe-back gesture,
 // not just JS-dispatched actions — see RunScreen.tsx) calls useNavigation()
@@ -26,6 +28,7 @@ import { AsyncStorageChecklistRepository } from '../../checklists/data/asyncStor
 // goBack() has somewhere to go.
 type TestParamList = { Placeholder: undefined; Run: { checklistId: string } };
 const Stack = createNativeStackNavigator<TestParamList>();
+const runRepository = new AsyncStorageRunRepository();
 
 function PlaceholderScreen() {
   return null;
@@ -51,7 +54,11 @@ function RunHarness({
   return <RunScreen {...(props as any)} />;
 }
 
-async function renderRun(itemTexts: string[], extra: React.ReactNode = null) {
+async function renderRun(
+  itemTexts: string[],
+  extra: React.ReactNode = null,
+  repository: RunRepository = runRepository,
+) {
   const checklist = {
     ...createChecklist('Groceries'),
     items: itemTexts.map(createItem),
@@ -59,7 +66,7 @@ async function renderRun(itemTexts: string[], extra: React.ReactNode = null) {
   const navigationRef = createNavigationContainerRef<TestParamList>();
 
   const utils = await render(
-    <RunsProvider>
+    <RunsProvider repository={repository}>
       <NavigationContainer
         ref={navigationRef}
         initialState={{
@@ -88,7 +95,7 @@ async function renderRunWithoutStarting() {
   const navigationRef = createNavigationContainerRef<TestParamList>();
 
   const utils = await render(
-    <RunsProvider>
+    <RunsProvider repository={runRepository}>
       <NavigationContainer
         ref={navigationRef}
         initialState={{
@@ -111,8 +118,9 @@ async function renderRunWithoutStarting() {
 }
 
 describe('RunScreen', () => {
-  afterEach(() => {
+  afterEach(async () => {
     jest.restoreAllMocks();
+    await AsyncStorage.clear();
   });
 
   it('renders all items unchecked when a run starts', async () => {
@@ -188,6 +196,36 @@ describe('RunScreen', () => {
       ),
     );
     expect(capturedActiveRun).toBeNull();
+    expect(await runRepository.getAll()).toEqual([
+      expect.objectContaining({
+        checklistTitle: 'Groceries',
+        itemCount: 1,
+      }),
+    ]);
+  });
+
+  it('keeps the run open and reports an error when history cannot be saved', async () => {
+    const failingRepository: RunRepository = {
+      getAll: jest.fn().mockResolvedValue([]),
+      saveAll: jest.fn().mockRejectedValue(new Error('storage failed')),
+    };
+    const alertSpy = jest.spyOn(Alert, 'alert').mockImplementation(() => {});
+    const { navigationRef } = await renderRun(['A'], null, failingRepository);
+    await waitFor(() => screen.getByText('A'));
+
+    await fireEvent.press(screen.getByText('A'));
+    await act(async () => {
+      fireEvent.press(screen.getByLabelText('Complete the checklist'));
+    });
+
+    await waitFor(() =>
+      expect(alertSpy).toHaveBeenCalledWith(
+        'Could not complete run',
+        expect.stringContaining('not been saved'),
+      ),
+    );
+    expect(navigationRef.current?.getCurrentRoute()?.name).toBe('Run');
+    expect(screen.getByText('1 of 1 checked')).toBeTruthy();
   });
 
   it('exiting before completion prompts confirmation; confirming discards the run, cancelling preserves it', async () => {
@@ -251,7 +289,7 @@ describe('RunScreen', () => {
     };
     const navigationRef = createNavigationContainerRef<TestParamList>();
     await render(
-      <RunsProvider>
+      <RunsProvider repository={runRepository}>
         <NavigationContainer
           ref={navigationRef}
           initialState={{
@@ -313,7 +351,7 @@ describe('RunScreen', () => {
     const checklist = (await repo.getAll())[0];
     const navigationRef = createNavigationContainerRef<TestParamList>();
     await render(
-      <RunsProvider>
+      <RunsProvider repository={runRepository}>
         <NavigationContainer
           ref={navigationRef}
           initialState={{

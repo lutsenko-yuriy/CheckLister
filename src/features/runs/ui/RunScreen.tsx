@@ -27,6 +27,7 @@ export function RunScreen({ navigation }: Props) {
   // manual beforeRemove + e.preventDefault() listener cannot prevent for the
   // swipe gesture (only for JS-dispatched actions like a header back press).
   const [justCompleted, setJustCompleted] = useState(false);
+  const [isCompleting, setIsCompleting] = useState(false);
 
   useLayoutEffect(() => {
     navigation.setOptions({ title: activeRun?.checklistTitle ?? 'Run' });
@@ -45,7 +46,7 @@ export function RunScreen({ navigation }: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeRun?.id]);
 
-  usePreventRemove(!!activeRun && !justCompleted, ({ data }) => {
+  usePreventRemove(Boolean(activeRun) && !justCompleted, ({ data }) => {
     Alert.alert(
       'Are you sure?',
       'Leaving now will discard this run. Your progress will not be saved.',
@@ -92,6 +93,9 @@ export function RunScreen({ navigation }: Props) {
   }
 
   const handleToggle = (runItemId: string, wasChecked: boolean) => {
+    if (isCompleting) {
+      return;
+    }
     toggleItem(runItemId);
     analytics.logEvent('run_item_toggled', {
       checklist_id: activeRun.checklistId,
@@ -101,13 +105,25 @@ export function RunScreen({ navigation }: Props) {
     });
   };
 
-  const handleComplete = () => {
-    analytics.logEvent('run_completed', {
-      checklist_id: activeRun.checklistId,
-      item_count: activeRun.items.length,
-    });
-    completeRun();
-    setJustCompleted(true);
+  const handleComplete = async () => {
+    if (isCompleting) {
+      return;
+    }
+    setIsCompleting(true);
+    try {
+      await completeRun();
+      analytics.logEvent('run_completed', {
+        checklist_id: activeRun.checklistId,
+        item_count: activeRun.items.length,
+      });
+      setJustCompleted(true);
+    } catch {
+      setIsCompleting(false);
+      Alert.alert(
+        'Could not complete run',
+        'This run has not been saved. Please try again.',
+      );
+    }
   };
 
   const complete = isRunComplete(activeRun);
@@ -129,13 +145,13 @@ export function RunScreen({ navigation }: Props) {
       />
       <Pressable
         onPress={handleComplete}
-        disabled={!complete}
+        disabled={!complete || isCompleting}
         accessibilityRole="button"
         accessibilityLabel="Complete the checklist"
-        accessibilityState={{ disabled: !complete }}
+        accessibilityState={{ disabled: !complete || isCompleting }}
         style={[
           styles.completeButton,
-          !complete && styles.completeButtonDisabled,
+          (!complete || isCompleting) && styles.completeButtonDisabled,
         ]}
       >
         <Text style={styles.completeButtonText}>Complete the checklist</Text>

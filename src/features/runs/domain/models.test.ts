@@ -5,6 +5,7 @@ import {
   isRunComplete,
   completeRun,
   checkedCount,
+  toRunHistoryEntry,
 } from './models';
 
 describe('startRun', () => {
@@ -174,6 +175,34 @@ describe('completeRun', () => {
     const completed = completeRun(run, now);
 
     expect(completed.completedAt).toBe(now.toISOString());
+  });
+
+  it('creates an immutable history summary from the completed snapshot', () => {
+    const checklist = {
+      ...createChecklist('Groceries'),
+      id: 'checklist-1',
+      items: [createItem('Milk'), createItem('Eggs')],
+    };
+    const completed = completeRun(
+      startRun(checklist),
+      new Date('2026-09-18T12:00:00.000Z'),
+    );
+
+    expect(toRunHistoryEntry(completed)).toEqual({
+      id: completed.id,
+      checklistId: 'checklist-1',
+      checklistTitle: 'Groceries',
+      itemCount: 2,
+      completedAt: '2026-09-18T12:00:00.000Z',
+    });
+  });
+
+  it('refuses to create history for an unfinished run', () => {
+    const run = startRun(createChecklist('Empty'));
+
+    expect(() => toRunHistoryEntry(run)).toThrow(
+      'Cannot create history for an unfinished run',
+    );
   });
 });
 

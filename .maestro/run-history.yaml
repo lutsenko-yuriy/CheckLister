@@ -1,0 +1,45 @@
+appId: org.reactjs.native.example.CheckLister
+name: Completed run appears in filtered and global history
+---
+- runFlow: helpers/create-checklist.yaml
+- assertNotVisible: Run history
+- tapOn: Start run
+- tapOn: .*Scenario first.*
+- tapOn: .*Scenario second.*
+- tapOn: Complete the checklist
+- assertVisible: Start run
+- assertVisible: Run history
+- tapOn: New item
+- inputText: Scenario third
+- pressKey: Enter
+- assertVisible: .*Scenario third.*
+- tapOn: Run history
+- assertVisible: ${output.title} history
+- assertVisible: ${output.title}
+- assertVisible: 2 items .* Run on .*
+- tapOn: Back
+- assertVisible: .*Scenario third.*
+- tapOn: Back
+- assertVisible: New checklist title
+- assertVisible: Run history
+- tapOn: Run history
+- assertVisible: ${output.title}
+- assertVisible: 2 items .* Run on .*
+- tapOn: Back
+- scrollUntilVisible:
+    element:
+      text: ${output.title}.*
+    direction: DOWN
+- tapOn:
+    id: delete-checklist-${output.title}
+- assertVisible: Delete checklist\?
+- tapOn:
+    text: Delete
+    childOf:
+      containsChild:
+        text: Cancel
+- assertNotVisible: ${output.title}.*
+- assertVisible: Run history
+- tapOn: Run history
+- assertVisible: ${output.title}
+- assertVisible: 2 items .* Run on .*

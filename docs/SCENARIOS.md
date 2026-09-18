@@ -1,14 +1,15 @@
 # Local iOS scenarios
 
-CheL-26 adds Maestro flows against the installed app and real native navigation.
-Jest remains the unit/component test suite. These scenarios are local only;
-Android validation and CI integration are follow-up work.
+CheL-26 adds Maestro flows against the installed app and real native navigation;
+CheL-5 extends them with completed-run history coverage. Jest remains the
+unit/component test suite. These scenarios are local only; Android validation
+and CI integration are follow-up work.
 
 ## Tool choice
 
 Maestro tests the installed simulator app through native UI interactions and YAML
 flows without adding a test framework to the app binary. Detox offers app-aware
-synchronization but requires additional native/test-runner setup. For these three
+synchronization but requires additional native/test-runner setup. For these
 local scenarios, Maestro keeps setup smaller. See the official
 [Maestro iOS guide](https://docs.maestro.dev/get-started/supported-platform/ios)
 and [Detox setup](https://wix.github.io/Detox/docs/introduction/project-setup/).
@@ -58,6 +59,8 @@ System Events UI scripting.
 | `run-complete.yaml`    | Empty checklist cannot start; completion disabled until all items checked; toggle/uncheck; completion returns to unchanged template; fresh run starts unchecked.                                                                    |
 | `run-exit.yaml`        | Back shows confirmation; Cancel preserves progress; Discard returns to template; new run resets progress.                                                                                                                           |
 | `run-gesture-ios.yaml` | Edge swipe navigates on an unprotected checklist screen (positive control); same swipe prompts before leaving an active run; Cancel preserves progress and interactivity; Back/Cancel/Discard and subsequent navigation still work. |
+| `run-history.yaml` | A completed run exposes filtered and global history, keeps its snapshotted item count after the checklist changes, and remains globally visible after checklist deletion. |
+| `run-history-discard.yaml` | Cancelling an exit preserves progress, while discarding one or more runs never exposes checklist history. |
 
 On the tested iOS 26.5 / react-native-screens 4.28.0 combination, swiping an active
 run opens confirmation without removing the run. This matches the product spec.
@@ -72,6 +75,12 @@ the app restarts its process. If a flow fails or is interrupted, its fixture can
 remain for diagnosis; delete that specific `Scenario ...` checklist manually after
 inspection. Existing checklists are never bulk-cleared. Run flows serially on a
 single device; concurrent suites on that device would interfere.
+
+`run-history.yaml` necessarily leaves one uniquely named completed-history
+entry after deleting its checklist because history deletion is intentionally
+not part of the product. Run the suite on a dedicated test simulator. CheL-34
+tracks a safe isolation/cleanup mechanism that preserves unrelated data while
+preventing this generated history from accumulating.
 
 ## Results and diagnosis
 
@@ -123,3 +132,11 @@ The contract checks these states before invoking Maestro:
 
 Timing excludes building/installing the app and first-time tool setup. The
 three flows run serially; initial driver startup adds overhead to wall time.
+
+## Verified CheL-5 expansion — 2026-09-18
+
+- All **5/5** flows passed against a freshly built and installed Release app
+  on the same iPhone 17 Pro / iOS 26.5 simulator, in **3m 27s**.
+- Both new history flows passed: filtered/global completed history with
+  snapshot item counts and deletion retention, plus discarded-run exclusion.
+- **103 Jest tests**, **6 runner contract tests**, TypeScript, and ESLint passed.

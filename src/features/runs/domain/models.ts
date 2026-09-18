@@ -15,6 +15,14 @@ export interface ChecklistRun {
   completedAt: string | null;
 }
 
+export interface RunHistoryEntry {
+  id: string;
+  checklistId: string;
+  checklistTitle: string;
+  itemCount: number;
+  completedAt: string;
+}
+
 export function startRun(checklist: Checklist): ChecklistRun {
   return {
     id: generateId(),
@@ -52,6 +60,20 @@ export function isRunComplete(run: ChecklistRun): boolean {
 
 export function completeRun(run: ChecklistRun, now: Date): ChecklistRun {
   return { ...run, completedAt: now.toISOString() };
+}
+
+export function toRunHistoryEntry(run: ChecklistRun): RunHistoryEntry {
+  if (!run.completedAt) {
+    throw new Error('Cannot create history for an unfinished run');
+  }
+
+  return {
+    id: run.id,
+    checklistId: run.checklistId,
+    checklistTitle: run.checklistTitle,
+    itemCount: run.items.length,
+    completedAt: run.completedAt,
+  };
 }
 
 export function checkedCount(run: ChecklistRun): number {

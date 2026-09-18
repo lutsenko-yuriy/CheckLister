@@ -13,6 +13,12 @@ A record of all versioned releases. For planned work and known issues, see @docs
 - ...
 -->
 
+## [0.8.0] — 2026-09-18 (PR #35)
+
+### Added
+- [user] CheL-5: Completed checklist runs now appear in newest-first history. The home screen opens history across all checklists, while a checklist opens its own filtered history; each entry preserves the checklist title, completion date, and item count captured for that exact run, even after the checklist changes or is deleted. History actions appear only when matching completed runs exist.
+- [app] Added immutable `RunHistoryEntry` snapshots, an AsyncStorage-backed `RunRepository`, global and filtered history screens, persistence failure recovery, load/write race protection, analytics, and Jest plus Maestro coverage. Also established `CODE_STYLE.md` and strengthened planning guidance with soft PR/WU size checkpoints during the ticket debrief.
+
 ## [0.7.1] — 2026-09-18 (PR #27)
 
 ### Added

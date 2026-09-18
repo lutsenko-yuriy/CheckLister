@@ -18,6 +18,7 @@ Full product specifications: docs/PRODUCT_SPEC.md
 | docs/CHANGELOG.md | Released version history |
 | docs/VERSIONING.md | Version numbering rules and CI/CD pipeline |
 | docs/ANALYTICS_EVENTS.md | Analytics event catalogue — events, screen views, and their properties |
+| CODE_STYLE.md | TypeScript and React Native coding practices and code-smell catalogue |
 | docs/MODEL_TIERS.md | Effort Tier and Reasoning Depth vocabulary; active model → tier mapping |
 | docs/experiments/README.md | Experiment registry index — one `.md` file per experiment |
 | docs/knowledge/README.md | Project knowledge base — vault layout, per-ticket file format, how `/note` and `/debrief` write entries |
@@ -62,7 +63,12 @@ Details and directory layout: @docs/ARCHITECTURE.md.
 
 ## Code style
 
-React Native / Airbnb TypeScript style
+Follow [CODE_STYLE.md](CODE_STYLE.md). ESLint and Prettier remain the mechanical
+sources of truth where their configured rules apply.
+
+`CODE_STYLE.md` is a required project-bootstrap artifact: create it before the
+first feature implementation and extend its code-smell catalogue whenever a
+recurring convention or smell is discovered.
 
 ## Versioning
 
