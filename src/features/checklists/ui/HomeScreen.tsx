@@ -153,6 +153,7 @@ function ChecklistRow({
       <IconButton
         icon="delete"
         accessibilityLabel="Delete"
+        testID={`delete-checklist-${checklist.title}`}
         onPress={confirmDelete}
         color={colors.danger}
         style={styles.actionButton}
