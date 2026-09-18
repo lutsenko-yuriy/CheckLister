@@ -1,0 +1,20 @@
+appId: org.reactjs.native.example.CheckLister
+name: Discarded run creates no checklist history
+---
+- runFlow: helpers/create-checklist.yaml
+- assertNotVisible: Run history
+- tapOn: Start run
+- tapOn: .*Scenario first.*
+- tapOn: Back
+- assertVisible: Are you sure\?
+- tapOn: Cancel
+- assertVisible: 1 of 2 checked
+- tapOn: Back
+- assertVisible: Are you sure\?
+- tapOn: Discard
+- assertVisible: Start run
+- assertNotVisible: Run history
+- tapOn: Start run
+- runFlow: helpers/discard-run.yaml
+- assertNotVisible: Run history
+- runFlow: helpers/delete-checklist.yaml
