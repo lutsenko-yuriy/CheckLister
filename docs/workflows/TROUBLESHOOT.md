@@ -39,6 +39,10 @@ Present this alongside the trade-off table, not only when asked.
 
 ## 4. Attempt fixes systematically
 
+- Before changing behavior, record the reproducer and regression scenarios per
+  [SCENARIOS.md](SCENARIOS.md). Investigation can precede drafting; the fix cannot
+  skip verification because it is reactive work. Record results before review.
+
 - One branch per attempt: `feature/N/A-XX-<short-description>`
 - Record each failed attempt in the ticket description before moving on.
 - Use `workflow_dispatch` or equivalent to test CI fixes without merging.

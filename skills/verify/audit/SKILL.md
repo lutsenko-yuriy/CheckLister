@@ -12,6 +12,10 @@ The Git host is **GitHub**. The tech stack is **React Native/TypeScript**.
 
 ---
 
+Check the ticket's named scenarios and execution evidence against its acceptance
+criteria per `docs/workflows/SCENARIOS.md`. App journeys need real-simulator
+coverage or an explicit documented coverage gap; empty stubs do not count.
+
 ## What to look for
 
 @skills/verify/audit/resources/audit-checklist.md

@@ -37,8 +37,10 @@ When setting up the project, fill in every `{{placeholder}}`. Skills stay unchan
 
 | Setting | Value |
 |---|---|
-| Integration test directory | Colocated `*.test.tsx` files next to each screen/component under `src/features/<feature>/ui/` (no separate `e2e/` harness — see below) |
-| Test harness file | `@testing-library/react-native` — component-level integration tests render a full screen and drive it via user-facing queries/interactions, no Detox/device harness yet |
+| Simulator smoke flows | `.maestro/*.yaml`, reusable helpers in `.maestro/helpers/`; `npm run smoke:ios -- <UDID>` (see `docs/SMOKE_TESTS.md`). Android automation is tracked in CheL-31. |
+| Scenario policy | `docs/workflows/SCENARIOS.md` — applies to every ticket, with verification appropriate to its scope. |
+| Integration test directory | Colocated `*.test.tsx` files next to each screen/component under `src/features/<feature>/ui/` (component integration tests; real-device flows are in `.maestro/`) |
+| Test harness file | `@testing-library/react-native` — component-level integration tests render a full screen and drive it via user-facing queries/interactions, Maestro provides separate real-simulator smoke coverage |
 | Harness class / entry point | `render()` / `fireEvent` from `@testing-library/react-native`, e.g. as used in `src/features/checklists/ui/ChecklistDetailScreen.test.tsx` |
 | Unit / integration test command | `npm test` (Jest, via `@react-native/jest-preset`) |
 
