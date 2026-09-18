@@ -27,6 +27,7 @@ export function RunScreen({ navigation }: Props) {
   // manual beforeRemove + e.preventDefault() listener cannot prevent for the
   // swipe gesture (only for JS-dispatched actions like a header back press).
   const [justCompleted, setJustCompleted] = useState(false);
+  const [isCompleting, setIsCompleting] = useState(false);
 
   useLayoutEffect(() => {
     navigation.setOptions({ title: activeRun?.checklistTitle ?? 'Run' });
@@ -101,12 +102,16 @@ export function RunScreen({ navigation }: Props) {
     });
   };
 
-  const handleComplete = () => {
+  const handleComplete = async () => {
+    if (isCompleting) {
+      return;
+    }
+    setIsCompleting(true);
     analytics.logEvent('run_completed', {
       checklist_id: activeRun.checklistId,
       item_count: activeRun.items.length,
     });
-    completeRun();
+    await completeRun();
     setJustCompleted(true);
   };
 
@@ -129,13 +134,13 @@ export function RunScreen({ navigation }: Props) {
       />
       <Pressable
         onPress={handleComplete}
-        disabled={!complete}
+        disabled={!complete || isCompleting}
         accessibilityRole="button"
         accessibilityLabel="Complete the checklist"
-        accessibilityState={{ disabled: !complete }}
+        accessibilityState={{ disabled: !complete || isCompleting }}
         style={[
           styles.completeButton,
-          !complete && styles.completeButtonDisabled,
+          (!complete || isCompleting) && styles.completeButtonDisabled,
         ]}
       >
         <Text style={styles.completeButtonText}>Complete the checklist</Text>

@@ -18,6 +18,7 @@ import { RunScreen } from './RunScreen';
 import { analytics } from '../../../shared/analytics/AnalyticsService';
 import { createChecklist, createItem } from '../../checklists/domain/models';
 import { AsyncStorageChecklistRepository } from '../../checklists/data/asyncStorageChecklistRepository';
+import { AsyncStorageRunRepository } from '../data/asyncStorageRunRepository';
 
 // usePreventRemove (used by RunScreen to safely gate the swipe-back gesture,
 // not just JS-dispatched actions — see RunScreen.tsx) calls useNavigation()
@@ -26,6 +27,7 @@ import { AsyncStorageChecklistRepository } from '../../checklists/data/asyncStor
 // goBack() has somewhere to go.
 type TestParamList = { Placeholder: undefined; Run: { checklistId: string } };
 const Stack = createNativeStackNavigator<TestParamList>();
+const runRepository = new AsyncStorageRunRepository();
 
 function PlaceholderScreen() {
   return null;
@@ -59,7 +61,7 @@ async function renderRun(itemTexts: string[], extra: React.ReactNode = null) {
   const navigationRef = createNavigationContainerRef<TestParamList>();
 
   const utils = await render(
-    <RunsProvider>
+    <RunsProvider repository={runRepository}>
       <NavigationContainer
         ref={navigationRef}
         initialState={{
@@ -88,7 +90,7 @@ async function renderRunWithoutStarting() {
   const navigationRef = createNavigationContainerRef<TestParamList>();
 
   const utils = await render(
-    <RunsProvider>
+    <RunsProvider repository={runRepository}>
       <NavigationContainer
         ref={navigationRef}
         initialState={{
@@ -111,8 +113,9 @@ async function renderRunWithoutStarting() {
 }
 
 describe('RunScreen', () => {
-  afterEach(() => {
+  afterEach(async () => {
     jest.restoreAllMocks();
+    await AsyncStorage.clear();
   });
 
   it('renders all items unchecked when a run starts', async () => {
@@ -188,6 +191,12 @@ describe('RunScreen', () => {
       ),
     );
     expect(capturedActiveRun).toBeNull();
+    expect(await runRepository.getAll()).toEqual([
+      expect.objectContaining({
+        checklistTitle: 'Groceries',
+        itemCount: 1,
+      }),
+    ]);
   });
 
   it('exiting before completion prompts confirmation; confirming discards the run, cancelling preserves it', async () => {
@@ -251,7 +260,7 @@ describe('RunScreen', () => {
     };
     const navigationRef = createNavigationContainerRef<TestParamList>();
     await render(
-      <RunsProvider>
+      <RunsProvider repository={runRepository}>
         <NavigationContainer
           ref={navigationRef}
           initialState={{
@@ -313,7 +322,7 @@ describe('RunScreen', () => {
     const checklist = (await repo.getAll())[0];
     const navigationRef = createNavigationContainerRef<TestParamList>();
     await render(
-      <RunsProvider>
+      <RunsProvider repository={runRepository}>
         <NavigationContainer
           ref={navigationRef}
           initialState={{
