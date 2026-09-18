@@ -110,3 +110,16 @@ The contract checks these states before invoking Maestro:
 | Unknown, non-iOS or shut-down simulator | Actionable error; no Maestro invocation                        |
 | Installed app missing                   | Installation instructions; no Maestro invocation               |
 | Valid target and app                    | Run suite; retain Maestro success/failure status and artifacts |
+
+## Verified baseline — 2026-09-18
+
+- Maestro 2.10.0; Java 17.0.5; iPhone 17 Pro simulator on iOS 26.5.
+- React Native 0.87.1 / react-native-screens 4.28.0; Release simulator build.
+- Two consecutive unchanged-suite runs: **3/3 passed**, approximately **2m 4s**
+  each. Both produced JUnit reports with zero failures.
+- An intentionally impossible assertion in a temporary flow exited **1** and
+  produced a failure screenshot, hierarchy, and driver/device logs.
+- **87 Jest tests**, **6 runner contract tests**, and **ESLint** passed.
+
+Timing excludes building/installing the app and first-time tool setup. The
+three flows run serially; initial driver startup adds overhead to wall time.

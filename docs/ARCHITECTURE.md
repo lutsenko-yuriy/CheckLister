@@ -155,4 +155,4 @@ Shared fixture flows live in `.maestro/helpers/`. `scripts/smoke-ios.sh` validat
 an explicitly selected simulator and invokes the developer-installed Maestro CLI;
 it is not an application dependency. Run with `npm run smoke:ios -- <UDID>`.
 See [SMOKE_TESTS.md](SMOKE_TESTS.md) for Java/Maestro setup, build/install steps,
-fixture isolation and failure artifacts. Existing Jest tests remain unchanged.
+fixture isolation and failure artifacts. Jest remains the unit/component test suite.
