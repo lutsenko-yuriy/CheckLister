@@ -12,9 +12,7 @@ function newestFirst(entries: RunHistoryEntry[]): RunHistoryEntry[] {
 
 export class AsyncStorageRunRepository implements RunRepository {
   async getAll(): Promise<RunHistoryEntry[]> {
-    return newestFirst(
-      await getJson<RunHistoryEntry[]>(STORAGE_KEY, []),
-    );
+    return newestFirst(await getJson<RunHistoryEntry[]>(STORAGE_KEY, []));
   }
 
   async saveAll(entries: RunHistoryEntry[]): Promise<void> {

@@ -22,9 +22,10 @@ const groceries: RunHistoryEntry = {
   completedAt: '2026-09-17T09:15:00.000Z',
 };
 
-async function renderHistory(
-  params: { checklistId?: string; checklistTitle?: string },
-) {
+async function renderHistory(params: {
+  checklistId?: string;
+  checklistTitle?: string;
+}) {
   const repository = new AsyncStorageRunRepository();
   await repository.saveAll([groceries, packing]);
   const navigation = { setOptions: jest.fn() };
@@ -60,9 +61,7 @@ describe('RunHistoryScreen', () => {
     const rows = screen.getAllByTestId(/run-history-entry-/);
     expect(within(rows[0]).getByText('Packing')).toBeTruthy();
     expect(
-      within(rows[0]).getByText(
-        '8 items • Run on 2026-09-18T18:42:00.000Z',
-      ),
+      within(rows[0]).getByText('8 items • Run on 2026-09-18T18:42:00.000Z'),
     ).toBeTruthy();
     expect(within(rows[1]).getByText('Groceries')).toBeTruthy();
   });
