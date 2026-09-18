@@ -13,6 +13,12 @@ A record of all versioned releases. For planned work and known issues, see @docs
 - ...
 -->
 
+## [0.7.1] — 2026-09-18 (PR #27)
+
+### Added
+- [meta] CheL-26: Local iOS scenario automation with Maestro for checklist-run completion, Back/Cancel/Discard, and native swipe confirmation. `npm run scenarios:ios -- <UDID>` validates the selected simulator and installed app, preserves failure status, and saves diagnostic artifacts. Includes isolated fixtures, a precise cleanup selector, runner checks, and setup instructions in `docs/SCENARIOS.md`.
+- [meta] Recorded the CheL-26 debrief. Broader scenario-policy changes remain separate in CheL-32 / draft PR #33; additional scenario coverage is tracked in CheL-28–CheL-31.
+
 ## [0.7.0] — 2026-09-18 (PR #25 merged)
 
 ### Added

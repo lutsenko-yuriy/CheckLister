@@ -1,13 +1,14 @@
 {
   "name": "CheckLister",
-  "version": "0.7.0",
+  "version": "0.7.1",
   "private": true,
   "scripts": {
     "android": "react-native run-android",
     "ios": "react-native run-ios",
     "lint": "eslint .",
     "start": "react-native start",
-    "test": "jest"
+    "test": "jest",
+    "scenarios:ios": "bash scripts/scenarios-ios.sh"
   },
   "dependencies": {
     "@react-native-async-storage/async-storage": "^3.1.1",

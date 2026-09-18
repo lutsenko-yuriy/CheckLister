@@ -146,3 +146,13 @@ Revisit if the app ever gains a real remote-config mechanism.
   MaterialIcons.ttf"). iOS still needs the font declared in
   `ios/CheckLister/Info.plist`'s `UIAppFonts` so it's registered at runtime;
   run `pod install` after adding the dependency.
+
+## Local simulator scenarios
+
+`.maestro/` contains three local iOS scenarios for completing a run,
+confirming/discarding an exit, and confirming swipe-back without breaking navigation.
+Shared fixture flows live in `.maestro/helpers/`. `scripts/scenarios-ios.sh` validates
+an explicitly selected simulator and invokes the developer-installed Maestro CLI;
+it is not an application dependency. Run with `npm run scenarios:ios -- <UDID>`.
+See [SCENARIOS.md](SCENARIOS.md) for Java/Maestro setup, build/install steps,
+fixture isolation and failure artifacts. Jest remains the unit/component test suite.

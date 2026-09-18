@@ -1,0 +1,17 @@
+appId: org.reactjs.native.example.CheckLister
+---
+- tapOn: Back
+- assertVisible: New checklist title
+- scrollUntilVisible:
+    element:
+      text: ${output.title}.*
+    direction: DOWN
+- tapOn:
+    id: delete-checklist-${output.title}
+- assertVisible: Delete checklist\?
+- tapOn:
+    text: Delete
+    childOf:
+      containsChild:
+        text: Cancel
+- assertNotVisible: ${output.title}.*

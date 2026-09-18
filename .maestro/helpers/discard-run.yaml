@@ -1,0 +1,6 @@
+appId: org.reactjs.native.example.CheckLister
+---
+- tapOn: Back
+- assertVisible: Are you sure\?
+- tapOn: Discard
+- assertVisible: Start run

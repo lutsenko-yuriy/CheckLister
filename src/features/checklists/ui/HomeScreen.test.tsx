@@ -134,6 +134,30 @@ describe('HomeScreen', () => {
     expect(await repo.getAll()).toEqual([]);
   });
 
+  it('targets only the named scenario fixture for deletion', async () => {
+    const repo = new AsyncStorageChecklistRepository();
+    const existing = { id: '1', title: 'Groceries', items: [] };
+    await repo.saveAll([
+      existing,
+      { id: '2', title: 'Scenario unique-fixture', items: [] },
+    ]);
+    jest.spyOn(Alert, 'alert').mockImplementation((_title, _msg, buttons) => {
+      buttons?.find(button => button.text === 'Delete')?.onPress?.();
+    });
+
+    await renderHomeScreen();
+    await waitFor(() => screen.getByText('Scenario unique-fixture'));
+    await fireEvent.press(
+      screen.getByTestId('delete-checklist-Scenario unique-fixture'),
+    );
+
+    await waitFor(() =>
+      expect(screen.queryByText('Scenario unique-fixture')).toBeNull(),
+    );
+    expect(screen.getByText('Groceries')).toBeTruthy();
+    expect(await repo.getAll()).toEqual([existing]);
+  });
+
   it('does not delete a checklist if the user cancels', async () => {
     const repo = new AsyncStorageChecklistRepository();
     await repo.saveAll([{ id: '1', title: 'Groceries', items: [] }]);
