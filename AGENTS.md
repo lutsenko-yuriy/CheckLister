@@ -83,11 +83,6 @@ At the beginning of every new session, before doing anything else:
 
 ## Workflow
 
-Every ticket must define verification scenarios before implementation and report
-their results before review/closure. Follow @docs/workflows/SCENARIOS.md for app,
-non-UI, bug, trivial, and research tickets. App journeys use Maestro alongside
-Jest; non-UI work uses appropriate executable or evidence-based checks.
-
 @docs/workflows/FEATURE.md
 
 Reactive work (bugs, CI failures, regressions, infrastructure breakage) uses

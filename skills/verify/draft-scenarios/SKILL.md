@@ -4,68 +4,61 @@ effort: FOCUSED
 reasoning: TACTICAL
 context: pm
 output_style: CONCISE
-description: Define verification scenarios for every ticket before implementation, including app flows, bugs, infrastructure, docs and research. Map acceptance criteria to Maestro/Jest/command tests or concrete evidence checks; reuse existing coverage where applicable.
+description: Draft scenarios (integration tests) from a ticket description before implementation. Runs after `plan` (if used) and before `implement`. Scenarios are written against the spec — not reverse-engineered from code — so they compile as stubs and give `implement` a concrete target to fill in and make green.
 ---
 
 @skills/shared/project-config.md
 
-Read `docs/workflows/SCENARIOS.md`. This skill defines verification targets, not
-production code. A scenario is a sequence of actions and observable expected
-results; it is not necessarily a mocked component test or a UI test.
+This skill produces scenario files, not production code.
 
-## 1. Read the ticket and coverage
+**Terminology:** a *scenario* is an end-to-end integration test written in the integration test directory (from the project config) using the test harness described there. The terms "scenario" and "integration test" are synonymous in this skill.
 
-Fetch the ticket and plan comments. Read acceptance criteria and the relevant
-existing tests, flows and helpers. Identify coverage to reuse and gaps to fill.
-For a bug, use the observed reproducer as the starting scenario.
+---
 
-## 2. Draft the minimum complete scenario set
+## Steps
 
-Record **Verification scenarios** in the ticket or plan. For each scenario give:
+### 1. Fetch the ticket
 
-1. Ticket-scoped ID and descriptive name.
-2. Acceptance criterion and preconditions/test data.
-3. Ordered actions and expected observable results.
-4. Execution method, test file and target platform; for a manual/evidence check,
-   name its owner and why automation is unsuitable.
+Fetch the issue (PM mapping: **Fetch issue**), then list its comments (**List comments on issue**) to find any plan comment left by the `plan` skill. Read the description, acceptance criteria, and plan (if present) to understand the expected behaviour.
 
-Cover the primary path and relevant failures, cancellation, persistence and
-navigation. Do not add unrelated coverage or duplicate existing tests. Link exact
-existing scenarios when they already cover a criterion.
+### 2. Read the test harness
 
-Choose the appropriate layer:
+Read the harness file and any existing scenarios in the integration test directory (paths from the project config) for the affected slice or feature area. Note naming conventions, helper patterns, and what is already covered so you do not duplicate.
 
-- App journeys: `.maestro/` flows with reusable helpers and isolated fixtures;
-  supplement with colocated Jest tests for component/domain logic.
-- Scripts/infrastructure/logic: executable command, unit or integration tests.
-- Docs/process/research/trivial changes: proportionate, concrete verification
-  examples or evidence checks; do not create artificial UI automation.
+### 3. Draft scenarios
 
-No ticket skips scenario definition solely because it has no UI. State platform
-coverage honestly; an iOS flow does not verify Android.
+Produce draft scenario files in the integration test directory (from the project config) using the test harness described there. Cover:
 
-## 3. Present and approve
+- **Happy path** — the primary flow described in the ticket
+- **Unhappy paths** — the most critical failure scenarios: missing data, invalid state, navigation back-stack correctness, cancelled operations, etc.
 
-Present the scenarios with their steps and assertions. Wait for approval before
-writing executable drafts unless the user has already approved these scenarios.
-Carry existing approval forward; do not ask for the same approval twice.
+Write the minimum set of scenarios that verifies the ticket's acceptance criteria. Do not add speculative coverage.
 
-## 4. Write approved drafts
+### 4. Present and wait
 
-Use the chosen harness and existing conventions. Where executable assertions can
-be written now, write them before implementation and run the relevant test. If a
-multi-WU scenario needs a stub first, explicitly mark it pending/skipped and keep
-its reviewed steps as comments; never let an empty test appear as passing coverage.
-Keep still-shipping legacy scenarios until the work unit that retires the behavior.
+Show all proposed scenarios to the user and wait for approval. Do not write any files to disk until the user approves. Incorporate any requested changes before writing.
 
-For Maestro, put runnable scenarios at `.maestro/` and helpers below `helpers/`.
-Keep unfinished drafts outside top-level discovery (for example in
-`.maestro/drafts/`) until implemented. Do not commit a placeholder as an executed
-smoke test. Evidence/manual scenarios stay in the ticket/plan checklist.
+For each scenario present:
+1. **Name** — the test name as it will appear in code.
+2. **Description** — one sentence on what behaviour it verifies.
+3. **Steps** — a numbered list of the interactions and assertions in order (e.g. "1. Seed a stopped pact with an existing note", "2. Open pact detail", "3. Verify note field is pre-populated", "4. Edit the text — Save button becomes enabled", "5. Tap Save — note is persisted in the repository").
 
-## 5. Hand off
+This level of detail lets the user verify the test logic before anything is written to disk.
 
-List scenario IDs, linked existing tests, new files/checklists, and pending work.
-`implement` completes executable assertions and records real execution evidence
-before review. For already-working behavior, passing new tests are valid; do not
-alter production behavior just to force a red test.
+### 5. Write the scenarios
+
+Write the approved scenario files as **stubs**: each test function contains only `// TODO:` comments (or the equivalent comment syntax for the project's test language) describing each step exactly as reviewed in step 4 — no driver calls, no assertions. The stubs must compile against the project harness but verify nothing. The `implement` skill will replace the comments with actual driver code as part of making each scenario green.
+
+### 6. Report back
+
+List the files written and confirm that `implement` can proceed with the commented stubs as its target.
+
+---
+
+## Constraints
+
+- Do not write production code.
+- All scenario files must be written under the integration test directory (from the project config).
+- Scenario stubs must compile but contain no assertions; `implement` fills in the driver code and makes them green.
+- Use the test harness (path and usage from the project config) for all scenario setup.
+- Do not duplicate scenarios that already cover the same behaviour.

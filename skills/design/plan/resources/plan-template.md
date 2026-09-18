@@ -15,11 +15,8 @@
 ### UI changes
 - <change>
 
-### Verification scenarios
-- <scenario ID, acceptance criterion, preconditions, actions, expected result, execution method/file or manual owner>
-
 ### Test strategy
-- <map the scenarios to Maestro/Jest/command tests or evidence checks; name files and target platforms>
+- <what to test and how; name the test files>
 
 ### Implementation phases
 1. **Phase 1 — <name>**: <what gets done; deliverable>
