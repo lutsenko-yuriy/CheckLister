@@ -23,7 +23,7 @@ export function ChecklistDetailScreen({ navigation, route }: Props) {
   );
 
   useLayoutEffect(() => {
-    const showHistory = !!checklist && !historyLoading && hasHistory;
+    const showHistory = Boolean(checklist) && !historyLoading && hasHistory;
     const historyButton = () => (
       <IconButton
         icon="history"

@@ -46,7 +46,7 @@ export function RunScreen({ navigation }: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeRun?.id]);
 
-  usePreventRemove(!!activeRun && !justCompleted, ({ data }) => {
+  usePreventRemove(Boolean(activeRun) && !justCompleted, ({ data }) => {
     Alert.alert(
       'Are you sure?',
       'Leaving now will discard this run. Your progress will not be saved.',
