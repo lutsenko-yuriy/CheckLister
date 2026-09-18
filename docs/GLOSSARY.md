@@ -28,3 +28,4 @@ When a new term is introduced during a `brief` session, add it here before creat
 | Checklist | A named list of items the user creates and manages (e.g. "Groceries") | `Checklist` |
 | Item | A single line entry within a checklist template. Has no checked/unchecked state itself — checking off happens on the item's copy within a run | `Item` |
 | Run | A snapshot copy of a checklist's items, created when the user starts working through it. Checking items off happens on this copy — never on the source checklist | `ChecklistRun` |
+| Run history entry | An immutable summary of one completed run, preserving its checklist identifier and title, item count, and completion time independently of later checklist changes or deletion | `RunHistoryEntry` |
