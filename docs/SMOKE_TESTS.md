@@ -53,10 +53,10 @@ System Events UI scripting.
 
 ## Coverage
 
-| Flow | Assertions |
-| --- | --- |
-| `run-complete.yaml` | Empty checklist cannot start; completion disabled until all items checked; toggle/uncheck; completion returns to unchanged template; fresh run starts unchecked. |
-| `run-exit.yaml` | Back shows confirmation; Cancel preserves progress; Discard returns to template; new run resets progress. |
+| Flow                   | Assertions                                                                                                                                                                                                                          |
+| ---------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `run-complete.yaml`    | Empty checklist cannot start; completion disabled until all items checked; toggle/uncheck; completion returns to unchanged template; fresh run starts unchecked.                                                                    |
+| `run-exit.yaml`        | Back shows confirmation; Cancel preserves progress; Discard returns to template; new run resets progress.                                                                                                                           |
 | `run-gesture-ios.yaml` | Edge swipe navigates on an unprotected checklist screen (positive control); same swipe prompts before leaving an active run; Cancel preserves progress and interactivity; Back/Cancel/Discard and subsequent navigation still work. |
 
 On the tested iOS 26.5 / react-native-screens 4.28.0 combination, swiping an active
@@ -104,9 +104,9 @@ python3 -m unittest discover -s scripts/tests -p 'test_smoke_ios.py'
 
 The contract checks these states before invoking Maestro:
 
-| Arguments / target / app | Outcome |
-| --- | --- |
-| Missing or extra argument | Usage error, exit 2 |
-| Unknown, non-iOS or shut-down simulator | Actionable error; no Maestro invocation |
-| Installed app missing | Installation instructions; no Maestro invocation |
-| Valid target and app | Run suite; retain Maestro success/failure status and artifacts |
+| Arguments / target / app                | Outcome                                                        |
+| --------------------------------------- | -------------------------------------------------------------- |
+| Missing or extra argument               | Usage error, exit 2                                            |
+| Unknown, non-iOS or shut-down simulator | Actionable error; no Maestro invocation                        |
+| Installed app missing                   | Installation instructions; no Maestro invocation               |
+| Valid target and app                    | Run suite; retain Maestro success/failure status and artifacts |
