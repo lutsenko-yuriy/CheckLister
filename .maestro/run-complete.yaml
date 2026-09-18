@@ -7,15 +7,15 @@ name: Complete a run and start fresh
 - assertVisible:
     text: Complete the checklist
     enabled: false
-- tapOn: .*Smoke first.*
+- tapOn: .*Scenario first.*
 - assertVisible: 1 of 2 checked
 - assertVisible:
     text: Complete the checklist
     enabled: false
-- tapOn: .*Smoke first.*
+- tapOn: .*Scenario first.*
 - assertVisible: 0 of 2 checked
-- tapOn: .*Smoke first.*
-- tapOn: .*Smoke second.*
+- tapOn: .*Scenario first.*
+- tapOn: .*Scenario second.*
 - assertVisible: 2 of 2 checked
 - assertVisible:
     text: Complete the checklist
@@ -23,8 +23,8 @@ name: Complete a run and start fresh
 - tapOn: Complete the checklist
 - assertVisible: Start run
 - assertNotVisible: Are you sure\?
-- assertVisible: .*Smoke first.*
-- assertVisible: .*Smoke second.*
+- assertVisible: .*Scenario first.*
+- assertVisible: .*Scenario second.*
 - tapOn: Start run
 - assertVisible: 0 of 2 checked
 - runFlow: helpers/discard-run.yaml

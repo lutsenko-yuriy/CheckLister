@@ -1,7 +1,7 @@
-# Local iOS smoke tests
+# Local iOS scenarios
 
 CheL-26 adds Maestro flows against the installed app and real native navigation.
-Jest remains the unit/component test suite. These smoke tests are local only;
+Jest remains the unit/component test suite. These scenarios are local only;
 Android validation and CI integration are follow-up work.
 
 ## Tool choice
@@ -9,7 +9,7 @@ Android validation and CI integration are follow-up work.
 Maestro tests the installed simulator app through native UI interactions and YAML
 flows without adding a test framework to the app binary. Detox offers app-aware
 synchronization but requires additional native/test-runner setup. For these three
-local smoke scenarios, Maestro keeps setup smaller. See the official
+local scenarios, Maestro keeps setup smaller. See the official
 [Maestro iOS guide](https://docs.maestro.dev/get-started/supported-platform/ios)
 and [Detox setup](https://wix.github.io/Detox/docs/introduction/project-setup/).
 
@@ -38,10 +38,10 @@ needs no Metro server. Run from the repository root:
 ```bash
 xcodebuild -workspace ios/CheckLister.xcworkspace -scheme CheckLister \
   -configuration Release -sdk iphonesimulator -destination 'id=<UDID>' \
-  -derivedDataPath /tmp/checklister-smoke-build CODE_SIGNING_ALLOWED=NO build
+  -derivedDataPath /tmp/checklister-scenarios-build CODE_SIGNING_ALLOWED=NO build
 xcrun simctl install <UDID> \
-  /tmp/checklister-smoke-build/Build/Products/Release-iphonesimulator/CheckLister.app
-npm run smoke:ios -- <UDID>
+  /tmp/checklister-scenarios-build/Build/Products/Release-iphonesimulator/CheckLister.app
+npm run scenarios:ios -- <UDID>
 ```
 
 Replace `<UDID>` everywhere with the same simulator identifier. Rebuild and
@@ -66,10 +66,10 @@ intentionally asserts the observed dialog, Cancel, and continued interactivity.
 Revalidate this behavior when upgrading native navigation dependencies.
 
 Each flow cold-launches without clearing storage, creates a uniquely named
-`Smoke <timestamp>-<random>` checklist via the UI, and deletes only that checklist
+`Scenario <timestamp>-<random>` checklist via the UI, and deletes only that checklist
 on success. Do not run the suite while using an unfinished in-memory run: launching
 the app restarts its process. If a flow fails or is interrupted, its fixture can
-remain for diagnosis; delete that specific `Smoke ...` checklist manually after
+remain for diagnosis; delete that specific `Scenario ...` checklist manually after
 inspection. Existing checklists are never bulk-cleared. Run flows serially on a
 single device; concurrent suites on that device would interfere.
 
@@ -77,8 +77,8 @@ single device; concurrent suites on that device would interfere.
 
 The runner requires an explicit booted iOS UDID and installed CheckLister. It
 returns Maestro's exit status unchanged (nonzero means failure), prints a unique
-artifact directory under `artifacts/smoke-ios/`, and requests a JUnit report and
-Maestro test artifacts there. `SMOKE_ARTIFACTS_DIR` overrides the parent directory.
+artifact directory under `artifacts/scenarios-ios/`, and requests a JUnit report and
+Maestro test artifacts there. `SCENARIOS_ARTIFACTS_DIR` overrides the parent directory.
 Generated artifacts are gitignored. Inspect failure screenshots, command logs,
 and the current hierarchy:
 
@@ -99,7 +99,7 @@ under `.maestro/helpers/`; only top-level flows are discovered by the suite.
 Runner contract tests use stub executables, not a simulator:
 
 ```bash
-python3 -m unittest discover -s scripts/tests -p 'test_smoke_ios.py'
+python3 -m unittest discover -s scripts/tests -p 'test_scenarios_ios.py'
 ```
 
 The contract checks these states before invoking Maestro:

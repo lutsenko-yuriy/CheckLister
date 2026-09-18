@@ -10,7 +10,7 @@ name: Confirm native swipe without breaking subsequent navigation
 - assertVisible: New checklist title
 - tapOn: ${output.title}.*
 - tapOn: Start run
-- tapOn: .*Smoke first.*
+- tapOn: .*Scenario first.*
 - assertVisible: 1 of 2 checked
 - swipe:
     start: 0%, 50%
@@ -21,9 +21,9 @@ name: Confirm native swipe without breaking subsequent navigation
 - tapOn: Cancel
 - assertVisible: 1 of 2 checked
 # Prove the native screen is still interactive after cancelling the swipe.
-- tapOn: .*Smoke second.*
+- tapOn: .*Scenario second.*
 - assertVisible: 2 of 2 checked
-- tapOn: .*Smoke second.*
+- tapOn: .*Scenario second.*
 - assertVisible: 1 of 2 checked
 - tapOn: Back
 - assertVisible: Are you sure\?

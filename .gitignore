@@ -89,5 +89,5 @@ yarn-error.log
 !.yarn/sdks
 !.yarn/versions
 
-# Local simulator smoke-test reports and screenshots
+# Local simulator scenario reports and screenshots
 /artifacts/

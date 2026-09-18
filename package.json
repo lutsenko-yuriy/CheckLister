@@ -8,7 +8,7 @@
     "lint": "eslint .",
     "start": "react-native start",
     "test": "jest",
-    "smoke:ios": "bash scripts/smoke-ios.sh"
+    "scenarios:ios": "bash scripts/scenarios-ios.sh"
   },
   "dependencies": {
     "@react-native-async-storage/async-storage": "^3.1.1",

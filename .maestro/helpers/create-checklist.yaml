@@ -1,6 +1,6 @@
 appId: org.reactjs.native.example.CheckLister
 ---
-- evalScript: ${output.title = 'Smoke ' + Date.now() + '-' + Math.floor(Math.random() * 1000000)}
+- evalScript: ${output.title = 'Scenario ' + Date.now() + '-' + Math.floor(Math.random() * 1000000)}
 - launchApp:
     clearState: false
 - assertVisible: New checklist title
@@ -16,10 +16,10 @@ appId: org.reactjs.native.example.CheckLister
     text: Start run
     enabled: false
 - tapOn: New item
-- inputText: Smoke first
+- inputText: Scenario first
 - pressKey: Enter
 - tapOn: New item
-- inputText: Smoke second
+- inputText: Scenario second
 - pressKey: Enter
 - assertVisible:
     text: Start run

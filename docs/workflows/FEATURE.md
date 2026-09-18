@@ -112,7 +112,7 @@ behaviour beyond a literal value, it is not trivial — use the full workflow in
    - Inform the user of the PR/MR URL and open it in the browser.
    - The review loop (step 10) starts automatically once the PR/MR is open, unless the user says otherwise beforehand.
 10. **Review loop** — starts automatically once the PR/MR is open (see step 9), unless the user asked to hold; repeat until the user explicitly approves:
-    0. **Before starting:** smoke-test the change on your own initiative — confirm it builds/boots, then exercise the specific flow the PR/MR touches. For checklist/run flows on iOS, use `npm run smoke:ios -- <UDID>` after building/installing the current checkout; see [local smoke-test setup](../SMOKE_TESTS.md). Report the result, then proceed into the loop.
+    0. **Before starting:** Verify the change on your own initiative — confirm it builds/boots, then exercise the specific flow the PR/MR touches. For checklist/run flows on iOS, use `npm run scenarios:ios -- <UDID>` after building/installing the current checkout; see [local scenario setup](../SCENARIOS.md). Report the result, then proceed into the loop.
     1. Wait for the review skills (`review`, `audit`), any coverage report, and the user to finish leaving comments.
        - **Immediately after invoking each routed skill, confirm its subagent actually spawned** before moving on to anything else. A skill's routing message is an instruction to act on, not content to just read — treat it the same way you'd treat a TODO you haven't checked off.
     2. For each comment: either fix it in a new commit and push, or post a one-sentence explanation of why the fix will not be implemented, threaded under the original comment.

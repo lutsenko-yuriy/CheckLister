@@ -7,16 +7,16 @@ import tempfile
 import unittest
 
 ROOT = Path(__file__).resolve().parents[2]
-RUNNER = ROOT / 'scripts/smoke-ios.sh'
+RUNNER = ROOT / 'scripts/scenarios-ios.sh'
 
 
-class SmokeRunnerTests(unittest.TestCase):
+class ScenarioRunnerTests(unittest.TestCase):
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()
         self.addCleanup(self.tmp.cleanup)
         self.path = Path(self.tmp.name)
         self.env = dict(os.environ, PATH=f'{self.path}:' + os.environ['PATH'],
-                        SMOKE_ARTIFACTS_DIR=str(self.path / 'artifacts'))
+                        SCENARIOS_ARTIFACTS_DIR=str(self.path / 'artifacts'))
         self.write_tool('maestro', 'printf "%s\\n" "$@" > "$CALLS"\nexit "${RESULT:-0}"')
         self.env['CALLS'] = str(self.path / 'calls')
         self.write_tool('xcrun', '''if [ "$2" = list ]; then
