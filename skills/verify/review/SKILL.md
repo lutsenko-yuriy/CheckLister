@@ -10,6 +10,10 @@ The Git host is **GitHub**. The issue identifier prefix is **N/A**.
 
 @skills/shared/git-cli-safety.md
 
+Check the ticket's named scenarios and execution evidence against its acceptance
+criteria per `docs/workflows/SCENARIOS.md`. App journeys need real-simulator
+coverage or an explicit documented coverage gap; empty stubs do not count.
+
 This skill produces reviews, not code.
 
 ---
