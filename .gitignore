@@ -88,3 +88,7 @@ yarn-error.log
 !.yarn/releases
 !.yarn/sdks
 !.yarn/versions
+
+# Workflow skills are source, even though their category is named build.
+!/skills/build/
+!/skills/build/**
