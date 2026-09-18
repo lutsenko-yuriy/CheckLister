@@ -83,7 +83,9 @@ describe('ChecklistDetailScreen', () => {
 
     await waitFor(() => expect(screen.getByText('Groceries')).toBeTruthy());
     const calls = navigation.setOptions.mock.calls;
-    expect(calls[calls.length - 1][0].headerRight).toBeUndefined();
+    const options = calls[calls.length - 1][0];
+    expect(options.headerRight).toBeUndefined();
+    expect(options.unstable_headerRightItems).toBeUndefined();
   });
 
   it('opens history filtered to the current checklist', async () => {
@@ -112,7 +114,8 @@ describe('ChecklistDetailScreen', () => {
       );
     });
     const calls = navigation.setOptions.mock.calls;
-    const HeaderAction = calls[calls.length - 1][0].headerRight;
+    const options = calls[calls.length - 1][0];
+    const HeaderAction = options.headerRight;
     const header = await render(<HeaderAction />);
     fireEvent.press(header.getByLabelText('Run history'));
 
@@ -120,6 +123,12 @@ describe('ChecklistDetailScreen', () => {
       checklistId: '1',
       checklistTitle: 'Groceries',
     });
+    expect(options.unstable_headerRightItems()[0]).toEqual(
+      expect.objectContaining({
+        type: 'custom',
+        hidesSharedBackground: true,
+      }),
+    );
   });
 
   it('adds an item from the input and clears it afterwards', async () => {

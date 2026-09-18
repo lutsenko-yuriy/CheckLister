@@ -136,7 +136,7 @@ three flows run serially; initial driver startup adds overhead to wall time.
 ## Verified CheL-5 expansion — 2026-09-18
 
 - All **5/5** flows passed against a freshly built and installed Release app
-  on the same iPhone 17 Pro / iOS 26.5 simulator, in **3m 34s**.
+  on the same iPhone 17 Pro / iOS 26.5 simulator, in **3m 27s**.
 - Both new history flows passed: filtered/global completed history with
   snapshot item counts and deletion retention, plus discarded-run exclusion.
 - **103 Jest tests**, **6 runner contract tests**, TypeScript, and ESLint passed.

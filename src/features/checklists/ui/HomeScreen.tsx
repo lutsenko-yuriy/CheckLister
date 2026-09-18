@@ -24,18 +24,27 @@ export function HomeScreen({ navigation }: Props) {
   const [newTitle, setNewTitle] = useState('');
 
   useLayoutEffect(() => {
+    const showHistory = !historyLoading && history.length > 0;
+    const historyButton = () => (
+      <IconButton
+        icon="history"
+        accessibilityLabel="Run history"
+        onPress={() => navigation.navigate('RunHistory', {})}
+        color={colors.text}
+      />
+    );
+
     navigation.setOptions({
-      headerRight:
-        !historyLoading && history.length > 0
-          ? () => (
-              <IconButton
-                icon="history"
-                accessibilityLabel="Run history"
-                onPress={() => navigation.navigate('RunHistory', {})}
-                color={colors.text}
-              />
-            )
-          : undefined,
+      headerRight: showHistory ? historyButton : undefined,
+      unstable_headerRightItems: showHistory
+        ? () => [
+            {
+              type: 'custom',
+              element: historyButton(),
+              hidesSharedBackground: true,
+            },
+          ]
+        : undefined,
     });
   }, [history.length, historyLoading, navigation]);
 

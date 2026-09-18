@@ -23,24 +23,34 @@ export function ChecklistDetailScreen({ navigation, route }: Props) {
   );
 
   useLayoutEffect(() => {
+    const showHistory = !!checklist && !historyLoading && hasHistory;
+    const historyButton = () => (
+      <IconButton
+        icon="history"
+        accessibilityLabel="Run history"
+        onPress={() =>
+          checklist &&
+          navigation.navigate('RunHistory', {
+            checklistId: checklist.id,
+            checklistTitle: checklist.title,
+          })
+        }
+        color={colors.text}
+      />
+    );
+
     navigation.setOptions({
       title: checklist?.title ?? 'Checklist',
-      headerRight:
-        checklist && !historyLoading && hasHistory
-          ? () => (
-              <IconButton
-                icon="history"
-                accessibilityLabel="Run history"
-                onPress={() =>
-                  navigation.navigate('RunHistory', {
-                    checklistId: checklist.id,
-                    checklistTitle: checklist.title,
-                  })
-                }
-                color={colors.text}
-              />
-            )
-          : undefined,
+      headerRight: showHistory ? historyButton : undefined,
+      unstable_headerRightItems: showHistory
+        ? () => [
+            {
+              type: 'custom',
+              element: historyButton(),
+              hidesSharedBackground: true,
+            },
+          ]
+        : undefined,
     });
   }, [checklist, hasHistory, historyLoading, navigation]);
 

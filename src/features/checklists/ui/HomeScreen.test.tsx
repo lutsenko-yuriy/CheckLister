@@ -46,7 +46,9 @@ describe('HomeScreen', () => {
 
     await waitFor(() => expect(navigation.setOptions).toHaveBeenCalled());
     const calls = navigation.setOptions.mock.calls;
-    expect(calls[calls.length - 1][0].headerRight).toBeUndefined();
+    const options = calls[calls.length - 1][0];
+    expect(options.headerRight).toBeUndefined();
+    expect(options.unstable_headerRightItems).toBeUndefined();
   });
 
   it('shows a global history action and navigates to unfiltered history', async () => {
@@ -70,11 +72,18 @@ describe('HomeScreen', () => {
       );
     });
     const calls = navigation.setOptions.mock.calls;
-    const HeaderAction = calls[calls.length - 1][0].headerRight;
+    const options = calls[calls.length - 1][0];
+    const HeaderAction = options.headerRight;
     const header = await render(<HeaderAction />);
     fireEvent.press(header.getByLabelText('Run history'));
 
     expect(navigate).toHaveBeenCalledWith('RunHistory', {});
+    expect(options.unstable_headerRightItems()[0]).toEqual(
+      expect.objectContaining({
+        type: 'custom',
+        hidesSharedBackground: true,
+      }),
+    );
   });
 
   it('creates a checklist from the title input and clears it afterwards', async () => {
