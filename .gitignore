@@ -91,3 +91,7 @@ yarn-error.log
 
 # Local simulator smoke-test reports and screenshots
 /artifacts/
+
+# Workflow skills are source, even though their category is named build.
+!/skills/build/
+!/skills/build/**
