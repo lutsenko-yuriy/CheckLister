@@ -30,25 +30,25 @@ Fired when <trigger condition>.
 
 Fired when the user submits new item text on the checklist detail screen.
 
-| Property | Type | Description |
-|---|---|---|
-| `checklist_id` | `string` | The checklist the item was added to |
-| `item_count` | `number` | Total item count on the checklist after the add |
+| Property       | Type     | Description                                     |
+| -------------- | -------- | ----------------------------------------------- |
+| `checklist_id` | `string` | The checklist the item was added to             |
+| `item_count`   | `number` | Total item count on the checklist after the add |
 
 ### `item_edited`
 
 Fired when the user saves an edit to an existing item's text.
 
-| Property | Type | Description |
-|---|---|---|
+| Property       | Type     | Description                       |
+| -------------- | -------- | --------------------------------- |
 | `checklist_id` | `string` | The checklist the item belongs to |
 
 ### `item_deleted`
 
 Fired when the user deletes an item.
 
-| Property | Type | Description |
-|---|---|---|
+| Property       | Type     | Description                        |
+| -------------- | -------- | ---------------------------------- |
 | `checklist_id` | `string` | The checklist the item belonged to |
 
 <!-- Added for CheL-3: Reordering & sections; section_id property removed
@@ -59,11 +59,11 @@ Fired when the user deletes an item.
 
 Fired when the user drags an item into a new position within a checklist (drop completes).
 
-| Property | Type | Description |
-|---|---|---|
+| Property       | Type     | Description                       |
+| -------------- | -------- | --------------------------------- |
 | `checklist_id` | `string` | The checklist the item belongs to |
-| `from_index` | `number` | Item's index before the move |
-| `to_index` | `number` | Item's index after the move |
+| `from_index`   | `number` | Item's index before the move      |
+| `to_index`     | `number` | Item's index after the move       |
 
 <!-- Added for CheL-4: Checklist runs -->
 
@@ -71,30 +71,30 @@ Fired when the user drags an item into a new position within a checklist (drop c
 
 Fired when the user starts a new run from a checklist.
 
-| Property | Type | Description |
-|---|---|---|
-| `checklist_id` | `string` | The checklist the run was started from |
-| `item_count` | `number` | Number of items snapshotted into the run |
+| Property       | Type     | Description                              |
+| -------------- | -------- | ---------------------------------------- |
+| `checklist_id` | `string` | The checklist the run was started from   |
+| `item_count`   | `number` | Number of items snapshotted into the run |
 
 ### `run_item_toggled`
 
 Fired when the user checks or unchecks an item within a run.
 
-| Property | Type | Description |
-|---|---|---|
-| `checklist_id` | `string` | The checklist the run belongs to |
-| `checked` | `boolean` | Whether the item is now checked (`true`) or unchecked (`false`) |
-| `checked_count` | `number` | Number of items checked in the run after this toggle |
-| `item_count` | `number` | Total number of items in the run |
+| Property        | Type      | Description                                                     |
+| --------------- | --------- | --------------------------------------------------------------- |
+| `checklist_id`  | `string`  | The checklist the run belongs to                                |
+| `checked`       | `boolean` | Whether the item is now checked (`true`) or unchecked (`false`) |
+| `checked_count` | `number`  | Number of items checked in the run after this toggle            |
+| `item_count`    | `number`  | Total number of items in the run                                |
 
 ### `run_completed`
 
 Fired when the user presses "Complete the checklist" (only possible once every item in the run is checked).
 
-| Property | Type | Description |
-|---|---|---|
-| `checklist_id` | `string` | The checklist the run belongs to |
-| `item_count` | `number` | Total number of items in the completed run |
+| Property       | Type     | Description                                |
+| -------------- | -------- | ------------------------------------------ |
+| `checklist_id` | `string` | The checklist the run belongs to           |
+| `item_count`   | `number` | Total number of items in the completed run |
 
 ---
 
@@ -110,7 +110,10 @@ Fired when the user presses "Complete the checklist" (only possible once every i
 
 <!-- Added for N/A-2: Checklist items; screen_checklist_run row added for CheL-4 -->
 
-| Screen name | When tracked |
-|---|---|
-| `screen_checklist_detail` | When `ChecklistDetailScreen` mounts for a valid checklist, with `item_count: number` |
-| `screen_checklist_run` | When the run screen mounts, with `checklist_id: string`, `item_count: number` |
+<!-- Added for CheL-5: Checklist run history -->
+
+| Screen name               | When tracked                                                                                                                                                      |
+| ------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `screen_checklist_detail` | When `ChecklistDetailScreen` mounts for a valid checklist, with `item_count: number`                                                                              |
+| `screen_checklist_run`    | When the run screen mounts, with `checklist_id: string`, `item_count: number`                                                                                     |
+| `screen_run_history`      | When the run history screen mounts, with `scope: string` (`all` or `checklist`), `entry_count: number`, and `checklist_id: string` when filtered to one checklist |

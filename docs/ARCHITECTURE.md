@@ -8,8 +8,8 @@
 
 Feature-based modules with React Navigation and local persistence. Two
 feature modules: `checklists` (templates and their items) and `runs`
-(checklist runs; history is a planned follow-up, not yet built). No
-backend — every repository persists to on-device `AsyncStorage` as JSON.
+(active checklist runs plus completed-run history). No backend — every
+repository persists to on-device `AsyncStorage` as JSON.
 
 ## Directory structure
 
@@ -19,7 +19,7 @@ index.js                       # RN entry point, registers App
 
 src/
 ├── navigation/
-│   └── RootNavigator.tsx      # Native-stack routes: Home, ChecklistDetail, Run
+│   └── RootNavigator.tsx      # Native-stack routes: Home, ChecklistDetail, Run, RunHistory
 ├── features/
 │   ├── checklists/
 │   │   ├── domain/
@@ -34,18 +34,20 @@ src/
 │   │   └── useChecklists.ts        # Context + hook exposing checklist state to UI
 │   └── runs/
 │       ├── domain/
-│       │   └── models.ts           # ChecklistRun, RunItem + pure helpers (startRun, isRunComplete, ...)
+│       │   ├── models.ts           # ChecklistRun, RunHistoryEntry, RunItem + pure helpers
+│       │   └── runRepository.ts    # Completed-run history persistence interface
+│       ├── data/
+│       │   └── asyncStorageRunRepository.ts
 │       ├── ui/
 │       │   ├── RunScreen.tsx
+│       │   ├── RunHistoryScreen.tsx
 │       │   └── components/         # RunItemRow
-│       └── useRuns.tsx             # Context + hook exposing run state to UI (in-memory only, no repository yet)
+│       └── useRuns.tsx             # Context + hook for ephemeral active run + durable completed history
 └── shared/
     ├── storage/
     │   └── jsonStorage.ts          # Thin typed wrapper over AsyncStorage (get/set JSON by key)
     ├── theme/
     │   └── colors.ts               # Single source of truth for the app's light-blue color palette
-    ├── config/
-    │   └── featureFlags.ts         # Local kill-switches, e.g. { checklistRuns: true } (see Feature flags below)
     └── ui/                         # Cross-feature presentational components
         └── IconButton.tsx          # Shared icon-only action button (Pressable + vector icon glyph)
 
@@ -61,12 +63,12 @@ Each feature module (`checklists`, `runs`) is a vertical slice with its own
 domain/data/ui layers, matching the directory structure above.
 
 ### Domain
+
 Plain TypeScript: types and pure functions only (e.g. `isRunComplete`,
 `startRun`). No React, no React Native, no
-`AsyncStorage` imports. Defines the repository *interface* for its feature
-(e.g. `ChecklistRepository`) that the data layer implements, where the
-feature has a data layer — `runs/domain` has none yet (see State management
-below). May be imported by that feature's own `data/` and `ui/` layers.
+`AsyncStorage` imports. Defines the repository _interface_ for its feature
+(e.g. `ChecklistRepository` or `RunRepository`) that the data layer
+implements. May be imported by that feature's own `data/` and `ui/` layers.
 
 **Cross-feature rule:** `runs/domain` may import types from `checklists/domain`
 (a run is built from a checklist snapshot). `checklists/domain` must never
@@ -79,12 +81,14 @@ lives on the checklist screen. `runs/ui` must never import from
 `checklists/ui` or `checklists/useChecklists` in the other direction.
 
 ### Data
+
 Implements the domain layer's repository interface using `AsyncStorage` (via
 `shared/storage/jsonStorage.ts`). Owns serialization and storage keys. May
 import its own feature's `domain/` and `shared/`. Must not import from `ui/`
 in any feature, and must not import another feature's `data/` layer directly.
 
 ### UI
+
 React Native screens and components. Consumes state through the feature's
 own hook (`useChecklists`, `useRuns`) rather than instantiating repositories
 directly. Repository instances are created once and wired into each
@@ -92,25 +96,15 @@ feature's context provider at the composition root (`App.tsx`), which is the
 only place `data/` implementations are constructed.
 
 ### State management
+
 No external state library for v1. Each feature exposes a React Context +
 hook (`useChecklists`, `useRuns`) backed by `useReducer`. `useChecklists` is
 initialized from its repository on mount and persists on every mutation.
-`useRuns` holds a single in-memory `activeRun` with no repository and no
-persistence — a run cannot be paused/resumed, so there is nothing to durably
-store yet. Durable run storage (and a `runRepository`) lands with the run
-history feature. Revisit state management itself if cross-feature
-coordination outgrows this.
-
-## Feature flags
-
-There is no backend and no remote-config service in this app (see
-`docs/PRODUCT_SPEC.md` — out of scope for v1). A "kill-switch" is therefore a
-local, hardcoded constant in `src/shared/config/featureFlags.ts`
-(`FEATURE_FLAGS.checklistRuns`, default `true`), read by the UI to hide a new
-entry point / route. Disabling a feature this way still requires a new
-release (a patch bump flipping the constant to `false`), but keeps the
-disable to a one-line diff rather than a revert of the whole feature.
-Revisit if the app ever gains a real remote-config mechanism.
+`useRuns` keeps the single `activeRun` in memory because an unfinished run
+cannot be paused or resumed. It loads and persists immutable
+`RunHistoryEntry` summaries through `RunRepository`; completed history is
+therefore durable and independent of checklist deletion. Revisit state
+management itself if cross-feature coordination outgrows this.
 
 ## Dependencies
 
@@ -139,7 +133,7 @@ Revisit if the app ever gains a real remote-config mechanism.
   icon-only action buttons (CheL-14). Chosen over `@expo/vector-icons` since this
   is a bare React Native CLI project, not Expo-managed. Uses the bundled
   `MaterialIcons` font only. The package's own podspec (`s.resources =
-  "Fonts/*.ttf"`) and `fonts.gradle` (applied from `android/app/build.gradle`)
+"Fonts/*.ttf"`) and `fonts.gradle` (applied from `android/app/build.gradle`)
   already bundle every font file — do not also add the font manually via
   `react-native.config.js`/`react-native-asset`, that duplicates the same file
   into the iOS bundle and breaks the build ("Multiple commands produce
