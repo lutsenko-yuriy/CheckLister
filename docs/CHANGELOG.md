@@ -15,6 +15,9 @@ A record of all versioned releases. For planned work and known issues, see @docs
 
 ## [Unreleased]
 
+### [wip]
+- CheL-36 WU1: Added the validated external-run request and callback-result contract, explicit local/external active-run origins, and fresh external-run replacement state. Callback data remains in memory only, and no user-facing deep-link behavior is exposed yet.
+
 ### [test]
 - CheL-36 Scenario-WU: Drafted component and Maestro scenario contracts for externally started checklist runs and callback results. No user-facing behavior is exposed yet.
 
