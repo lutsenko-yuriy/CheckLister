@@ -52,6 +52,10 @@ describe('parseExternalRunRequest', () => {
     'data:text/plain,result',
     'file:///tmp/result',
     'http://caller.example/run-result',
+    'tel:+49123456789',
+    'mailto:user@example.com',
+    'intent://run-result#Intent;scheme=caller-app;end',
+    'caller-app:run-result',
   ])('rejects an unsupported callback URL: %s', callbackUrl => {
     const encodedCallbackUrl = encodeURIComponent(callbackUrl);
 

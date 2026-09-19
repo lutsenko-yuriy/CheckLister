@@ -1,11 +1,22 @@
 const EXTERNAL_RUN_SCHEME = 'checklister:';
 const EXTERNAL_RUN_HOST = 'run';
-const HTTPS_SCHEME = 'https:';
 const SCRIPT_CALLBACK_SCHEME = ['java', 'script:'].join('');
-const UNSAFE_CALLBACK_SCHEMES = new Set([
+const UNSUPPORTED_CALLBACK_SCHEMES = new Set([
+  'about:',
+  'blob:',
+  'content:',
   'data:',
   'file:',
+  'ftp:',
   'http:',
+  'intent:',
+  'mailto:',
+  'market:',
+  'sms:',
+  'smsto:',
+  'tel:',
+  'ws:',
+  'wss:',
   SCRIPT_CALLBACK_SCHEME,
 ]);
 
@@ -45,16 +56,12 @@ function isSupportedCallbackUrl(value: string): boolean {
 
   if (
     callbackUrl.protocol === EXTERNAL_RUN_SCHEME ||
-    UNSAFE_CALLBACK_SCHEMES.has(callbackUrl.protocol)
+    UNSUPPORTED_CALLBACK_SCHEMES.has(callbackUrl.protocol)
   ) {
     return false;
   }
 
-  if (callbackUrl.protocol === HTTPS_SCHEME) {
-    return callbackUrl.hostname.length > 0;
-  }
-
-  return callbackUrl.protocol.length > 1;
+  return callbackUrl.hostname.length > 0;
 }
 
 export function parseExternalRunRequest(
