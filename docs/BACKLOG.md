@@ -8,7 +8,7 @@ The `## In Progress` section at the top is the one exception — it is maintaine
 
 ## In Progress
 
-_(nothing in progress)_
+- [CheL-36: Externally started checklist runs with callback results](https://github.com/lutsenko-yuriy/CheckLister/issues/36)
 
 ---
 
