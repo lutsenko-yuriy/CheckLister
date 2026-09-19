@@ -19,7 +19,8 @@ index.js                       # RN entry point, registers App
 
 src/
 ├── navigation/
-│   └── RootNavigator.tsx      # Native-stack routes: Home, ChecklistDetail, Run, RunHistory
+│   ├── RootNavigator.tsx      # Native-stack routes: Home, ChecklistDetail, Run, RunHistory
+│   └── ExternalRunLinkCoordinator.tsx # Incoming external-run URLs → hydrated app state + navigation
 ├── features/
 │   ├── checklists/
 │   │   ├── domain/
@@ -34,7 +35,8 @@ src/
 │   │   └── useChecklists.ts        # Context + hook exposing checklist state to UI
 │   └── runs/
 │       ├── domain/
-│       │   ├── models.ts           # ChecklistRun, RunHistoryEntry, RunItem + pure helpers
+│       │   ├── models.ts           # ChecklistRun, RunOrigin, RunHistoryEntry, RunItem + pure helpers
+│       │   ├── externalRunLinks.ts # Pure incoming-link parsing and callback-result construction
 │       │   └── runRepository.ts    # Completed-run history persistence interface
 │       ├── data/
 │       │   └── asyncStorageRunRepository.ts
@@ -105,6 +107,26 @@ cannot be paused or resumed. It loads and persists immutable
 `RunHistoryEntry` summaries through `RunRepository`; completed history is
 therefore durable and independent of checklist deletion. Revisit state
 management itself if cross-feature coordination outgrows this.
+
+An active run also carries a discriminated local or external origin. External
+origin metadata, including its callback URL, remains in memory and is never
+copied into completed-run history. `ExternalRunLinkCoordinator` is the only
+cross-feature coordinator: it waits for checklist hydration and navigation
+readiness, resolves an incoming checklist ID, and asks `useRuns` to replace the
+active run. This keeps checklist state out of `runs/ui` and keeps URL parsing
+rules in plain TypeScript domain helpers.
+
+## External app integration
+
+The app accepts `checklister://run` URLs on iOS and Android. Native URL
+registration forwards both cold-start and foreground URLs to React Native's
+`Linking` boundary; no third-party linking SDK or backend is involved.
+
+Incoming URLs are syntactically validated before they may replace a run.
+Completed, cancelled, and error results are returned by opening the caller's
+validated callback URL. Callback URLs and query values are treated as
+sensitive boundary data: they remain ephemeral and must never be persisted or
+sent to analytics.
 
 ## Dependencies
 

@@ -13,6 +13,11 @@ A record of all versioned releases. For planned work and known issues, see @docs
 - ...
 -->
 
+## [Unreleased]
+
+### [test]
+- CheL-36 Scenario-WU: Drafted component and Maestro scenario contracts for externally started checklist runs and callback results. No user-facing behavior is exposed yet.
+
 ## [0.8.0] — 2026-09-18 (PR #35)
 
 ### Added

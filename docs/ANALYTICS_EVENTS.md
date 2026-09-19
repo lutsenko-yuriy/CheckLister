@@ -96,6 +96,26 @@ Fired when the user presses "Complete the checklist" (only possible once every i
 | `checklist_id` | `string` | The checklist the run belongs to |
 | `item_count` | `number` | Total number of items in the completed run |
 
+<!-- Added for CheL-36: Externally started checklist runs -->
+
+### `external_run_request_handled`
+
+Fired after CheckLister evaluates an incoming request to start a checklist run.
+
+| Property | Type | Description |
+|---|---|---|
+| `outcome` | `string` | Request result: `started`, `error`, or `invalid_callback` |
+| `replaced_active_run` | `boolean` | Whether the request discarded and replaced an active run |
+
+### `external_run_callback_finished`
+
+Fired after CheckLister attempts to return an externally started run result to the calling app. The callback URL, callback scheme, and query values must never be logged because they may contain app identifiers, user information, or authentication tokens.
+
+| Property | Type | Description |
+|---|---|---|
+| `status` | `string` | Returned run result: `completed`, `cancelled`, or `error` |
+| `delivered` | `boolean` | Whether the callback app opened successfully |
+
 ---
 
 ## Screen Views

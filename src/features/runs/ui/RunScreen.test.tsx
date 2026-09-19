@@ -402,4 +402,38 @@ describe('RunScreen', () => {
       ),
     );
   });
+
+  // CheL-36: Externally started checklist runs — Scenario-WU stubs below.
+
+  it('completes an external run and returns its persisted result', () => {
+    // TODO: Start an external run with a valid callback URL.
+    // TODO: Verify its warning appears directly above the completion button.
+    // TODO: Check every item and press Complete the checklist.
+    // TODO: Verify the completed history entry is persisted before callback delivery.
+    // TODO: Verify the callback receives status=completed, checklistId, and the persisted runId.
+    // TODO: Verify the active run is cleared.
+  });
+
+  it('preserves an external run when exit is cancelled and returns cancellation when discarded', () => {
+    // TODO: Start an external run and check one item.
+    // TODO: Attempt to leave and choose Cancel.
+    // TODO: Verify progress remains and no callback URL is opened.
+    // TODO: Attempt to leave again and choose Discard.
+    // TODO: Verify the callback receives status=cancelled and checklistId without runId.
+    // TODO: Verify the active run is cleared.
+  });
+
+  it('keeps the external run outcome committed when callback delivery fails', () => {
+    // TODO: Start and complete an external run while callback opening rejects.
+    // TODO: Verify the run remains saved in history and is no longer active.
+    // TODO: Verify the callback-failure dialog is shown.
+    // TODO: Dismiss the dialog and verify CheckLister remains usable.
+  });
+
+  it('keeps normal runs free of external warnings and callbacks', () => {
+    // TODO: Start a run from a checklist screen.
+    // TODO: Verify the external-run warning is absent.
+    // TODO: Complete or discard the run.
+    // TODO: Verify no callback URL is opened.
+  });
 });

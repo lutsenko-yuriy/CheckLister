@@ -1,0 +1,9 @@
+appId: org.reactjs.native.example.CheckLister
+name: Cold external-run link rejects an invalid callback
+---
+# TODO: Stop CheckLister without clearing its stored data.
+# TODO: Open a checklister://run URL containing a malformed callback URL.
+# TODO: Verify CheckLister launches and shows the dialog explaining that it
+#       does not know which app to return to.
+# TODO: Dismiss the dialog and verify the home screen remains usable.
+[]
