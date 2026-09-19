@@ -75,6 +75,80 @@ describe('useRuns', () => {
 
     expect(result.current.activeRun?.checklistId).toBe(checklist.id);
     expect(result.current.activeRun?.items).toHaveLength(1);
+    expect(result.current.activeRun?.origin).toEqual({ type: 'local' });
+  });
+
+  it('starts an external run with its callback origin', async () => {
+    const { result } = await renderHook(() => useRuns(), {
+      wrapper: makeWrapper(new AsyncStorageRunRepository()),
+    });
+    const checklist = {
+      ...createChecklist('Groceries'),
+      items: [createItem('Milk')],
+    };
+
+    await waitFor(() => expect(result.current.historyLoading).toBe(false));
+    await act(async () => {
+      result.current.startExternalRun(
+        checklist,
+        'caller-app://run-result?source=widget',
+      );
+    });
+
+    expect(result.current.activeRun?.origin).toEqual({
+      type: 'external',
+      callbackUrl: 'caller-app://run-result?source=widget',
+    });
+  });
+
+  it('replaces an active run with a fresh external run of the same checklist', async () => {
+    const { result } = await renderHook(() => useRuns(), {
+      wrapper: makeWrapper(new AsyncStorageRunRepository()),
+    });
+    const checklist = {
+      ...createChecklist('Groceries'),
+      items: [createItem('Milk')],
+    };
+
+    await waitFor(() => expect(result.current.historyLoading).toBe(false));
+    await act(async () => {
+      result.current.startExternalRun(checklist, 'first-app://result');
+    });
+    const firstRunId = result.current.activeRun?.id;
+    await act(async () => {
+      result.current.startExternalRun(checklist, 'second-app://result');
+    });
+
+    expect(result.current.activeRun?.id).not.toBe(firstRunId);
+    expect(result.current.activeRun?.origin).toEqual({
+      type: 'external',
+      callbackUrl: 'second-app://result',
+    });
+  });
+
+  it('replaces a run of another checklist without retaining its callback', async () => {
+    const { result } = await renderHook(() => useRuns(), {
+      wrapper: makeWrapper(new AsyncStorageRunRepository()),
+    });
+    const groceries = {
+      ...createChecklist('Groceries'),
+      items: [createItem('Milk')],
+    };
+    const packing = {
+      ...createChecklist('Packing'),
+      items: [createItem('Passport')],
+    };
+
+    await waitFor(() => expect(result.current.historyLoading).toBe(false));
+    await act(async () => {
+      result.current.startExternalRun(groceries, 'first-app://result');
+    });
+    await act(async () => {
+      result.current.startExternalRun(packing, 'second-app://result');
+    });
+
+    expect(result.current.activeRun?.checklistId).toBe(packing.id);
+    expect(JSON.stringify(result.current.activeRun)).not.toContain('first-app');
   });
 
   it('toggling an item updates only the targeted item', async () => {

@@ -62,6 +62,24 @@ describe('startRun', () => {
 
     expect(run.completedAt).toBeNull();
   });
+
+  it('marks an ordinary run with a local origin', () => {
+    const run = startRun(createChecklist('Groceries'));
+
+    expect(run.origin).toEqual({ type: 'local' });
+  });
+
+  it('keeps the supplied external origin on the active run', () => {
+    const run = startRun(createChecklist('Groceries'), {
+      type: 'external',
+      callbackUrl: 'caller-app://run-result',
+    });
+
+    expect(run.origin).toEqual({
+      type: 'external',
+      callbackUrl: 'caller-app://run-result',
+    });
+  });
 });
 
 describe('toggleRunItem', () => {
@@ -195,6 +213,21 @@ describe('completeRun', () => {
       itemCount: 2,
       completedAt: '2026-09-18T12:00:00.000Z',
     });
+  });
+
+  it('does not copy external origin data into run history', () => {
+    const completed = completeRun(
+      startRun(createChecklist('Groceries'), {
+        type: 'external',
+        callbackUrl: 'caller-app://run-result?secret=value',
+      }),
+      new Date('2026-09-18T12:00:00.000Z'),
+    );
+
+    expect(toRunHistoryEntry(completed)).not.toHaveProperty('origin');
+    expect(JSON.stringify(toRunHistoryEntry(completed))).not.toContain(
+      'caller-app',
+    );
   });
 
   it('refuses to create history for an unfinished run', () => {

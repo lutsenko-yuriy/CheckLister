@@ -64,6 +64,7 @@ function reducer(state: State, action: Action): State {
 
 interface RunsContextValue extends State {
   startRun(checklist: Checklist): void;
+  startExternalRun(checklist: Checklist, callbackUrl: string): void;
   toggleItem(runItemId: string): void;
   completeRun(): Promise<void>;
   clearRun(): void;
@@ -113,6 +114,16 @@ export function RunsProvider({
     dispatch({ type: 'START', run: buildRun(checklist) });
   }, []);
 
+  const startExternalRun = useCallback(
+    (checklist: Checklist, callbackUrl: string) => {
+      dispatch({
+        type: 'START',
+        run: buildRun(checklist, { type: 'external', callbackUrl }),
+      });
+    },
+    [],
+  );
+
   const toggleItem = useCallback((runItemId: string) => {
     dispatch({ type: 'TOGGLE', runItemId });
   }, []);
@@ -145,8 +156,15 @@ export function RunsProvider({
   }, []);
 
   const value = useMemo(
-    () => ({ ...state, startRun, toggleItem, completeRun, clearRun }),
-    [state, startRun, toggleItem, completeRun, clearRun],
+    () => ({
+      ...state,
+      startRun,
+      startExternalRun,
+      toggleItem,
+      completeRun,
+      clearRun,
+    }),
+    [state, startRun, startExternalRun, toggleItem, completeRun, clearRun],
   );
 
   return <RunsContext.Provider value={value}>{children}</RunsContext.Provider>;

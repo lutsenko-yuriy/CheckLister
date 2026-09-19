@@ -7,12 +7,17 @@ export interface RunItem {
   checked: boolean;
 }
 
+export type RunOrigin =
+  | { readonly type: 'local' }
+  | { readonly type: 'external'; readonly callbackUrl: string };
+
 export interface ChecklistRun {
   id: string;
   checklistId: string;
   checklistTitle: string;
   items: RunItem[];
   completedAt: string | null;
+  origin: RunOrigin;
 }
 
 export interface RunHistoryEntry {
@@ -23,7 +28,10 @@ export interface RunHistoryEntry {
   completedAt: string;
 }
 
-export function startRun(checklist: Checklist): ChecklistRun {
+export function startRun(
+  checklist: Checklist,
+  origin: RunOrigin = { type: 'local' },
+): ChecklistRun {
   return {
     id: generateId(),
     checklistId: checklist.id,
@@ -34,6 +42,7 @@ export function startRun(checklist: Checklist): ChecklistRun {
       checked: false,
     })),
     completedAt: null,
+    origin,
   };
 }
 
