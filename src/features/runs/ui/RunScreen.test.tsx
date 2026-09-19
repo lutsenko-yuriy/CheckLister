@@ -586,6 +586,72 @@ describe('RunScreen', () => {
     expect(openUrlSpy).not.toHaveBeenCalled();
   });
 
+  it('preserves a replacement run when the displaced run finishes saving', async () => {
+    const replacementChecklist = {
+      ...createChecklist('Hardware store'),
+      items: [createItem('Screws')],
+    };
+    const observedRun: {
+      current: ReturnType<typeof useRuns>['activeRun'];
+    } = { current: null };
+    let replaceRun: (() => void) | undefined;
+    let finishSaving: (() => void) | undefined;
+    let savedHistory: Awaited<ReturnType<RunRepository['getAll']>> = [];
+    const savePending = new Promise<void>(resolve => {
+      finishSaving = resolve;
+    });
+    const delayedRepository: RunRepository = {
+      getAll: jest.fn().mockResolvedValue([]),
+      saveAll: jest.fn(async history => {
+        savedHistory = history;
+        await savePending;
+      }),
+    };
+
+    function Controller() {
+      const { activeRun, startExternalRun } = useRuns();
+      observedRun.current = activeRun;
+      replaceRun = () =>
+        startExternalRun(replacementChecklist, 'new-caller://result');
+      return null;
+    }
+
+    const openUrlSpy = jest.spyOn(Linking, 'openURL').mockResolvedValue();
+    const { checklist, navigationRef } = await renderRun(
+      ['A'],
+      <Controller />,
+      delayedRepository,
+      'old-caller://result',
+    );
+    await waitFor(() => screen.getByText('A'));
+    await fireEvent.press(screen.getByText('A'));
+    fireEvent.press(screen.getByLabelText('Complete the checklist'));
+    await waitFor(() => expect(delayedRepository.saveAll).toHaveBeenCalled());
+
+    await act(async () => {
+      replaceRun?.();
+    });
+    await waitFor(() => screen.getByText('Screws'));
+    await act(async () => {
+      finishSaving?.();
+      await savePending;
+    });
+
+    await waitFor(() =>
+      expect(observedRun.current?.checklistId).toBe(replacementChecklist.id),
+    );
+    expect(navigationRef.current?.getCurrentRoute()?.name).toBe('Run');
+    expect(savedHistory).toEqual([
+      expect.objectContaining({ checklistId: checklist.id }),
+    ]);
+    expect(openUrlSpy).not.toHaveBeenCalled();
+
+    await fireEvent.press(screen.getByText('Screws'));
+    expect(
+      screen.getByText('Screws').parent?.parent?.props.accessibilityState,
+    ).toEqual(expect.objectContaining({ checked: true }));
+  });
+
   it('keeps the external run outcome committed when callback delivery fails', async () => {
     let capturedActiveRun: unknown;
     jest.spyOn(analytics, 'logEvent');

@@ -49,6 +49,10 @@ export function RunScreen({ navigation }: Props) {
   const activeRunRef = useRef(activeRun);
   activeRunRef.current = activeRun;
 
+  useEffect(() => {
+    setIsCompleting(false);
+  }, [activeRun?.id]);
+
   useLayoutEffect(() => {
     navigation.setOptions({ title: activeRun?.checklistTitle ?? 'Run' });
   }, [navigation, activeRun?.checklistTitle]);
@@ -163,9 +167,13 @@ export function RunScreen({ navigation }: Props) {
     if (isCompleting) {
       return;
     }
+    const completingRunId = activeRun.id;
     setIsCompleting(true);
     try {
       await completeRun();
+      if (activeRunRef.current?.id !== completingRunId) {
+        return;
+      }
       analytics.logEvent('run_completed', {
         checklist_id: activeRun.checklistId,
         item_count: activeRun.items.length,

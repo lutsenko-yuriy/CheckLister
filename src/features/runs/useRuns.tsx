@@ -51,7 +51,8 @@ function reducer(state: State, action: Action): State {
     case 'COMPLETE':
       return {
         ...state,
-        activeRun: action.run,
+        activeRun:
+          state.activeRun?.id === action.run.id ? action.run : state.activeRun,
         history: action.history,
         historyLoading: false,
       };
