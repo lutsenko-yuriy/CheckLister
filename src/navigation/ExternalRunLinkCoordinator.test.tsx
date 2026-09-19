@@ -236,6 +236,30 @@ describe('ExternalRunLinkCoordinator', () => {
     expect(analyticsPayload).not.toContain('source=widget');
   });
 
+  it('contains an initial URL lookup failure and keeps listening for foreground links', async () => {
+    const consoleError = jest
+      .spyOn(console, 'error')
+      .mockImplementation(() => {});
+    jest
+      .spyOn(Linking, 'getInitialURL')
+      .mockRejectedValue(new Error('Native lookup failed'));
+    await renderCoordinator();
+
+    await waitFor(() =>
+      expect(consoleError).toHaveBeenCalledWith(
+        'Failed to read the initial external-run URL',
+      ),
+    );
+    await act(async () => emitUrl(requestUrl(groceries.id)));
+
+    await waitFor(() =>
+      expect(startExternalRun).toHaveBeenCalledWith(
+        groceries,
+        'caller-app://run-result?source=widget',
+      ),
+    );
+  });
+
   it('removes the foreground URL listener when unmounted', async () => {
     jest.spyOn(Linking, 'getInitialURL').mockResolvedValue(null);
     const { unmount } = await renderCoordinator();

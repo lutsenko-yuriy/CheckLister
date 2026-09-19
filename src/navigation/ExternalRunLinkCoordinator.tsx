@@ -37,11 +37,15 @@ export function ExternalRunLinkCoordinator({
       enqueueUrl(event.url);
     });
 
-    Linking.getInitialURL().then(url => {
-      if (mounted && url) {
-        enqueueUrl(url);
-      }
-    });
+    Linking.getInitialURL()
+      .then(url => {
+        if (mounted && url) {
+          enqueueUrl(url);
+        }
+      })
+      .catch(() => {
+        console.error('Failed to read the initial external-run URL');
+      });
 
     return () => {
       mounted = false;
