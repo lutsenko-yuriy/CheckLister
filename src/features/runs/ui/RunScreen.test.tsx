@@ -559,7 +559,7 @@ describe('RunScreen', () => {
         )?.onPress;
         confirmStaleDiscard = discardAction ? () => discardAction() : undefined;
       });
-    const { navigationRef } = await renderRun(
+    const { navigationRef, unmount } = await renderRun(
       ['A'],
       <Controller />,
       runRepository,
@@ -584,6 +584,7 @@ describe('RunScreen', () => {
     expect(observedRun.current?.checklistId).toBe(replacementChecklist.id);
     expect(navigationRef.current?.getCurrentRoute()?.name).toBe('Run');
     expect(openUrlSpy).not.toHaveBeenCalled();
+    unmount();
   });
 
   it('preserves a replacement run when the displaced run finishes saving', async () => {
@@ -617,7 +618,7 @@ describe('RunScreen', () => {
     }
 
     const openUrlSpy = jest.spyOn(Linking, 'openURL').mockResolvedValue();
-    const { checklist, navigationRef } = await renderRun(
+    const { checklist, navigationRef, unmount } = await renderRun(
       ['A'],
       <Controller />,
       delayedRepository,
@@ -625,21 +626,22 @@ describe('RunScreen', () => {
     );
     await waitFor(() => screen.getByText('A'));
     await fireEvent.press(screen.getByText('A'));
-    fireEvent.press(screen.getByLabelText('Complete the checklist'));
-    await waitFor(() => expect(delayedRepository.saveAll).toHaveBeenCalled());
+    await act(async () => {
+      fireEvent.press(screen.getByLabelText('Complete the checklist'));
+      await Promise.resolve();
+    });
+    expect(delayedRepository.saveAll).toHaveBeenCalled();
 
     await act(async () => {
       replaceRun?.();
     });
-    await waitFor(() => screen.getByText('Screws'));
+    expect(screen.getByText('Screws')).toBeTruthy();
     await act(async () => {
       finishSaving?.();
       await savePending;
     });
 
-    await waitFor(() =>
-      expect(observedRun.current?.checklistId).toBe(replacementChecklist.id),
-    );
+    expect(observedRun.current?.checklistId).toBe(replacementChecklist.id);
     expect(navigationRef.current?.getCurrentRoute()?.name).toBe('Run');
     expect(savedHistory).toEqual([
       expect.objectContaining({ checklistId: checklist.id }),
@@ -650,6 +652,7 @@ describe('RunScreen', () => {
     expect(
       screen.getByText('Screws').parent?.parent?.props.accessibilityState,
     ).toEqual(expect.objectContaining({ checked: true }));
+    unmount();
   });
 
   it('preserves a replacement run started after the displaced run is saved', async () => {
@@ -676,7 +679,7 @@ describe('RunScreen', () => {
       }
     });
     const openUrlSpy = jest.spyOn(Linking, 'openURL').mockResolvedValue();
-    const { checklist, navigationRef } = await renderRun(
+    const { checklist, navigationRef, unmount } = await renderRun(
       ['A'],
       <Controller />,
       runRepository,
@@ -701,6 +704,7 @@ describe('RunScreen', () => {
     expect(
       screen.getByText('Screws').parent?.parent?.props.accessibilityState,
     ).toEqual(expect.objectContaining({ checked: true }));
+    unmount();
   });
 
   it('does not report a displaced save failure after a replacement run starts', async () => {
@@ -731,7 +735,7 @@ describe('RunScreen', () => {
 
     const alertSpy = jest.spyOn(Alert, 'alert').mockImplementation(() => {});
     const openUrlSpy = jest.spyOn(Linking, 'openURL').mockResolvedValue();
-    const { navigationRef } = await renderRun(
+    const { navigationRef, unmount } = await renderRun(
       ['A'],
       <Controller />,
       delayedRepository,
@@ -739,13 +743,16 @@ describe('RunScreen', () => {
     );
     await waitFor(() => screen.getByText('A'));
     await fireEvent.press(screen.getByText('A'));
-    fireEvent.press(screen.getByLabelText('Complete the checklist'));
-    await waitFor(() => expect(delayedRepository.saveAll).toHaveBeenCalled());
+    await act(async () => {
+      fireEvent.press(screen.getByLabelText('Complete the checklist'));
+      await Promise.resolve();
+    });
+    expect(delayedRepository.saveAll).toHaveBeenCalled();
 
     await act(async () => {
       replaceRun?.();
     });
-    await waitFor(() => screen.getByText('Screws'));
+    expect(screen.getByText('Screws')).toBeTruthy();
     await act(async () => {
       failSaving?.();
       await savePending.catch(() => undefined);
@@ -756,6 +763,7 @@ describe('RunScreen', () => {
     expect(navigationRef.current?.getCurrentRoute()?.name).toBe('Run');
     expect(alertSpy).not.toHaveBeenCalled();
     expect(openUrlSpy).not.toHaveBeenCalled();
+    unmount();
   });
 
   it('does not cancel a run while its completion is being saved', async () => {
@@ -785,8 +793,11 @@ describe('RunScreen', () => {
     );
     await waitFor(() => screen.getByText('A'));
     await fireEvent.press(screen.getByText('A'));
-    fireEvent.press(screen.getByLabelText('Complete the checklist'));
-    await waitFor(() => expect(delayedRepository.saveAll).toHaveBeenCalled());
+    await act(async () => {
+      fireEvent.press(screen.getByLabelText('Complete the checklist'));
+      await Promise.resolve();
+    });
+    expect(delayedRepository.saveAll).toHaveBeenCalled();
 
     await act(async () => {
       navigationRef.current?.goBack();

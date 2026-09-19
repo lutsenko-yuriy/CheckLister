@@ -87,6 +87,7 @@ export function RunsProvider({
   });
   const historyRef = useRef<RunHistoryEntry[]>([]);
   const initialLoadRef = useRef<Promise<RunHistoryEntry[]> | null>(null);
+  const completionQueueRef = useRef<Promise<void>>(Promise.resolve());
 
   useEffect(() => {
     let cancelled = false;
@@ -136,20 +137,26 @@ export function RunsProvider({
 
     const completedRun = markRunComplete(state.activeRun, new Date());
     const entry = toRunHistoryEntry(completedRun);
-    let existingHistory = historyRef.current;
-    if (state.historyLoading && initialLoadRef.current) {
-      try {
-        existingHistory = await initialLoadRef.current;
-      } catch {
-        existingHistory = [];
+    const persistCompletion = async (): Promise<void> => {
+      if (state.historyLoading && initialLoadRef.current) {
+        try {
+          await initialLoadRef.current;
+        } catch {
+          // The load effect establishes an empty history fallback.
+        }
       }
-    }
-    const history = [entry, ...existingHistory].sort((a, b) =>
-      b.completedAt.localeCompare(a.completedAt),
-    );
-    await repository.saveAll(history);
-    historyRef.current = history;
-    dispatch({ type: 'COMPLETE', run: completedRun, history });
+
+      const history = [entry, ...historyRef.current].sort((a, b) =>
+        b.completedAt.localeCompare(a.completedAt),
+      );
+      await repository.saveAll(history);
+      historyRef.current = history;
+      dispatch({ type: 'COMPLETE', run: completedRun, history });
+    };
+
+    const completion = completionQueueRef.current.then(persistCompletion);
+    completionQueueRef.current = completion.catch(() => undefined);
+    await completion;
   }, [repository, state.activeRun, state.historyLoading]);
 
   const clearRun = useCallback(() => {
