@@ -11,7 +11,11 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { usePreventRemove } from '@react-navigation/native';
 import { RootStackParamList } from '../../../navigation/types';
 import { useRuns } from '../useRuns';
-import { checkedCount, isRunComplete } from '../domain/models';
+import {
+  checkedCount,
+  isRunComplete,
+  type ChecklistRun,
+} from '../domain/models';
 import type { ExternalRunResult } from '../domain/externalRunLinks';
 import { analytics } from '../../../shared/analytics/AnalyticsService';
 import { RunItemRow } from './components/RunItemRow';
@@ -47,10 +51,14 @@ export function RunScreen({ navigation }: Props) {
   const [isCompleting, setIsCompleting] = useState(false);
   const outcomeHandledRef = useRef(false);
   const activeRunRef = useRef(activeRun);
+  const completedRunRef = useRef<ChecklistRun | null>(null);
   activeRunRef.current = activeRun;
 
   useEffect(() => {
     setIsCompleting(false);
+    setJustCompleted(false);
+    outcomeHandledRef.current = false;
+    completedRunRef.current = null;
   }, [activeRun?.id]);
 
   useLayoutEffect(() => {
@@ -71,6 +79,9 @@ export function RunScreen({ navigation }: Props) {
   }, [activeRun?.id]);
 
   usePreventRemove(Boolean(activeRun) && !justCompleted, ({ data }) => {
+    if (isCompleting) {
+      return;
+    }
     Alert.alert(
       'Are you sure?',
       'Leaving now will discard this run. Your progress will not be saved.',
@@ -114,15 +125,19 @@ export function RunScreen({ navigation }: Props) {
   // update would race against that re-render.
   useEffect(() => {
     if (justCompleted && !outcomeHandledRef.current) {
+      const completedRun = completedRunRef.current;
+      if (!completedRun || activeRun?.id !== completedRun.id) {
+        return;
+      }
       outcomeHandledRef.current = true;
       const externalResult =
-        activeRun?.origin.type === 'external'
+        completedRun.origin.type === 'external'
           ? {
-              callbackUrl: activeRun.origin.callbackUrl,
+              callbackUrl: completedRun.origin.callbackUrl,
               result: {
                 status: 'completed' as const,
-                checklistId: activeRun.checklistId,
-                runId: activeRun.id,
+                checklistId: completedRun.checklistId,
+                runId: completedRun.id,
               },
             }
           : null;
@@ -174,12 +189,16 @@ export function RunScreen({ navigation }: Props) {
       if (activeRunRef.current?.id !== completingRunId) {
         return;
       }
+      completedRunRef.current = activeRun;
       analytics.logEvent('run_completed', {
         checklist_id: activeRun.checklistId,
         item_count: activeRun.items.length,
       });
       setJustCompleted(true);
     } catch {
+      if (activeRunRef.current?.id !== completingRunId) {
+        return;
+      }
       setIsCompleting(false);
       Alert.alert(
         'Could not complete run',
