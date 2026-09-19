@@ -54,6 +54,14 @@ System Events UI scripting.
 
 ## Coverage
 
+CheL-36 drafts two installed-app contracts under `.maestro/drafts/` while its
+production WUs are in progress. Draft flows contain only reviewed TODO steps
+and are not discovered by the top-level suite. WU4 moves them to `.maestro/`
+and makes them executable. Valid-checklist external-run completion and
+cancellation are component integration scenarios until CheL-34 provides safe,
+deterministic checklist IDs for installed-app tests without clearing simulator
+data.
+
 | Flow                   | Assertions                                                                                                                                                                                                                          |
 | ---------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `run-complete.yaml`    | Empty checklist cannot start; completion disabled until all items checked; toggle/uncheck; completion returns to unchanged template; fresh run starts unchecked.                                                                    |
