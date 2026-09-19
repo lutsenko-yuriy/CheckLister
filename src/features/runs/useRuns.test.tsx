@@ -297,6 +297,68 @@ describe('useRuns', () => {
     expect(result.current.history).toEqual([]);
   });
 
+  it('serializes overlapping completions so replacement-run history is not lost', async () => {
+    const saveResolvers: Array<() => void> = [];
+    const repository: RunRepository = {
+      getAll: jest.fn().mockResolvedValue([]),
+      saveAll: jest.fn(
+        () =>
+          new Promise<void>(resolve => {
+            saveResolvers.push(resolve);
+          }),
+      ),
+    };
+    const { result } = await renderHook(() => useRuns(), {
+      wrapper: makeWrapper(repository),
+    });
+    const firstChecklist = {
+      ...createChecklist('Groceries'),
+      items: [createItem('Milk')],
+    };
+    const secondChecklist = {
+      ...createChecklist('Hardware store'),
+      items: [createItem('Screws')],
+    };
+
+    await waitFor(() => expect(result.current.historyLoading).toBe(false));
+    await act(async () => {
+      result.current.startExternalRun(firstChecklist, 'first-app://result');
+    });
+    const firstRunId = result.current.activeRun?.id;
+    let firstCompletion = Promise.resolve();
+    await act(async () => {
+      firstCompletion = result.current.completeRun();
+      await Promise.resolve();
+    });
+    await waitFor(() => expect(repository.saveAll).toHaveBeenCalledTimes(1));
+
+    await act(async () => {
+      result.current.startExternalRun(secondChecklist, 'second-app://result');
+    });
+    const secondRunId = result.current.activeRun?.id;
+    let secondCompletion = Promise.resolve();
+    await act(async () => {
+      secondCompletion = result.current.completeRun();
+      await Promise.resolve();
+    });
+
+    expect(repository.saveAll).toHaveBeenCalledTimes(1);
+    await act(async () => {
+      saveResolvers[0]?.();
+      await firstCompletion;
+    });
+    await waitFor(() => expect(repository.saveAll).toHaveBeenCalledTimes(2));
+    await act(async () => {
+      saveResolvers[1]?.();
+      await secondCompletion;
+    });
+
+    expect(new Set(result.current.history.map(entry => entry.id))).toEqual(
+      new Set([firstRunId, secondRunId]),
+    );
+    expect(repository.saveAll).toHaveBeenLastCalledWith(result.current.history);
+  });
+
   it('throws when used outside a RunsProvider', async () => {
     await expect(renderHook(() => useRuns())).rejects.toThrow(
       'useRuns must be used within a RunsProvider',

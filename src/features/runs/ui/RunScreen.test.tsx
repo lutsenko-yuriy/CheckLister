@@ -6,7 +6,7 @@ import {
   screen,
   act,
 } from '@testing-library/react-native';
-import { Alert } from 'react-native';
+import { Alert, Linking } from 'react-native';
 import {
   NavigationContainer,
   createNavigationContainerRef,
@@ -36,20 +36,25 @@ function PlaceholderScreen() {
 
 function RunHarness({
   checklist,
+  callbackUrl,
   ...props
-}: { checklist: ReturnType<typeof createChecklist> } & Record<
-  string,
-  unknown
->) {
-  const { startRun } = useRuns();
+}: {
+  checklist: ReturnType<typeof createChecklist>;
+  callbackUrl?: string;
+} & Record<string, unknown>) {
+  const { startRun, startExternalRun } = useRuns();
   const started = useRef(false);
 
   useEffect(() => {
     if (!started.current) {
       started.current = true;
-      startRun(checklist);
+      if (callbackUrl) {
+        startExternalRun(checklist, callbackUrl);
+      } else {
+        startRun(checklist);
+      }
     }
-  }, [checklist, startRun]);
+  }, [callbackUrl, checklist, startExternalRun, startRun]);
 
   return <RunScreen {...(props as any)} />;
 }
@@ -58,6 +63,7 @@ async function renderRun(
   itemTexts: string[],
   extra: React.ReactNode = null,
   repository: RunRepository = runRepository,
+  callbackUrl?: string,
 ) {
   const checklist = {
     ...createChecklist('Groceries'),
@@ -80,7 +86,13 @@ async function renderRun(
         <Stack.Navigator screenOptions={{ headerShown: false }}>
           <Stack.Screen name="Placeholder" component={PlaceholderScreen} />
           <Stack.Screen name="Run">
-            {props => <RunHarness checklist={checklist} {...props} />}
+            {props => (
+              <RunHarness
+                checklist={checklist}
+                callbackUrl={callbackUrl}
+                {...props}
+              />
+            )}
           </Stack.Screen>
         </Stack.Navigator>
       </NavigationContainer>
@@ -119,6 +131,7 @@ async function renderRunWithoutStarting() {
 
 describe('RunScreen', () => {
   afterEach(async () => {
+    jest.clearAllMocks();
     jest.restoreAllMocks();
     await AsyncStorage.clear();
   });
@@ -405,35 +418,461 @@ describe('RunScreen', () => {
 
   // CheL-36: Externally started checklist runs — Scenario-WU stubs below.
 
-  it('completes an external run and returns its persisted result', () => {
-    // TODO: Start an external run with a valid callback URL.
-    // TODO: Verify its warning appears directly above the completion button.
-    // TODO: Check every item and press Complete the checklist.
-    // TODO: Verify the completed history entry is persisted before callback delivery.
-    // TODO: Verify the callback receives status=completed, checklistId, and the persisted runId.
-    // TODO: Verify the active run is cleared.
+  it('completes an external run and returns its persisted result', async () => {
+    let capturedActiveRun: unknown;
+    let navigationRef: ReturnType<
+      typeof createNavigationContainerRef<TestParamList>
+    >;
+    jest.spyOn(analytics, 'logEvent');
+
+    function Observer() {
+      const { activeRun } = useRuns();
+      capturedActiveRun = activeRun;
+      return null;
+    }
+
+    const openUrlSpy = jest
+      .spyOn(Linking, 'openURL')
+      .mockImplementation(async value => {
+        const history = await runRepository.getAll();
+        expect(history).toHaveLength(1);
+        expect(capturedActiveRun).toBeNull();
+        expect(navigationRef.current?.getCurrentRoute()?.name).toBe(
+          'Placeholder',
+        );
+
+        const callbackUrl = new URL(value);
+        expect(callbackUrl.searchParams.get('status')).toBe('completed');
+        expect(callbackUrl.searchParams.get('checklistId')).toBe(
+          history[0].checklistId,
+        );
+        expect(callbackUrl.searchParams.get('runId')).toBe(history[0].id);
+      });
+    const rendered = await renderRun(
+      ['A'],
+      <Observer />,
+      runRepository,
+      'caller-app://result?source=widget',
+    );
+    navigationRef = rendered.navigationRef;
+    await waitFor(() => screen.getByText('A'));
+
+    const warning = screen.getByText(
+      'Started by another app. Finishing or cancelling returns you to that app.',
+    );
+    const completeButton = screen.getByLabelText('Complete the checklist');
+    expect(warning.parent).toBe(completeButton.parent);
+    expect(warning.parent?.children.indexOf(warning)).toBeLessThan(
+      completeButton.parent?.children.indexOf(completeButton) ?? -1,
+    );
+
+    await fireEvent.press(screen.getByText('A'));
+    await act(async () => {
+      fireEvent.press(completeButton);
+    });
+
+    await waitFor(() => expect(openUrlSpy).toHaveBeenCalledTimes(1));
+    expect(analytics.logEvent).toHaveBeenCalledWith(
+      'external_run_callback_finished',
+      { status: 'completed', delivered: true },
+    );
   });
 
-  it('preserves an external run when exit is cancelled and returns cancellation when discarded', () => {
-    // TODO: Start an external run and check one item.
-    // TODO: Attempt to leave and choose Cancel.
-    // TODO: Verify progress remains and no callback URL is opened.
-    // TODO: Attempt to leave again and choose Discard.
-    // TODO: Verify the callback receives status=cancelled and checklistId without runId.
-    // TODO: Verify the active run is cleared.
+  it('preserves an external run when exit is cancelled and returns cancellation when discarded', async () => {
+    let capturedActiveRun: unknown;
+    jest.spyOn(analytics, 'logEvent');
+
+    function Observer() {
+      const { activeRun } = useRuns();
+      capturedActiveRun = activeRun;
+      return null;
+    }
+
+    const openUrlSpy = jest.spyOn(Linking, 'openURL').mockResolvedValue();
+    const alertSpy = jest
+      .spyOn(Alert, 'alert')
+      .mockImplementation((_title, _message, buttons) => {
+        buttons?.find(button => button.text === 'Cancel')?.onPress?.();
+      });
+    const { checklist, navigationRef } = await renderRun(
+      ['A', 'B'],
+      <Observer />,
+      runRepository,
+      'caller-app://result?runId=stale',
+    );
+    await waitFor(() => screen.getByText('A'));
+    await fireEvent.press(screen.getByText('A'));
+
+    await act(async () => {
+      navigationRef.current?.goBack();
+    });
+
+    expect(navigationRef.current?.getCurrentRoute()?.name).toBe('Run');
+    expect(capturedActiveRun).not.toBeNull();
+    expect(openUrlSpy).not.toHaveBeenCalled();
+
+    alertSpy.mockImplementation((_title, _message, buttons) => {
+      buttons?.find(button => button.text === 'Discard')?.onPress?.();
+    });
+    await act(async () => {
+      navigationRef.current?.goBack();
+    });
+
+    await waitFor(() => expect(openUrlSpy).toHaveBeenCalledTimes(1));
+    expect(capturedActiveRun).toBeNull();
+    expect(navigationRef.current?.getCurrentRoute()?.name).toBe('Placeholder');
+    const callbackUrl = new URL(openUrlSpy.mock.calls[0][0]);
+    expect(callbackUrl.searchParams.get('status')).toBe('cancelled');
+    expect(callbackUrl.searchParams.get('checklistId')).toBe(checklist.id);
+    expect(callbackUrl.searchParams.has('runId')).toBe(false);
+    expect(analytics.logEvent).toHaveBeenCalledWith(
+      'external_run_callback_finished',
+      { status: 'cancelled', delivered: true },
+    );
   });
 
-  it('keeps the external run outcome committed when callback delivery fails', () => {
-    // TODO: Start and complete an external run while callback opening rejects.
-    // TODO: Verify the run remains saved in history and is no longer active.
-    // TODO: Verify the callback-failure dialog is shown.
-    // TODO: Dismiss the dialog and verify CheckLister remains usable.
+  it('ignores a stale discard confirmation after another external run replaces the active run', async () => {
+    const replacementChecklist = {
+      ...createChecklist('Hardware store'),
+      items: [createItem('Screws')],
+    };
+    const observedRun: {
+      current: ReturnType<typeof useRuns>['activeRun'];
+    } = { current: null };
+    let replaceRun: (() => void) | undefined;
+    let confirmStaleDiscard: (() => void) | undefined;
+
+    function Controller() {
+      const { activeRun, startExternalRun } = useRuns();
+      observedRun.current = activeRun;
+      replaceRun = () =>
+        startExternalRun(replacementChecklist, 'new-caller://result');
+      return null;
+    }
+
+    const openUrlSpy = jest.spyOn(Linking, 'openURL').mockResolvedValue();
+    jest
+      .spyOn(Alert, 'alert')
+      .mockImplementation((_title, _message, buttons) => {
+        const discardAction = buttons?.find(
+          button => button.text === 'Discard',
+        )?.onPress;
+        confirmStaleDiscard = discardAction ? () => discardAction() : undefined;
+      });
+    const { navigationRef, unmount } = await renderRun(
+      ['A'],
+      <Controller />,
+      runRepository,
+      'old-caller://result',
+    );
+    await waitFor(() => screen.getByText('A'));
+
+    await act(async () => {
+      navigationRef.current?.goBack();
+    });
+    await act(async () => {
+      replaceRun?.();
+    });
+    await waitFor(() =>
+      expect(observedRun.current?.checklistId).toBe(replacementChecklist.id),
+    );
+
+    await act(async () => {
+      confirmStaleDiscard?.();
+    });
+
+    expect(observedRun.current?.checklistId).toBe(replacementChecklist.id);
+    expect(navigationRef.current?.getCurrentRoute()?.name).toBe('Run');
+    expect(openUrlSpy).not.toHaveBeenCalled();
+    unmount();
   });
 
-  it('keeps normal runs free of external warnings and callbacks', () => {
-    // TODO: Start a run from a checklist screen.
-    // TODO: Verify the external-run warning is absent.
-    // TODO: Complete or discard the run.
-    // TODO: Verify no callback URL is opened.
+  it('preserves a replacement run when the displaced run finishes saving', async () => {
+    const replacementChecklist = {
+      ...createChecklist('Hardware store'),
+      items: [createItem('Screws')],
+    };
+    const observedRun: {
+      current: ReturnType<typeof useRuns>['activeRun'];
+    } = { current: null };
+    let replaceRun: (() => void) | undefined;
+    let finishSaving: (() => void) | undefined;
+    let savedHistory: Awaited<ReturnType<RunRepository['getAll']>> = [];
+    const savePending = new Promise<void>(resolve => {
+      finishSaving = resolve;
+    });
+    const delayedRepository: RunRepository = {
+      getAll: jest.fn().mockResolvedValue([]),
+      saveAll: jest.fn(async history => {
+        savedHistory = history;
+        await savePending;
+      }),
+    };
+
+    function Controller() {
+      const { activeRun, startExternalRun } = useRuns();
+      observedRun.current = activeRun;
+      replaceRun = () =>
+        startExternalRun(replacementChecklist, 'new-caller://result');
+      return null;
+    }
+
+    const openUrlSpy = jest.spyOn(Linking, 'openURL').mockResolvedValue();
+    const { checklist, navigationRef, unmount } = await renderRun(
+      ['A'],
+      <Controller />,
+      delayedRepository,
+      'old-caller://result',
+    );
+    await waitFor(() => screen.getByText('A'));
+    await fireEvent.press(screen.getByText('A'));
+    await act(async () => {
+      fireEvent.press(screen.getByLabelText('Complete the checklist'));
+      await Promise.resolve();
+    });
+    expect(delayedRepository.saveAll).toHaveBeenCalled();
+
+    await act(async () => {
+      replaceRun?.();
+    });
+    expect(screen.getByText('Screws')).toBeTruthy();
+    await act(async () => {
+      finishSaving?.();
+      await savePending;
+    });
+
+    expect(observedRun.current?.checklistId).toBe(replacementChecklist.id);
+    expect(navigationRef.current?.getCurrentRoute()?.name).toBe('Run');
+    expect(savedHistory).toEqual([
+      expect.objectContaining({ checklistId: checklist.id }),
+    ]);
+    expect(openUrlSpy).not.toHaveBeenCalled();
+
+    await fireEvent.press(screen.getByText('Screws'));
+    expect(
+      screen.getByText('Screws').parent?.parent?.props.accessibilityState,
+    ).toEqual(expect.objectContaining({ checked: true }));
+    unmount();
+  });
+
+  it('preserves a replacement run started after the displaced run is saved', async () => {
+    const replacementChecklist = {
+      ...createChecklist('Hardware store'),
+      items: [createItem('Screws')],
+    };
+    const observedRun: {
+      current: ReturnType<typeof useRuns>['activeRun'];
+    } = { current: null };
+    let replaceRun: (() => void) | undefined;
+
+    function Controller() {
+      const { activeRun, startExternalRun } = useRuns();
+      observedRun.current = activeRun;
+      replaceRun = () =>
+        startExternalRun(replacementChecklist, 'new-caller://result');
+      return null;
+    }
+
+    jest.spyOn(analytics, 'logEvent').mockImplementation(eventName => {
+      if (eventName === 'run_completed') {
+        replaceRun?.();
+      }
+    });
+    const openUrlSpy = jest.spyOn(Linking, 'openURL').mockResolvedValue();
+    const { checklist, navigationRef, unmount } = await renderRun(
+      ['A'],
+      <Controller />,
+      runRepository,
+      'old-caller://result',
+    );
+    await waitFor(() => screen.getByText('A'));
+    await fireEvent.press(screen.getByText('A'));
+    await act(async () => {
+      fireEvent.press(screen.getByLabelText('Complete the checklist'));
+    });
+
+    await waitFor(() =>
+      expect(observedRun.current?.checklistId).toBe(replacementChecklist.id),
+    );
+    expect(navigationRef.current?.getCurrentRoute()?.name).toBe('Run');
+    expect(await runRepository.getAll()).toEqual([
+      expect.objectContaining({ checklistId: checklist.id }),
+    ]);
+    expect(openUrlSpy).not.toHaveBeenCalled();
+
+    await fireEvent.press(screen.getByText('Screws'));
+    expect(
+      screen.getByText('Screws').parent?.parent?.props.accessibilityState,
+    ).toEqual(expect.objectContaining({ checked: true }));
+    unmount();
+  });
+
+  it('does not report a displaced save failure after a replacement run starts', async () => {
+    const replacementChecklist = {
+      ...createChecklist('Hardware store'),
+      items: [createItem('Screws')],
+    };
+    const observedRun: {
+      current: ReturnType<typeof useRuns>['activeRun'];
+    } = { current: null };
+    let replaceRun: (() => void) | undefined;
+    let failSaving: (() => void) | undefined;
+    const savePending = new Promise<void>((_resolve, reject) => {
+      failSaving = () => reject(new Error('storage failed'));
+    });
+    const delayedRepository: RunRepository = {
+      getAll: jest.fn().mockResolvedValue([]),
+      saveAll: jest.fn(() => savePending),
+    };
+
+    function Controller() {
+      const { activeRun, startExternalRun } = useRuns();
+      observedRun.current = activeRun;
+      replaceRun = () =>
+        startExternalRun(replacementChecklist, 'new-caller://result');
+      return null;
+    }
+
+    const alertSpy = jest.spyOn(Alert, 'alert').mockImplementation(() => {});
+    const openUrlSpy = jest.spyOn(Linking, 'openURL').mockResolvedValue();
+    const { navigationRef, unmount } = await renderRun(
+      ['A'],
+      <Controller />,
+      delayedRepository,
+      'old-caller://result',
+    );
+    await waitFor(() => screen.getByText('A'));
+    await fireEvent.press(screen.getByText('A'));
+    await act(async () => {
+      fireEvent.press(screen.getByLabelText('Complete the checklist'));
+      await Promise.resolve();
+    });
+    expect(delayedRepository.saveAll).toHaveBeenCalled();
+
+    await act(async () => {
+      replaceRun?.();
+    });
+    expect(screen.getByText('Screws')).toBeTruthy();
+    await act(async () => {
+      failSaving?.();
+      await savePending.catch(() => undefined);
+      await Promise.resolve();
+    });
+
+    expect(observedRun.current?.checklistId).toBe(replacementChecklist.id);
+    expect(navigationRef.current?.getCurrentRoute()?.name).toBe('Run');
+    expect(alertSpy).not.toHaveBeenCalled();
+    expect(openUrlSpy).not.toHaveBeenCalled();
+    unmount();
+  });
+
+  it('does not cancel a run while its completion is being saved', async () => {
+    let finishSaving: (() => void) | undefined;
+    let savedHistory: Awaited<ReturnType<RunRepository['getAll']>> = [];
+    const savePending = new Promise<void>(resolve => {
+      finishSaving = resolve;
+    });
+    const delayedRepository: RunRepository = {
+      getAll: jest.fn().mockResolvedValue([]),
+      saveAll: jest.fn(async history => {
+        savedHistory = history;
+        await savePending;
+      }),
+    };
+    const alertSpy = jest
+      .spyOn(Alert, 'alert')
+      .mockImplementation((_title, _message, buttons) => {
+        buttons?.find(button => button.text === 'Discard')?.onPress?.();
+      });
+    const openUrlSpy = jest.spyOn(Linking, 'openURL').mockResolvedValue();
+    const { navigationRef } = await renderRun(
+      ['A'],
+      null,
+      delayedRepository,
+      'caller-app://result',
+    );
+    await waitFor(() => screen.getByText('A'));
+    await fireEvent.press(screen.getByText('A'));
+    await act(async () => {
+      fireEvent.press(screen.getByLabelText('Complete the checklist'));
+      await Promise.resolve();
+    });
+    expect(delayedRepository.saveAll).toHaveBeenCalled();
+
+    await act(async () => {
+      navigationRef.current?.goBack();
+    });
+    await act(async () => {
+      finishSaving?.();
+      await savePending;
+    });
+
+    await waitFor(() => expect(openUrlSpy).toHaveBeenCalledTimes(1));
+    expect(alertSpy).not.toHaveBeenCalled();
+    expect(navigationRef.current?.getCurrentRoute()?.name).toBe('Placeholder');
+    const callbackUrl = new URL(openUrlSpy.mock.calls[0][0]);
+    expect(callbackUrl.searchParams.get('status')).toBe('completed');
+    expect(savedHistory).toHaveLength(1);
+  });
+
+  it('keeps the external run outcome committed when callback delivery fails', async () => {
+    let capturedActiveRun: unknown;
+    jest.spyOn(analytics, 'logEvent');
+
+    function Observer() {
+      const { activeRun } = useRuns();
+      capturedActiveRun = activeRun;
+      return null;
+    }
+
+    jest
+      .spyOn(Linking, 'openURL')
+      .mockRejectedValue(new Error('caller unavailable'));
+    const alertSpy = jest.spyOn(Alert, 'alert').mockImplementation(() => {});
+    const { navigationRef } = await renderRun(
+      ['A'],
+      <Observer />,
+      runRepository,
+      'caller-app://result',
+    );
+    await waitFor(() => screen.getByText('A'));
+
+    await fireEvent.press(screen.getByText('A'));
+    await act(async () => {
+      fireEvent.press(screen.getByLabelText('Complete the checklist'));
+    });
+
+    await waitFor(() =>
+      expect(alertSpy).toHaveBeenCalledWith(
+        'Could not return the result to the calling app.',
+      ),
+    );
+    expect(await runRepository.getAll()).toHaveLength(1);
+    expect(capturedActiveRun).toBeNull();
+    expect(navigationRef.current?.getCurrentRoute()?.name).toBe('Placeholder');
+    expect(analytics.logEvent).toHaveBeenCalledWith(
+      'external_run_callback_finished',
+      { status: 'completed', delivered: false },
+    );
+  });
+
+  it('keeps normal runs free of external warnings and callbacks', async () => {
+    const openUrlSpy = jest.spyOn(Linking, 'openURL').mockResolvedValue();
+    await renderRun(['A']);
+    await waitFor(() => screen.getByText('A'));
+
+    expect(
+      screen.queryByText(
+        'Started by another app. Finishing or cancelling returns you to that app.',
+      ),
+    ).toBeNull();
+
+    await fireEvent.press(screen.getByText('A'));
+    await act(async () => {
+      fireEvent.press(screen.getByLabelText('Complete the checklist'));
+    });
+
+    await waitFor(() => expect(screen.queryByText('A')).toBeNull());
+    expect(openUrlSpy).not.toHaveBeenCalled();
   });
 });

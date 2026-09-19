@@ -1,4 +1,4 @@
-import React, { useEffect, useLayoutEffect, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import {
   Alert,
   FlatList,
@@ -11,12 +11,33 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { usePreventRemove } from '@react-navigation/native';
 import { RootStackParamList } from '../../../navigation/types';
 import { useRuns } from '../useRuns';
-import { checkedCount, isRunComplete } from '../domain/models';
+import {
+  checkedCount,
+  isRunComplete,
+  type ChecklistRun,
+} from '../domain/models';
+import type { ExternalRunResult } from '../domain/externalRunLinks';
 import { analytics } from '../../../shared/analytics/AnalyticsService';
 import { RunItemRow } from './components/RunItemRow';
 import { colors } from '../../../shared/theme/colors';
+import { deliverExternalRunResult } from '../externalRunCallbackDelivery';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Run'>;
+
+const EXTERNAL_RUN_WARNING =
+  'Started by another app. Finishing or cancelling returns you to that app.';
+
+function waitForNextFrame(): Promise<void> {
+  return new Promise(resolve => requestAnimationFrame(() => resolve()));
+}
+
+async function returnExternalResult(
+  callbackUrl: string,
+  result: ExternalRunResult,
+): Promise<void> {
+  await waitForNextFrame();
+  await deliverExternalRunResult(callbackUrl, result);
+}
 
 export function RunScreen({ navigation }: Props) {
   const { activeRun, toggleItem, completeRun, clearRun } = useRuns();
@@ -28,6 +49,17 @@ export function RunScreen({ navigation }: Props) {
   // swipe gesture (only for JS-dispatched actions like a header back press).
   const [justCompleted, setJustCompleted] = useState(false);
   const [isCompleting, setIsCompleting] = useState(false);
+  const outcomeHandledRef = useRef(false);
+  const activeRunRef = useRef(activeRun);
+  const completedRunRef = useRef<ChecklistRun | null>(null);
+  activeRunRef.current = activeRun;
+
+  useEffect(() => {
+    setIsCompleting(false);
+    setJustCompleted(false);
+    outcomeHandledRef.current = false;
+    completedRunRef.current = null;
+  }, [activeRun?.id]);
 
   useLayoutEffect(() => {
     navigation.setOptions({ title: activeRun?.checklistTitle ?? 'Run' });
@@ -47,6 +79,9 @@ export function RunScreen({ navigation }: Props) {
   }, [activeRun?.id]);
 
   usePreventRemove(Boolean(activeRun) && !justCompleted, ({ data }) => {
+    if (isCompleting) {
+      return;
+    }
     Alert.alert(
       'Are you sure?',
       'Leaving now will discard this run. Your progress will not be saved.',
@@ -56,8 +91,27 @@ export function RunScreen({ navigation }: Props) {
           text: 'Discard',
           style: 'destructive',
           onPress: () => {
+            if (activeRunRef.current?.id !== activeRun?.id) {
+              return;
+            }
+            const externalResult =
+              activeRun?.origin.type === 'external'
+                ? {
+                    callbackUrl: activeRun.origin.callbackUrl,
+                    result: {
+                      status: 'cancelled' as const,
+                      checklistId: activeRun.checklistId,
+                    },
+                  }
+                : null;
             clearRun();
             navigation.dispatch(data.action);
+            if (externalResult) {
+              returnExternalResult(
+                externalResult.callbackUrl,
+                externalResult.result,
+              );
+            }
           },
         },
       ],
@@ -70,11 +124,30 @@ export function RunScreen({ navigation }: Props) {
   // runs; calling goBack() synchronously in the same tick as the state
   // update would race against that re-render.
   useEffect(() => {
-    if (justCompleted) {
+    if (justCompleted && !outcomeHandledRef.current) {
+      const completedRun = completedRunRef.current;
+      if (!completedRun || activeRun?.id !== completedRun.id) {
+        return;
+      }
+      outcomeHandledRef.current = true;
+      const externalResult =
+        completedRun.origin.type === 'external'
+          ? {
+              callbackUrl: completedRun.origin.callbackUrl,
+              result: {
+                status: 'completed' as const,
+                checklistId: completedRun.checklistId,
+                runId: completedRun.id,
+              },
+            }
+          : null;
       clearRun();
       navigation.goBack();
+      if (externalResult) {
+        returnExternalResult(externalResult.callbackUrl, externalResult.result);
+      }
     }
-  }, [justCompleted, navigation, clearRun]);
+  }, [activeRun, justCompleted, navigation, clearRun]);
 
   if (!activeRun) {
     return (
@@ -109,15 +182,23 @@ export function RunScreen({ navigation }: Props) {
     if (isCompleting) {
       return;
     }
+    const completingRunId = activeRun.id;
     setIsCompleting(true);
     try {
       await completeRun();
+      if (activeRunRef.current?.id !== completingRunId) {
+        return;
+      }
+      completedRunRef.current = activeRun;
       analytics.logEvent('run_completed', {
         checklist_id: activeRun.checklistId,
         item_count: activeRun.items.length,
       });
       setJustCompleted(true);
     } catch {
+      if (activeRunRef.current?.id !== completingRunId) {
+        return;
+      }
       setIsCompleting(false);
       Alert.alert(
         'Could not complete run',
@@ -143,6 +224,9 @@ export function RunScreen({ navigation }: Props) {
           />
         )}
       />
+      {activeRun.origin.type === 'external' ? (
+        <Text style={styles.externalRunWarning}>{EXTERNAL_RUN_WARNING}</Text>
+      ) : null}
       <Pressable
         onPress={handleComplete}
         disabled={!complete || isCompleting}
@@ -151,6 +235,8 @@ export function RunScreen({ navigation }: Props) {
         accessibilityState={{ disabled: !complete || isCompleting }}
         style={[
           styles.completeButton,
+          activeRun.origin.type === 'external' &&
+            styles.completeButtonAfterWarning,
           (!complete || isCompleting) && styles.completeButtonDisabled,
         ]}
       >
@@ -179,6 +265,9 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     alignItems: 'center',
   },
+  completeButtonAfterWarning: {
+    marginTop: 8,
+  },
   completeButtonDisabled: {
     backgroundColor: colors.border,
   },
@@ -186,6 +275,12 @@ const styles = StyleSheet.create({
     color: colors.onPrimary,
     fontSize: 16,
     fontWeight: '600',
+  },
+  externalRunWarning: {
+    marginTop: 16,
+    color: colors.textMuted,
+    fontSize: 14,
+    textAlign: 'center',
   },
   emptyState: {
     textAlign: 'center',

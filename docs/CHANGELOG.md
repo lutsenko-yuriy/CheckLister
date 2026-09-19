@@ -16,6 +16,7 @@ A record of all versioned releases. For planned work and known issues, see @docs
 ## [Unreleased]
 
 ### [wip]
+- CheL-36 WU3: Added completion and cancellation callbacks for externally started runs, including persisted run IDs on successful completion, caller-return warnings, failure recovery, privacy-safe analytics, replacement-safe state handling, and serialized overlapping completion writes. Native URL registration and public integration documentation remain for WU4.
 - CheL-36 WU2: Added cold-start and foreground external-run link coordination after checklist and navigation readiness, including active-run replacement, public error callbacks, approved failure dialogs, privacy-safe analytics, and listener/error recovery. Native URL registration and run completion/cancellation callbacks remain in later work units.
 - CheL-36 WU1: Added the validated external-run request and callback-result contract, explicit local/external active-run origins, and fresh external-run replacement state. Callback data remains in memory only, and no user-facing deep-link behavior is exposed yet.
 
