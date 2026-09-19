@@ -2,7 +2,6 @@ import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import {
   Alert,
   FlatList,
-  Linking,
   Pressable,
   StyleSheet,
   Text,
@@ -13,18 +12,14 @@ import { usePreventRemove } from '@react-navigation/native';
 import { RootStackParamList } from '../../../navigation/types';
 import { useRuns } from '../useRuns';
 import { checkedCount, isRunComplete } from '../domain/models';
-import {
-  buildExternalRunCallbackUrl,
-  type ExternalRunResult,
-} from '../domain/externalRunLinks';
+import type { ExternalRunResult } from '../domain/externalRunLinks';
 import { analytics } from '../../../shared/analytics/AnalyticsService';
 import { RunItemRow } from './components/RunItemRow';
 import { colors } from '../../../shared/theme/colors';
+import { deliverExternalRunResult } from '../externalRunCallbackDelivery';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Run'>;
 
-const CALLBACK_FAILURE_MESSAGE =
-  'Could not return the result to the calling app.';
 const EXTERNAL_RUN_WARNING =
   'Started by another app. Finishing or cancelling returns you to that app.';
 
@@ -37,19 +32,7 @@ async function returnExternalResult(
   result: ExternalRunResult,
 ): Promise<void> {
   await waitForNextFrame();
-  try {
-    await Linking.openURL(buildExternalRunCallbackUrl(callbackUrl, result));
-    analytics.logEvent('external_run_callback_finished', {
-      status: result.status,
-      delivered: true,
-    });
-  } catch {
-    analytics.logEvent('external_run_callback_finished', {
-      status: result.status,
-      delivered: false,
-    });
-    Alert.alert(CALLBACK_FAILURE_MESSAGE);
-  }
+  await deliverExternalRunResult(callbackUrl, result);
 }
 
 export function RunScreen({ navigation }: Props) {
@@ -63,6 +46,8 @@ export function RunScreen({ navigation }: Props) {
   const [justCompleted, setJustCompleted] = useState(false);
   const [isCompleting, setIsCompleting] = useState(false);
   const outcomeHandledRef = useRef(false);
+  const activeRunRef = useRef(activeRun);
+  activeRunRef.current = activeRun;
 
   useLayoutEffect(() => {
     navigation.setOptions({ title: activeRun?.checklistTitle ?? 'Run' });
@@ -91,6 +76,9 @@ export function RunScreen({ navigation }: Props) {
           text: 'Discard',
           style: 'destructive',
           onPress: () => {
+            if (activeRunRef.current?.id !== activeRun?.id) {
+              return;
+            }
             const externalResult =
               activeRun?.origin.type === 'external'
                 ? {

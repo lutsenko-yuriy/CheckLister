@@ -531,6 +531,61 @@ describe('RunScreen', () => {
     );
   });
 
+  it('ignores a stale discard confirmation after another external run replaces the active run', async () => {
+    const replacementChecklist = {
+      ...createChecklist('Hardware store'),
+      items: [createItem('Screws')],
+    };
+    const observedRun: {
+      current: ReturnType<typeof useRuns>['activeRun'];
+    } = { current: null };
+    let replaceRun: (() => void) | undefined;
+    let confirmStaleDiscard: (() => void) | undefined;
+
+    function Controller() {
+      const { activeRun, startExternalRun } = useRuns();
+      observedRun.current = activeRun;
+      replaceRun = () =>
+        startExternalRun(replacementChecklist, 'new-caller://result');
+      return null;
+    }
+
+    const openUrlSpy = jest.spyOn(Linking, 'openURL').mockResolvedValue();
+    jest
+      .spyOn(Alert, 'alert')
+      .mockImplementation((_title, _message, buttons) => {
+        const discardAction = buttons?.find(
+          button => button.text === 'Discard',
+        )?.onPress;
+        confirmStaleDiscard = discardAction ? () => discardAction() : undefined;
+      });
+    const { navigationRef } = await renderRun(
+      ['A'],
+      <Controller />,
+      runRepository,
+      'old-caller://result',
+    );
+    await waitFor(() => screen.getByText('A'));
+
+    await act(async () => {
+      navigationRef.current?.goBack();
+    });
+    await act(async () => {
+      replaceRun?.();
+    });
+    await waitFor(() =>
+      expect(observedRun.current?.checklistId).toBe(replacementChecklist.id),
+    );
+
+    await act(async () => {
+      confirmStaleDiscard?.();
+    });
+
+    expect(observedRun.current?.checklistId).toBe(replacementChecklist.id);
+    expect(navigationRef.current?.getCurrentRoute()?.name).toBe('Run');
+    expect(openUrlSpy).not.toHaveBeenCalled();
+  });
+
   it('keeps the external run outcome committed when callback delivery fails', async () => {
     let capturedActiveRun: unknown;
     jest.spyOn(analytics, 'logEvent');

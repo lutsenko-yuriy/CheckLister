@@ -2,17 +2,16 @@ import { useCallback, useEffect, useState } from 'react';
 import { Alert, Linking } from 'react-native';
 import { NavigationContainerRefWithCurrent } from '@react-navigation/native';
 import { useChecklists } from '../features/checklists/useChecklists';
+import { parseExternalRunRequest } from '../features/runs/domain/externalRunLinks';
 import {
-  buildExternalRunCallbackUrl,
-  parseExternalRunRequest,
-} from '../features/runs/domain/externalRunLinks';
+  deliverExternalRunResult,
+  EXTERNAL_RUN_CALLBACK_FAILURE_MESSAGE,
+} from '../features/runs/externalRunCallbackDelivery';
 import { useRuns } from '../features/runs/useRuns';
 import { analytics } from '../shared/analytics/AnalyticsService';
 import { RootStackParamList } from './types';
 
 const INVALID_CALLBACK_MESSAGE = 'We do not know which app to return to.';
-const CALLBACK_FAILURE_MESSAGE =
-  'Could not return the result to the calling app.';
 
 interface ExternalRunLinkCoordinatorProps {
   readonly navigationReady: boolean;
@@ -73,24 +72,10 @@ export function ExternalRunLinkCoordinator({
           outcome: 'error',
           replaced_active_run: false,
         });
-        const callbackUrl = buildExternalRunCallbackUrl(request.callbackUrl, {
+        await deliverExternalRunResult(request.callbackUrl, {
           status: 'error',
           checklistId: request.checklistId,
         });
-
-        try {
-          await Linking.openURL(callbackUrl);
-          analytics.logEvent('external_run_callback_finished', {
-            status: 'error',
-            delivered: true,
-          });
-        } catch {
-          analytics.logEvent('external_run_callback_finished', {
-            status: 'error',
-            delivered: false,
-          });
-          Alert.alert(CALLBACK_FAILURE_MESSAGE);
-        }
         return;
       }
 
@@ -113,7 +98,7 @@ export function ExternalRunLinkCoordinator({
     const [nextUrl] = pendingUrls;
     setPendingUrls(current => current.slice(1));
     handleUrl(nextUrl).catch(() => {
-      Alert.alert(CALLBACK_FAILURE_MESSAGE);
+      Alert.alert(EXTERNAL_RUN_CALLBACK_FAILURE_MESSAGE);
     });
   }, [handleUrl, loading, navigationReady, pendingUrls]);
 
