@@ -1,3 +1,7 @@
+---
+bookmarks: []
+---
+
 # CheL-14: UI polish: consistent color scheme, icons, and drag visual feedback
 
 ## Notes

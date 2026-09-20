@@ -171,8 +171,9 @@ sent to analytics.
 
 ## Local simulator scenarios
 
-`.maestro/` contains three local iOS scenarios for completing a run,
-confirming/discarding an exit, and confirming swipe-back without breaking navigation.
+`.maestro/` contains local iOS scenarios for completing a run,
+confirming/discarding an exit, confirming swipe-back without breaking navigation,
+completed-run history, and cold/foreground external-run link handling.
 Shared fixture flows live in `.maestro/helpers/`. `scripts/scenarios-ios.sh` validates
 an explicitly selected simulator and invokes the developer-installed Maestro CLI;
 it is not an application dependency. Run with `npm run scenarios:ios -- <UDID>`.

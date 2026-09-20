@@ -1,5 +1,5 @@
 ---
-bookmarks: []
+bookmarks: [scenario-fixture-isolation, real-device-only-bugs, agent-model-calibration]
 ---
 
 # CheL-26: Scripted scenario automation for the iOS simulator

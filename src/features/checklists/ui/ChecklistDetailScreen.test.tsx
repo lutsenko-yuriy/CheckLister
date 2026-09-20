@@ -249,7 +249,6 @@ describe('ChecklistDetailScreen', () => {
     await renderDetailScreen('1');
     await waitFor(() => screen.getByText('Groceries'));
 
-    // TODO: replace with the actual accessibility label once implemented.
     const button = screen.getByLabelText('Start run');
     expect(button.props.accessibilityState?.disabled).toBe(true);
   });
