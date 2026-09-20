@@ -43,6 +43,55 @@ interface ParsedAbsoluteUrl {
   readonly searchParams: URLSearchParams;
 }
 
+function parseHostname(authority: string): string | null {
+  if (authority.includes('@')) {
+    return null;
+  }
+
+  let hostname = authority;
+  let port: string | undefined;
+
+  if (authority.startsWith('[')) {
+    const closingBracket = authority.indexOf(']');
+    if (closingBracket <= 1) {
+      return null;
+    }
+
+    hostname = authority.slice(0, closingBracket + 1);
+    const remainder = authority.slice(closingBracket + 1);
+    if (remainder.length > 0) {
+      if (!remainder.startsWith(':')) {
+        return null;
+      }
+      port = remainder.slice(1);
+    }
+
+    const address = hostname.slice(1, -1);
+    if (!address.includes(':') || !/^[a-f\d:.]+$/i.test(address)) {
+      return null;
+    }
+  } else {
+    const colon = authority.lastIndexOf(':');
+    if (colon !== -1) {
+      if (authority.indexOf(':') !== colon) {
+        return null;
+      }
+      hostname = authority.slice(0, colon);
+      port = authority.slice(colon + 1);
+    }
+
+    if (!hostname || !/^[a-z\d._~-]+$/i.test(hostname)) {
+      return null;
+    }
+  }
+
+  if (port !== undefined && (!/^\d{1,5}$/.test(port) || Number(port) > 65535)) {
+    return null;
+  }
+
+  return hostname.toLowerCase();
+}
+
 function parseAbsoluteUrl(value: string): ParsedAbsoluteUrl | null {
   if (value.trim() !== value) {
     return null;
@@ -52,14 +101,19 @@ function parseAbsoluteUrl(value: string): ParsedAbsoluteUrl | null {
     /^([a-z][a-z\d+.-]*:)\/\/([^/?#]+)([^?#]*)(?:\?([^#]*))?(?:#.*)?$/i.exec(
       value,
     );
-  if (!match || /\s/.test(match[2])) {
+  if (!match) {
+    return null;
+  }
+
+  const hostname = parseHostname(match[2]);
+  if (!hostname) {
     return null;
   }
 
   try {
     return {
       protocol: match[1].toLowerCase(),
-      hostname: match[2].toLowerCase(),
+      hostname,
       pathname: match[3],
       searchParams: new URLSearchParams(match[4] ?? ''),
     };
