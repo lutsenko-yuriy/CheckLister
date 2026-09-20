@@ -9,6 +9,7 @@ import { HomeScreen } from '../features/checklists/ui/HomeScreen';
 import { ChecklistDetailScreen } from '../features/checklists/ui/ChecklistDetailScreen';
 import { RunScreen } from '../features/runs/ui/RunScreen';
 import { RunHistoryScreen } from '../features/runs/ui/RunHistoryScreen';
+import { ChecklistSelectScreen } from '../features/checklists/ui/ChecklistSelectScreen';
 import { IconButton } from '../shared/ui/IconButton';
 import { colors } from '../shared/theme/colors';
 
@@ -94,6 +95,11 @@ export function RootNavigator() {
             },
           ],
         }}
+      />
+      <Stack.Screen
+        name="ChecklistSelect"
+        component={ChecklistSelectScreen}
+        options={{ title: 'Select checklist' }}
       />
     </Stack.Navigator>
   );
