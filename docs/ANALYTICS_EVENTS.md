@@ -116,6 +116,25 @@ Fired after CheckLister attempts to return an externally started run result to t
 | `status` | `string` | Returned run result: `completed`, `cancelled`, or `error` |
 | `delivered` | `boolean` | Whether the callback app opened successfully |
 
+<!-- Added for CheL-40: Externally requested checklist selection -->
+
+### `external_select_request_handled`
+
+Fired after CheckLister evaluates an incoming request to select a checklist.
+
+| Property | Type | Description |
+|---|---|---|
+| `outcome` | `string` | Request result: `opened`, `error`, or `invalid_callback` |
+
+### `external_select_callback_finished`
+
+Fired after CheckLister attempts to return a checklist selection result to the calling app. The callback URL, callback scheme, and query values must never be logged because they may contain app identifiers, user information, or authentication tokens. The selected checklist's ID and name are also never logged — the `status` outcome alone is what matters for product understanding.
+
+| Property | Type | Description |
+|---|---|---|
+| `status` | `string` | Returned selection result: `selected`, `cancelled`, or `error` |
+| `delivered` | `boolean` | Whether the callback app opened successfully |
+
 ---
 
 ## Screen Views
@@ -137,3 +156,4 @@ Fired after CheckLister attempts to return an externally started run result to t
 | `screen_checklist_detail` | When `ChecklistDetailScreen` mounts for a valid checklist, with `item_count: number` |
 | `screen_checklist_run` | When the run screen mounts, with `checklist_id: string`, `item_count: number` |
 | `screen_run_history` | When the run history screen mounts, with `scope: string` (`all` or `checklist`), `entry_count: number`, and `checklist_id: string` when filtered to one checklist |
+| `screen_checklist_select` | When the external "Select checklist" picker mounts, with `checklist_count: number` (CheL-40) |
