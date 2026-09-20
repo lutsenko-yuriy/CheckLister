@@ -36,3 +36,4 @@ Generated from `bookmarks:` frontmatter in `docs/knowledge/notes/*.md`. Run `pyt
 - [CheL-15: Clarify: checking items on the checklist template vs. within a run](CheL-15.md)
 - [CheL-20: Remove the sections feature altogether](CheL-20.md)
 - [CheL-3: Reordering & sections](CheL-3.md)
+- [CheL-45: Run screen Back button text fails WCAG AA contrast](CheL-45.md)
