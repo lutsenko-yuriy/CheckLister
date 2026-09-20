@@ -68,6 +68,20 @@ checklist belongs to the person using the device.
 - Only runs finished by pressing "Complete the checklist" are saved. Partial,
   abandoned, and discarded runs never appear.
 
+### Feature 6 — Externally started runs
+- Another mobile app can start a fresh run for a known checklist ID through a
+  `checklister://run` link and provide a callback URL for the result.
+- A valid external request replaces any active run without returning a result
+  for the displaced run.
+- Completing or confirming cancellation of an external run returns the public
+  status, checklist ID, and—only after successful completion—the saved run ID.
+- A missing or unrunnable checklist returns one public error status without
+  exposing the internal reason.
+- Invalid callback URLs and failed callback delivery show an explanation in
+  CheckLister. A delivery failure does not undo a completed or cancelled run.
+- Callback details remain in memory only and are never persisted or included
+  in analytics.
+
 ## Out of scope for v1
 
 - User accounts, login, or any backend — all data is local to the device.

@@ -9,6 +9,10 @@ import {
 } from '../features/runs/externalRunCallbackDelivery';
 import { useRuns } from '../features/runs/useRuns';
 import { analytics } from '../shared/analytics/AnalyticsService';
+import {
+  activateExternalRunLinkHandoff,
+  deactivateExternalRunLinkHandoff,
+} from './externalRunNativeHandoff';
 import { RootStackParamList } from './types';
 
 const INVALID_CALLBACK_MESSAGE = 'We do not know which app to return to.';
@@ -32,22 +36,59 @@ export function ExternalRunLinkCoordinator({
 
   useEffect(() => {
     let mounted = true;
+    let bootstrapComplete = false;
+    const liveUrlsDuringBootstrap: string[] = [];
     const subscription = Linking.addEventListener('url', event => {
-      enqueueUrl(event.url);
+      if (bootstrapComplete) {
+        enqueueUrl(event.url);
+      } else {
+        liveUrlsDuringBootstrap.push(event.url);
+      }
     });
 
-    Linking.getInitialURL()
-      .then(url => {
-        if (mounted && url) {
-          enqueueUrl(url);
-        }
-      })
-      .catch(() => {
+    async function bootstrapUrls() {
+      let initialUrl: string | null = null;
+      try {
+        initialUrl = (await Linking.getInitialURL()) ?? null;
+      } catch {
         console.error('Failed to read the initial external-run URL');
-      });
+      }
+
+      if (!mounted) {
+        return;
+      }
+
+      let nativePendingUrls: string[] = [];
+      try {
+        nativePendingUrls = await activateExternalRunLinkHandoff();
+      } catch {
+        console.error('Failed to activate the external-run URL handoff');
+      }
+
+      if (!mounted) {
+        return;
+      }
+
+      const orderedUrls = [
+        ...(initialUrl ? [initialUrl] : []),
+        ...nativePendingUrls,
+        ...liveUrlsDuringBootstrap,
+      ];
+      bootstrapComplete = true;
+      orderedUrls
+        .filter((url, index) => orderedUrls.indexOf(url) === index)
+        .forEach(enqueueUrl);
+    }
+
+    bootstrapUrls().catch(() => {
+      if (mounted) {
+        console.error('Failed to bootstrap external-run URLs');
+      }
+    });
 
     return () => {
       mounted = false;
+      deactivateExternalRunLinkHandoff();
       subscription.remove();
     };
   }, [enqueueUrl]);

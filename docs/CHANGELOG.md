@@ -15,13 +15,14 @@ A record of all versioned releases. For planned work and known issues, see @docs
 
 ## [Unreleased]
 
-### [wip]
-- CheL-36 WU3: Added completion and cancellation callbacks for externally started runs, including persisted run IDs on successful completion, caller-return warnings, failure recovery, privacy-safe analytics, replacement-safe state handling, and serialized overlapping completion writes. Native URL registration and public integration documentation remain for WU4.
-- CheL-36 WU2: Added cold-start and foreground external-run link coordination after checklist and navigation readiness, including active-run replacement, public error callbacks, approved failure dialogs, privacy-safe analytics, and listener/error recovery. Native URL registration and run completion/cancellation callbacks remain in later work units.
-- CheL-36 WU1: Added the validated external-run request and callback-result contract, explicit local/external active-run origins, and fresh external-run replacement state. Callback data remains in memory only, and no user-facing deep-link behavior is exposed yet.
+_(nothing yet)_
 
-### [test]
-- CheL-36 Scenario-WU: Drafted component and Maestro scenario contracts for externally started checklist runs and callback results. No user-facing behavior is exposed yet.
+## [0.9.0] — 2026-09-20 (PR #42)
+
+### Added
+- [user] CheL-36: Another mobile app can now start a fresh run for a specific checklist through `checklister://run` and receive a completed, cancelled, or error result through its callback URL. External requests replace any active run, completed results include the saved run ID, and CheckLister explains invalid callbacks or failed returns.
+- [app] Added validated external-run and callback contracts, replacement-safe run state, cold-start and foreground coordination, privacy-safe analytics, native iOS and Android URL handoff modules, and a public integration guide in `docs/EXTERNAL_RUNS.md`.
+- [test] Added Jest coverage and installed-app Maestro scenarios for valid, invalid, failed, replaced, completed, and cancelled external-run flows, including lifecycle race handling on both platforms.
 
 ## [0.8.0] — 2026-09-18 (PR #35)
 

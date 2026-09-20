@@ -4,6 +4,9 @@
 
 A GitHub template repository that bootstraps a **multi-skill AI workflow** with your choice of project management tool (Linear, Jira, GitHub Issues, etc.) and Git host (GitHub, GitLab, Bitbucket) for any new project in minutes.
 
+CheckLister integrations can start runs and receive results through the
+[`checklister://run` external-run contract](docs/EXTERNAL_RUNS.md).
+
 ## What's included
 
 | File | Purpose |
