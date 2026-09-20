@@ -147,3 +147,14 @@ three flows run serially; initial driver startup adds overhead to wall time.
 - Both new history flows passed: filtered/global completed history with
   snapshot item counts and deletion retention, plus discarded-run exclusion.
 - **103 Jest tests**, **6 runner contract tests**, TypeScript, and ESLint passed.
+
+## Verified CheL-36 expansion — 2026-09-20
+
+- All **7/7** iOS flows passed against a Release build on the iPhone 17 Pro /
+  iOS 26.5 simulator in **3m 54s**, including cold-link rejection and
+  foreground callback-failure recovery.
+- An Android 36 emulator accepted the documented external-run intent into the
+  Release app's `MainActivity` and displayed the expected callback-delivery
+  failure dialog.
+- **153 Jest tests**, **6 runner contract tests**, TypeScript, ESLint, and iOS
+  and Android Release builds passed.

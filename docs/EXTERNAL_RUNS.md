@@ -110,10 +110,9 @@ xcrun simctl openurl booted \
 ### Android emulator or device
 
 ```bash
-adb shell am start -W \
-  -a android.intent.action.VIEW \
-  -d 'checklister://run?checklistId=groceries-123&callbackUrl=caller-app%3A%2F%2Frun-result' \
-  com.checklister
+adb shell 'am start -W -a android.intent.action.VIEW -d \
+  "checklister://run?checklistId=groceries-123&callbackUrl=caller-app%3A%2F%2Frun-result" \
+  com.checklister'
 ```
 
 ## Lifecycle limitations
@@ -128,4 +127,3 @@ adb shell am start -W \
   the run cannot resume.
 - Callback delivery is best-effort and is not persisted or retried. Callers
   should handle timeouts and duplicate-safe result processing.
-
