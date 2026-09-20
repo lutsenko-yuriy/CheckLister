@@ -292,7 +292,7 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
   backButtonText: {
-    color: colors.primary,
+    color: colors.linkText,
     fontSize: 16,
   },
 });
