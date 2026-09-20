@@ -17,6 +17,11 @@ A record of all versioned releases. For planned work and known issues, see @docs
 
 _(nothing yet)_
 
+## [0.9.1] — 2026-09-20 (PR #47)
+
+### Fixed
+- [user] CheL-45: The Run screen's "Back" button text now meets WCAG AA contrast (4.02:1 → 4.82:1) against the app background, via a new `colors.linkText` token reserved for text usage.
+
 ## [0.9.0] — 2026-09-20 (PR #42)
 
 ### Added
