@@ -75,7 +75,9 @@ export function ExternalRunLinkCoordinator({
         ...liveUrlsDuringBootstrap,
       ];
       bootstrapComplete = true;
-      orderedUrls.forEach(enqueueUrl);
+      orderedUrls
+        .filter((url, index) => orderedUrls.indexOf(url) === index)
+        .forEach(enqueueUrl);
     }
 
     bootstrapUrls().catch(() => {

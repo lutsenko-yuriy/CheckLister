@@ -12,6 +12,11 @@ import com.facebook.react.module.annotations.ReactModule
 import com.facebook.react.module.model.ReactModuleInfo
 import com.facebook.react.module.model.ReactModuleInfoProvider
 
+internal fun Intent.isExternalRunIntent(): Boolean =
+  action == Intent.ACTION_VIEW &&
+    data?.scheme == "checklister" &&
+    data?.host == "run"
+
 @ReactModule(name = ExternalRunLinkingModule.NAME)
 class ExternalRunLinkingModule(
   private val context: ReactApplicationContext,
@@ -21,13 +26,10 @@ class ExternalRunLinkingModule(
   @ReactMethod
   fun activate(promise: Promise) {
     context.runOnUiQueueThread {
+      isActive = true
       val activity = context.currentActivity
       val intent = activity?.intent
-      if (
-        intent?.action == Intent.ACTION_VIEW &&
-          intent.data?.scheme == "checklister" &&
-          intent.data?.host == "run"
-      ) {
+      if (intent?.isExternalRunIntent() == true) {
         activity.intent =
           Intent(Intent.ACTION_MAIN).apply {
             setClass(activity, MainActivity::class.java)
@@ -39,10 +41,18 @@ class ExternalRunLinkingModule(
   }
 
   @ReactMethod
-  fun deactivate() = Unit
+  fun deactivate() {
+    context.runOnUiQueueThread {
+      isActive = false
+    }
+  }
 
   companion object {
     const val NAME = "ExternalRunLinking"
+
+    @Volatile
+    internal var isActive = false
+      private set
   }
 }
 

@@ -204,6 +204,17 @@ describe('ExternalRunLinkCoordinator', () => {
     ]);
   });
 
+  it('processes a URL exposed by two startup channels only once', async () => {
+    const url = requestUrl(groceries.id);
+    jest.spyOn(Linking, 'getInitialURL').mockResolvedValue(url);
+    mockActivateExternalRunLinkHandoff.mockResolvedValue([url]);
+
+    await renderCoordinator();
+
+    await waitFor(() => expect(startExternalRun).toHaveBeenCalledTimes(1));
+    expect(analytics.logEvent).toHaveBeenCalledTimes(1);
+  });
+
   it.each([
     ['missing', 'missing-id'],
     ['empty', emptyChecklist.id],
