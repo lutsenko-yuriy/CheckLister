@@ -156,5 +156,5 @@ three flows run serially; initial driver startup adds overhead to wall time.
 - An Android 36 emulator accepted the documented external-run intent into the
   Release app's `MainActivity` and displayed the expected callback-delivery
   failure dialog.
-- **157 Jest tests**, **6 runner contract tests**, TypeScript, ESLint, and iOS
+- **161 Jest tests**, **6 runner contract tests**, TypeScript, ESLint, and iOS
   and Android Release builds passed.

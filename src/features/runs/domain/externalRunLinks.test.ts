@@ -95,6 +95,8 @@ describe('parseExternalRunRequest', () => {
     'file:///tmp/result',
     'http://caller.example/run-result',
     'https://:443/run-result',
+    'https://[::::]/run-result',
+    'https://[1:2:3:4:5:6:7:8:9]/run-result',
     'tel:+49123456789',
     'mailto:user@example.com',
     'intent://run-result#Intent;scheme=caller-app;end',
@@ -109,6 +111,19 @@ describe('parseExternalRunRequest', () => {
         `checklister://run?checklistId=list-1&callbackUrl=${encodedCallbackUrl}`,
       ),
     ).toBeNull();
+  });
+
+  it('accepts a syntactically valid bracketed IPv6 callback host', () => {
+    const callbackUrl = encodeURIComponent('https://[2001:db8::1]/result');
+
+    expect(
+      parseExternalRunRequest(
+        `checklister://run?checklistId=list-1&callbackUrl=${callbackUrl}`,
+      ),
+    ).toEqual({
+      checklistId: 'list-1',
+      callbackUrl: 'https://[2001:db8::1]/result',
+    });
   });
 });
 

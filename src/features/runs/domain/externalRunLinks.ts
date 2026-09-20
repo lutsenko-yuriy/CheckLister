@@ -43,6 +43,35 @@ interface ParsedAbsoluteUrl {
   readonly searchParams: URLSearchParams;
 }
 
+function isValidIpv6Address(address: string): boolean {
+  if (!/^[a-f\d:]+$/i.test(address)) {
+    return false;
+  }
+
+  const compressionIndex = address.indexOf('::');
+  if (compressionIndex !== address.lastIndexOf('::')) {
+    return false;
+  }
+
+  const isValidSegment = (segment: string) =>
+    /^[a-f\d]{1,4}$/i.test(segment);
+  if (compressionIndex === -1) {
+    const segments = address.split(':');
+    return segments.length === 8 && segments.every(isValidSegment);
+  }
+
+  const left = address.slice(0, compressionIndex);
+  const right = address.slice(compressionIndex + 2);
+  const leftSegments = left ? left.split(':') : [];
+  const rightSegments = right ? right.split(':') : [];
+
+  return (
+    leftSegments.every(isValidSegment) &&
+    rightSegments.every(isValidSegment) &&
+    leftSegments.length + rightSegments.length < 8
+  );
+}
+
 function parseHostname(authority: string): string | null {
   if (authority.includes('@')) {
     return null;
@@ -67,7 +96,7 @@ function parseHostname(authority: string): string | null {
     }
 
     const address = hostname.slice(1, -1);
-    if (!address.includes(':') || !/^[a-f\d:.]+$/i.test(address)) {
+    if (!isValidIpv6Address(address)) {
       return null;
     }
   } else {

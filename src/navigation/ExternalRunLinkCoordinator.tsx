@@ -36,29 +36,53 @@ export function ExternalRunLinkCoordinator({
 
   useEffect(() => {
     let mounted = true;
+    let bootstrapComplete = false;
+    const liveUrlsDuringBootstrap: string[] = [];
     const subscription = Linking.addEventListener('url', event => {
-      enqueueUrl(event.url);
+      if (bootstrapComplete) {
+        enqueueUrl(event.url);
+      } else {
+        liveUrlsDuringBootstrap.push(event.url);
+      }
     });
 
-    activateExternalRunLinkHandoff()
-      .then(urls => {
-        if (mounted) {
-          urls.forEach(enqueueUrl);
-        }
-      })
-      .catch(() => {
-        console.error('Failed to activate the external-run URL handoff');
-      });
-
-    Linking.getInitialURL()
-      .then(url => {
-        if (mounted && url) {
-          enqueueUrl(url);
-        }
-      })
-      .catch(() => {
+    async function bootstrapUrls() {
+      let initialUrl: string | null = null;
+      try {
+        initialUrl = (await Linking.getInitialURL()) ?? null;
+      } catch {
         console.error('Failed to read the initial external-run URL');
-      });
+      }
+
+      if (!mounted) {
+        return;
+      }
+
+      let nativePendingUrls: string[] = [];
+      try {
+        nativePendingUrls = await activateExternalRunLinkHandoff();
+      } catch {
+        console.error('Failed to activate the external-run URL handoff');
+      }
+
+      if (!mounted) {
+        return;
+      }
+
+      const orderedUrls = [
+        ...(initialUrl ? [initialUrl] : []),
+        ...nativePendingUrls,
+        ...liveUrlsDuringBootstrap,
+      ];
+      bootstrapComplete = true;
+      orderedUrls.forEach(enqueueUrl);
+    }
+
+    bootstrapUrls().catch(() => {
+      if (mounted) {
+        console.error('Failed to bootstrap external-run URLs');
+      }
+    });
 
     return () => {
       mounted = false;

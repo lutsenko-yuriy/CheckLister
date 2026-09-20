@@ -183,6 +183,27 @@ describe('ExternalRunLinkCoordinator', () => {
     expect(Linking.addEventListener).toHaveBeenCalledTimes(1);
   });
 
+  it('processes the cold URL before URLs queued during native startup', async () => {
+    let resolveInitialUrl: (url: string | null) => void = () => {};
+    jest.spyOn(Linking, 'getInitialURL').mockReturnValue(
+      new Promise(resolve => {
+        resolveInitialUrl = resolve;
+      }),
+    );
+    mockActivateExternalRunLinkHandoff.mockResolvedValue([
+      requestUrl(groceries.id, 'second-app://result'),
+    ]);
+    await renderCoordinator();
+
+    await act(async () => resolveInitialUrl(requestUrl(groceries.id)));
+
+    await waitFor(() => expect(startExternalRun).toHaveBeenCalledTimes(2));
+    expect(startExternalRun.mock.calls.map(call => call[1])).toEqual([
+      'caller-app://run-result?source=widget',
+      'second-app://result',
+    ]);
+  });
+
   it.each([
     ['missing', 'missing-id'],
     ['empty', emptyChecklist.id],
