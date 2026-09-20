@@ -18,7 +18,7 @@ describe('deliverExternalSelectResult', () => {
   });
 
   it('opens the built callback url and logs a delivered success event', async () => {
-    jest.spyOn(Linking, 'openURL').mockResolvedValue(true);
+    jest.spyOn(Linking, 'openURL').mockResolvedValue(undefined);
 
     await deliverExternalSelectResult(callbackUrl, {
       status: 'selected',
@@ -37,7 +37,7 @@ describe('deliverExternalSelectResult', () => {
   });
 
   it('logs a cancelled delivery without any checklist identifiers', async () => {
-    jest.spyOn(Linking, 'openURL').mockResolvedValue(true);
+    jest.spyOn(Linking, 'openURL').mockResolvedValue(undefined);
 
     await deliverExternalSelectResult(callbackUrl, { status: 'cancelled' });
 
@@ -62,7 +62,7 @@ describe('deliverExternalSelectResult', () => {
   });
 
   it('never includes the callback url, checklist id or checklist name in analytics payloads', async () => {
-    jest.spyOn(Linking, 'openURL').mockResolvedValue(true);
+    jest.spyOn(Linking, 'openURL').mockResolvedValue(undefined);
     const checklistId = 'unique-checklist-id-123';
     const checklistName = 'Very Unique Checklist Name';
     const secretCallbackUrl = `caller-app://select-result?token=${checklistId}`;
