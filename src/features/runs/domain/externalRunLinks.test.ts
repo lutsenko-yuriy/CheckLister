@@ -4,6 +4,47 @@ import {
 } from './externalRunLinks';
 
 describe('parseExternalRunRequest', () => {
+  it('does not depend on runtime URL support for custom schemes', () => {
+    const originalURL = global.URL;
+    global.URL = class UnsupportedCustomSchemeURL {
+      constructor() {
+        throw new TypeError('Custom schemes are not supported');
+      }
+    } as unknown as typeof URL;
+
+    try {
+      expect(
+        parseExternalRunRequest(
+          'checklister://run?checklistId=list-1&callbackUrl=caller-app%3A%2F%2Fresult',
+        ),
+      ).toEqual({
+        checklistId: 'list-1',
+        callbackUrl: 'caller-app://result',
+      });
+    } finally {
+      global.URL = originalURL;
+    }
+  });
+
+  it('rejects query text the runtime cannot percent-decode', () => {
+    const originalURLSearchParams = global.URLSearchParams;
+    global.URLSearchParams = class RejectingURLSearchParams {
+      constructor() {
+        throw new URIError('URI malformed');
+      }
+    } as unknown as typeof URLSearchParams;
+
+    try {
+      expect(
+        parseExternalRunRequest(
+          'checklister://run?checklistId=list-1&callbackUrl=caller%ZZresult',
+        ),
+      ).toBeNull();
+    } finally {
+      global.URLSearchParams = originalURLSearchParams;
+    }
+  });
+
   it('parses a checklist id and percent-encoded custom-scheme callback', () => {
     const callbackUrl = encodeURIComponent(
       'caller-app://run-result?source=quick action',
@@ -38,6 +79,7 @@ describe('parseExternalRunRequest', () => {
     'checklister://run?callbackUrl=caller%3A%2F%2Fresult',
     'checklister://run?checklistId=&callbackUrl=caller%3A%2F%2Fresult',
     'checklister://run?checklistId=list-1',
+    'checklister://run?checklistId=list-1&callbackUrl=caller%ZZresult',
     'not a url',
   ])('rejects an invalid external-run request: %s', url => {
     expect(parseExternalRunRequest(url)).toBeNull();
@@ -68,6 +110,26 @@ describe('parseExternalRunRequest', () => {
 });
 
 describe('buildExternalRunCallbackUrl', () => {
+  it('does not depend on runtime URL support for custom schemes', () => {
+    const originalURL = global.URL;
+    global.URL = class UnsupportedCustomSchemeURL {
+      constructor() {
+        throw new TypeError('Custom schemes are not supported');
+      }
+    } as unknown as typeof URL;
+
+    try {
+      expect(
+        buildExternalRunCallbackUrl('caller-app://result', {
+          status: 'error',
+          checklistId: 'list-1',
+        }),
+      ).toBe('caller-app://result?status=error&checklistId=list-1');
+    } finally {
+      global.URL = originalURL;
+    }
+  });
+
   it('preserves caller parameters while replacing reserved completed values', () => {
     const callbackUrl = buildExternalRunCallbackUrl(
       'caller-app://run-result?source=widget&status=old&checklistId=old&runId=old',

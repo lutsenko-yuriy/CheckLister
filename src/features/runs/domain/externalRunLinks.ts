@@ -36,20 +36,40 @@ export type ExternalRunResult =
       readonly checklistId: string;
     };
 
-function parseUrl(value: string): URL | null {
+interface ParsedAbsoluteUrl {
+  readonly protocol: string;
+  readonly hostname: string;
+  readonly pathname: string;
+  readonly searchParams: URLSearchParams;
+}
+
+function parseAbsoluteUrl(value: string): ParsedAbsoluteUrl | null {
   if (value.trim() !== value) {
     return null;
   }
 
+  const match =
+    /^([a-z][a-z\d+.-]*:)\/\/([^/?#]+)([^?#]*)(?:\?([^#]*))?(?:#.*)?$/i.exec(
+      value,
+    );
+  if (!match || /\s/.test(match[2])) {
+    return null;
+  }
+
   try {
-    return new URL(value);
+    return {
+      protocol: match[1].toLowerCase(),
+      hostname: match[2].toLowerCase(),
+      pathname: match[3],
+      searchParams: new URLSearchParams(match[4] ?? ''),
+    };
   } catch {
     return null;
   }
 }
 
 function isSupportedCallbackUrl(value: string): boolean {
-  const callbackUrl = parseUrl(value);
+  const callbackUrl = parseAbsoluteUrl(value);
   if (!callbackUrl) {
     return false;
   }
@@ -67,7 +87,7 @@ function isSupportedCallbackUrl(value: string): boolean {
 export function parseExternalRunRequest(
   value: string,
 ): ExternalRunRequest | null {
-  const requestUrl = parseUrl(value);
+  const requestUrl = parseAbsoluteUrl(value);
   if (
     !requestUrl ||
     requestUrl.protocol !== EXTERNAL_RUN_SCHEME ||
@@ -95,15 +115,28 @@ export function buildExternalRunCallbackUrl(
   callbackUrl: string,
   result: ExternalRunResult,
 ): string {
-  const resultUrl = new URL(callbackUrl);
-  resultUrl.searchParams.set('status', result.status);
-  resultUrl.searchParams.set('checklistId', result.checklistId);
-
-  if (result.status === 'completed') {
-    resultUrl.searchParams.set('runId', result.runId);
-  } else {
-    resultUrl.searchParams.delete('runId');
+  const parsedCallbackUrl = parseAbsoluteUrl(callbackUrl);
+  if (!parsedCallbackUrl) {
+    throw new TypeError('Invalid callback URL');
   }
 
-  return resultUrl.toString();
+  parsedCallbackUrl.searchParams.set('status', result.status);
+  parsedCallbackUrl.searchParams.set('checklistId', result.checklistId);
+
+  if (result.status === 'completed') {
+    parsedCallbackUrl.searchParams.set('runId', result.runId);
+  } else {
+    parsedCallbackUrl.searchParams.delete('runId');
+  }
+
+  const hashIndex = callbackUrl.indexOf('#');
+  const hash = hashIndex === -1 ? '' : callbackUrl.slice(hashIndex);
+  const withoutHash =
+    hashIndex === -1 ? callbackUrl : callbackUrl.slice(0, hashIndex);
+  const queryIndex = withoutHash.indexOf('?');
+  const base =
+    queryIndex === -1 ? withoutHash : withoutHash.slice(0, queryIndex);
+  const query = parsedCallbackUrl.searchParams.toString();
+
+  return `${base}${query ? `?${query}` : ''}${hash}`;
 }
