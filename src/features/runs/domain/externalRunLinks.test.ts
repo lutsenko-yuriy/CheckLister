@@ -5,8 +5,8 @@ import {
 
 describe('parseExternalRunRequest', () => {
   it('does not depend on runtime URL support for custom schemes', () => {
-    const originalURL = global.URL;
-    global.URL = class UnsupportedCustomSchemeURL {
+    const originalURL = globalThis.URL;
+    globalThis.URL = class UnsupportedCustomSchemeURL {
       constructor() {
         throw new TypeError('Custom schemes are not supported');
       }
@@ -22,13 +22,13 @@ describe('parseExternalRunRequest', () => {
         callbackUrl: 'caller-app://result',
       });
     } finally {
-      global.URL = originalURL;
+      globalThis.URL = originalURL;
     }
   });
 
   it('rejects query text the runtime cannot percent-decode', () => {
-    const originalURLSearchParams = global.URLSearchParams;
-    global.URLSearchParams = class RejectingURLSearchParams {
+    const originalURLSearchParams = globalThis.URLSearchParams;
+    globalThis.URLSearchParams = class RejectingURLSearchParams {
       constructor() {
         throw new URIError('URI malformed');
       }
@@ -41,7 +41,7 @@ describe('parseExternalRunRequest', () => {
         ),
       ).toBeNull();
     } finally {
-      global.URLSearchParams = originalURLSearchParams;
+      globalThis.URLSearchParams = originalURLSearchParams;
     }
   });
 
@@ -111,8 +111,8 @@ describe('parseExternalRunRequest', () => {
 
 describe('buildExternalRunCallbackUrl', () => {
   it('does not depend on runtime URL support for custom schemes', () => {
-    const originalURL = global.URL;
-    global.URL = class UnsupportedCustomSchemeURL {
+    const originalURL = globalThis.URL;
+    globalThis.URL = class UnsupportedCustomSchemeURL {
       constructor() {
         throw new TypeError('Custom schemes are not supported');
       }
@@ -126,7 +126,7 @@ describe('buildExternalRunCallbackUrl', () => {
         }),
       ).toBe('caller-app://result?status=error&checklistId=list-1');
     } finally {
-      global.URL = originalURL;
+      globalThis.URL = originalURL;
     }
   });
 
