@@ -1,0 +1,11 @@
+appId: org.reactjs.native.example.CheckLister
+name: Foreground select delivers a failure when the callback can't be opened
+---
+# TODO:
+# 1. Launch the app (foreground).
+# 2. Open a checklister://select link with an unresolvable callback scheme.
+# 3. Verify the "Select checklist" picker opens.
+# 4. Tap a checklist row.
+# 5. Verify "Could not return the result to the calling app." is shown
+#    with a dismiss action.
+# 6. Dismiss it and verify the app returns to a normal, usable state.

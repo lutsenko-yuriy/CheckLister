@@ -1,0 +1,10 @@
+appId: org.reactjs.native.example.CheckLister
+name: Cold select link rejects an invalid callback
+---
+# TODO:
+# 1. Stop the app (cold start).
+# 2. Open checklister://select?callbackUrl=not-a-url
+# 3. Verify "We do not know which app to return to." is shown.
+# 4. Dismiss the alert (OK).
+# 5. Verify the home screen is usable (e.g. "New checklist title" visible)
+#    and no picker was opened.
