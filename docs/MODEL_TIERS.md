@@ -52,9 +52,15 @@ This project describes what each skill needs from a model using two axes: **Effo
 
 Models available to this project (set during `setup.sh`):
 
-| Model | Access |
-|---|---|
-| qwen3.6 | |
+| Provider | Model | Access |
+|---|---|---|
+| Anthropic | Claude aliases (`opus`, `sonnet`, `haiku`) | Claude Code |
+| OpenAI | `gpt-6-astra` | Codex |
+| OpenAI | `gpt-5.6-sol` | Codex |
+| OpenAI | `gpt-5.6-terra` | Codex |
+| OpenAI | `gpt-5.6-luna` | Codex |
+| OpenAI | `gpt-5.5` | Codex compatibility fallback |
+| Local | qwen3.6 | LM Studio |
 
 The `calibrate` skill reads this list and proposes the mapping below. Re-run `calibrate` whenever the available models change.
 
@@ -62,9 +68,22 @@ The `calibrate` skill reads this list and proposes the mapping below. Re-run `ca
 
 ## Active mapping
 
-_Not yet configured — invoke the `calibrate` skill to populate this section._
+_Last updated: 2026-09-20._
 
-Once configured, the table will include a `Claude Code alias` column (`opus` / `sonnet` / `lm-studio`) used by command stubs to route each skill to the correct model.
+| Effort | Reasoning | Anthropic alias | OpenAI model | OpenAI effort |
+|---|---|---|---|---|
+| THOROUGH | ARCHITECTURAL | `opus` | `gpt-6-astra` | `high` |
+| THOROUGH | TACTICAL | `opus` | `gpt-5.6-sol` | `high` |
+| FOCUSED | ARCHITECTURAL | `sonnet` | `gpt-5.6-sol` | `medium` |
+| FOCUSED | TACTICAL | `sonnet` | `gpt-5.6-terra` | `medium` |
+| RAPID | TACTICAL | `haiku` | `gpt-5.6-terra` | `low` |
+| RAPID | MECHANICAL | `haiku` | `gpt-5.6-luna` | `low` |
+
+Start with the mapped model and effort. Escalate only when concrete evidence
+shows that the current assignment is insufficient, such as an unresolved
+cross-boundary race or repeated review failure.
+
+`gpt-5.5` is retained as a compatibility fallback, not a default assignment.
 
 ---
 
@@ -81,7 +100,10 @@ description: ...
 ---
 ```
 
-The runtime (Claude Code, Cursor, your agent harness) consults the **Active mapping** table above to select the concrete model for that invocation. If your runtime does not support automatic resolution, set the model manually per invocation based on the table.
+The runtime (Claude Code, Codex, Cursor, or another agent harness) consults the
+**Active mapping** table above to select the concrete model for that invocation.
+OpenAI runtimes apply both the model and reasoning effort. If a runtime does not
+support automatic resolution, set them manually based on the table.
 
 ---
 

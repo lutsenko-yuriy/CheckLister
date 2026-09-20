@@ -46,6 +46,13 @@ production WU:
   WU when splitting would make it harder to implement or understand, but the
   plan must state that rationale explicitly.
 
+### 3a. Model asynchronous event ordering
+
+For work crossing asynchronous or native/runtime boundaries, include an
+event-ordering scenario matrix covering cold start, initialization, foreground
+delivery, duplicate delivery channels, replacement, and recreation. Identify
+which layer owns each event and how an event is consumed exactly once.
+
 ### 4. Produce the implementation plan
 
 Use this format exactly. Omit a section entirely if it has no content.

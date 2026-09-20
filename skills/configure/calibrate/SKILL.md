@@ -50,21 +50,30 @@ For every model in the available list, reason across these dimensions:
 | **Code understanding** | Does it track local patterns and correctness? Relevant for TACTICAL. |
 | **Speed / cost** | Is it fast and cheap enough for high-frequency FOCUSED/RAPID work? |
 | **Instruction following** | Does it reliably follow structured multi-step procedures? |
+| **Reasoning effort** | For OpenAI models, what is the lowest effort that reliably satisfies this tier? |
 
 If you lack benchmark data for a model, reason from its known tier (e.g. "large frontier model", "mid-size open-weight", "fast small model") and state your uncertainty explicitly. For **LM Studio** models the identifier comes from the LM Studio UI or `GET http://localhost:1234/v1/models`; treat a quantised local model as roughly 1–2 tiers below its full-precision cloud equivalent (e.g. a Q4 8 B model ≈ RAPID tier) unless the user confirms otherwise.
 
 ### 3. Propose the mapping
 
-Map each combination used by the project's skills to the single best available model. The combinations are:
+Map each combination used by the project's skills to the best available model
+for each configured provider. For OpenAI, select the model and reasoning effort
+separately. The combinations are:
 
 @skills/configure/calibrate/resources/skill-tier-map.md
 
 Rules for the proposal:
-- Each combination must map to exactly one model from the available list.
+- Each combination must map to exactly one model per configured provider from
+  the available list.
 - THOROUGH combinations must map to the most capable model(s) available — do not assign a faster/cheaper model to save cost at the expense of quality here.
 - FOCUSED combinations should balance quality and speed.
 - RAPID combinations should prioritise speed; correctness matters but deep reasoning is not required.
 - Different combinations may map to the same model if the available list is short.
+- For OpenAI, prefer the lowest model and reasoning effort that meets the
+  capability requirement. Start from the provider defaults in
+  `docs/MODEL_TIERS.md` and escalate only after concrete evidence such as an
+  unresolved cross-boundary race or repeated review failure.
+- Keep `gpt-5.5` as a compatibility fallback unless newer models are unavailable.
 - Justify every assignment in one sentence.
 
 Present the proposal in this format:
@@ -72,16 +81,16 @@ Present the proposal in this format:
 ```
 ## Proposed model tier mapping — CheckLister
 
-Available models: qwen3.6
+Available models: <models grouped by provider>
 
-| Effort | Reasoning | Model | Justification |
-|---|---|---|---|
-| THOROUGH | ARCHITECTURAL | <model> | <one sentence> |
-| THOROUGH | TACTICAL | <model> | <one sentence> |
-| FOCUSED | ARCHITECTURAL | <model> | <one sentence> |
-| FOCUSED | TACTICAL | <model> | <one sentence> |
-| RAPID | TACTICAL | <model> | <one sentence> |
-| RAPID | MECHANICAL | <model> | <one sentence> |
+| Effort | Reasoning | Anthropic alias | OpenAI model | OpenAI effort | Justification |
+|---|---|---|---|---|---|
+| THOROUGH | ARCHITECTURAL | <alias> | <model> | <effort> | <one sentence> |
+| THOROUGH | TACTICAL | <alias> | <model> | <effort> | <one sentence> |
+| FOCUSED | ARCHITECTURAL | <alias> | <model> | <effort> | <one sentence> |
+| FOCUSED | TACTICAL | <alias> | <model> | <effort> | <one sentence> |
+| RAPID | TACTICAL | <alias> | <model> | <effort> | <one sentence> |
+| RAPID | MECHANICAL | <alias> | <model> | <effort> | <one sentence> |
 
 ### Notes
 <Any caveats — e.g. "Only one model was provided so all tiers map to it", or "THOROUGH+ARCHITECTURAL may be slow for large codebases with this model".>
@@ -102,24 +111,26 @@ Do not proceed until the user explicitly approves or provides corrections.
 
 ### 5. Write the approved mapping
 
-Open `docs/MODEL_TIERS.md` and replace the content of the `## Active mapping` section with the approved table plus a datestamp. Include the **Claude Code alias** column (`opus` / `sonnet` / `lm-studio`) so command stubs can read it:
+Open `docs/MODEL_TIERS.md` and replace the content of the `## Active mapping`
+section with the approved table plus a datestamp. Include the Anthropic alias
+and the OpenAI model and reasoning-effort columns:
 
 ```markdown
 ## Active mapping
 
 _Last updated: YYYY-MM-DD._
 
-| Effort | Reasoning | Model | Claude Code alias |
-|---|---|---|---|
-| THOROUGH | ARCHITECTURAL | <model> | `opus` or `sonnet` or `lm-studio` |
-| THOROUGH | TACTICAL | <model> | `opus` or `sonnet` or `lm-studio` |
-| FOCUSED | ARCHITECTURAL | <model> | `opus` or `sonnet` or `lm-studio` |
-| FOCUSED | TACTICAL | <model> | `opus` or `sonnet` or `lm-studio` |
-| RAPID | TACTICAL | <model> | `opus` or `sonnet` or `lm-studio` |
-| RAPID | MECHANICAL | <model> | `opus` or `sonnet` or `lm-studio` |
+| Effort | Reasoning | Anthropic alias | OpenAI model | OpenAI effort |
+|---|---|---|---|---|
+| THOROUGH | ARCHITECTURAL | <alias> | <model> | <effort> |
+| THOROUGH | TACTICAL | <alias> | <model> | <effort> |
+| FOCUSED | ARCHITECTURAL | <alias> | <model> | <effort> |
+| FOCUSED | TACTICAL | <alias> | <model> | <effort> |
+| RAPID | TACTICAL | <alias> | <model> | <effort> |
+| RAPID | MECHANICAL | <alias> | <model> | <effort> |
 ```
 
-Alias rules: `opus` for claude-opus-*; `sonnet` for claude-sonnet-*; `haiku` for claude-haiku-*; `lm-studio` for any local/MLX model.
+Alias rules: `opus` for claude-opus-*; `sonnet` for claude-sonnet-*; `haiku` for claude-haiku-*; `lm-studio` for any local/MLX model. OpenAI effort must be one supported by the selected model.
 
 Do not modify any other section of `docs/MODEL_TIERS.md`.
 
