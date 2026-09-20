@@ -12,6 +12,7 @@ import {
 } from '@react-navigation/native';
 import { AsyncStorageChecklistRepository } from './src/features/checklists/data/asyncStorageChecklistRepository';
 import { ChecklistsProvider } from './src/features/checklists/useChecklists';
+import { ExternalSelectionProvider } from './src/features/checklists/useExternalSelection';
 import { RunsProvider } from './src/features/runs/useRuns';
 import { AsyncStorageRunRepository } from './src/features/runs/data/asyncStorageRunRepository';
 import { RootNavigator } from './src/navigation/RootNavigator';
@@ -35,16 +36,18 @@ function App() {
         <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
         <ChecklistsProvider repository={checklistRepository}>
           <RunsProvider repository={runRepository}>
-            <NavigationContainer
-              ref={navigationRef}
-              onReady={handleNavigationReady}
-            >
-              <RootNavigator />
-            </NavigationContainer>
-            <ExternalRunLinkCoordinator
-              navigationReady={navigationReady}
-              navigationRef={navigationRef}
-            />
+            <ExternalSelectionProvider>
+              <NavigationContainer
+                ref={navigationRef}
+                onReady={handleNavigationReady}
+              >
+                <RootNavigator />
+              </NavigationContainer>
+              <ExternalRunLinkCoordinator
+                navigationReady={navigationReady}
+                navigationRef={navigationRef}
+              />
+            </ExternalSelectionProvider>
           </RunsProvider>
         </ChecklistsProvider>
       </SafeAreaProvider>

@@ -17,6 +17,7 @@ A record of all versioned releases. For planned work and known issues, see @docs
 
 ### [wip]
 - CheL-40 WU1: Added the validated external-select link contract (`checklister://select`), extracting the shared URL primitives out of the external-run contract so both verbs reuse the same parsing/validation rules. No user-facing behavior is exposed yet.
+- CheL-40 WU2: Added the in-memory external-selection session (`useExternalSelection`) and its privacy-safe callback delivery, wired into `App.tsx`. Still unreachable from outside the app until the picker screen and coordinator land.
 
 ## [0.9.2] — 2026-09-20 (PR #48)
 
