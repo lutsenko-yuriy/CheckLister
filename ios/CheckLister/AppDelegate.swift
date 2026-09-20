@@ -63,6 +63,11 @@ class ExternalRunLinking: NSObject {
   private static var isActive = false
   private static var pendingURLs: [URL] = []
 
+  @objc
+  var methodQueue: DispatchQueue {
+    DispatchQueue.main
+  }
+
   static func receive(_ urls: [URL]) {
     dispatchPrecondition(condition: .onQueue(.main))
     guard isActive else {
