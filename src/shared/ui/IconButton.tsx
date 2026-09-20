@@ -1,7 +1,11 @@
 import React from 'react';
-import { Pressable, StyleProp, ViewStyle } from 'react-native';
+import { Pressable, StyleProp, StyleSheet, ViewStyle } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { colors } from '../theme/colors';
+
+// Apple HIG / Material Design both recommend a minimum 44x44pt (48x48dp)
+// touch target — a 22px icon with hitSlop alone falls short of that.
+const MIN_TOUCH_TARGET = 44;
 
 export function IconButton({
   icon,
@@ -26,10 +30,19 @@ export function IconButton({
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel}
       hitSlop={8}
-      style={style}
+      style={[styles.touchTarget, style]}
       testID={testID}
     >
       <Icon name={icon} size={size} color={color} />
     </Pressable>
   );
 }
+
+const styles = StyleSheet.create({
+  touchTarget: {
+    minWidth: MIN_TOUCH_TARGET,
+    minHeight: MIN_TOUCH_TARGET,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+});

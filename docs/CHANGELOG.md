@@ -17,6 +17,11 @@ A record of all versioned releases. For planned work and known issues, see @docs
 
 _(nothing yet)_
 
+## [0.9.2] — 2026-09-20 (PR #48)
+
+### Fixed
+- [user] CheL-46: Every icon-only action button (Add, Rename, Delete, Save, Cancel, Edit, Run history, Back) now has at least a 44×44pt touch target, up from an effective ~38×38pt, matching Apple HIG / Material minimum tap-target guidance.
+
 ## [0.9.1] — 2026-09-20 (PR #47)
 
 ### Fixed
