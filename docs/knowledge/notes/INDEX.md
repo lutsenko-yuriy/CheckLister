@@ -37,3 +37,4 @@ Generated from `bookmarks:` frontmatter in `docs/knowledge/notes/*.md`. Run `pyt
 - [CheL-20: Remove the sections feature altogether](CheL-20.md)
 - [CheL-3: Reordering & sections](CheL-3.md)
 - [CheL-45: Run screen Back button text fails WCAG AA contrast](CheL-45.md)
+- [CheL-46: IconButton touch target below 44x44pt minimum](CheL-46.md)
