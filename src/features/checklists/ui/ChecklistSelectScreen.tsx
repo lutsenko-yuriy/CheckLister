@@ -13,6 +13,21 @@ import { analytics } from '../../../shared/analytics/AnalyticsService';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'ChecklistSelect'>;
 
+function waitForNextFrame(): Promise<void> {
+  return new Promise(resolve => requestAnimationFrame(() => resolve()));
+}
+
+// Mirrors RunScreen's returnExternalResult: navigation is dispatched first,
+// delivery (which foregrounds the caller app via Linking.openURL) waits a
+// frame so it doesn't race the in-flight pop transition.
+async function returnResult(
+  callbackUrl: string,
+  result: Parameters<typeof deliverExternalSelectResult>[1],
+): Promise<void> {
+  await waitForNextFrame();
+  await deliverExternalSelectResult(callbackUrl, result);
+}
+
 export function ChecklistSelectScreen({ navigation }: Props) {
   const { checklists, loading } = useChecklists();
   const { takePendingCallbackUrl } = useExternalSelection();
@@ -67,7 +82,7 @@ export function ChecklistSelectScreen({ navigation }: Props) {
       resolvedRef.current = true;
       const callbackUrl = takePendingCallbackUrl();
       if (callbackUrl) {
-        deliverExternalSelectResult(callbackUrl, { status: 'cancelled' });
+        returnResult(callbackUrl, { status: 'cancelled' });
       }
     });
   }, [navigation, takePendingCallbackUrl]);
@@ -78,14 +93,14 @@ export function ChecklistSelectScreen({ navigation }: Props) {
     }
     resolvedRef.current = true;
     const callbackUrl = takePendingCallbackUrl();
+    navigation.goBack();
     if (callbackUrl) {
-      deliverExternalSelectResult(callbackUrl, {
+      returnResult(callbackUrl, {
         status: 'selected',
         checklistId: checklist.id,
         checklistName: checklist.title,
       });
     }
-    navigation.goBack();
   };
 
   return (
