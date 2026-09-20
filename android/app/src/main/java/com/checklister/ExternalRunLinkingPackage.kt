@@ -29,14 +29,16 @@ class ExternalRunLinkingModule(
       isActive = true
       val activity = context.currentActivity
       val intent = activity?.intent
+      val pendingUrls = Arguments.createArray()
       if (intent?.isExternalRunIntent() == true) {
+        pendingUrls.pushString(intent.data.toString())
         activity.intent =
           Intent(Intent.ACTION_MAIN).apply {
             setClass(activity, MainActivity::class.java)
             addCategory(Intent.CATEGORY_LAUNCHER)
           }
       }
-      promise.resolve(Arguments.createArray())
+      promise.resolve(pendingUrls)
     }
   }
 
