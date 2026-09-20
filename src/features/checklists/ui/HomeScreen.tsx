@@ -2,7 +2,6 @@ import React, { useLayoutEffect, useState } from 'react';
 import {
   Alert,
   FlatList,
-  Pressable,
   StyleSheet,
   Text,
   TextInput,
@@ -15,6 +14,7 @@ import { Checklist } from '../domain/models';
 import { IconButton } from '../../../shared/ui/IconButton';
 import { colors } from '../../../shared/theme/colors';
 import { useRuns } from '../../runs/useRuns';
+import { ChecklistSummaryRow } from './components/ChecklistSummaryRow';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Home'>;
 
@@ -162,15 +162,7 @@ function ChecklistRow({
 
   return (
     <View style={styles.row}>
-      <Pressable style={styles.rowBody} onPress={onOpen}>
-        <Text style={styles.rowTitle}>{checklist.title}</Text>
-        {checklist.items.length > 0 && (
-          <Text style={styles.rowSubtitle}>
-            {checklist.items.length} item
-            {checklist.items.length === 1 ? '' : 's'}
-          </Text>
-        )}
-      </Pressable>
+      <ChecklistSummaryRow checklist={checklist} onPress={onOpen} />
       <IconButton
         icon="edit"
         accessibilityLabel="Rename"
@@ -227,17 +219,6 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surface,
     borderBottomWidth: StyleSheet.hairlineWidth,
     borderBottomColor: colors.border,
-  },
-  rowBody: {
-    flex: 1,
-  },
-  rowTitle: {
-    fontSize: 16,
-    color: colors.text,
-  },
-  rowSubtitle: {
-    color: colors.textMuted,
-    marginTop: 2,
   },
   actionButton: {
     marginLeft: 12,
