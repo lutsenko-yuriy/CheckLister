@@ -121,6 +121,9 @@ rules in plain TypeScript domain helpers.
 The app accepts `checklister://run` URLs on iOS and Android. Native URL
 registration forwards both cold-start and foreground URLs to React Native's
 `Linking` boundary; no third-party linking SDK or backend is involved.
+iOS uses a scene delegate so cold URLs become React Native launch options and
+foreground URLs are released after scene activation. This avoids losing a URL
+during the native-to-JavaScript lifecycle transition.
 
 Incoming URLs are syntactically validated before they may replace a run.
 Completed, cancelled, and error results are returned by opening the caller's

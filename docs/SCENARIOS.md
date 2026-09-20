@@ -54,13 +54,10 @@ System Events UI scripting.
 
 ## Coverage
 
-CheL-36 drafts two installed-app contracts under `.maestro/drafts/` while its
-production WUs are in progress. Draft flows contain only reviewed TODO steps
-and are not discovered by the top-level suite. WU4 moves them to `.maestro/`
-and makes them executable. Valid-checklist external-run completion and
-cancellation are component integration scenarios until CheL-34 provides safe,
-deterministic checklist IDs for installed-app tests without clearing simulator
-data.
+CheL-36 adds two installed-app contracts for cold and foreground external-run
+links. Valid-checklist external-run completion and cancellation remain
+component integration scenarios until CheL-34 provides safe, deterministic
+checklist IDs for installed-app tests without clearing simulator data.
 
 | Flow                   | Assertions                                                                                                                                                                                                                          |
 | ---------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -69,6 +66,8 @@ data.
 | `run-gesture-ios.yaml` | Edge swipe navigates on an unprotected checklist screen (positive control); same swipe prompts before leaving an active run; Cancel preserves progress and interactivity; Back/Cancel/Discard and subsequent navigation still work. |
 | `run-history.yaml` | A completed run exposes filtered and global history, keeps its snapshotted item count after the checklist changes, and remains globally visible after checklist deletion. |
 | `run-history-discard.yaml` | Cancelling an exit preserves progress, while discarding one or more runs never exposes checklist history. |
+| `external-run-invalid-callback-ios.yaml` | A cold `checklister://run` launch rejects an invalid callback, explains the problem, and leaves the home screen usable. |
+| `external-run-callback-failure-ios.yaml` | A foreground link returns an error for a missing checklist, reports failed callback delivery, and preserves existing simulator data. |
 
 On the tested iOS 26.5 / react-native-screens 4.28.0 combination, swiping an active
 run opens confirmation without removing the run. This matches the product spec.
