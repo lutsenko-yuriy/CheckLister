@@ -1,3 +1,7 @@
+---
+bookmarks: []
+---
+
 # CheL-20: Remove the sections feature altogether
 
 ## Notes

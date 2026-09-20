@@ -1,3 +1,7 @@
+---
+bookmarks: [scenario-fixture-isolation]
+---
+
 # CheL-5: Checklist run history
 
 ## Notes

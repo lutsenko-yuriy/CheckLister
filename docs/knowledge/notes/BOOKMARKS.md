@@ -13,3 +13,7 @@ surfaces a recurring theme worth tagging; re-validated quarterly as part of the 
 
 | Bookmark | Meaning |
 |---|---|
+| `async-lifecycle-races` | Race conditions from overlapping async/native state transitions (run completion, replacement, callback delivery) that only surfaced during implementation, not planning. |
+| `real-device-only-bugs` | Bugs or platform quirks (accessibility-tree flattening, gesture/back-button behavior, native route wiring) that only surface via manual or scripted testing on a real device/simulator, never from unit tests alone. |
+| `scenario-fixture-isolation` | Maestro/scenario test fixtures can't be fully cleaned up through the product UI alone, leaving residual data (e.g. persistent run history) after a suite run. |
+| `agent-model-calibration` | Friction mapping effort/reasoning tiers to a non-Anthropic coding-agent model (e.g. Codex/OpenAI), leading to higher-than-expected token usage. |

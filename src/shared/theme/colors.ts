@@ -8,7 +8,7 @@ export const colors = {
   primary: '#2F6FEE',
   border: '#C9DEF5',
   text: '#1B2733',
-  textMuted: '#5C7189',
+  textMuted: '#55698A',
   danger: '#D64545',
   onPrimary: '#FFFFFF',
 };

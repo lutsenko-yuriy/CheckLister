@@ -8,8 +8,8 @@ Each tier is tracked as "not yet done this period" — a period label, not an ex
 
 | Tier | Cadence | Last run | Period covered | Next due |
 |---|---|---|---|---|
-| Light | 1st of every calendar month | never | — | — |
-| Heavy | 14th of Jan/Apr/Jul/Oct | never | — | — |
+| Light | 1st of every calendar month | 2026-09-20 | 2026-09 | 2026-10 |
+| Heavy | 14th of Jan/Apr/Jul/Oct | 2026-09-20 | 2026-Q3 | 2026-Q4 |
 
 ## Open findings
 
@@ -17,7 +17,8 @@ Findings needing human decision or larger effort, each carrying an explicit dead
 
 | ID | Opened | Tier | Dimension | Debt quadrant | Summary | Deadline | Write-up |
 |---|---|---|---|---|---|---|---|
-| _none yet_ | | | | | | | |
+| CHK-2026-09-20-heavy-1 | 2026-09-20 | heavy | Accessibility | prudent-inadvertent | `colors.primary` as `RunScreen` "Back" button text measures 4.02:1, under WCAG AA 4.5:1 for normal text; needs a design decision (dedicated link-text color vs. darker primary) rather than a blind palette change | 2026-10-31 | [CHK-2026-09-20-heavy](CHK-2026-09-20-heavy.md) |
+| CHK-2026-09-20-heavy-2 | 2026-09-20 | heavy | Accessibility | prudent-inadvertent | `IconButton`'s ~38×38pt effective touch target (22px icon + 8pt hitSlop) is below the 44×44pt/48×48dp guidance, affecting every icon-only action across the app | 2026-11-15 | [CHK-2026-09-20-heavy](CHK-2026-09-20-heavy.md) |
 
 ## Resolved findings
 

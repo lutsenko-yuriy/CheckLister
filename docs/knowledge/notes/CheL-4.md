@@ -1,3 +1,7 @@
+---
+bookmarks: [real-device-only-bugs]
+---
+
 # CheL-4: Checklist runs
 
 ## Notes

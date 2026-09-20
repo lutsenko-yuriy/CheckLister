@@ -1,3 +1,7 @@
+---
+bookmarks: [async-lifecycle-races, agent-model-calibration]
+---
+
 # CheL-36: Externally started checklist runs with callback results
 
 ## Notes

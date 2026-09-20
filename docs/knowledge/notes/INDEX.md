@@ -6,19 +6,33 @@ Generated from `bookmarks:` frontmatter in `docs/knowledge/notes/*.md`. Run `pyt
 
 ## Top themes
 
+- **agent-model-calibration** (2)
+- **real-device-only-bugs** (2)
+- **scenario-fixture-isolation** (2)
+- **async-lifecycle-races** (1)
 
 ## By bookmark
+
+### agent-model-calibration
+- [CheL-26: Scripted scenario automation for the iOS simulator](CheL-26.md)
+- [CheL-36: Externally started checklist runs with callback results](CheL-36.md)
+
+### async-lifecycle-races
+- [CheL-36: Externally started checklist runs with callback results](CheL-36.md)
+
+### real-device-only-bugs
+- [CheL-26: Scripted scenario automation for the iOS simulator](CheL-26.md)
+- [CheL-4: Checklist runs](CheL-4.md)
+
+### scenario-fixture-isolation
+- [CheL-26: Scripted scenario automation for the iOS simulator](CheL-26.md)
+- [CheL-5: Checklist run history](CheL-5.md)
 
 ## Reviewed — nothing noteworthy
 
 - [1: Checklists](1.md)
 - [2: Checklist items](2.md)
-- [CheL-15: Clarify: checking items on the checklist template vs. within a run](CheL-15.md)
-- [CheL-26: Scripted scenario automation for the iOS simulator](CheL-26.md)
-
-## Not yet reviewed
-
 - [CheL-14: UI polish: consistent color scheme, icons, and drag visual feedback](CheL-14.md)
+- [CheL-15: Clarify: checking items on the checklist template vs. within a run](CheL-15.md)
 - [CheL-20: Remove the sections feature altogether](CheL-20.md)
 - [CheL-3: Reordering & sections](CheL-3.md)
-- [CheL-4: Checklist runs](CheL-4.md)
