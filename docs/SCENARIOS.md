@@ -67,7 +67,7 @@ checklist IDs for installed-app tests without clearing simulator data.
 | `run-history.yaml` | A completed run exposes filtered and global history, keeps its snapshotted item count after the checklist changes, and remains globally visible after checklist deletion. |
 | `run-history-discard.yaml` | Cancelling an exit preserves progress, while discarding one or more runs never exposes checklist history. |
 | `external-run-invalid-callback-ios.yaml` | A cold `checklister://run` launch rejects an invalid callback, explains the problem, and leaves the home screen usable. |
-| `external-run-callback-failure-ios.yaml` | A foreground link returns an error for a missing checklist, reports failed callback delivery, and preserves existing simulator data. |
+| `external-run-callback-failure-ios.yaml` | A link delivered immediately after launch returns an error for a missing checklist, reports failed callback delivery, and preserves existing simulator data. |
 
 On the tested iOS 26.5 / react-native-screens 4.28.0 combination, swiping an active
 run opens confirmation without removing the run. This matches the product spec.
@@ -156,5 +156,5 @@ three flows run serially; initial driver startup adds overhead to wall time.
 - An Android 36 emulator accepted the documented external-run intent into the
   Release app's `MainActivity` and displayed the expected callback-delivery
   failure dialog.
-- **153 Jest tests**, **6 runner contract tests**, TypeScript, ESLint, and iOS
+- **157 Jest tests**, **6 runner contract tests**, TypeScript, ESLint, and iOS
   and Android Release builds passed.
