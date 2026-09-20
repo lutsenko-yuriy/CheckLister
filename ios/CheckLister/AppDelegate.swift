@@ -26,7 +26,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
   var window: UIWindow?
-  private var pendingURLs: [URL] = []
 
   func scene(
     _ scene: UIScene,
@@ -55,33 +54,52 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
   }
 
   func scene(_ scene: UIScene, openURLContexts urlContexts: Set<UIOpenURLContext>) {
-    pendingURLs.append(contentsOf: urlContexts.map(\.url))
-    DispatchQueue.main.async { [weak self, weak scene] in
-      guard let scene else {
-        return
-      }
-      self?.deliverPendingURLsIfActive(scene)
-    }
+    ExternalRunLinking.receive(urlContexts.map(\.url))
   }
+}
 
-  func sceneDidBecomeActive(_ scene: UIScene) {
-    deliverPendingURLsIfActive(scene)
-  }
+@objc(ExternalRunLinking)
+class ExternalRunLinking: NSObject {
+  private static var isActive = false
+  private static var pendingURLs: [URL] = []
 
-  private func deliverPendingURLsIfActive(_ scene: UIScene) {
-    guard scene.activationState == .foregroundActive else {
+  static func receive(_ urls: [URL]) {
+    dispatchPrecondition(condition: .onQueue(.main))
+    guard isActive else {
+      pendingURLs.append(contentsOf: urls)
       return
     }
 
-    let urls = pendingURLs
-    pendingURLs.removeAll()
-    for url in urls {
-      RCTLinkingManager.application(
-        UIApplication.shared,
-        open: url,
-        options: [:]
-      )
-    }
+    urls.forEach(deliver)
+  }
+
+  private static func deliver(_ url: URL) {
+    RCTLinkingManager.application(
+      UIApplication.shared,
+      open: url,
+      options: [:]
+    )
+  }
+
+  @objc(activate:rejecter:)
+  func activate(
+    _ resolve: RCTPromiseResolveBlock,
+    rejecter _: RCTPromiseRejectBlock
+  ) {
+    ExternalRunLinking.isActive = true
+    let urls = ExternalRunLinking.pendingURLs.map(\.absoluteString)
+    ExternalRunLinking.pendingURLs.removeAll()
+    resolve(urls)
+  }
+
+  @objc
+  func deactivate() {
+    ExternalRunLinking.isActive = false
+  }
+
+  @objc
+  static func requiresMainQueueSetup() -> Bool {
+    true
   }
 }
 

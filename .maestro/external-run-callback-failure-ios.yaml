@@ -2,7 +2,6 @@ appId: org.reactjs.native.example.CheckLister
 name: Failed external-run error callback is recoverable
 ---
 - launchApp
-- assertVisible: New checklist title
 - openLink: "checklister://run?checklistId=missing&callbackUrl=missingcaller%3A%2F%2Fresult"
 - tapOn:
     text: Open

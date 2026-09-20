@@ -9,6 +9,10 @@ import {
 } from '../features/runs/externalRunCallbackDelivery';
 import { useRuns } from '../features/runs/useRuns';
 import { analytics } from '../shared/analytics/AnalyticsService';
+import {
+  activateExternalRunLinkHandoff,
+  deactivateExternalRunLinkHandoff,
+} from './externalRunNativeHandoff';
 import { RootStackParamList } from './types';
 
 const INVALID_CALLBACK_MESSAGE = 'We do not know which app to return to.';
@@ -36,6 +40,16 @@ export function ExternalRunLinkCoordinator({
       enqueueUrl(event.url);
     });
 
+    activateExternalRunLinkHandoff()
+      .then(urls => {
+        if (mounted) {
+          urls.forEach(enqueueUrl);
+        }
+      })
+      .catch(() => {
+        console.error('Failed to activate the external-run URL handoff');
+      });
+
     Linking.getInitialURL()
       .then(url => {
         if (mounted && url) {
@@ -48,6 +62,7 @@ export function ExternalRunLinkCoordinator({
 
     return () => {
       mounted = false;
+      deactivateExternalRunLinkHandoff();
       subscription.remove();
     };
   }, [enqueueUrl]);
