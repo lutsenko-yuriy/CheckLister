@@ -20,6 +20,7 @@ import { createChecklist, createItem } from '../../checklists/domain/models';
 import { AsyncStorageChecklistRepository } from '../../checklists/data/asyncStorageChecklistRepository';
 import { AsyncStorageRunRepository } from '../data/asyncStorageRunRepository';
 import { RunRepository } from '../domain/runRepository';
+import { colors } from '../../../shared/theme/colors';
 
 // usePreventRemove (used by RunScreen to safely gate the swipe-back gesture,
 // not just JS-dispatched actions — see RunScreen.tsx) calls useNavigation()
@@ -413,6 +414,21 @@ describe('RunScreen', () => {
       expect(navigationRef.current?.getCurrentRoute()?.name).toBe(
         'Placeholder',
       ),
+    );
+  });
+
+  // CheL-45: colors.primary measures 4.02:1 against colors.background, under
+  // the WCAG AA 4.5:1 minimum for normal text. This is colors.primary's only
+  // text-color usage; colors.linkText is a darker shade reserved for text.
+  it('renders the Back button text in a color that meets WCAG AA contrast', async () => {
+    await renderRunWithoutStarting();
+
+    await waitFor(() => expect(screen.getByText(/no active run/i)).toBeTruthy());
+
+    const backText = screen.getByText('Back');
+    const flatStyle = [backText.props.style].flat();
+    expect(flatStyle).toContainEqual(
+      expect.objectContaining({ color: colors.linkText }),
     );
   });
 
