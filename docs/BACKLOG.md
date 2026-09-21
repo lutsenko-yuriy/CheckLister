@@ -8,7 +8,7 @@ The `## In Progress` section at the top is the one exception — it is maintaine
 
 ## In Progress
 
-- [CheL-30: Smoke tests: checklist persistence across app restarts](https://github.com/lutsenko-yuriy/CheckLister/issues/30)
+_(nothing in progress — CheL-30 is in review: [PR #58](https://github.com/lutsenko-yuriy/CheckLister/pull/58))_
 
 ---
 
