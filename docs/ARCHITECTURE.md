@@ -193,6 +193,14 @@ or sent to analytics.
   compiled worklets predate Reanimated 4's `react-native-worklets` split and
   throw `[Worklets] runOnUI can only be used with worklets` at runtime;
   `react-native-reanimated-dnd` explicitly targets Reanimated 4 + worklets.
+  Patched via [`patch-package`](https://github.com/ds300/patch-package)
+  (`patches/react-native-reanimated-dnd+2.0.0.patch`, applied on
+  `postinstall`) to thread a `keyboardShouldPersistTaps` prop through
+  `Sortable` to its internal `FlatList`/`ScrollView`, since the library
+  doesn't expose one — needed so a checklist item's Save/Cancel buttons
+  respond on the first tap while its draft `TextInput` is still focused
+  (CheL-54). Re-diff with `npx patch-package react-native-reanimated-dnd`
+  after any upgrade of this dependency.
 - `react-native-safe-area-context` — already installed; also a peer
   dependency of React Navigation.
 - [`@testing-library/react-native`](https://callstack.github.io/react-native-testing-library/) —

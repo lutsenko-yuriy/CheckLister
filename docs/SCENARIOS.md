@@ -121,13 +121,14 @@ background buttons remain in the native alert hierarchy. Avoid
 fixed sleeps, optional assertions and retries that hide defects. Helpers live
 under `.maestro/helpers/`; only top-level flows are discovered by the suite.
 
-While a checklist item's draft `TextInput` is focused, the first tap on its
-Save or Cancel button only blurs the input (standard RN tap-outside-dismisses-
-keyboard behavior); the action itself requires a second tap. This is a real
-target behavior, not a Maestro artifact — `checklist-item-editing-ios.yaml`
-taps Save/Cancel twice to reflect it. See
-[CheL-54](https://github.com/lutsenko-yuriy/CheckLister/issues/54) for the
-follow-up considering `keyboardShouldPersistTaps` to fix the double-tap UX.
+Item rows sit inside `react-native-reanimated-dnd`'s `Sortable`, which renders
+a `FlatList`/`ScrollView` that swallows a touch outside a focused `TextInput`
+to dismiss the keyboard by default (`keyboardShouldPersistTaps="never"`) — the
+draft input's Save/Cancel buttons used to need a second tap because of this
+(CheL-54). The library doesn't expose that prop, so
+`patches/react-native-reanimated-dnd+2.0.0.patch` (applied via `patch-package`
+on `postinstall`) threads `keyboardShouldPersistTaps` through to `Sortable`,
+and `ChecklistDetailScreen` sets it to `"handled"`.
 
 Runner contract tests use stub executables, not a simulator:
 
@@ -184,3 +185,12 @@ three flows run serially; initial driver startup adds overhead to wall time.
   empty-text save, and a run reflecting the saved text — surfacing the
   Save/Cancel double-tap behavior noted above.
 - **250 Jest tests** and ESLint passed.
+
+## Verified CheL-54 fix — 2026-09-21
+
+- Two consecutive full-suite runs against a Release build on the iPhone 17 Pro
+  / iOS 26.5 simulator, with the `keyboardShouldPersistTaps` patch applied:
+  **11/11** flows passed each time, in 6m 36s and 6m 32s.
+- `checklist-item-editing-ios.yaml` now taps Save/Cancel once, confirming the
+  first-tap fix on a real simulator.
+- **251 Jest tests**, TypeScript, and ESLint passed.
