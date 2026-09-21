@@ -8,7 +8,7 @@ The `## In Progress` section at the top is the one exception — it is maintaine
 
 ## In Progress
 
-_(nothing in progress — CheL-30 is in review: [PR #58](https://github.com/lutsenko-yuriy/CheckLister/pull/58))_
+_(nothing in progress)_
 
 ---
 
@@ -16,6 +16,5 @@ _(nothing in progress — CheL-30 is in review: [PR #58](https://github.com/luts
 
 ## Unscheduled
 
-- [CheL-30: Smoke tests: checklist persistence across app restarts](https://github.com/lutsenko-yuriy/CheckLister/issues/30)
 - [CheL-31: Smoke tests: local Android emulator coverage](https://github.com/lutsenko-yuriy/CheckLister/issues/31)
 - [CheL-32: Separate and review the every-ticket scenario workflow policy](https://github.com/lutsenko-yuriy/CheckLister/issues/32)
