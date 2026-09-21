@@ -1,0 +1,60 @@
+appId: org.reactjs.native.example.CheckLister
+name: Drag-to-reorder checklist items and use the order in a run
+---
+- runFlow: helpers/create-checklist.yaml
+- tapOn: New item
+- inputText: Scenario third
+- pressKey: Enter
+# Initial order: first, second, third.
+- assertVisible:
+    text: '.*Scenario second.*'
+    below:
+      text: '.*Scenario first.*'
+- assertVisible:
+    text: '.*Scenario third.*'
+    below:
+      text: '.*Scenario second.*'
+# Drag "first" downward past "second" and "third", landing in "third"'s slot.
+# Expected order: second, third, first. A short/default-duration swipe never
+# triggers the real drag gesture here: react-native-reanimated-dnd's pan
+# gesture uses activateAfterLongPress(200), and a fast synthetic swipe moves
+# too much before that timer elapses for it to activate at all (confirmed:
+# 1.5s duration produced zero movement). A slow swipe keeps the initial
+# movement small enough to activate, then completes the drag.
+- swipe:
+    start: 7%,35%
+    end: 7%,69%
+    duration: 4000
+- assertVisible:
+    text: '.*Scenario third.*'
+    below:
+      text: '.*Scenario second.*'
+- assertVisible:
+    text: '.*Scenario first.*'
+    below:
+      text: '.*Scenario third.*'
+# Drag "first" (now at the bottom) upward back to the top, restoring the
+# original order: first, second, third.
+- swipe:
+    start: 7%,48%
+    end: 7%,17%
+    duration: 4000
+- assertVisible:
+    text: '.*Scenario second.*'
+    below:
+      text: '.*Scenario first.*'
+- assertVisible:
+    text: '.*Scenario third.*'
+    below:
+      text: '.*Scenario second.*'
+- tapOn: Start run
+- assertVisible:
+    text: '.*Scenario second.*'
+    below:
+      text: '.*Scenario first.*'
+- assertVisible:
+    text: '.*Scenario third.*'
+    below:
+      text: '.*Scenario second.*'
+- runFlow: helpers/discard-run.yaml
+- runFlow: helpers/delete-checklist.yaml
