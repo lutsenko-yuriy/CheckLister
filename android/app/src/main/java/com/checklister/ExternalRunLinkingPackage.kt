@@ -12,10 +12,10 @@ import com.facebook.react.module.annotations.ReactModule
 import com.facebook.react.module.model.ReactModuleInfo
 import com.facebook.react.module.model.ReactModuleInfoProvider
 
-internal fun Intent.isExternalRunIntent(): Boolean =
+internal fun Intent.isExternalLinkIntent(): Boolean =
   action == Intent.ACTION_VIEW &&
     data?.scheme == "checklister" &&
-    data?.host == "run"
+    (data?.host == "run" || data?.host == "select")
 
 @ReactModule(name = ExternalRunLinkingModule.NAME)
 class ExternalRunLinkingModule(
@@ -30,7 +30,7 @@ class ExternalRunLinkingModule(
       val activity = context.currentActivity
       val intent = activity?.intent
       val pendingUrls = Arguments.createArray()
-      if (intent?.isExternalRunIntent() == true) {
+      if (intent?.isExternalLinkIntent() == true) {
         pendingUrls.pushString(intent.data.toString())
         activity.intent =
           Intent(Intent.ACTION_MAIN).apply {
