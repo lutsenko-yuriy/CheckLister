@@ -1,13 +1,16 @@
 appId: org.reactjs.native.example.CheckLister
 name: A select request during an active run leaves the run untouched
 ---
-# TODO:
-# 1. Create a checklist and start a run (helpers/create-checklist.yaml,
-#    "Start run").
-# 2. Toggle at least one item so the run has in-progress state.
-# 3. Open a foreground checklister://select link (valid callback).
-# 4. Verify the "Select checklist" picker opens above the run.
-# 5. Cancel the picker.
-# 6. Verify the run screen is back with its toggled progress intact
-#    (not reset, not discarded).
-# 7. Clean up (discard run, delete checklist).
+- runFlow: helpers/create-checklist.yaml
+- tapOn: Start run
+- tapOn: .*Scenario first.*
+- assertVisible: 1 of 2 checked
+- openLink: "checklister://select?callbackUrl=missingcaller%3A%2F%2Fresult"
+- tapOn:
+    text: Open
+    optional: true
+- assertVisible: Select checklist
+- tapOn: Cancel
+- assertVisible: 1 of 2 checked
+- runFlow: helpers/discard-run.yaml
+- runFlow: helpers/delete-checklist.yaml
