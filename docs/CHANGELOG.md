@@ -13,6 +13,11 @@ A record of all versioned releases. For planned work and known issues, see @docs
 - ...
 -->
 
+## [0.10.3] — 2026-09-22 (PR #57 merged)
+
+### Added
+- [meta] CheL-29: Local iOS smoke test coverage for real drag-to-reorder — dragging an item down two rows then back up via its real drag handle, and a run confirming the final template order carries over. `ItemRow`'s drag handle now exposes a row-scoped `drag-handle-<text>` testID, matching the existing per-row selector pattern. Documents two Maestro/`react-native-reanimated-dnd` constraints in `docs/SCENARIOS.md`: the `swipe` command only accepts point/percentage coordinates (no element selectors), and the library's pan gesture needs a slow (4s) synthetic swipe to activate at all.
+
 ## [0.10.2] — 2026-09-21 (PR #56 merged)
 
 ### Fixed

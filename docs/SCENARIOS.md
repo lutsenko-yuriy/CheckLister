@@ -130,6 +130,18 @@ draft input's Save/Cancel buttons used to need a second tap because of this
 on `postinstall`) threads `keyboardShouldPersistTaps` through to `Sortable`,
 and `ChecklistDetailScreen` sets it to `"handled"`.
 
+Real drag-to-reorder (CheL-29) needs `ChecklistDetailScreen` to expose a
+row-scoped `drag-handle-<text>` testID on each item's handle, for the same
+flattened-hierarchy reason as Edit/Delete. `react-native-reanimated-dnd`'s
+pan gesture uses `activateAfterLongPress(200)`, so it never activates from a
+fast synthetic swipe — a `duration: 1500` swipe produced zero movement in
+testing. Maestro's `swipe` command also doesn't accept a `start`/`end`
+element selector (`id`/`text`) at all — the flow schema only parses plain
+point/percentage coordinates — so `checklist-drag-reorder-ios.yaml` swipes
+between the handles' known screen percentages (fixed item row height, fixed
+vertical offset above the list) with `duration: 4000`, which reliably
+triggers and completes the drag.
+
 Runner contract tests use stub executables, not a simulator:
 
 ```bash
@@ -194,3 +206,13 @@ three flows run serially; initial driver startup adds overhead to wall time.
 - `checklist-item-editing-ios.yaml` now taps Save/Cancel once, confirming the
   first-tap fix on a real simulator.
 - **251 Jest tests**, TypeScript, and ESLint passed.
+
+## Verified CheL-29 expansion — 2026-09-22
+
+- Two consecutive full-suite runs against a Release build on the iPhone 17 Pro
+  / iOS 26.5 simulator: **12/12** flows passed each time, in 7m 26s both
+  times.
+- The new drag-reorder flow drags an item down two rows then back up via its
+  real drag handle, asserts visible order after each move, and confirms a
+  run started afterward preserves the final template order.
+- **252 Jest tests**, TypeScript, and ESLint passed.
