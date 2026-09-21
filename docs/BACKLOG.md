@@ -8,7 +8,7 @@ The `## In Progress` section at the top is the one exception — it is maintaine
 
 ## In Progress
 
-- [CheL-54: Checklist item edit Save/Cancel require a double tap](https://github.com/lutsenko-yuriy/CheckLister/issues/54)
+_(nothing in progress — CheL-54 is in review: [PR #56](https://github.com/lutsenko-yuriy/CheckLister/pull/56))_
 
 ---
 
