@@ -180,7 +180,9 @@ export function ChecklistDetailScreen({ navigation, route }: Props) {
           }) => {
             const dragHandle = (
               <SortableItem.Handle style={styles.dragHandle}>
-                <Text>≡</Text>
+                <View testID={`drag-handle-${item.text}`}>
+                  <Text>≡</Text>
+                </View>
               </SortableItem.Handle>
             );
             return (

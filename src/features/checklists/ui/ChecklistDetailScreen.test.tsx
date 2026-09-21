@@ -207,6 +207,26 @@ describe('ChecklistDetailScreen', () => {
     expect((await repo.getAll())[0].items).toHaveLength(0);
   });
 
+  it('exposes a row-scoped testID on each item\'s drag handle', async () => {
+    const repo = new AsyncStorageChecklistRepository();
+    await repo.saveAll([
+      {
+        id: '1',
+        title: 'Groceries',
+        items: [
+          { id: 'a', text: 'Milk' },
+          { id: 'b', text: 'Eggs' },
+        ],
+      },
+    ]);
+
+    await renderDetailScreen('1');
+    await waitFor(() => screen.getByText('Milk'));
+
+    expect(screen.getByTestId('drag-handle-Milk')).toBeTruthy();
+    expect(screen.getByTestId('drag-handle-Eggs')).toBeTruthy();
+  });
+
   // Drag gestures are driven through a mocked react-native-reanimated-dnd
   // (__mocks__/react-native-reanimated-dnd.js) that exposes drag completion
   // as `fireEvent(getByTestId('sortable-item-<itemId>'), 'drop', { to })`.
