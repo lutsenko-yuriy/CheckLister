@@ -8,7 +8,7 @@ The `## In Progress` section at the top is the one exception — it is maintaine
 
 ## In Progress
 
-- [CheL-29: Smoke tests: drag-to-reorder on iOS](https://github.com/lutsenko-yuriy/CheckLister/issues/29)
+_(nothing in progress — CheL-29 is in review: [PR #57](https://github.com/lutsenko-yuriy/CheckLister/pull/57))_
 
 ---
 
