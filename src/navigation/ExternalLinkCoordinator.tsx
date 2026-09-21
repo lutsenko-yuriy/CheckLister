@@ -20,6 +20,10 @@ const INVALID_CALLBACK_MESSAGE = 'We do not know which app to return to.';
 const UNEXPECTED_DISPATCH_FAILURE_MESSAGE =
   'Could not return the result to the calling app.';
 
+function waitForNextFrame(): Promise<void> {
+  return new Promise(resolve => requestAnimationFrame(() => resolve()));
+}
+
 interface ExternalLinkCoordinatorProps {
   readonly navigationReady: boolean;
   readonly navigationRef: NavigationContainerRefWithCurrent<RootStackParamList>;
@@ -40,15 +44,19 @@ export function ExternalLinkCoordinator({
 
   const handleRunUrl = useCallback(
     async (url: string) => {
-      // A `run` link preempts any picker left open above it: resolve the
-      // pending selection first so its caller still gets exactly one
-      // result, then pop the picker before starting the run.
+      // A `run` link preempts any picker left open above it: pop the
+      // picker first (mirroring ChecklistSelectScreen's own navigate-then-
+      // deliver ordering) so the cancelled callback's Linking.openURL —
+      // which backgrounds the app — never races the in-flight pop
+      // transition, then resolve the pending selection so its caller still
+      // gets exactly one result.
       const pendingSelectionCallbackUrl = takePendingCallbackUrl();
       if (pendingSelectionCallbackUrl) {
+        navigationRef.goBack();
+        await waitForNextFrame();
         await deliverExternalSelectResult(pendingSelectionCallbackUrl, {
           status: 'cancelled',
         });
-        navigationRef.goBack();
       }
 
       const request = parseExternalRunRequest(url);

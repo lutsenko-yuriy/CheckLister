@@ -11,6 +11,9 @@ name: A select request during an active run leaves the run untouched
     optional: true
 - assertVisible: Select checklist
 - tapOn: Cancel
+- tapOn:
+    text: OK
+    optional: true
 - assertVisible: 1 of 2 checked
 - runFlow: helpers/discard-run.yaml
 - runFlow: helpers/delete-checklist.yaml
