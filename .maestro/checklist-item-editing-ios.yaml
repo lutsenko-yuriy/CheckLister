@@ -6,9 +6,6 @@ name: Edit checklist item text, cancel an edit, and use it in a run
     id: edit-item-Scenario first
 - eraseText: 30
 - inputText: Edited first text
-# The first tap outside the still-focused draft TextInput only blurs it;
-# Save/Cancel need a second tap to actually fire. See CheL-32 follow-up note.
-- tapOn: Save
 - tapOn: Save
 - assertVisible: '.*Edited first text.*'
 - assertNotVisible: '.*Scenario first.*'
@@ -18,13 +15,11 @@ name: Edit checklist item text, cancel an edit, and use it in a run
 - eraseText: 30
 - inputText: Should not stick
 - tapOn: Cancel
-- tapOn: Cancel
 - assertVisible: '.*Scenario second.*'
 - assertNotVisible: '.*Should not stick.*'
 - tapOn:
     id: edit-item-Edited first text
 - eraseText: 30
-- tapOn: Save
 - tapOn: Save
 - assertVisible: '.*Edited first text.*'
 - tapOn: Start run

@@ -13,6 +13,11 @@ A record of all versioned releases. For planned work and known issues, see @docs
 - ...
 -->
 
+## [0.10.2] — 2026-09-21 (PR #56 merged)
+
+### Fixed
+- [user] CheL-54: A checklist item's Save/Cancel buttons now respond on the first tap while its draft text field is still focused, instead of requiring a second tap. `react-native-reanimated-dnd`'s `Sortable` didn't expose `keyboardShouldPersistTaps`, so this patches the library (via `patch-package`) to accept and forward it, and sets it to `"handled"` on the checklist item list.
+
 ## [0.10.1] — 2026-09-21 (PR #55 merged)
 
 ### Added

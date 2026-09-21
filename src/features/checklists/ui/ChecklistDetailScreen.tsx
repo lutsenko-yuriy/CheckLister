@@ -168,6 +168,7 @@ export function ChecklistDetailScreen({ navigation, route }: Props) {
           style={styles.sortableList}
           itemKeyExtractor={item => item.id}
           itemHeight={ITEM_ROW_HEIGHT}
+          keyboardShouldPersistTaps="handled"
           renderItem={({
             item,
             id,
