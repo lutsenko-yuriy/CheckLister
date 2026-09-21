@@ -82,6 +82,29 @@ checklist belongs to the person using the device.
 - Callback details remain in memory only and are never persisted or included
   in analytics.
 
+### Feature 7 — Externally requested checklist selection
+- Another mobile app can ask the user to pick one of their checklists through
+  a `checklister://select` link and provide a callback URL for the result.
+- CheckLister shows a read-only "Select checklist" picker listing every
+  checklist by name and item count. It has no add/rename/delete/reorder
+  affordances — selection only.
+- Picking a checklist returns the public status, the checklist's ID, and its
+  name. Cancelling (Cancel button, hardware back, or swipe) returns a
+  cancelled status instead. Either way the caller receives exactly one
+  result.
+- The picker never disturbs an active run: it opens above whatever screen is
+  on top, including an active run, and cancelling returns to that screen
+  untouched. A checklister://run link that arrives while the picker is open
+  resolves the pending selection as cancelled and starts the run as Feature 6
+  describes; a second select request cancels the first caller and re-points
+  the picker rather than opening a second one.
+- No checklists to choose from returns one public error status without
+  opening the picker.
+- Invalid callback URLs and failed callback delivery show an explanation in
+  CheckLister, the same as Feature 6.
+- Callback details, and the selected checklist's ID and name, remain in
+  memory only and are never persisted or included in analytics.
+
 ## Out of scope for v1
 
 - User accounts, login, or any backend — all data is local to the device.
