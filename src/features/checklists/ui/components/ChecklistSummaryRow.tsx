@@ -7,13 +7,15 @@ export function ChecklistSummaryRow({
   checklist,
   onPress,
   style,
+  testID,
 }: {
   checklist: Checklist;
   onPress: () => void;
   style?: StyleProp<ViewStyle>;
+  testID?: string;
 }) {
   return (
-    <Pressable style={[styles.rowBody, style]} onPress={onPress}>
+    <Pressable style={[styles.rowBody, style]} onPress={onPress} testID={testID}>
       <Text style={styles.rowTitle}>{checklist.title}</Text>
       {checklist.items.length > 0 && (
         <Text style={styles.rowSubtitle}>

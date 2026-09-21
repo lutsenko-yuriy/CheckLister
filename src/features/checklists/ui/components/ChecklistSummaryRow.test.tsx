@@ -44,4 +44,18 @@ describe('ChecklistSummaryRow', () => {
 
     expect(onPress).toHaveBeenCalledTimes(1);
   });
+
+  it('exposes an optional testID on the pressable row', async () => {
+    const checklist = createChecklist('Groceries');
+
+    await render(
+      <ChecklistSummaryRow
+        checklist={checklist}
+        onPress={jest.fn()}
+        testID="checklist-row-Groceries"
+      />,
+    );
+
+    expect(screen.getByTestId('checklist-row-Groceries')).toBeTruthy();
+  });
 });
