@@ -1,0 +1,34 @@
+appId: org.reactjs.native.example.CheckLister
+name: Edit checklist item text, cancel an edit, and use it in a run
+---
+- runFlow: helpers/create-checklist.yaml
+- tapOn:
+    id: edit-item-Scenario first
+- eraseText: 30
+- inputText: Edited first text
+# The first tap outside the still-focused draft TextInput only blurs it;
+# Save/Cancel need a second tap to actually fire. See CheL-32 follow-up note.
+- tapOn: Save
+- tapOn: Save
+- assertVisible: '.*Edited first text.*'
+- assertNotVisible: '.*Scenario first.*'
+- assertVisible: '.*Scenario second.*'
+- tapOn:
+    id: edit-item-Scenario second
+- eraseText: 30
+- inputText: Should not stick
+- tapOn: Cancel
+- tapOn: Cancel
+- assertVisible: '.*Scenario second.*'
+- assertNotVisible: '.*Should not stick.*'
+- tapOn:
+    id: edit-item-Edited first text
+- eraseText: 30
+- tapOn: Save
+- tapOn: Save
+- assertVisible: '.*Edited first text.*'
+- tapOn: Start run
+- assertVisible: '.*Edited first text.*'
+- assertVisible: '.*Scenario second.*'
+- runFlow: helpers/discard-run.yaml
+- runFlow: helpers/delete-checklist.yaml

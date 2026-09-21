@@ -110,8 +110,8 @@ behaviour beyond a literal value, it is not trivial — use the full workflow in
    - Open a PR/MR.
    - Move the ticket to **In Review**.
    - Inform the user of the PR/MR URL and open it in the browser.
-   - The review loop (step 10) starts automatically once the PR/MR is open, unless the user says otherwise beforehand.
-10. **Review loop** — starts automatically once the PR/MR is open (see step 9), unless the user asked to hold; repeat until the user explicitly approves:
+   - Then immediately invoke the review loop (step 10) — call the `review` and `audit` skills yourself right now, unless the user says otherwise beforehand. Do not just state that review will happen; invoke it.
+10. **Review loop** — begin immediately once the PR/MR is open (see step 9) by invoking the `review` and `audit` skills yourself; unless the user asked to hold; repeat until the user explicitly approves:
     0. **Before starting:** Verify the change on your own initiative — confirm it builds/boots, then exercise the specific flow the PR/MR touches. For checklist/run flows on iOS, use `npm run scenarios:ios -- <UDID>` after building/installing the current checkout; see [local scenario setup](../SCENARIOS.md). Report the result, then proceed into the loop.
     1. Wait for the review skills (`review`, `audit`), any coverage report, and the user to finish leaving comments.
        - **Immediately after invoking each routed skill, confirm its subagent actually spawned** before moving on to anything else. A skill's routing message is an instruction to act on, not content to just read — treat it the same way you'd treat a TODO you haven't checked off.

@@ -53,6 +53,19 @@ describe('ItemRow', () => {
     expect(onEdit).toHaveBeenCalledWith('Oat milk');
   });
 
+  it('exposes row-scoped testIDs for Edit and Delete', async () => {
+    await render(
+      <ItemRow
+        item={item()}
+        onEdit={jest.fn()}
+        onDelete={jest.fn()}
+        dragHandle={<Text>Handle</Text>}
+      />,
+    );
+    expect(screen.getByTestId('edit-item-Milk')).toBeTruthy();
+    expect(screen.getByTestId('delete-item-Milk')).toBeTruthy();
+  });
+
   it('calls onDelete when Delete is pressed', async () => {
     const onDelete = jest.fn();
     await render(

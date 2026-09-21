@@ -74,6 +74,7 @@ export function ItemRow({
         accessibilityLabel="Edit"
         onPress={startEditing}
         style={styles.actionButton}
+        testID={`edit-item-${item.text}`}
       />
       <IconButton
         icon="delete"
@@ -81,6 +82,7 @@ export function ItemRow({
         onPress={onDelete}
         color={colors.danger}
         style={styles.actionButton}
+        testID={`delete-item-${item.text}`}
       />
     </View>
   );
