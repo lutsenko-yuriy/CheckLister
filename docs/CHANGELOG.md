@@ -13,13 +13,12 @@ A record of all versioned releases. For planned work and known issues, see @docs
 - ...
 -->
 
-## [Unreleased]
+## [0.10.0] — 2026-09-21 (PR #53 merged)
 
-### [wip]
-- CheL-40 WU1: Added the validated external-select link contract (`checklister://select`), extracting the shared URL primitives out of the external-run contract so both verbs reuse the same parsing/validation rules. No user-facing behavior is exposed yet.
-- CheL-40 WU2: Added the in-memory external-selection session (`useExternalSelection`) and its privacy-safe callback delivery, wired into `App.tsx`. Still unreachable from outside the app until the picker screen and coordinator land.
-- CheL-40 WU3: Added the read-only `ChecklistSelectScreen` picker (route `ChecklistSelect`), extracting a shared `ChecklistSummaryRow` from `HomeScreen`. Still unreachable from outside the app until the coordinator dispatches `checklister://select` links to it in WU4.
-- CheL-40 WU4: Wired `checklister://select` links end to end. `ExternalRunLinkCoordinator` is generalized into `ExternalLinkCoordinator`, dispatching incoming URLs by verb; Android now registers the `select` host alongside `run`. Another app can now ask CheckLister to open the checklist picker and receive the chosen checklist's ID and name (or a cancellation) via callback URL.
+### Added
+- [user] CheL-40: Another mobile app can now ask the user to pick one of their checklists through a `checklister://select` link and receive the chosen checklist's ID and name (or a cancellation) via callback URL. The picker never disturbs an active run — it opens above it, and cancelling returns to the run untouched.
+- [app] Added a validated external-select contract sharing URL primitives with CheL-36's external-run contract via a new `shared/links` layer, an in-memory (never persisted) selection session, a read-only `ChecklistSelectScreen` picker with a shared `ChecklistSummaryRow`, and a generalized `ExternalLinkCoordinator` dispatching incoming URLs by verb (`run` or `select`). A `run` link preempts an open picker; a second `select` link re-points the picker instead of opening a duplicate. Android registers the `select` host alongside `run`.
+- [test] Added Jest coverage for the select contract, session, delivery, screen, and coordinator dispatch (including run/select preemption races), plus three installed-app Maestro scenarios for select's invalid-callback, failed-delivery, and during-a-run flows.
 
 ## [0.9.2] — 2026-09-20 (PR #48)
 
