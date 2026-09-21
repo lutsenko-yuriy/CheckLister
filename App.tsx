@@ -16,7 +16,7 @@ import { ExternalSelectionProvider } from './src/features/checklists/useExternal
 import { RunsProvider } from './src/features/runs/useRuns';
 import { AsyncStorageRunRepository } from './src/features/runs/data/asyncStorageRunRepository';
 import { RootNavigator } from './src/navigation/RootNavigator';
-import { ExternalRunLinkCoordinator } from './src/navigation/ExternalRunLinkCoordinator';
+import { ExternalLinkCoordinator } from './src/navigation/ExternalLinkCoordinator';
 import { RootStackParamList } from './src/navigation/types';
 
 const checklistRepository = new AsyncStorageChecklistRepository();
@@ -43,7 +43,7 @@ function App() {
               >
                 <RootNavigator />
               </NavigationContainer>
-              <ExternalRunLinkCoordinator
+              <ExternalLinkCoordinator
                 navigationReady={navigationReady}
                 navigationRef={navigationRef}
               />

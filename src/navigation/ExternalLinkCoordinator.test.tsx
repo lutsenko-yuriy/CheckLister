@@ -5,27 +5,30 @@ import { createNavigationContainerRef } from '@react-navigation/native';
 import { Checklist } from '../features/checklists/domain/models';
 import { ChecklistRun, startRun } from '../features/runs/domain/models';
 import { analytics } from '../shared/analytics/AnalyticsService';
-import { ExternalRunLinkCoordinator } from './ExternalRunLinkCoordinator';
+import { ExternalLinkCoordinator } from './ExternalLinkCoordinator';
 import { RootStackParamList } from './types';
 
 const mockUseChecklists = jest.fn();
 const mockUseRuns = jest.fn();
-const mockActivateExternalRunLinkHandoff = jest.fn();
-const mockDeactivateExternalRunLinkHandoff = jest.fn();
+const mockUseExternalSelection = jest.fn();
+const mockActivateExternalLinkHandoff = jest.fn();
+const mockDeactivateExternalLinkHandoff = jest.fn();
 
 jest.mock('../features/checklists/useChecklists', () => ({
   useChecklists: () => mockUseChecklists(),
+}));
+
+jest.mock('../features/checklists/useExternalSelection', () => ({
+  useExternalSelection: () => mockUseExternalSelection(),
 }));
 
 jest.mock('../features/runs/useRuns', () => ({
   useRuns: () => mockUseRuns(),
 }));
 
-jest.mock('./externalRunNativeHandoff', () => ({
-  activateExternalRunLinkHandoff: () =>
-    mockActivateExternalRunLinkHandoff(),
-  deactivateExternalRunLinkHandoff: () =>
-    mockDeactivateExternalRunLinkHandoff(),
+jest.mock('./externalLinkNativeHandoff', () => ({
+  activateExternalLinkHandoff: () => mockActivateExternalLinkHandoff(),
+  deactivateExternalLinkHandoff: () => mockDeactivateExternalLinkHandoff(),
 }));
 
 const groceries: Checklist = {
@@ -39,7 +42,7 @@ const emptyChecklist: Checklist = {
   items: [],
 };
 
-function requestUrl(
+function runUrl(
   checklistId: string,
   callbackUrl = 'caller-app://run-result?source=widget',
 ): string {
@@ -48,13 +51,22 @@ function requestUrl(
   )}&callbackUrl=${encodeURIComponent(callbackUrl)}`;
 }
 
-describe('ExternalRunLinkCoordinator', () => {
+function selectUrl(
+  callbackUrl = 'caller-app://select-result?source=widget',
+): string {
+  return `checklister://select?callbackUrl=${encodeURIComponent(callbackUrl)}`;
+}
+
+describe('ExternalLinkCoordinator', () => {
   let activeRun: ChecklistRun | null;
   let checklists: Checklist[];
   let loading: boolean;
   let emitUrl: (url: string) => void;
   let listenerRemove: jest.Mock;
   let startExternalRun: jest.Mock;
+  let beginSelection: jest.Mock;
+  let takePendingCallbackUrl: jest.Mock;
+  let pendingCallbackUrl: string | null;
   let navigationReady: boolean;
   let navigationRef: ReturnType<
     typeof createNavigationContainerRef<RootStackParamList>
@@ -62,7 +74,7 @@ describe('ExternalRunLinkCoordinator', () => {
 
   async function renderCoordinator() {
     return await render(
-      <ExternalRunLinkCoordinator
+      <ExternalLinkCoordinator
         navigationReady={navigationReady}
         navigationRef={navigationRef}
       />,
@@ -70,26 +82,40 @@ describe('ExternalRunLinkCoordinator', () => {
   }
 
   beforeEach(() => {
-    mockActivateExternalRunLinkHandoff.mockClear();
-    mockDeactivateExternalRunLinkHandoff.mockClear();
+    mockActivateExternalLinkHandoff.mockClear();
+    mockDeactivateExternalLinkHandoff.mockClear();
     activeRun = null;
     checklists = [groceries, emptyChecklist];
     loading = false;
     navigationReady = true;
     startExternalRun = jest.fn();
+    pendingCallbackUrl = null;
+    beginSelection = jest.fn(url => {
+      pendingCallbackUrl = url;
+    });
+    takePendingCallbackUrl = jest.fn(() => {
+      const url = pendingCallbackUrl;
+      pendingCallbackUrl = null;
+      return url;
+    });
     navigationRef = createNavigationContainerRef<RootStackParamList>();
     jest.spyOn(navigationRef, 'navigate').mockImplementation(() => {});
+    jest.spyOn(navigationRef, 'goBack').mockImplementation(() => {});
 
     mockUseChecklists.mockImplementation(() => ({ checklists, loading }));
     mockUseRuns.mockImplementation(() => ({
       activeRun,
       startExternalRun,
     }));
+    mockUseExternalSelection.mockImplementation(() => ({
+      beginSelection,
+      takePendingCallbackUrl,
+    }));
 
     listenerRemove = jest.fn();
     jest
       .spyOn(Linking, 'getInitialURL')
-      .mockResolvedValue(requestUrl(groceries.id));
+      .mockResolvedValue(runUrl(groceries.id));
     jest
       .spyOn(Linking, 'addEventListener')
       .mockImplementation((_eventType, listener) => {
@@ -99,7 +125,7 @@ describe('ExternalRunLinkCoordinator', () => {
     jest.spyOn(Linking, 'openURL').mockResolvedValue(undefined);
     jest.spyOn(Alert, 'alert').mockImplementation(() => {});
     jest.spyOn(analytics, 'logEvent').mockImplementation(() => {});
-    mockActivateExternalRunLinkHandoff.mockResolvedValue([]);
+    mockActivateExternalLinkHandoff.mockResolvedValue([]);
   });
 
   afterEach(() => {
@@ -117,7 +143,7 @@ describe('ExternalRunLinkCoordinator', () => {
 
     navigationReady = true;
     await rerender(
-      <ExternalRunLinkCoordinator
+      <ExternalLinkCoordinator
         navigationReady={navigationReady}
         navigationRef={navigationRef}
       />,
@@ -126,7 +152,7 @@ describe('ExternalRunLinkCoordinator', () => {
 
     loading = false;
     await rerender(
-      <ExternalRunLinkCoordinator
+      <ExternalLinkCoordinator
         navigationReady={navigationReady}
         navigationRef={navigationRef}
       />,
@@ -143,14 +169,14 @@ describe('ExternalRunLinkCoordinator', () => {
     });
   });
 
-  it('handles foreground links and reports when they replace an active run', async () => {
+  it('handles foreground run links and reports when they replace an active run', async () => {
     jest.spyOn(Linking, 'getInitialURL').mockResolvedValue(null);
     activeRun = startRun(groceries);
     await renderCoordinator();
 
     await waitFor(() => expect(Linking.addEventListener).toHaveBeenCalled());
     await act(async () =>
-      emitUrl(requestUrl(groceries.id, 'second-app://result')),
+      emitUrl(runUrl(groceries.id, 'second-app://result')),
     );
 
     await waitFor(() =>
@@ -168,9 +194,7 @@ describe('ExternalRunLinkCoordinator', () => {
 
   it('handles a URL received natively before the JavaScript listener is ready', async () => {
     jest.spyOn(Linking, 'getInitialURL').mockResolvedValue(null);
-    mockActivateExternalRunLinkHandoff.mockResolvedValue([
-      requestUrl(groceries.id),
-    ]);
+    mockActivateExternalLinkHandoff.mockResolvedValue([runUrl(groceries.id)]);
 
     await renderCoordinator();
 
@@ -190,12 +214,12 @@ describe('ExternalRunLinkCoordinator', () => {
         resolveInitialUrl = resolve;
       }),
     );
-    mockActivateExternalRunLinkHandoff.mockResolvedValue([
-      requestUrl(groceries.id, 'second-app://result'),
+    mockActivateExternalLinkHandoff.mockResolvedValue([
+      runUrl(groceries.id, 'second-app://result'),
     ]);
     await renderCoordinator();
 
-    await act(async () => resolveInitialUrl(requestUrl(groceries.id)));
+    await act(async () => resolveInitialUrl(runUrl(groceries.id)));
 
     await waitFor(() => expect(startExternalRun).toHaveBeenCalledTimes(2));
     expect(startExternalRun.mock.calls.map(call => call[1])).toEqual([
@@ -205,9 +229,9 @@ describe('ExternalRunLinkCoordinator', () => {
   });
 
   it('processes a URL exposed by two startup channels only once', async () => {
-    const url = requestUrl(groceries.id);
+    const url = runUrl(groceries.id);
     jest.spyOn(Linking, 'getInitialURL').mockResolvedValue(url);
-    mockActivateExternalRunLinkHandoff.mockResolvedValue([url]);
+    mockActivateExternalLinkHandoff.mockResolvedValue([url]);
 
     await renderCoordinator();
 
@@ -225,7 +249,7 @@ describe('ExternalRunLinkCoordinator', () => {
       await renderCoordinator();
 
       await waitFor(() => expect(Linking.addEventListener).toHaveBeenCalled());
-      await act(async () => emitUrl(requestUrl(checklistId)));
+      await act(async () => emitUrl(runUrl(checklistId)));
 
       await waitFor(() => expect(Linking.openURL).toHaveBeenCalledTimes(1));
       const callback = String(jest.mocked(Linking.openURL).mock.calls[0][0]);
@@ -242,13 +266,13 @@ describe('ExternalRunLinkCoordinator', () => {
     },
   );
 
-  it('rejects an invalid callback without disturbing an active run', async () => {
+  it('rejects an invalid run callback without disturbing an active run', async () => {
     jest.spyOn(Linking, 'getInitialURL').mockResolvedValue(null);
     activeRun = startRun(groceries);
     await renderCoordinator();
 
     await waitFor(() => expect(Linking.addEventListener).toHaveBeenCalled());
-    await act(async () => emitUrl(requestUrl(groceries.id, 'tel:+4912345')));
+    await act(async () => emitUrl(runUrl(groceries.id, 'tel:+4912345')));
 
     await waitFor(() =>
       expect(Alert.alert).toHaveBeenCalledWith(
@@ -271,7 +295,7 @@ describe('ExternalRunLinkCoordinator', () => {
     await renderCoordinator();
 
     await waitFor(() => expect(Linking.addEventListener).toHaveBeenCalled());
-    await act(async () => emitUrl(requestUrl('missing-id')));
+    await act(async () => emitUrl(runUrl('missing-id')));
 
     await waitFor(() =>
       expect(Alert.alert).toHaveBeenCalledWith(
@@ -281,12 +305,12 @@ describe('ExternalRunLinkCoordinator', () => {
     expect(startExternalRun).not.toHaveBeenCalled();
   });
 
-  it('never includes request identifiers or callback data in analytics', async () => {
+  it('never includes request identifiers or callback data in run analytics', async () => {
     jest.spyOn(Linking, 'getInitialURL').mockResolvedValue(null);
     await renderCoordinator();
 
     await waitFor(() => expect(Linking.addEventListener).toHaveBeenCalled());
-    await act(async () => emitUrl(requestUrl(groceries.id)));
+    await act(async () => emitUrl(runUrl(groceries.id)));
 
     await waitFor(() => expect(analytics.logEvent).toHaveBeenCalled());
     const analyticsPayload = JSON.stringify(
@@ -308,10 +332,10 @@ describe('ExternalRunLinkCoordinator', () => {
 
     await waitFor(() =>
       expect(consoleError).toHaveBeenCalledWith(
-        'Failed to read the initial external-run URL',
+        'Failed to read the initial external-link URL',
       ),
     );
-    await act(async () => emitUrl(requestUrl(groceries.id)));
+    await act(async () => emitUrl(runUrl(groceries.id)));
 
     await waitFor(() =>
       expect(startExternalRun).toHaveBeenCalledWith(
@@ -328,6 +352,164 @@ describe('ExternalRunLinkCoordinator', () => {
     await unmount();
 
     expect(listenerRemove).toHaveBeenCalledTimes(1);
-    expect(mockDeactivateExternalRunLinkHandoff).toHaveBeenCalledTimes(1);
+    expect(mockDeactivateExternalLinkHandoff).toHaveBeenCalledTimes(1);
+  });
+
+  it('opens the picker for a select request once checklists are hydrated', async () => {
+    jest.spyOn(Linking, 'getInitialURL').mockResolvedValue(null);
+    await renderCoordinator();
+
+    await waitFor(() => expect(Linking.addEventListener).toHaveBeenCalled());
+    await act(async () => emitUrl(selectUrl()));
+
+    await waitFor(() =>
+      expect(beginSelection).toHaveBeenCalledWith(
+        'caller-app://select-result?source=widget',
+      ),
+    );
+    expect(navigationRef.navigate).toHaveBeenCalledWith('ChecklistSelect');
+    expect(analytics.logEvent).toHaveBeenCalledWith(
+      'external_select_request_handled',
+      { outcome: 'opened' },
+    );
+  });
+
+  it('returns a public error and does not navigate when there are no checklists to select', async () => {
+    checklists = [];
+    jest.spyOn(Linking, 'getInitialURL').mockResolvedValue(null);
+    await renderCoordinator();
+
+    await waitFor(() => expect(Linking.addEventListener).toHaveBeenCalled());
+    await act(async () => emitUrl(selectUrl()));
+
+    await waitFor(() => expect(Linking.openURL).toHaveBeenCalledTimes(1));
+    const callback = String(jest.mocked(Linking.openURL).mock.calls[0][0]);
+    expect(callback).toContain('status=error');
+    expect(beginSelection).not.toHaveBeenCalled();
+    expect(navigationRef.navigate).not.toHaveBeenCalled();
+    expect(analytics.logEvent).toHaveBeenCalledWith(
+      'external_select_request_handled',
+      { outcome: 'error' },
+    );
+  });
+
+  it.each([
+    ['missing', 'checklister://select'],
+    ['unsupported scheme', selectUrl('tel:+4912345')],
+    ['self-referencing', selectUrl('checklister://select?callbackUrl=x')],
+  ])(
+    'rejects a select request with a %s callback',
+    async (_caseName, url) => {
+      jest.spyOn(Linking, 'getInitialURL').mockResolvedValue(null);
+      await renderCoordinator();
+
+      await waitFor(() => expect(Linking.addEventListener).toHaveBeenCalled());
+      await act(async () => emitUrl(url));
+
+      await waitFor(() =>
+        expect(Alert.alert).toHaveBeenCalledWith(
+          'We do not know which app to return to.',
+        ),
+      );
+      expect(beginSelection).not.toHaveBeenCalled();
+      expect(navigationRef.navigate).not.toHaveBeenCalled();
+      expect(analytics.logEvent).toHaveBeenCalledWith(
+        'external_select_request_handled',
+        { outcome: 'invalid_callback' },
+      );
+    },
+  );
+
+  it('leaves an active run byte-identical and does not navigate away from it for a select request', async () => {
+    activeRun = startRun(groceries);
+    jest.spyOn(Linking, 'getInitialURL').mockResolvedValue(null);
+    await renderCoordinator();
+
+    await waitFor(() => expect(Linking.addEventListener).toHaveBeenCalled());
+    await act(async () => emitUrl(selectUrl()));
+
+    await waitFor(() => expect(beginSelection).toHaveBeenCalled());
+    expect(navigationRef.navigate).toHaveBeenCalledWith('ChecklistSelect');
+    expect(navigationRef.navigate).not.toHaveBeenCalledWith(
+      'Run',
+      expect.anything(),
+    );
+    expect(startExternalRun).not.toHaveBeenCalled();
+    expect(mockUseRuns().activeRun).toBe(activeRun);
+  });
+
+  it('cancels the first caller and re-points the picker for a second select request', async () => {
+    jest.spyOn(Linking, 'getInitialURL').mockResolvedValue(null);
+    await renderCoordinator();
+
+    await waitFor(() => expect(Linking.addEventListener).toHaveBeenCalled());
+    await act(async () =>
+      emitUrl(selectUrl('first-app://result?source=widget')),
+    );
+    await waitFor(() =>
+      expect(beginSelection).toHaveBeenCalledWith(
+        'first-app://result?source=widget',
+      ),
+    );
+    expect(navigationRef.navigate).toHaveBeenCalledTimes(1);
+
+    await act(async () =>
+      emitUrl(selectUrl('second-app://result?source=widget')),
+    );
+
+    await waitFor(() =>
+      expect(beginSelection).toHaveBeenCalledWith(
+        'second-app://result?source=widget',
+      ),
+    );
+    const openUrlCallback = String(
+      jest.mocked(Linking.openURL).mock.calls[0][0],
+    );
+    expect(openUrlCallback).toContain('first-app://result');
+    expect(openUrlCallback).toContain('status=cancelled');
+    // Re-pointing an already-open picker never pushes a second one.
+    expect(navigationRef.navigate).toHaveBeenCalledTimes(1);
+  });
+
+  it('cancels a pending selection and pops the picker before starting a run', async () => {
+    pendingCallbackUrl = 'select-caller://result?source=widget';
+    jest.spyOn(Linking, 'getInitialURL').mockResolvedValue(null);
+    await renderCoordinator();
+
+    await waitFor(() => expect(Linking.addEventListener).toHaveBeenCalled());
+    await act(async () => emitUrl(runUrl(groceries.id)));
+
+    await waitFor(() => expect(startExternalRun).toHaveBeenCalled());
+    expect(Linking.openURL).toHaveBeenCalledTimes(1);
+    const cancelledCallback = String(
+      jest.mocked(Linking.openURL).mock.calls[0][0],
+    );
+    expect(cancelledCallback).toContain('select-caller://result');
+    expect(cancelledCallback).toContain('status=cancelled');
+    expect(navigationRef.goBack).toHaveBeenCalledTimes(1);
+    expect(navigationRef.navigate).toHaveBeenCalledWith('Run', {
+      checklistId: groceries.id,
+    });
+  });
+
+  it('never includes callback data or checklist identity in select analytics', async () => {
+    jest.spyOn(Linking, 'getInitialURL').mockResolvedValue(null);
+    await renderCoordinator();
+
+    await waitFor(() => expect(Linking.addEventListener).toHaveBeenCalled());
+    await act(async () => emitUrl(selectUrl()));
+
+    await waitFor(() =>
+      expect(analytics.logEvent).toHaveBeenCalledWith(
+        'external_select_request_handled',
+        expect.anything(),
+      ),
+    );
+    const analyticsPayload = JSON.stringify(
+      jest.mocked(analytics.logEvent).mock.calls,
+    );
+    expect(analyticsPayload).not.toContain('caller-app');
+    expect(analyticsPayload).not.toContain('source=widget');
+    expect(analyticsPayload).not.toContain(groceries.id);
   });
 });
