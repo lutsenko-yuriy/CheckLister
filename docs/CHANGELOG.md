@@ -13,6 +13,11 @@ A record of all versioned releases. For planned work and known issues, see @docs
 - ...
 -->
 
+## [0.10.4] — 2026-09-22 (PR #58 merged)
+
+### Added
+- [meta] CheL-30: Local iOS smoke test coverage for checklist persistence across real app-process restarts — edits, reordering, item deletion, and an in-memory partial run correctly not being recovered all verified across three restarts. `ChecklistSummaryRow` now takes an optional `testID`, and `HomeScreen` sets it to `checklist-row-<title>`, needed because reopening a checklist by text selector is unreliable specifically right after a cold relaunch (documented in `docs/SCENARIOS.md`).
+
 ## [0.10.3] — 2026-09-22 (PR #57 merged)
 
 ### Added

@@ -162,7 +162,11 @@ function ChecklistRow({
 
   return (
     <View style={styles.row}>
-      <ChecklistSummaryRow checklist={checklist} onPress={onOpen} />
+      <ChecklistSummaryRow
+        checklist={checklist}
+        onPress={onOpen}
+        testID={`checklist-row-${checklist.title}`}
+      />
       <IconButton
         icon="edit"
         accessibilityLabel="Rename"

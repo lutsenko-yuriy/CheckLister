@@ -1,0 +1,18 @@
+appId: org.reactjs.native.example.CheckLister
+---
+# Terminates and relaunches without clearing app data, then reopens
+# ${output.title}. Scrolls/taps by id (checklist-row-<title>), not text:
+# iOS merges the row's title/item-count Text children into one accessible
+# node, and matching that merged label by text is unreliable specifically
+# after a cold relaunch (confirmed empirically — a bare id selector on the
+# same row works immediately, text never resolves even after 20s waits).
+- stopApp
+- launchApp:
+    clearState: false
+- assertVisible: New checklist title
+- scrollUntilVisible:
+    element:
+      id: checklist-row-${output.title}
+    direction: DOWN
+- tapOn:
+    id: checklist-row-${output.title}
