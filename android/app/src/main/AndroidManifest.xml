@@ -29,6 +29,9 @@
             <data
               android:scheme="checklister"
               android:host="run" />
+            <data
+              android:scheme="checklister"
+              android:host="select" />
         </intent-filter>
       </activity>
     </application>

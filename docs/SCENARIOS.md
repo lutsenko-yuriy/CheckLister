@@ -55,9 +55,12 @@ System Events UI scripting.
 ## Coverage
 
 CheL-36 adds two installed-app contracts for cold and foreground external-run
-links. Valid-checklist external-run completion and cancellation remain
-component integration scenarios until CheL-34 provides safe, deterministic
-checklist IDs for installed-app tests without clearing simulator data.
+links. CheL-40 adds three more for the `checklister://select` picker: an
+invalid cold callback, a failed callback delivery, and a select request
+arriving during an active run. Valid-checklist external-run/-select
+completion and cancellation remain component integration scenarios until
+CheL-34 provides safe, deterministic checklist IDs for installed-app tests
+without clearing simulator data.
 
 | Flow                   | Assertions                                                                                                                                                                                                                          |
 | ---------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -68,6 +71,9 @@ checklist IDs for installed-app tests without clearing simulator data.
 | `run-history-discard.yaml` | Cancelling an exit preserves progress, while discarding one or more runs never exposes checklist history. |
 | `external-run-invalid-callback-ios.yaml` | A cold `checklister://run` launch rejects an invalid callback, explains the problem, and leaves the home screen usable. |
 | `external-run-callback-failure-ios.yaml` | A link delivered immediately after launch returns an error for a missing checklist, reports failed callback delivery, and preserves existing simulator data. |
+| `external-select-invalid-callback-ios.yaml` | A cold `checklister://select` launch rejects an invalid callback, explains the problem, and leaves the home screen usable without opening the picker. |
+| `external-select-callback-failure-ios.yaml` | A foreground select link opens the picker; picking a checklist with an undeliverable callback reports failed callback delivery and returns to a usable home screen. |
+| `external-select-during-run-ios.yaml` | A foreground select link during an active run pushes the picker above it; cancelling the picker returns to the run with its progress intact. |
 
 On the tested iOS 26.5 / react-native-screens 4.28.0 combination, swiping an active
 run opens confirmation without removing the run. This matches the product spec.

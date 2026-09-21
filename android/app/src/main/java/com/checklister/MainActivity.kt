@@ -9,7 +9,7 @@ import com.facebook.react.defaults.DefaultReactActivityDelegate
 class MainActivity : ReactActivity() {
 
   override fun onNewIntent(intent: Intent) {
-    if (intent.isExternalRunIntent() && !ExternalRunLinkingModule.isActive) {
+    if (intent.isExternalLinkIntent() && !ExternalRunLinkingModule.isActive) {
       // The JavaScript listener is not ready yet. Retain the request for
       // getInitialURL() instead of also emitting an event that it cannot receive.
       setIntent(intent)

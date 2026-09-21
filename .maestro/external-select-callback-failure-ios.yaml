@@ -1,11 +1,28 @@
 appId: org.reactjs.native.example.CheckLister
 name: Foreground select delivers a failure when the callback can't be opened
 ---
-# TODO:
-# 1. Launch the app (foreground).
-# 2. Open a checklister://select link with an unresolvable callback scheme.
-# 3. Verify the "Select checklist" picker opens.
-# 4. Tap a checklist row.
-# 5. Verify "Could not return the result to the calling app." is shown
-#    with a dismiss action.
-# 6. Dismiss it and verify the app returns to a normal, usable state.
+- runFlow: helpers/create-checklist.yaml
+- tapOn: Back
+- assertVisible: New checklist title
+- openLink: "checklister://select?callbackUrl=missingcaller%3A%2F%2Fresult"
+- tapOn:
+    text: Open
+    optional: true
+- assertVisible: Select checklist
+- tapOn: ${output.title}.*
+- assertVisible: Could not return the result to the calling app\.
+- tapOn: OK
+- assertVisible: New checklist title
+- scrollUntilVisible:
+    element:
+      text: ${output.title}.*
+    direction: DOWN
+- tapOn:
+    id: delete-checklist-${output.title}
+- assertVisible: Delete checklist\?
+- tapOn:
+    text: Delete
+    childOf:
+      containsChild:
+        text: Cancel
+- assertNotVisible: ${output.title}.*
