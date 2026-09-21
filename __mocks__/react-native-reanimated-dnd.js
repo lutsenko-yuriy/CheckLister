@@ -14,12 +14,17 @@ const { View } = require('react-native');
 
 let currentOrder = [];
 
-function Sortable({ data, renderItem, itemKeyExtractor = item => item.id }) {
+function Sortable({
+  data,
+  renderItem,
+  itemKeyExtractor = item => item.id,
+  keyboardShouldPersistTaps,
+}) {
   currentOrder = data.map((item, index) => itemKeyExtractor(item, index));
 
   return React.createElement(
     View,
-    { testID: 'sortable-list' },
+    { testID: 'sortable-list', keyboardShouldPersistTaps },
     data.map((item, index) => {
       const id = itemKeyExtractor(item, index);
       return React.createElement(

@@ -166,6 +166,28 @@ describe('ChecklistDetailScreen', () => {
     expect((await repo.getAll())[0].items[0].text).toBe('Oat milk');
   });
 
+  it(
+    'lets Save/Cancel handle a tap while the draft input is still focused, ' +
+      'instead of the list swallowing the first tap to dismiss the keyboard',
+    async () => {
+      const repo = new AsyncStorageChecklistRepository();
+      await repo.saveAll([
+        {
+          id: '1',
+          title: 'Groceries',
+          items: [{ id: 'a', text: 'Milk' }],
+        },
+      ]);
+
+      await renderDetailScreen('1');
+      await waitFor(() => screen.getByText('Milk'));
+
+      expect(screen.getByTestId('sortable-list').props.keyboardShouldPersistTaps).toBe(
+        'handled',
+      );
+    },
+  );
+
   it('deletes an item', async () => {
     const repo = new AsyncStorageChecklistRepository();
     await repo.saveAll([
