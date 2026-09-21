@@ -13,6 +13,11 @@ A record of all versioned releases. For planned work and known issues, see @docs
 - ...
 -->
 
+## [0.10.1] — 2026-09-21 (PR #55 merged)
+
+### Added
+- [meta] CheL-28: Local iOS smoke test coverage for checklist item editing — edit+save, edit+cancel, an ignored empty-text save, and a run reflecting the saved item text. `ItemRow`'s Edit/Delete buttons now expose row-scoped `edit-item-<text>`/`delete-item-<text>` testIDs, matching the home screen's existing per-row selector pattern. Discovered and tracked separately as CheL-54: item Save/Cancel need a second tap while the draft input is still focused.
+
 ## [0.10.0] — 2026-09-21 (PR #53 merged)
 
 ### Added
