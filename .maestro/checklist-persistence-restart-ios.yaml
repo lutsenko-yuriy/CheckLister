@@ -1,0 +1,61 @@
+appId: org.reactjs.native.example.CheckLister
+name: Checklist edits, deletions, and run state across app restarts
+---
+- runFlow: helpers/create-checklist.yaml
+- tapOn: New item
+- inputText: Scenario third
+- pressKey: Enter
+- tapOn:
+    id: edit-item-Scenario first
+- eraseText: 30
+- inputText: Scenario first edited
+- tapOn: Save
+# Drag the edited item down two rows, landing in the last slot. See
+# checklist-drag-reorder-ios.yaml for why this needs a slow synthetic swipe.
+- swipe:
+    start: 7%,35%
+    end: 7%,69%
+    duration: 4000
+- assertVisible:
+    text: '.*Scenario third.*'
+    below:
+      text: '.*Scenario second.*'
+- assertVisible:
+    text: '.*Scenario first edited.*'
+    below:
+      text: '.*Scenario third.*'
+
+# Restart 1: confirm the title, edited text, and new order all survived.
+- runFlow: helpers/relaunch-and-open-checklist.yaml
+- assertVisible:
+    text: '.*Scenario third.*'
+    below:
+      text: '.*Scenario second.*'
+- assertVisible:
+    text: '.*Scenario first edited.*'
+    below:
+      text: '.*Scenario third.*'
+
+# Delete one item, then restart again: the deletion must persist and the
+# unrelated remaining items must be untouched.
+- tapOn:
+    id: delete-item-Scenario third
+- assertNotVisible: '.*Scenario third.*'
+- runFlow: helpers/relaunch-and-open-checklist.yaml
+- assertNotVisible: '.*Scenario third.*'
+- assertVisible: '.*Scenario second.*'
+- assertVisible: '.*Scenario first edited.*'
+
+# Start a run, check one item, then restart mid-run. Active run state is
+# in-memory only and must NOT be recovered: relaunching lands on Home, the
+# template is unaffected, and a freshly started run is fully unchecked.
+- tapOn: Start run
+- tapOn: .*Scenario second.*
+- assertVisible: 1 of 2 checked
+- runFlow: helpers/relaunch-and-open-checklist.yaml
+- assertVisible: '.*Scenario second.*'
+- assertVisible: '.*Scenario first edited.*'
+- tapOn: Start run
+- assertVisible: 0 of 2 checked
+- runFlow: helpers/discard-run.yaml
+- runFlow: helpers/delete-checklist.yaml

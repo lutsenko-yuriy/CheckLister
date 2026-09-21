@@ -142,6 +142,22 @@ between the handles' known screen percentages (fixed item row height, fixed
 vertical offset above the list) with `duration: 4000`, which reliably
 triggers and completes the drag.
 
+Persistence-across-restart flows (CheL-30) use `stopApp` + `launchApp:
+clearState: false` to simulate a real app-process kill without wiping
+AsyncStorage — see `.maestro/helpers/relaunch-and-open-checklist.yaml`.
+Reopening the checklist by **text** selector after a cold relaunch is
+unreliable: iOS merges `ChecklistSummaryRow`'s title and item-count `Text`
+children into one accessible node whose merged label apparently isn't
+exposed through the same field Maestro's text selectors match against right
+after a fresh launch (it resolves fine immediately after in-JS creation, but
+never resolved post-restart even waiting 15-20s with `extendedWaitUntil` or
+`scrollUntilVisible`'s `waitToSettleTimeoutMs` — confirmed via
+`maestro hierarchy`: the row's `text`/`value` attributes were empty, with the
+real content only in a separate `accessibilityText` field). `id`-based
+selectors were unaffected, so `ChecklistSummaryRow` now takes an optional
+`testID` and `HomeScreen` sets it to `checklist-row-<title>`, matching the
+existing per-row selector pattern.
+
 Runner contract tests use stub executables, not a simulator:
 
 ```bash
@@ -216,3 +232,14 @@ three flows run serially; initial driver startup adds overhead to wall time.
   real drag handle, asserts visible order after each move, and confirms a
   run started afterward preserves the final template order.
 - **252 Jest tests**, TypeScript, and ESLint passed.
+
+## Verified CheL-30 expansion — 2026-09-22
+
+- Two consecutive full-suite runs against a Release build on the iPhone 17 Pro
+  / iOS 26.5 simulator: **13/13** flows passed each time, in 8m 5s and 8m 0s.
+- The new persistence flow restarts the app process three times (via
+  `helpers/relaunch-and-open-checklist.yaml`) without clearing app data,
+  confirming edits/reorder, an item deletion, and that an in-memory partial
+  run is never recovered (template survives, a fresh run starts fully
+  unchecked) all survive a real process kill and relaunch.
+- **253 Jest tests**, TypeScript, and ESLint passed.
