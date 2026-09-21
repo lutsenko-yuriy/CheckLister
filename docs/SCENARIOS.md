@@ -74,6 +74,7 @@ without clearing simulator data.
 | `external-select-invalid-callback-ios.yaml` | A cold `checklister://select` launch rejects an invalid callback, explains the problem, and leaves the home screen usable without opening the picker. |
 | `external-select-callback-failure-ios.yaml` | A foreground select link opens the picker; picking a checklist with an undeliverable callback reports failed callback delivery and returns to a usable home screen. |
 | `external-select-during-run-ios.yaml` | A foreground select link during an active run pushes the picker above it; cancelling the picker returns to the run with its progress intact. |
+| `checklist-item-editing-ios.yaml` | Editing an item and saving replaces its text while the other item is unchanged; editing and cancelling preserves the original text; clearing an item's text and saving leaves it unchanged (current spec: empty edits are ignored); a run started afterward shows the saved item text. |
 
 On the tested iOS 26.5 / react-native-screens 4.28.0 combination, swiping an active
 run opens confirmation without removing the run. This matches the product spec.
@@ -112,11 +113,21 @@ maestro --device <UDID> test .maestro/run-exit.yaml
 Use labels/placeholders and progress text for selectors. The home screen exposes
 `delete-checklist-<title>` on each Delete button because iOS flattens the list
 accessibility hierarchy; parent/descendant matching can otherwise select a
-different checklist. Fixtures have unique titles. The confirmation Delete is
-scoped to the button group containing Cancel, because background buttons remain
-in the native alert hierarchy. Avoid
+different checklist. The same flattening applies to a checklist's item rows, so
+`ItemRow` exposes `edit-item-<text>` and `delete-item-<text>` testIDs for its
+per-row Edit/Delete buttons. Fixtures have unique titles and item text. The
+confirmation Delete is scoped to the button group containing Cancel, because
+background buttons remain in the native alert hierarchy. Avoid
 fixed sleeps, optional assertions and retries that hide defects. Helpers live
 under `.maestro/helpers/`; only top-level flows are discovered by the suite.
+
+While a checklist item's draft `TextInput` is focused, the first tap on its
+Save or Cancel button only blurs the input (standard RN tap-outside-dismisses-
+keyboard behavior); the action itself requires a second tap. This is a real
+target behavior, not a Maestro artifact — `checklist-item-editing-ios.yaml`
+taps Save/Cancel twice to reflect it. See
+[CheL-54](https://github.com/lutsenko-yuriy/CheckLister/issues/54) for the
+follow-up considering `keyboardShouldPersistTaps` to fix the double-tap UX.
 
 Runner contract tests use stub executables, not a simulator:
 
@@ -164,3 +175,12 @@ three flows run serially; initial driver startup adds overhead to wall time.
   failure dialog.
 - **162 Jest tests**, **6 runner contract tests**, TypeScript, ESLint, and iOS
   and Android Release builds passed.
+
+## Verified CheL-28 expansion — 2026-09-21
+
+- Two consecutive full-suite runs against a Release build on the iPhone 17 Pro
+  / iOS 26.5 simulator: **11/11** flows passed each time, in 6m 34s and 6m 38s.
+- The new item-editing flow covers edit+save, edit+cancel, an ignored
+  empty-text save, and a run reflecting the saved text — surfacing the
+  Save/Cancel double-tap behavior noted above.
+- **250 Jest tests** and ESLint passed.
