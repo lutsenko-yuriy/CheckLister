@@ -19,6 +19,7 @@ A record of all versioned releases. For planned work and known issues, see @docs
 - CheL-40 WU1: Added the validated external-select link contract (`checklister://select`), extracting the shared URL primitives out of the external-run contract so both verbs reuse the same parsing/validation rules. No user-facing behavior is exposed yet.
 - CheL-40 WU2: Added the in-memory external-selection session (`useExternalSelection`) and its privacy-safe callback delivery, wired into `App.tsx`. Still unreachable from outside the app until the picker screen and coordinator land.
 - CheL-40 WU3: Added the read-only `ChecklistSelectScreen` picker (route `ChecklistSelect`), extracting a shared `ChecklistSummaryRow` from `HomeScreen`. Still unreachable from outside the app until the coordinator dispatches `checklister://select` links to it in WU4.
+- CheL-40 WU4: Wired `checklister://select` links end to end. `ExternalRunLinkCoordinator` is generalized into `ExternalLinkCoordinator`, dispatching incoming URLs by verb; Android now registers the `select` host alongside `run`. Another app can now ask CheckLister to open the checklist picker and receive the chosen checklist's ID and name (or a cancellation) via callback URL.
 
 ## [0.9.2] — 2026-09-20 (PR #48)
 
