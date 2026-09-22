@@ -47,6 +47,8 @@ jobs:
       - uses: reviewdog/action-actionlint@v1
         with:
           fail_level: error
+        env:
+          REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   ios-build:
     name: iOS simulator build
