@@ -1,0 +1,34 @@
+opt_out_usage
+default_platform(:ios)
+
+platform :ios do
+  desc 'Archive the Release build and upload it to TestFlight (internal testers only)'
+  lane :beta do |options|
+    UI.user_error!('missing version: option') unless options[:version]
+    UI.user_error!('missing build: option') unless options[:build]
+
+    api_key = app_store_connect_api_key(
+      key_id: ENV.fetch('APP_STORE_CONNECT_API_KEY_ID'),
+      issuer_id: ENV.fetch('APP_STORE_CONNECT_API_ISSUER_ID'),
+      key_content: ENV.fetch('APP_STORE_CONNECT_API_KEY_P8'),
+      is_key_content_base64: true,
+    )
+
+    gym(
+      workspace: 'ios/CheckLister.xcworkspace',
+      scheme: 'CheckLister',
+      configuration: 'Release',
+      export_method: 'app-store',
+      xcargs: "MARKETING_VERSION=#{options[:version]} CURRENT_PROJECT_VERSION=#{options[:build]}",
+    )
+
+    # Internal testers only - no App Store submission. Promoting a build to
+    # public review stays a deliberate, manual action in App Store Connect.
+    pilot(
+      api_key: api_key,
+      skip_submission: true,
+      skip_waiting_for_build_processing: true,
+      distribute_external: false,
+    )
+  end
+end

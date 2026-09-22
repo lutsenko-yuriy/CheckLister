@@ -1,0 +1,80 @@
+name: iOS release
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  gate:
+    name: Decide whether to release
+    runs-on: ubuntu-latest
+    outputs:
+      should_release: ${{ steps.gate.outputs.should_release }}
+      version: ${{ steps.gate.outputs.version }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 2
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.x'
+
+      - name: Evaluate release gate
+        id: gate
+        run: python3 scripts/ci/release_gate.py
+
+  testflight:
+    name: Archive and upload to TestFlight
+    needs: gate
+    if: needs.gate.outputs.should_release == 'true'
+    runs-on: macos-26
+    environment: testflight
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: package.json
+          cache: npm
+
+      - name: Install JS dependencies
+        run: npm ci
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.4'
+          bundler-cache: true
+
+      - name: Install CocoaPods dependencies
+        working-directory: ios
+        run: bundle exec pod install
+
+      - name: Import signing certificate
+        uses: apple-actions/import-codesign-certs@v7
+        with:
+          p12-file-base64: ${{ secrets.IOS_DIST_CERTIFICATE_P12 }}
+          p12-password: ${{ secrets.IOS_DIST_CERTIFICATE_PASSWORD }}
+
+      - name: Install provisioning profile
+        env:
+          PROVISIONING_PROFILE_BASE64: ${{ secrets.IOS_PROVISIONING_PROFILE }}
+        run: |
+          set -euo pipefail
+          profile_path="$RUNNER_TEMP/checklister.mobileprovision"
+          echo -n "$PROVISIONING_PROFILE_BASE64" | base64 --decode -o "$profile_path"
+          profiles_dir="$HOME/Library/MobileDevice/Provisioning Profiles"
+          mkdir -p "$profiles_dir"
+          uuid=$(security cms -D -i "$profile_path" | plutil -extract UUID raw -o - -)
+          cp "$profile_path" "$profiles_dir/$uuid.mobileprovision"
+
+      - name: Build and upload to TestFlight
+        env:
+          APP_STORE_CONNECT_API_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
+          APP_STORE_CONNECT_API_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_ISSUER_ID }}
+          APP_STORE_CONNECT_API_KEY_P8: ${{ secrets.APP_STORE_CONNECT_API_KEY_P8 }}
+          IOS_TEAM_ID: ${{ secrets.IOS_TEAM_ID }}
+        run: |
+          bundle exec fastlane beta \
+            version:"${{ needs.gate.outputs.version }}" \
+            build:"${{ github.run_number }}"

@@ -1,0 +1,2 @@
+app_identifier('com.checklister.checklisterApp')
+team_id(ENV['IOS_TEAM_ID'])

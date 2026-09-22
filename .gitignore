@@ -68,6 +68,14 @@ yarn-error.log
 **/fastlane/screenshots
 **/fastlane/test_output
 
+# Signing material must never be committed - it lives in GitHub Actions
+# secrets and is only ever decoded into an ephemeral runner keychain/profile
+# directory (see .github/workflows/release-ios.yml).
+*.p12
+*.p8
+*.mobileprovision
+ios/*.xcarchive
+
 # Bundle artifact
 *.jsbundle
 
