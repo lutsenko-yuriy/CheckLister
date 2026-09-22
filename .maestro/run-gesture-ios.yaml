@@ -1,5 +1,7 @@
-appId: org.reactjs.native.example.CheckLister
+appId: ${APP_ID}
 name: Confirm native swipe without breaking subsequent navigation
+tags:
+  - ios
 ---
 - runFlow: helpers/create-checklist.yaml
 # Positive control: this edge gesture navigates on an unprotected screen.

@@ -1,4 +1,4 @@
-appId: org.reactjs.native.example.CheckLister
+appId: ${APP_ID}
 ---
 # Terminates and relaunches without clearing app data, then reopens
 # ${output.title}. Scrolls/taps by id (checklist-row-<title>), not text:

@@ -13,6 +13,11 @@ A record of all versioned releases. For planned work and known issues, see @docs
 - ...
 -->
 
+## [Unreleased]
+
+### [wip]
+- CheL-31 (WU1 of 2): Maestro flows now use `appId: ${APP_ID}` (interpolated per platform) instead of a hardcoded iOS bundle id, and every top-level flow declares a `tags:` list (`ios`/`android`) so a platform runner can select its own subset with `--include-tags`. `scripts/scenarios-ios.sh` updated accordingly; iOS suite behavior unchanged (13/13 flows still pass). Lays the groundwork for WU2's Android runner.
+
 ## [0.10.4] — 2026-09-22 (PR #58 merged)
 
 ### Added

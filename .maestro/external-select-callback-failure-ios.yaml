@@ -1,10 +1,12 @@
-appId: org.reactjs.native.example.CheckLister
+appId: ${APP_ID}
 name: Foreground select delivers a failure when the callback can't be opened
+tags:
+  - ios
 ---
 - runFlow: helpers/create-checklist.yaml
 - tapOn: Back
 - assertVisible: New checklist title
-- openLink: "checklister://select?callbackUrl=missingcaller%3A%2F%2Fresult"
+- openLink: 'checklister://select?callbackUrl=missingcaller%3A%2F%2Fresult'
 - tapOn:
     text: Open
     optional: true

@@ -1,4 +1,4 @@
-appId: org.reactjs.native.example.CheckLister
+appId: ${APP_ID}
 ---
 - evalScript: ${output.title = 'Scenario ' + Date.now() + '-' + Math.floor(Math.random() * 1000000)}
 - launchApp:
