@@ -57,6 +57,7 @@ Details and directory layout: @docs/ARCHITECTURE.md.
 
 - **Run tests:** `npm test`
 - **Lint:** `npm run lint`
+- **Typecheck:** `npm run typecheck`
 - **Build (Android):** `npm run android` (debug); `cd android && ./gradlew assembleRelease` (release APK)
 - **Build (iOS):** `npm run ios` (debug); `cd ios && bundle exec pod install` then archive via Xcode for release
 - **Install dependencies:** `npm install` (JS deps); `cd ios && bundle install && bundle exec pod install` (iOS native deps)
