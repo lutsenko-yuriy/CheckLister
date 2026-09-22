@@ -9,10 +9,10 @@ Every top-level flow declares `appId: ${APP_ID}` (interpolated by Maestro from
 the `-e APP_ID=...` runner flag, per platform bundle id) and a `tags:` list
 (`ios`, `android`, or both) so `--include-tags <platform>` selects the right
 subset. `scripts/scenarios-ios.sh` passes `-e APP_ID=org.reactjs.native.example.CheckLister
---include-tags ios`. Helper flows under `.maestro/helpers/` stay untagged —
-Maestro only discovers top-level flows, so tags there would be inert.
-CheL-31 adds Android emulator coverage on the same tagged flows; see below
-once that lands.
+--include-tags ios`. Helper flows under `.maestro/helpers/` also use
+`appId: ${APP_ID}` but stay untagged — Maestro only discovers top-level
+flows, so tags there would be inert. CheL-31 is adding Android emulator
+coverage on the same tagged flows as a follow-up change.
 
 ## Tool choice
 
@@ -116,8 +116,12 @@ and the current hierarchy:
 
 ```bash
 maestro --device <UDID> hierarchy
-maestro --device <UDID> test .maestro/run-exit.yaml
+maestro --device <UDID> test -e APP_ID=org.reactjs.native.example.CheckLister .maestro/run-exit.yaml
 ```
+
+Every flow (including helpers) now reads `appId: ${APP_ID}`, so a direct `maestro test`
+invocation needs `-e APP_ID=<bundle id>` or it aborts before reaching the device —
+`npm run scenarios:ios` already sets this.
 
 Use labels/placeholders and progress text for selectors. The home screen exposes
 `delete-checklist-<title>` on each Delete button because iOS flattens the list
