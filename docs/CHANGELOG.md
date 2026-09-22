@@ -13,6 +13,11 @@ A record of all versioned releases. For planned work and known issues, see @docs
 - ...
 -->
 
+## [Unreleased]
+
+### Added
+- [wip] CheL-61 (WU1): GitHub Actions PR-validation workflow — lint, typecheck, unit tests, script contract tests, workflow-YAML lint, and an unsigned iOS simulator build run on every pull request.
+
 ## [0.10.5] — 2026-09-22 (PR #60 merged)
 
 ### Added
