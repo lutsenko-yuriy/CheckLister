@@ -2,7 +2,7 @@ appId: org.reactjs.native.example.CheckLister
 name: Cold select link rejects an invalid callback
 ---
 - stopApp
-- openLink: "checklister://select?callbackUrl=not-a-url"
+- openLink: 'checklister://select?callbackUrl=not-a-url'
 - tapOn:
     text: Open
     optional: true

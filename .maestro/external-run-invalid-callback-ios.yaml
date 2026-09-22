@@ -2,7 +2,7 @@ appId: org.reactjs.native.example.CheckLister
 name: Cold external-run link rejects an invalid callback
 ---
 - stopApp
-- openLink: "checklister://run?checklistId=missing&callbackUrl=not-a-url"
+- openLink: 'checklister://run?checklistId=missing&callbackUrl=not-a-url'
 - tapOn:
     text: Open
     optional: true
