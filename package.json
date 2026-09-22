@@ -9,6 +9,7 @@
     "start": "react-native start",
     "postinstall": "patch-package",
     "test": "jest",
+    "typecheck": "tsc --noEmit",
     "scenarios:ios": "bash scripts/scenarios-ios.sh",
     "scenarios:android": "bash scripts/scenarios-android.sh"
   },
