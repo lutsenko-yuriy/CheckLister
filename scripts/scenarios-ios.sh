@@ -14,7 +14,7 @@ done
 
 scenarios_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 scenarios_device="$1"
-scenarios_app='org.reactjs.native.example.CheckLister'
+scenarios_app='com.checklister.checklisterApp'
 if ! xcrun simctl list devices booted -j | node -e '
   let input = "";
   process.stdin.on("data", chunk => input += chunk);
