@@ -13,10 +13,10 @@ A record of all versioned releases. For planned work and known issues, see @docs
 - ...
 -->
 
-## [Unreleased]
+## [0.10.5] — 2026-09-22 (PR #60 merged)
 
-### [wip]
-- CheL-31 (WU1 of 2): Maestro flows now use `appId: ${APP_ID}` (interpolated per platform) instead of a hardcoded iOS bundle id, and every top-level flow declares a `tags:` list (`ios`/`android`) so a platform runner can select its own subset with `--include-tags`. `scripts/scenarios-ios.sh` updated accordingly; iOS suite behavior unchanged (13/13 flows still pass). Lays the groundwork for WU2's Android runner.
+### Added
+- [meta] CheL-31: Local Android emulator smoke test coverage, alongside a platform-tagging refactor of the existing iOS suite. Maestro flows now use `appId: ${APP_ID}` (interpolated per platform) instead of a hardcoded iOS bundle id, and every top-level flow declares a `tags:` list (`ios`/`android`) so each platform runner selects its own subset with `--include-tags`. New `scripts/scenarios-android.sh` (`npm run scenarios:android`) validates the target emulator and installed app before running the Android-tagged suite, with an `ANDROID_HOME`/`ANDROID_SDK_ROOT` `adb` fallback. New `run-exit-system-back-android.yaml` verifies the Android hardware/gesture system-back key during an active run behaves like the app Back button; empirically confirmed on a real `Pixel_5_API36` emulator that the predictive-back risk flagged in planning (targetSdk 36) does not bypass the existing confirmation dialog. `docs/SCENARIOS.md` documents both platforms' setup and a verified real-hardware baseline (3/3 Android runs x2, 13/13 iOS regression).
 
 ## [0.10.4] — 2026-09-22 (PR #58 merged)
 
