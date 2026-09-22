@@ -1,0 +1,23 @@
+appId: ${APP_ID}
+name: Android system back during a run confirms, then discards on second press
+tags:
+  - android
+---
+- runFlow: helpers/create-checklist.yaml
+- tapOn: Start run
+- tapOn: .*Scenario first.*
+- assertVisible: 1 of 2 checked
+- back
+- assertVisible: Are you sure\?
+- tapOn: Cancel
+- assertVisible: 1 of 2 checked
+- tapOn: .*Scenario second.*
+- assertVisible: 2 of 2 checked
+- back
+- assertVisible: Are you sure\?
+- tapOn: Discard
+- assertVisible: Start run
+- tapOn: Start run
+- assertVisible: 0 of 2 checked
+- runFlow: helpers/discard-run.yaml
+- runFlow: helpers/delete-checklist.yaml
