@@ -1,5 +1,7 @@
-appId: org.reactjs.native.example.CheckLister
+appId: ${APP_ID}
 name: Foreground select delivers a failure when the callback can't be opened
+tags:
+  - ios
 ---
 - runFlow: helpers/create-checklist.yaml
 - tapOn: Back

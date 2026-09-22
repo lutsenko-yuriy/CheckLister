@@ -73,6 +73,10 @@ fi''')
         self.assertIn('--test-output-dir', args)
         self.assertIn('--format', args)
         self.assertIn('junit', args)
+        self.assertIn('-e', args)
+        self.assertIn('APP_ID=org.reactjs.native.example.CheckLister', args)
+        self.assertIn('--include-tags', args)
+        self.assertIn('ios', args)
         self.assertEqual(args[-1], str(ROOT / '.maestro'))
 
     def test_success_returns_zero(self):

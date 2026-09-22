@@ -1,5 +1,8 @@
-appId: org.reactjs.native.example.CheckLister
+appId: ${APP_ID}
 name: Complete a run and start fresh
+tags:
+  - ios
+  - android
 ---
 - runFlow: helpers/create-checklist.yaml
 - tapOn: Start run

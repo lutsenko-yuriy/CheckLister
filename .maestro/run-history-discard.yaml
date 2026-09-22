@@ -1,5 +1,7 @@
-appId: org.reactjs.native.example.CheckLister
+appId: ${APP_ID}
 name: Discarded run creates no checklist history
+tags:
+  - ios
 ---
 - runFlow: helpers/create-checklist.yaml
 - assertNotVisible: Run history

@@ -39,4 +39,5 @@ scenarios_output="$(mktemp -d "$scenarios_artifacts/run-XXXXXXXX")"
 echo "Scenario artifacts: $scenarios_output"
 exec maestro --device "$scenarios_device" test \
   --format junit --output "$scenarios_output/report.xml" \
-  --test-output-dir "$scenarios_output" "$scenarios_root/.maestro"
+  --test-output-dir "$scenarios_output" \
+  -e "APP_ID=$scenarios_app" --include-tags ios "$scenarios_root/.maestro"

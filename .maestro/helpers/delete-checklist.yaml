@@ -1,4 +1,4 @@
-appId: org.reactjs.native.example.CheckLister
+appId: ${APP_ID}
 ---
 - tapOn: Back
 - assertVisible: New checklist title

@@ -1,5 +1,7 @@
-appId: org.reactjs.native.example.CheckLister
+appId: ${APP_ID}
 name: Drag-to-reorder checklist items and use the order in a run
+tags:
+  - ios
 ---
 - runFlow: helpers/create-checklist.yaml
 - tapOn: New item
