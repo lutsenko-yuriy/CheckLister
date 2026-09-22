@@ -16,5 +16,4 @@ _(nothing in progress)_
 
 ## Unscheduled
 
-- [CheL-31: Smoke tests: local Android emulator coverage](https://github.com/lutsenko-yuriy/CheckLister/issues/31)
 - [CheL-32: Separate and review the every-ticket scenario workflow policy](https://github.com/lutsenko-yuriy/CheckLister/issues/32)
