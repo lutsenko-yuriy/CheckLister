@@ -19,6 +19,7 @@ A record of all versioned releases. For planned work and known issues, see @docs
 - [wip] GH-67: Full App Store/Play Store-ready icon set for iOS (all `AppIcon` slots incl. 1024×1024 marketing icon) and Android (adaptive icon with themed/monochrome layer, plus legacy square/round fallbacks), generated from a single `assets/icon/icon.svg` master via `scripts/generate_icons.py`.
 - [meta] CheL-61: Recorded the manual iOS release-pipeline verification run's results (success, blocked only by the now-fixed missing app icons) and a `release_gate.py` comment-parsing bug found and fixed during it.
 - [wip] CheL-70 (WU1): Theme foundation — light/dark `Palette`, `ThemeProvider`/`useTheme()` following the OS appearance, `createThemedStyles()`, and navigation chrome/status bar now follow the OS setting. Individual screens are migrated in later WUs.
+- [ci] CheL-72: The `ios-build` PR-validation job now compiles with `-configuration Debug` instead of `Release`, caches the CocoaPods spec repo alongside `ios/Pods`, and is skipped entirely when a PR touches no native/app-relevant paths (`ios/`, `android/`, `package.json`, `package-lock.json`, `App.tsx`, `index.js`, `patches/**`).
 
 ## [0.11.0] — 2026-09-23 (PR #64 merged)
 
