@@ -8,7 +8,12 @@ The `## In Progress` section at the top is the one exception — it is maintaine
 
 ## In Progress
 
-- [CheL-70: Night mode (dark theme, follows OS setting)](https://github.com/lutsenko-yuriy/CheckLister/issues/70) — WU1 (theme foundation) and WU2 (checklists screens) of 3 shipped; WU3 (runs screens, cleanup, docs) remains.
+_(nothing in progress)_
+
+<!-- CheL-70: Night mode — all 3 WUs merged to main as of PR #76. Issue #70 left
+open deliberately: the user wants the release (version bump + [user]/[app]
+CHANGELOG tag) delayed. When ready to release, convert the [Unreleased]
+section into a real numbered entry, bump the version, and close #70. -->
 
 ---
 
