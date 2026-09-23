@@ -1,6 +1,8 @@
 import React from 'react';
 import { render, fireEvent, screen } from '@testing-library/react-native';
 import { RunItemRow } from './RunItemRow';
+import { darkPalette } from '../../../../shared/theme/palette';
+import { ThemeProvider } from '../../../../shared/theme/useTheme';
 
 describe('RunItemRow', () => {
   it('renders the item text', async () => {
@@ -40,5 +42,21 @@ describe('RunItemRow', () => {
     await fireEvent.press(screen.getByRole('checkbox'));
 
     expect(onToggle).toHaveBeenCalledTimes(1);
+  });
+
+  it('renders with the dark palette when in dark mode', async () => {
+    await render(
+      <ThemeProvider scheme="dark">
+        <RunItemRow
+          item={{ id: 'a', text: 'Milk', checked: false }}
+          onToggle={jest.fn()}
+        />
+      </ThemeProvider>,
+    );
+
+    const flatStyle = [screen.getByRole('checkbox').props.style].flat();
+    expect(flatStyle).toContainEqual(
+      expect.objectContaining({ backgroundColor: darkPalette.surface }),
+    );
   });
 });

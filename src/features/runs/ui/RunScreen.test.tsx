@@ -20,7 +20,8 @@ import { createChecklist, createItem } from '../../checklists/domain/models';
 import { AsyncStorageChecklistRepository } from '../../checklists/data/asyncStorageChecklistRepository';
 import { AsyncStorageRunRepository } from '../data/asyncStorageRunRepository';
 import { RunRepository } from '../domain/runRepository';
-import { colors } from '../../../shared/theme/colors';
+import { lightPalette, darkPalette } from '../../../shared/theme/palette';
+import { ThemeProvider } from '../../../shared/theme/useTheme';
 
 // usePreventRemove (used by RunScreen to safely gate the swipe-back gesture,
 // not just JS-dispatched actions — see RunScreen.tsx) calls useNavigation()
@@ -73,58 +74,62 @@ async function renderRun(
   const navigationRef = createNavigationContainerRef<TestParamList>();
 
   const utils = await render(
-    <RunsProvider repository={repository}>
-      <NavigationContainer
-        ref={navigationRef}
-        initialState={{
-          index: 1,
-          routes: [
-            { name: 'Placeholder' },
-            { name: 'Run', params: { checklistId: checklist.id } },
-          ],
-        }}
-      >
-        <Stack.Navigator screenOptions={{ headerShown: false }}>
-          <Stack.Screen name="Placeholder" component={PlaceholderScreen} />
-          <Stack.Screen name="Run">
-            {props => (
-              <RunHarness
-                checklist={checklist}
-                callbackUrl={callbackUrl}
-                {...props}
-              />
-            )}
-          </Stack.Screen>
-        </Stack.Navigator>
-      </NavigationContainer>
-      {extra}
-    </RunsProvider>,
+    <ThemeProvider>
+      <RunsProvider repository={repository}>
+        <NavigationContainer
+          ref={navigationRef}
+          initialState={{
+            index: 1,
+            routes: [
+              { name: 'Placeholder' },
+              { name: 'Run', params: { checklistId: checklist.id } },
+            ],
+          }}
+        >
+          <Stack.Navigator screenOptions={{ headerShown: false }}>
+            <Stack.Screen name="Placeholder" component={PlaceholderScreen} />
+            <Stack.Screen name="Run">
+              {props => (
+                <RunHarness
+                  checklist={checklist}
+                  callbackUrl={callbackUrl}
+                  {...props}
+                />
+              )}
+            </Stack.Screen>
+          </Stack.Navigator>
+        </NavigationContainer>
+        {extra}
+      </RunsProvider>
+    </ThemeProvider>,
   );
 
   return { checklist, navigationRef, ...utils };
 }
 
-async function renderRunWithoutStarting() {
+async function renderRunWithoutStarting(scheme?: 'light' | 'dark') {
   const navigationRef = createNavigationContainerRef<TestParamList>();
 
   const utils = await render(
-    <RunsProvider repository={runRepository}>
-      <NavigationContainer
-        ref={navigationRef}
-        initialState={{
-          index: 1,
-          routes: [
-            { name: 'Placeholder' },
-            { name: 'Run', params: { checklistId: '1' } },
-          ],
-        }}
-      >
-        <Stack.Navigator screenOptions={{ headerShown: false }}>
-          <Stack.Screen name="Placeholder" component={PlaceholderScreen} />
-          <Stack.Screen name="Run" component={RunScreen} />
-        </Stack.Navigator>
-      </NavigationContainer>
-    </RunsProvider>,
+    <ThemeProvider scheme={scheme}>
+      <RunsProvider repository={runRepository}>
+        <NavigationContainer
+          ref={navigationRef}
+          initialState={{
+            index: 1,
+            routes: [
+              { name: 'Placeholder' },
+              { name: 'Run', params: { checklistId: '1' } },
+            ],
+          }}
+        >
+          <Stack.Navigator screenOptions={{ headerShown: false }}>
+            <Stack.Screen name="Placeholder" component={PlaceholderScreen} />
+            <Stack.Screen name="Run" component={RunScreen} />
+          </Stack.Navigator>
+        </NavigationContainer>
+      </RunsProvider>
+    </ThemeProvider>,
   );
 
   return { navigationRef, ...utils };
@@ -428,7 +433,7 @@ describe('RunScreen', () => {
     const backText = screen.getByText('Back');
     const flatStyle = [backText.props.style].flat();
     expect(flatStyle).toContainEqual(
-      expect.objectContaining({ color: colors.linkText }),
+      expect.objectContaining({ color: lightPalette.linkText }),
     );
   });
 
@@ -890,5 +895,16 @@ describe('RunScreen', () => {
 
     await waitFor(() => expect(screen.queryByText('A')).toBeNull());
     expect(openUrlSpy).not.toHaveBeenCalled();
+  });
+
+  it('renders with the dark palette when in dark mode', async () => {
+    await renderRunWithoutStarting('dark');
+
+    await waitFor(() =>
+      expect(screen.getByText(/no active run/i)).toBeTruthy(),
+    );
+    expect(screen.getByTestId('run-screen').props.style).toEqual(
+      expect.objectContaining({ backgroundColor: darkPalette.background }),
+    );
   });
 });

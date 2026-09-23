@@ -3,13 +3,14 @@ import { FlatList, StyleSheet, Text, View } from 'react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../../navigation/types';
 import { analytics } from '../../../shared/analytics/AnalyticsService';
-import { colors } from '../../../shared/theme/colors';
+import { createThemedStyles } from '../../../shared/theme/createThemedStyles';
 import { RunHistoryEntry } from '../domain/models';
 import { useRuns } from '../useRuns';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'RunHistory'>;
 
 export function RunHistoryScreen({ navigation, route }: Props) {
+  const styles = useStyles();
   const { history, historyLoading } = useRuns();
   const { checklistId, checklistTitle } = route.params;
   const hasLoggedView = useRef(false);
@@ -43,7 +44,7 @@ export function RunHistoryScreen({ navigation, route }: Props) {
   }, [checklistId, historyLoading, visibleEntries.length]);
 
   return (
-    <View style={styles.container}>
+    <View style={styles.container} testID="run-history-screen">
       {visibleEntries.length === 0 ? (
         <Text style={styles.emptyState}>No completed runs yet.</Text>
       ) : (
@@ -58,6 +59,7 @@ export function RunHistoryScreen({ navigation, route }: Props) {
 }
 
 function RunHistoryRow({ entry }: { entry: RunHistoryEntry }) {
+  const styles = useStyles();
   return (
     <View style={styles.row} testID={`run-history-entry-${entry.id}`}>
       <Text style={styles.rowTitle}>{entry.checklistTitle}</Text>
@@ -69,7 +71,7 @@ function RunHistoryRow({ entry }: { entry: RunHistoryEntry }) {
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = createThemedStyles(colors => ({
   container: {
     flex: 1,
     padding: 16,
@@ -95,4 +97,4 @@ const styles = StyleSheet.create({
     marginTop: 32,
     color: colors.textMuted,
   },
-});
+}));

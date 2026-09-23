@@ -105,6 +105,17 @@ checklist belongs to the person using the device.
 - Callback details, and the selected checklist's ID and name, remain in
   memory only and are never persisted or included in analytics.
 
+### Feature 8 — Night mode (dark theme)
+- CheckLister follows the OS-level light/dark appearance setting on both
+  iOS and Android — there is no in-app toggle. Switching the OS setting
+  live-updates every screen without restarting the app.
+- Every screen and component (checklists list, checklist detail/reorder,
+  checklist item editing, run, run history, the externally requested
+  checklist picker) and the navigation chrome/status bar follow the active
+  palette.
+- The resolved color scheme (light or dark) is recorded in analytics once
+  per app session and again whenever it changes.
+
 ## Out of scope for v1
 
 - User accounts, login, or any backend — all data is local to the device.

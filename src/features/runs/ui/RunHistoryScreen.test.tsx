@@ -5,6 +5,8 @@ import { AsyncStorageRunRepository } from '../data/asyncStorageRunRepository';
 import { RunHistoryEntry } from '../domain/models';
 import { RunsProvider } from '../useRuns';
 import { RunHistoryScreen } from './RunHistoryScreen';
+import { darkPalette } from '../../../shared/theme/palette';
+import { ThemeProvider } from '../../../shared/theme/useTheme';
 
 const packing: RunHistoryEntry = {
   id: 'newer',
@@ -22,21 +24,26 @@ const groceries: RunHistoryEntry = {
   completedAt: '2026-09-17T09:15:00.000Z',
 };
 
-async function renderHistory(params: {
-  checklistId?: string;
-  checklistTitle?: string;
-}) {
+async function renderHistory(
+  params: {
+    checklistId?: string;
+    checklistTitle?: string;
+  },
+  scheme?: 'light' | 'dark',
+) {
   const repository = new AsyncStorageRunRepository();
   await repository.saveAll([groceries, packing]);
   const navigation = { setOptions: jest.fn() };
 
   const utils = await render(
-    <RunsProvider repository={repository}>
-      <RunHistoryScreen
-        navigation={navigation as any}
-        route={{ params } as any}
-      />
-    </RunsProvider>,
+    <ThemeProvider scheme={scheme}>
+      <RunsProvider repository={repository}>
+        <RunHistoryScreen
+          navigation={navigation as any}
+          route={{ params } as any}
+        />
+      </RunsProvider>
+    </ThemeProvider>,
   );
   return { navigation, ...utils };
 }
@@ -95,6 +102,15 @@ describe('RunHistoryScreen', () => {
         scope: 'all',
         entry_count: 2,
       }),
+    );
+  });
+
+  it('renders with the dark palette when in dark mode', async () => {
+    await renderHistory({}, 'dark');
+
+    await waitFor(() => expect(screen.getByText('Packing')).toBeTruthy());
+    expect(screen.getByTestId('run-history-screen').props.style).toEqual(
+      expect.objectContaining({ backgroundColor: darkPalette.background }),
     );
   });
 });
