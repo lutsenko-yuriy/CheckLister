@@ -2,7 +2,6 @@ import React, { useLayoutEffect, useState } from 'react';
 import {
   Alert,
   FlatList,
-  StyleSheet,
   Text,
   TextInput,
   View,
@@ -228,9 +227,11 @@ const useStyles = createThemedStyles(colors => ({
     flexDirection: 'row',
     alignItems: 'center',
     paddingVertical: 12,
-    paddingHorizontal: 4,
+    paddingLeft: 12,
+    paddingRight: 4,
     backgroundColor: colors.surface,
-    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderRadius: 10,
+    borderBottomWidth: 1.5,
     borderBottomColor: colors.border,
   },
   actionButton: {

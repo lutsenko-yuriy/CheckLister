@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, Text, TextInput, View } from 'react-native';
+import { Text, TextInput, View } from 'react-native';
 import { Item } from '../../domain/models';
 import { IconButton } from '../../../../shared/ui/IconButton';
 import { useTheme } from '../../../../shared/theme/useTheme';
@@ -100,7 +100,8 @@ const useStyles = createThemedStyles(colors => ({
     alignItems: 'center',
     paddingHorizontal: 4,
     backgroundColor: colors.surface,
-    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderRadius: 10,
+    borderBottomWidth: 1.5,
     borderBottomColor: colors.border,
   },
   rowBody: {
