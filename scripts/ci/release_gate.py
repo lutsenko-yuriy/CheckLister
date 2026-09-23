@@ -53,7 +53,13 @@ def parse_version(text):
 
 
 def extract_newest_entry_tags(changelog_text):
-    """Tags on the newest `## [...]` section's bullet lines, e.g. '- [user] ...'."""
+    """Tags on the newest `## [...]` section's bullet lines, e.g. '- [user] ...'.
+
+    HTML comments are stripped first - docs/CHANGELOG.md's own template
+    comment contains a literal "## [X.Y.Z] ..." example heading that must
+    not be mistaken for a real entry.
+    """
+    changelog_text = re.sub(r'<!--.*?-->', '', changelog_text, flags=re.DOTALL)
     lines = changelog_text.splitlines()
     start = None
     end = len(lines)
