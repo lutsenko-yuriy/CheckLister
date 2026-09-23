@@ -4,8 +4,13 @@
 Writes every size the iOS asset catalog (AppIcon.appiconset) and the Android
 launcher mipmaps need. Re-run after editing the SVG and commit the output.
 
-iOS icons are full-bleed and opaque (the OS applies its own corner mask and
-rejects alpha on the marketing icon).
+The iOS AppIcon.appiconset is in Single Size mode (required for per-appearance
+icons): the default slot is full-bleed and opaque (the OS applies its own
+corner mask and rejects alpha here), and the dark-appearance slot is the same
+transparent glyph used for Android's adaptive foreground, rendered at full
+(non-safe-zone) scale — Apple composites its own dark backdrop behind it.
+Xcode derives every smaller size from these two 1024px sources at build time,
+so no small per-size PNGs are committed.
 
 Android gets two sets:
 - Adaptive icon (API 26+, mipmap-anydpi-v26): a transparent foreground layer
@@ -89,24 +94,41 @@ def masked(image: Image.Image, draw_shape) -> Image.Image:
     return image
 
 
-def foreground(artwork: Artwork, size: int) -> Image.Image:
+def foreground(artwork: Artwork, size: int, art_scale: float = ADAPTIVE_ART_SCALE) -> Image.Image:
     """Box and check on transparency, with a transparent gap where the halo would be."""
-    box = render(artwork.variant({'box'}, ADAPTIVE_ART_SCALE), size)
-    halo = render(artwork.variant({'halo'}, ADAPTIVE_ART_SCALE), size).getchannel('A')
+    box = render(artwork.variant({'box'}, art_scale), size)
+    halo = render(artwork.variant({'halo'}, art_scale), size).getchannel('A')
     box.putalpha(ImageChops.subtract(box.getchannel('A'), halo))
-    return Image.alpha_composite(box, render(artwork.variant({'check'}, ADAPTIVE_ART_SCALE), size))
+    return Image.alpha_composite(box, render(artwork.variant({'check'}, art_scale), size))
+
+
+IOS_ICON_SIZE = 1024
+IOS_DEFAULT_FILENAME = 'icon-1024.png'
+IOS_DARK_FILENAME = 'icon-1024-dark.png'
 
 
 def write_ios(artwork: Artwork) -> None:
-    svg = artwork.variant()
-    contents = json.loads((IOS_ICONSET / 'Contents.json').read_text())
-    for entry in contents['images']:
-        points = float(entry['size'].split('x')[0])
-        scale = int(entry['scale'].rstrip('x'))
-        pixels = round(points * scale)
-        filename = f'icon-{pixels}.png'
-        render(svg, pixels).convert('RGB').save(IOS_ICONSET / filename)
-        entry['filename'] = filename
+    render(artwork.variant(), IOS_ICON_SIZE).convert('RGB').save(IOS_ICONSET / IOS_DEFAULT_FILENAME)
+    foreground(artwork, IOS_ICON_SIZE, art_scale=1.0).save(IOS_ICONSET / IOS_DARK_FILENAME)
+
+    contents = {
+        'images': [
+            {
+                'idiom': 'universal',
+                'platform': 'ios',
+                'size': f'{IOS_ICON_SIZE}x{IOS_ICON_SIZE}',
+                'filename': IOS_DEFAULT_FILENAME,
+            },
+            {
+                'idiom': 'universal',
+                'platform': 'ios',
+                'size': f'{IOS_ICON_SIZE}x{IOS_ICON_SIZE}',
+                'appearances': [{'appearance': 'luminosity', 'value': 'dark'}],
+                'filename': IOS_DARK_FILENAME,
+            },
+        ],
+        'info': {'author': 'xcode', 'version': 1},
+    }
     (IOS_ICONSET / 'Contents.json').write_text(json.dumps(contents, indent=2) + '\n')
 
 
