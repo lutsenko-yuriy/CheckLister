@@ -16,6 +16,7 @@ A record of all versioned releases. For planned work and known issues, see @docs
 ## [0.11.0] — 2026-09-23 (PR #64 merged)
 
 ### Added
+- [app] First version.
 - [wip] CheL-61 (WU1): GitHub Actions PR-validation workflow — lint, typecheck, unit tests, script contract tests, workflow-YAML lint, and an unsigned iOS simulator build run on every pull request.
 - [wip] CheL-61 (WU2): Real App Store Connect bundle identifier (`com.checklister.checklisterApp`) replacing the React Native template id, plus manual Release signing configuration (team, certificate, provisioning profile) so the app is addressable for signed builds.
 - [ci] CheL-61 (WU3): Release gate (`scripts/ci/release_gate.py`) plus a Fastlane-driven GitHub Actions workflow that archives a signed Release build and uploads it to TestFlight on every version-bumped, `[user]`/`[app]`-tagged merge to `main`. App Store submission and promotion remain fully manual.
