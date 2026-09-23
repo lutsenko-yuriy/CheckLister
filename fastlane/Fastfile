@@ -1,6 +1,29 @@
 opt_out_usage
 default_platform(:ios)
 
+# Builds TestFlight's "What to Test" notes from the newest docs/CHANGELOG.md
+# section's [user]/[app]-tagged bullets (the tags docs/workflows/MULTI_WU.md
+# and scripts/ci/release_gate.py treat as user-facing). Falls back to a
+# generic note if a manual workflow_dispatch run has no such bullets (e.g.
+# a re-run with only [ci]/[meta]/[wip] entries at the top).
+def testflight_changelog
+  changelog = File.read(File.join(__dir__, '..', 'docs', 'CHANGELOG.md'))
+  changelog = changelog.gsub(/<!--.*?-->/m, '')
+  lines = changelog.lines
+  start_index = lines.index { |line| line.start_with?('## ') }
+  return 'Internal test build.' unless start_index
+
+  end_index = lines[(start_index + 1)..].index { |line| line.start_with?('## ') }
+  section = end_index ? lines[start_index..(start_index + end_index)] : lines[start_index..]
+
+  notes = section
+    .map { |line| line[/^\s*-\s*\[(?:user|app)\]\s*(.+)$/, 1] }
+    .compact
+    .map(&:strip)
+
+  notes.empty? ? 'Internal test build.' : notes.map { |note| "- #{note}" }.join("\n")
+end
+
 platform :ios do
   desc 'Archive the Release build and upload it to TestFlight (internal testers only)'
   lane :beta do |options|
@@ -26,6 +49,7 @@ platform :ios do
     # public review stays a deliberate, manual action in App Store Connect.
     pilot(
       api_key: api_key,
+      changelog: testflight_changelog,
       skip_submission: true,
       skip_waiting_for_build_processing: true,
       distribute_external: false,

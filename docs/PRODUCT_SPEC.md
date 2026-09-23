@@ -115,6 +115,8 @@ checklist belongs to the person using the device.
   palette.
 - The launch/splash screen shows the app icon on a background matching the
   active palette instead of a generic placeholder.
+- On iOS, the Home Screen app icon itself also has a dark-appearance variant
+  (iOS 18+), matching the launch screen.
 - The resolved color scheme (light or dark) is recorded in analytics once
   per app session and again whenever it changes.
 
