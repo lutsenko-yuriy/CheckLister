@@ -6,6 +6,9 @@
 
 - 2026-09-23: User observed that this ticket, despite seeming like it would be token-heavy (multi-WU CI/CD pipeline, live GitHub Actions debugging loop with multiple failed runs), ended up consuming relatively little conversation context/tokens. Worth examining in debrief what made this efficient (e.g. planning done in a separate subagent whose full transcript stayed out of the main context, CI status polled via background Bash rather than inline waiting, fixes applied directly rather than through exploratory back-and-forth) so the pattern can be repeated deliberately on future tickets.
 
+- 2026-09-23: First real end-to-end verification of the release pipeline (manual `workflow_dispatch` run, since 0.11.0's own automatic run was skipped by design — see the bug note below). Build, code signing, certificate/profile import, archive, and authenticated upload to App Store Connect all succeeded. The upload itself was rejected by Apple for a pre-existing, unrelated gap: `ios/CheckLister/Images.xcassets/AppIcon.appiconset/` has no actual icon image files, only `Contents.json` — the app has never had real App Store-ready icons. Filed as its own bug, #67, rather than expanding this ticket's scope. The pipeline is considered verified as far as it can be without that asset gap fixed.
+- 2026-09-23: Found and fixed a real bug in `scripts/ci/release_gate.py` on the pipeline's very first live run: `docs/CHANGELOG.md`'s own template HTML comment contains a literal `## [X.Y.Z] ... (PR #N merged)` example heading, which `extract_newest_entry_tags()` matched as the first real entry heading instead of skipping it as a comment — caused the gate to fail loudly with "no recognised tag" despite the real `[app]` tag being present. Fixed by stripping HTML comments before scanning; added a regression test using the real comment text.
+
 ## Debrief summary
 
 ### 2026-09-23
