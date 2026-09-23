@@ -113,6 +113,8 @@ checklist belongs to the person using the device.
   checklist item editing, run, run history, the externally requested
   checklist picker) and the navigation chrome/status bar follow the active
   palette.
+- The launch/splash screen shows the app icon on a background matching the
+  active palette instead of a generic placeholder.
 - The resolved color scheme (light or dark) is recorded in analytics once
   per app session and again whenever it changes.
 
