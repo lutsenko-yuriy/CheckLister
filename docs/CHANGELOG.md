@@ -13,16 +13,15 @@ A record of all versioned releases. For planned work and known issues, see @docs
 - ...
 -->
 
-## [Unreleased]
+## [0.12.0] — 2026-09-24 (PR #79 merged)
 
 ### Added
-- [wip] GH-67: Full App Store/Play Store-ready icon set for iOS (all `AppIcon` slots incl. 1024×1024 marketing icon) and Android (adaptive icon with themed/monochrome layer, plus legacy square/round fallbacks), generated from a single `assets/icon/icon.svg` master via `scripts/generate_icons.py`.
+- [app] GH-67: Full App Store/Play Store-ready icon set for iOS (all `AppIcon` slots incl. 1024×1024 marketing icon) and Android (adaptive icon with themed/monochrome layer, plus legacy square/round fallbacks), generated from a single `assets/icon/icon.svg` master via `scripts/generate_icons.py`.
 - [meta] CheL-61: Recorded the manual iOS release-pipeline verification run's results (success, blocked only by the now-fixed missing app icons) and a `release_gate.py` comment-parsing bug found and fixed during it.
-- [wip] CheL-70 (WU1): Theme foundation — light/dark `Palette`, `ThemeProvider`/`useTheme()` following the OS appearance, `createThemedStyles()`, and navigation chrome/status bar now follow the OS setting. Individual screens are migrated in later WUs.
-- [wip] CheL-70 (WU2): Checklists screens (`HomeScreen`, `ChecklistDetailScreen`, `ChecklistSelectScreen`, `ChecklistSummaryRow`, `ItemRow`) migrated to the theme system, including placeholder/keyboard colors on text inputs. Also rounds list-row corners and replaces the row divider with a spacing gap. Runs screens remain in the next WU.
+- [user] CheL-70: Night mode — CheckLister now follows the OS-level light/dark appearance setting across every screen (checklists, runs, run history, external-run picker) and the navigation chrome, with no in-app toggle. Adds a custom launch/splash screen showing the app icon's glyph on a theme-matched background, replacing the platform default.
 - [ci] CheL-72: The `ios-build` PR-validation job now compiles with `-configuration Debug` instead of `Release`, caches the CocoaPods spec repo alongside `ios/Pods`, and is skipped entirely when a PR touches no native/app-relevant paths (`ios/`, `android/`, `package.json`, `package-lock.json`, `App.tsx`, `index.js`, `patches/**`).
-- [wip] CheL-70 (WU3): Runs screens (`RunScreen`, `RunHistoryScreen`, `RunItemRow`) migrated to the theme system, completing the checklists+runs theming; deletes the now-unused `shared/theme/colors.ts` alias. Also applies the checklists list's rounded-corners/row-gap treatment to run item rows, and replaces both platforms' default launch screen with the app icon's glyph on a background matching the active theme. Release of CheL-70 is deferred — code is merged but not yet cut as a version release.
-- [wip] CheL-77: Dark-appearance iOS app icon variant, fixing the white flash the OS's own launch icon-zoom transition showed in dark mode. Migrates `AppIcon.appiconset` to Xcode's Single Size format (required for per-appearance icons), reusing the same transparent glyph render already used for the CheL-70 splash screen.
+- [user] CheL-77: Dark-appearance iOS Home Screen icon variant, fixing the white flash the OS's own launch icon-zoom transition showed in dark mode.
+- [ci] Fastlane's `beta` lane now builds TestFlight's "What to Test" notes automatically from this section's `[user]`/`[app]`-tagged bullets, instead of leaving testers with no build notes.
 
 ## [0.11.0] — 2026-09-23 (PR #64 merged)
 
