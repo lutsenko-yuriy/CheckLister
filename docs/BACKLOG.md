@@ -8,7 +8,7 @@ The `## In Progress` section at the top is the one exception — it is maintaine
 
 ## In Progress
 
-- [N/A-70: Night mode (dark theme, follows OS setting)](https://github.com/lutsenko-yuriy/CheckLister/issues/70) — WU1 of 3 shipped (theme foundation); WU2 (checklists screens) and WU3 (runs screens, cleanup, docs) remain.
+- [CheL-70: Night mode (dark theme, follows OS setting)](https://github.com/lutsenko-yuriy/CheckLister/issues/70) — WU1 of 3 shipped (theme foundation); WU2 (checklists screens) and WU3 (runs screens, cleanup, docs) remain.
 
 ---
 

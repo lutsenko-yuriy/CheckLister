@@ -57,10 +57,10 @@ src/
     ├── storage/
     │   └── jsonStorage.ts          # Thin typed wrapper over AsyncStorage (get/set JSON by key)
     ├── theme/
-    │   ├── palette.ts              # Palette type + lightPalette/darkPalette (N/A-70)
-    │   ├── useTheme.tsx            # ThemeProvider + useTheme(): resolved OS scheme + active palette (N/A-70)
-    │   ├── createThemedStyles.ts   # useStyles() factory: builds a screen's StyleSheet from the active palette, cached per palette (N/A-70)
-    │   └── useColorSchemeAnalytics.ts # Emits color_scheme_resolved once per resolved/changed scheme (N/A-70)
+    │   ├── palette.ts              # Palette type + lightPalette/darkPalette (CheL-70)
+    │   ├── useTheme.tsx            # ThemeProvider + useTheme(): resolved OS scheme + active palette (CheL-70)
+    │   ├── createThemedStyles.ts   # useStyles() factory: builds a screen's StyleSheet from the active palette, cached per palette (CheL-70)
+    │   └── useColorSchemeAnalytics.ts # Emits color_scheme_resolved once per resolved/changed scheme (CheL-70)
     └── ui/                         # Cross-feature presentational components
         └── IconButton.tsx          # Shared icon-only action button (Pressable + vector icon glyph)
 
@@ -118,7 +118,7 @@ directly. Repository instances are created once and wired into each
 feature's context provider at the composition root (`App.tsx`), which is the
 only place `data/` implementations are constructed.
 
-**Theming (N/A-70):** screens obtain colors and styles through
+**Theming (CheL-70):** screens obtain colors and styles through
 `shared/theme/createThemedStyles.ts`'s `useStyles()` factory — never a
 module-level `StyleSheet.create` closed over a static palette. The factory
 reads the active palette from `useTheme()` (`shared/theme/useTheme.tsx`),

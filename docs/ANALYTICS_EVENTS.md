@@ -135,7 +135,7 @@ Fired after CheckLister attempts to return a checklist selection result to the c
 | `status` | `string` | Returned selection result: `selected`, `cancelled`, or `error` |
 | `delivered` | `boolean` | Whether the callback app opened successfully |
 
-<!-- Added for N/A-70: Night mode -->
+<!-- Added for CheL-70: Night mode -->
 
 ### `color_scheme_resolved`
 
