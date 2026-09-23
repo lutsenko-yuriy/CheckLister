@@ -20,6 +20,8 @@ import {
 import { ChecklistSelectScreen } from './ChecklistSelectScreen';
 import { analytics } from '../../../shared/analytics/AnalyticsService';
 import * as delivery from '../externalSelectCallbackDelivery';
+import { darkPalette } from '../../../shared/theme/palette';
+import { ThemeProvider } from '../../../shared/theme/useTheme';
 
 jest.mock('../../../shared/analytics/AnalyticsService', () => ({
   analytics: { logEvent: jest.fn(), logScreenView: jest.fn() },
@@ -47,32 +49,37 @@ function BeginSelection({ callbackUrl }: { callbackUrl: string }) {
   return null;
 }
 
-async function renderSelectScreen(callbackUrl = 'caller-app://select-result') {
+async function renderSelectScreen(
+  callbackUrl = 'caller-app://select-result',
+  scheme?: 'light' | 'dark',
+) {
   const navigationRef = createNavigationContainerRef<TestParamList>();
   const repository = new AsyncStorageChecklistRepository();
 
   const utils = await render(
-    <ChecklistsProvider repository={repository}>
-      <ExternalSelectionProvider>
-        <BeginSelection callbackUrl={callbackUrl} />
-        <NavigationContainer
-          ref={navigationRef}
-          initialState={{
-            index: 1,
-            routes: [{ name: 'Placeholder' }, { name: 'ChecklistSelect' }],
-          }}
-        >
-          <Stack.Navigator>
-            <Stack.Screen name="Placeholder" component={PlaceholderScreen} />
-            <Stack.Screen
-              name="ChecklistSelect"
-              component={ChecklistSelectScreen as any}
-              options={{ title: 'Select checklist' }}
-            />
-          </Stack.Navigator>
-        </NavigationContainer>
-      </ExternalSelectionProvider>
-    </ChecklistsProvider>,
+    <ThemeProvider scheme={scheme}>
+      <ChecklistsProvider repository={repository}>
+        <ExternalSelectionProvider>
+          <BeginSelection callbackUrl={callbackUrl} />
+          <NavigationContainer
+            ref={navigationRef}
+            initialState={{
+              index: 1,
+              routes: [{ name: 'Placeholder' }, { name: 'ChecklistSelect' }],
+            }}
+          >
+            <Stack.Navigator>
+              <Stack.Screen name="Placeholder" component={PlaceholderScreen} />
+              <Stack.Screen
+                name="ChecklistSelect"
+                component={ChecklistSelectScreen as any}
+                options={{ title: 'Select checklist' }}
+              />
+            </Stack.Navigator>
+          </NavigationContainer>
+        </ExternalSelectionProvider>
+      </ChecklistsProvider>
+    </ThemeProvider>,
   );
 
   return { navigationRef, repository, ...utils };
@@ -179,6 +186,18 @@ describe('ChecklistSelectScreen', () => {
     expect(deliverSpy).toHaveBeenCalledWith(
       'caller-app://select-result',
       expect.objectContaining({ status: 'selected' }),
+    );
+  });
+
+  it('renders with the dark palette when in dark mode', async () => {
+    const repository = new AsyncStorageChecklistRepository();
+    await repository.saveAll([{ id: '1', title: 'Groceries', items: [] }]);
+
+    await renderSelectScreen('caller-app://select-result', 'dark');
+    await waitFor(() => screen.getByText('Groceries'));
+
+    expect(screen.getByTestId('checklist-select-screen').props.style).toEqual(
+      expect.objectContaining({ backgroundColor: darkPalette.background }),
     );
   });
 });

@@ -1,7 +1,7 @@
 import React from 'react';
-import { Pressable, StyleProp, StyleSheet, Text, ViewStyle } from 'react-native';
+import { Pressable, StyleProp, Text, ViewStyle } from 'react-native';
 import { Checklist } from '../../domain/models';
-import { colors } from '../../../../shared/theme/colors';
+import { createThemedStyles } from '../../../../shared/theme/createThemedStyles';
 
 export function ChecklistSummaryRow({
   checklist,
@@ -14,6 +14,7 @@ export function ChecklistSummaryRow({
   style?: StyleProp<ViewStyle>;
   testID?: string;
 }) {
+  const styles = useStyles();
   return (
     <Pressable style={[styles.rowBody, style]} onPress={onPress} testID={testID}>
       <Text style={styles.rowTitle}>{checklist.title}</Text>
@@ -27,7 +28,7 @@ export function ChecklistSummaryRow({
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = createThemedStyles(colors => ({
   rowBody: {
     flex: 1,
   },
@@ -39,4 +40,4 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
     marginTop: 2,
   },
-});
+}));

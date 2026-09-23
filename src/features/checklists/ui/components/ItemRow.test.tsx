@@ -3,6 +3,8 @@ import { render, fireEvent, screen } from '@testing-library/react-native';
 import { Text } from 'react-native';
 import { ItemRow } from './ItemRow';
 import { Item } from '../../domain/models';
+import { darkPalette } from '../../../../shared/theme/palette';
+import { ThemeProvider } from '../../../../shared/theme/useTheme';
 
 function item(overrides: Partial<Item> = {}): Item {
   return {
@@ -78,5 +80,21 @@ describe('ItemRow', () => {
     );
     fireEvent.press(screen.getByLabelText('Delete'));
     expect(onDelete).toHaveBeenCalled();
+  });
+
+  it('renders text in the dark palette color when in dark mode', async () => {
+    await render(
+      <ThemeProvider scheme="dark">
+        <ItemRow
+          item={item()}
+          onEdit={jest.fn()}
+          onDelete={jest.fn()}
+          dragHandle={<Text>Handle</Text>}
+        />
+      </ThemeProvider>,
+    );
+    expect(screen.getByText('Milk').props.style).toEqual(
+      expect.objectContaining({ color: darkPalette.text }),
+    );
   });
 });

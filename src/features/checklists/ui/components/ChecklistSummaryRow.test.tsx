@@ -2,6 +2,8 @@ import React from 'react';
 import { fireEvent, render, screen } from '@testing-library/react-native';
 import { ChecklistSummaryRow } from './ChecklistSummaryRow';
 import { createChecklist, createItem } from '../../domain/models';
+import { darkPalette } from '../../../../shared/theme/palette';
+import { ThemeProvider } from '../../../../shared/theme/useTheme';
 
 describe('ChecklistSummaryRow', () => {
   it('renders the checklist title without an item count when empty', async () => {
@@ -57,5 +59,19 @@ describe('ChecklistSummaryRow', () => {
     );
 
     expect(screen.getByTestId('checklist-row-Groceries')).toBeTruthy();
+  });
+
+  it('renders text in the dark palette color when in dark mode', async () => {
+    const checklist = createChecklist('Groceries');
+
+    await render(
+      <ThemeProvider scheme="dark">
+        <ChecklistSummaryRow checklist={checklist} onPress={jest.fn()} />
+      </ThemeProvider>,
+    );
+
+    expect(screen.getByText('Groceries').props.style).toEqual(
+      expect.objectContaining({ color: darkPalette.text }),
+    );
   });
 });
