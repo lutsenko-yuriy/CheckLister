@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import {
   createNativeStackNavigator,
   NativeStackHeaderLeftProps,
@@ -11,12 +11,13 @@ import { RunScreen } from '../features/runs/ui/RunScreen';
 import { RunHistoryScreen } from '../features/runs/ui/RunHistoryScreen';
 import { ChecklistSelectScreen } from '../features/checklists/ui/ChecklistSelectScreen';
 import { IconButton } from '../shared/ui/IconButton';
-import { colors } from '../shared/theme/colors';
+import { useTheme } from '../shared/theme/useTheme';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 function FlatBackButton(_props?: NativeStackHeaderLeftProps) {
   const navigation = useNavigation();
+  const { colors } = useTheme();
   return (
     <IconButton
       icon="arrow-back"
@@ -28,15 +29,18 @@ function FlatBackButton(_props?: NativeStackHeaderLeftProps) {
 }
 
 export function RootNavigator() {
+  const { colors } = useTheme();
+  const screenOptions = useMemo(
+    () => ({
+      headerStyle: { backgroundColor: colors.headerBackground },
+      headerShadowVisible: false,
+      headerTintColor: colors.text,
+    }),
+    [colors],
+  );
+
   return (
-    <Stack.Navigator
-      initialRouteName="Home"
-      screenOptions={{
-        headerStyle: { backgroundColor: colors.headerBackground },
-        headerShadowVisible: false,
-        headerTintColor: colors.text,
-      }}
-    >
+    <Stack.Navigator initialRouteName="Home" screenOptions={screenOptions}>
       <Stack.Screen
         name="Home"
         component={HomeScreen}

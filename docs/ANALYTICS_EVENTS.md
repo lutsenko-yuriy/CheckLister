@@ -135,6 +135,16 @@ Fired after CheckLister attempts to return a checklist selection result to the c
 | `status` | `string` | Returned selection result: `selected`, `cancelled`, or `error` |
 | `delivered` | `boolean` | Whether the callback app opened successfully |
 
+<!-- Added for CheL-70: Night mode -->
+
+### `color_scheme_resolved`
+
+Fired once per app session when the app resolves the OS appearance setting at launch, and again if it changes while the app is foregrounded.
+
+| Property | Type | Description |
+|---|---|---|
+| `color_scheme` | `string` | Resolved OS appearance: `light` or `dark` |
+
 ---
 
 ## Screen Views

@@ -57,7 +57,10 @@ src/
     ├── storage/
     │   └── jsonStorage.ts          # Thin typed wrapper over AsyncStorage (get/set JSON by key)
     ├── theme/
-    │   └── colors.ts               # Single source of truth for the app's light-blue color palette
+    │   ├── palette.ts              # Palette type + lightPalette/darkPalette (CheL-70)
+    │   ├── useTheme.tsx            # ThemeProvider + useTheme(): resolved OS scheme + active palette (CheL-70)
+    │   ├── createThemedStyles.ts   # useStyles() factory: builds a screen's StyleSheet from the active palette, cached per palette (CheL-70)
+    │   └── useColorSchemeAnalytics.ts # Emits color_scheme_resolved once per resolved/changed scheme (CheL-70)
     └── ui/                         # Cross-feature presentational components
         └── IconButton.tsx          # Shared icon-only action button (Pressable + vector icon glyph)
 
@@ -114,6 +117,15 @@ own hook (`useChecklists`, `useRuns`) rather than instantiating repositories
 directly. Repository instances are created once and wired into each
 feature's context provider at the composition root (`App.tsx`), which is the
 only place `data/` implementations are constructed.
+
+**Theming (CheL-70):** screens obtain colors and styles through
+`shared/theme/createThemedStyles.ts`'s `useStyles()` factory — never a
+module-level `StyleSheet.create` closed over a static palette. The factory
+reads the active palette from `useTheme()` (`shared/theme/useTheme.tsx`),
+which resolves the OS appearance via React Native's `useColorScheme()` and
+falls back to light when no `ThemeProvider` is mounted (e.g. in tests that
+render a screen in isolation). `shared/theme/palette.ts` is the single
+source of truth for both the light and dark token sets.
 
 ### State management
 
