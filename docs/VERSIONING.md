@@ -33,6 +33,12 @@ Any repository state the gate can't classify (a decreased version, a
 malformed/missing CHANGELOG tag, a shallow checkout) fails the job loudly
 rather than silently skipping.
 
+The workflow can also be run manually (`workflow_dispatch`, e.g. via
+"Run workflow" in the Actions tab or `gh workflow run "iOS release"`),
+which always proceeds to the TestFlight upload regardless of what the
+gate decided — useful for re-verifying the pipeline itself without
+needing a fresh version bump.
+
 When the gate passes, a second job builds a signed Release archive via
 Fastlane (`fastlane/Fastfile`, `beta` lane) and uploads it to TestFlight for
 internal testing only — no App Store submission happens automatically.

@@ -3,6 +3,7 @@ name: iOS release
 on:
   push:
     branches: [main]
+  workflow_dispatch: {}
 
 jobs:
   gate:
@@ -27,7 +28,7 @@ jobs:
   testflight:
     name: Archive and upload to TestFlight
     needs: gate
-    if: needs.gate.outputs.should_release == 'true'
+    if: github.event_name == 'workflow_dispatch' || needs.gate.outputs.should_release == 'true'
     runs-on: macos-26
     environment: testflight
     steps:

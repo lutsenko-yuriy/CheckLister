@@ -69,6 +69,24 @@ class ExtractNewestEntryTagsTests(unittest.TestCase):
                 '## [1.0.5]\n- [meta] Older.\n')
         self.assertEqual(release_gate.extract_newest_entry_tags(text), {'wip'})
 
+    def test_ignores_a_template_heading_inside_an_html_comment(self):
+        # docs/CHANGELOG.md's real template comment contains a literal
+        # "## [X.Y.Z] ..." example line - this must not be mistaken for the
+        # first real entry heading.
+        text = (
+            '# Changelog\n\n'
+            '<!-- This file is maintained by the Product Owner agent.\n'
+            '     New sections are prepended after each merged PR in the format:\n\n'
+            '## [X.Y.Z] — YYYY-MM-DD (PR #N merged)\n\n'
+            '### Added / Changed / Fixed\n'
+            '- ...\n'
+            '-->\n\n'
+            '## [0.11.0] — 2026-09-23 (PR #64 merged)\n\n'
+            '### Added\n'
+            '- [app] First version.\n'
+        )
+        self.assertEqual(release_gate.extract_newest_entry_tags(text), {'app'})
+
     def test_no_section_heading_fails_loudly(self):
         with self.assertRaises(release_gate.ReleaseGateError):
             release_gate.extract_newest_entry_tags('# Changelog\n\nNothing here yet.\n')
