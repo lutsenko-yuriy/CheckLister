@@ -106,18 +106,8 @@ jobs:
         working-directory: ios
         run: bundle exec pod install
 
-      - name: Cache DerivedData
-        uses: actions/cache@v6
-        with:
-          path: ~/Library/Developer/Xcode/DerivedData/CheckLister
-          key: deriveddata-${{ runner.os }}-${{ hashFiles('ios/Podfile.lock', 'package-lock.json') }}-${{ github.sha }}
-          restore-keys: |
-            deriveddata-${{ runner.os }}-${{ hashFiles('ios/Podfile.lock', 'package-lock.json') }}-
-            deriveddata-${{ runner.os }}-
-
       - name: Build for iOS Simulator (unsigned, compile-check only)
         run: |
           xcodebuild -workspace ios/CheckLister.xcworkspace -scheme CheckLister \
             -configuration Debug -sdk iphonesimulator \
-            -derivedDataPath ~/Library/Developer/Xcode/DerivedData/CheckLister \
             CODE_SIGNING_ALLOWED=NO build
