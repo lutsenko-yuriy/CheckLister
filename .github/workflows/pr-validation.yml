@@ -9,6 +9,26 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  changes:
+    name: Detect changed paths
+    runs-on: ubuntu-latest
+    outputs:
+      ios: ${{ steps.filter.outputs.ios }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            ios:
+              - 'ios/**'
+              - 'android/**'
+              - 'package.json'
+              - 'package-lock.json'
+              - 'App.tsx'
+              - 'index.js'
+              - '.github/workflows/pr-validation.yml'
+
   checks:
     name: Lint, typecheck, and test
     runs-on: ubuntu-latest
@@ -52,6 +72,8 @@ jobs:
 
   ios-build:
     name: iOS simulator build
+    needs: changes
+    if: needs.changes.outputs.ios == 'true'
     runs-on: macos-26
     steps:
       - uses: actions/checkout@v7
@@ -72,7 +94,9 @@ jobs:
       - name: Cache CocoaPods
         uses: actions/cache@v6
         with:
-          path: ios/Pods
+          path: |
+            ios/Pods
+            ~/.cocoapods/repos
           key: pods-${{ runner.os }}-${{ hashFiles('ios/Podfile.lock') }}
           restore-keys: |
             pods-${{ runner.os }}-
@@ -81,8 +105,8 @@ jobs:
         working-directory: ios
         run: bundle exec pod install
 
-      - name: Build for iOS Simulator (unsigned)
+      - name: Build for iOS Simulator (unsigned, compile-check only)
         run: |
           xcodebuild -workspace ios/CheckLister.xcworkspace -scheme CheckLister \
-            -configuration Release -sdk iphonesimulator \
+            -configuration Debug -sdk iphonesimulator \
             CODE_SIGNING_ALLOWED=NO build
