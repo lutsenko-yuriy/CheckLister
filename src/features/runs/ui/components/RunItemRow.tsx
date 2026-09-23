@@ -1,5 +1,5 @@
 import React from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { RunItem } from '../../domain/models';
 import { useTheme } from '../../../../shared/theme/useTheme';
@@ -44,12 +44,12 @@ export function RunItemRow({
 const useStyles = createThemedStyles(colors => ({
   row: {
     height: RUN_ITEM_ROW_HEIGHT,
+    marginBottom: 8,
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 4,
     backgroundColor: colors.surface,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: colors.border,
+    borderRadius: 10,
   },
   textContainer: {
     flex: 1,
