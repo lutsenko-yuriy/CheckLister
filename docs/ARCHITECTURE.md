@@ -247,15 +247,27 @@ fixture isolation and failure artifacts. Jest remains the unit/component test su
 ## App icon
 
 `assets/icon/icon.svg` is the only hand-edited icon file. `scripts/generate_icons.py`
-renders everything else from it: the iOS `AppIcon.appiconset` PNGs (full-bleed, opaque,
-listed in its `Contents.json`), the Android adaptive-icon foreground
-(`mipmap-*/ic_launcher_foreground.png`, also used as the themed-icon monochrome layer),
-and the legacy `ic_launcher` / `ic_launcher_round` PNGs for API < 26. The adaptive
-background is `drawable/ic_launcher_background.xml`, which repeats the SVG's gradient
-colours. Never edit the generated PNGs by hand. Edit the SVG, then run
+renders everything else from it: the iOS `AppIcon.appiconset` (see below), the Android
+adaptive-icon foreground (`mipmap-*/ic_launcher_foreground.png`, also used as the
+themed-icon monochrome layer), and the legacy `ic_launcher` / `ic_launcher_round` PNGs
+for API < 26. The adaptive background is `drawable/ic_launcher_background.xml`, which
+repeats the SVG's gradient colours. Never edit the generated PNGs or `Contents.json`
+by hand. Edit the SVG, then run
 `pip install cairosvg pillow && python3 scripts/generate_icons.py` and commit the output.
 The script finds the SVG layers by element id (`background`, `art`, `box`, `halo`, `check`),
 and `scripts/tests/test_generate_icons.py` checks that those ids are present.
+
+`AppIcon.appiconset` is in Xcode's **Single Size** mode: `Contents.json` has exactly two
+entries, both `1024x1024` with no `scale` key (that absence is what selects Single Size —
+Xcode derives every smaller size from these two sources at build time, so no small
+per-size PNGs are committed). The default entry (`icon-1024.png`) is the full-bleed,
+opaque render. The dark-appearance entry (`icon-1024-dark.png`, tagged
+`"appearances": [{"appearance": "luminosity", "value": "dark"}]`, CheL-77) is the same
+transparent glyph used for Android's adaptive foreground — rendered via `foreground()`
+at `art_scale=1.0` (full scale, not Android's 0.68 safe-zone scale) — since Apple's
+guidance for dark-appearance icons is a transparent image with the system supplying its
+own dark backdrop. A tinted-appearance entry is deliberately omitted; iOS derives a
+tinted rendering from the default icon when none is supplied.
 
 ## Launch/splash screen (CheL-70)
 
