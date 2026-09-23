@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <!-- CheckLister app icon: source of truth for every generated PNG
+       (scripts/generate_icons.py). Colors follow src/shared/theme/colors.ts. -->
+  <defs>
+    <linearGradient id="bg" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="0" y2="1024">
+      <stop offset="0" stop-color="#EAF2FB"/>
+      <stop offset="1" stop-color="#C9DEF5"/>
+    </linearGradient>
+  </defs>
+  <rect id="background" width="1024" height="1024" fill="url(#bg)"/>
+  <g id="art" fill="none" stroke="#1F4BB3" stroke-width="60" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Box: left, top, and right edges solid; bottom edge dashed. -->
+    <g id="box">
+      <path d="M252,827 A70,70 0 0 1 182,757 V337 A70,70 0 0 1 252,267 H672 A70,70 0 0 1 742,337 V757 A70,70 0 0 1 672,827"/>
+      <path d="M362,827 H407 M517,827 H562"/>
+    </g>
+    <!-- Background-colored halo cuts a gap where the check crosses the box. The
+         Android adaptive foreground turns it into a transparent cut instead. -->
+    <polyline id="halo" points="312,527 452,667 822,217" stroke="url(#bg)" stroke-width="160"/>
+    <polyline id="check" points="312,527 452,667 822,217" stroke-width="100"/>
+  </g>
+</svg>

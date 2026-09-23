@@ -13,6 +13,11 @@ A record of all versioned releases. For planned work and known issues, see @docs
 - ...
 -->
 
+## [Unreleased]
+
+### Added
+- [wip] GH-67: Full App Store/Play Store-ready icon set for iOS (all `AppIcon` slots incl. 1024×1024 marketing icon) and Android (adaptive icon with themed/monochrome layer, plus legacy square/round fallbacks), generated from a single `assets/icon/icon.svg` master via `scripts/generate_icons.py`.
+
 ## [0.11.0] — 2026-09-23 (PR #64 merged)
 
 ### Added

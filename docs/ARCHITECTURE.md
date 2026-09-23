@@ -65,6 +65,10 @@ test/
 └── features/                       # Mirrors src/features/
     ├── checklists/
     └── runs/
+
+assets/
+└── icon/
+    └── icon.svg                    # App icon master; every platform icon PNG is generated from it
 ```
 
 ## Layers
@@ -227,3 +231,16 @@ an explicitly selected simulator and invokes the developer-installed Maestro CLI
 it is not an application dependency. Run with `npm run scenarios:ios -- <UDID>`.
 See [SCENARIOS.md](SCENARIOS.md) for Java/Maestro setup, build/install steps,
 fixture isolation and failure artifacts. Jest remains the unit/component test suite.
+
+## App icon
+
+`assets/icon/icon.svg` is the only hand-edited icon file. `scripts/generate_icons.py`
+renders everything else from it: the iOS `AppIcon.appiconset` PNGs (full-bleed, opaque,
+listed in its `Contents.json`), the Android adaptive-icon foreground
+(`mipmap-*/ic_launcher_foreground.png`, also used as the themed-icon monochrome layer),
+and the legacy `ic_launcher` / `ic_launcher_round` PNGs for API < 26. The adaptive
+background is `drawable/ic_launcher_background.xml`, which repeats the SVG's gradient
+colours. Never edit the generated PNGs by hand. Edit the SVG, then run
+`pip install cairosvg pillow && python3 scripts/generate_icons.py` and commit the output.
+The script finds the SVG layers by element id (`background`, `art`, `box`, `halo`, `check`),
+and `scripts/tests/test_generate_icons.py` checks that those ids are present.

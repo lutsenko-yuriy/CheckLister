@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Adaptive icon background: the same light-blue gradient as assets/icon/icon.svg. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <gradient
+        android:angle="270"
+        android:startColor="#EAF2FB"
+        android:endColor="#C9DEF5" />
+</shape>
