@@ -17,3 +17,4 @@ The `## In Progress` section at the top is the one exception — it is maintaine
 ## Unscheduled
 
 - [CheL-32: Separate and review the every-ticket scenario workflow policy](https://github.com/lutsenko-yuriy/CheckLister/issues/32)
+- [CheL-77: Dark-appearance app icon variant (iOS 18+) to match the dark splash screen](https://github.com/lutsenko-yuriy/CheckLister/issues/77)
