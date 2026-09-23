@@ -229,10 +229,9 @@ const useStyles = createThemedStyles(colors => ({
     paddingVertical: 12,
     paddingLeft: 12,
     paddingRight: 4,
+    marginBottom: 8,
     backgroundColor: colors.surface,
     borderRadius: 10,
-    borderBottomWidth: 1.5,
-    borderBottomColor: colors.border,
   },
   actionButton: {
     marginLeft: 12,

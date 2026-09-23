@@ -6,9 +6,11 @@ import { useTheme } from '../../../../shared/theme/useTheme';
 import { createThemedStyles } from '../../../../shared/theme/createThemedStyles';
 
 // ChecklistDetailScreen's Sortable list positions rows using this fixed
-// height, so the row's actual rendered height must never exceed it —
-// hence the item text below is capped to one line.
-export const ITEM_ROW_HEIGHT = 56;
+// slot height, so the row's actual rendered height plus its bottom gap must
+// never exceed it — hence the item text below is capped to one line.
+const ROW_HEIGHT = 56;
+const ROW_GAP = 8;
+export const ITEM_ROW_HEIGHT = ROW_HEIGHT + ROW_GAP;
 
 export function ItemRow({
   item,
@@ -95,14 +97,13 @@ export function ItemRow({
 
 const useStyles = createThemedStyles(colors => ({
   row: {
-    height: ITEM_ROW_HEIGHT,
+    height: ROW_HEIGHT,
+    marginBottom: ROW_GAP,
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 4,
     backgroundColor: colors.surface,
     borderRadius: 10,
-    borderBottomWidth: 1.5,
-    borderBottomColor: colors.border,
   },
   rowBody: {
     flex: 1,
