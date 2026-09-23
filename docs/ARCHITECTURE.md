@@ -259,18 +259,21 @@ and `scripts/tests/test_generate_icons.py` checks that those ids are present.
 
 ## Launch/splash screen (CheL-70)
 
-Both platforms show the app icon centered on a background matching the active
+Both platforms show the app icon's glyph (transparent background, not the
+full opaque icon tile) centered directly on a background matching the active
 theme's `colors.background` (light `#EAF2FB` / dark `#0E1724`, from
 `shared/theme/palette.ts`) instead of the OS-templated default. This can't
 read the JS palette at launch, so the colors are duplicated as native
 resources kept in sync by hand, not generated:
 - iOS: `ios/CheckLister/LaunchScreen.storyboard`, sourcing
-  `Images.xcassets/LaunchLogo.imageset` (a copy of `AppIcon.appiconset`'s
-  1024px icon) and the `LaunchBackground` named color (light/dark variants).
+  `Images.xcassets/LaunchLogo.imageset` (a copy of the Android adaptive
+  icon's transparent foreground PNG — see "App icon" above) and the
+  `LaunchBackground` named color (light/dark variants).
 - Android: only the platform SplashScreen API (12+, API 31) is customized,
   via `values-v31/styles.xml`'s `android:windowSplashScreenBackground` /
   `windowSplashScreenAnimatedIcon` attributes on `AppTheme`, reusing the
-  existing `@mipmap/ic_launcher_foreground` and a new `splashBackground`
-  color resource (`values/colors.xml` + `values-night/colors.xml`). Below
-  API 31 there is no system splash screen to customize, so those devices see
-  the platform's own default blank launch, same as before this ticket.
+  existing `@mipmap/ic_launcher_foreground` (already transparent-background)
+  and a new `splashBackground` color resource (`values/colors.xml` +
+  `values-night/colors.xml`). Below API 31 there is no system splash screen
+  to customize, so those devices see the platform's own default blank
+  launch, same as before this ticket.

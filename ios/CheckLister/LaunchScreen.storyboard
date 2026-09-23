@@ -38,7 +38,7 @@
         </scene>
     </scenes>
     <resources>
-        <image name="LaunchLogo" width="1024" height="1024"/>
+        <image name="LaunchLogo" width="432" height="432"/>
         <namedColor name="LaunchBackground">
             <color red="0.91764705882352937" green="0.94901960784313721" blue="0.984313725490196" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
