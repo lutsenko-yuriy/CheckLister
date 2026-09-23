@@ -1,5 +1,5 @@
 import React, { useLayoutEffect, useState } from 'react';
-import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Pressable, Text, TextInput, View } from 'react-native';
 import { Sortable, SortableItem } from 'react-native-reanimated-dnd';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../../navigation/types';
@@ -8,11 +8,14 @@ import { useRuns } from '../../runs/useRuns';
 import { analytics } from '../../../shared/analytics/AnalyticsService';
 import { ItemRow, ITEM_ROW_HEIGHT } from './components/ItemRow';
 import { IconButton } from '../../../shared/ui/IconButton';
-import { colors } from '../../../shared/theme/colors';
+import { useTheme } from '../../../shared/theme/useTheme';
+import { createThemedStyles } from '../../../shared/theme/createThemedStyles';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'ChecklistDetail'>;
 
 export function ChecklistDetailScreen({ navigation, route }: Props) {
+  const { colors, scheme } = useTheme();
+  const styles = useStyles();
   const { checklists, addItem, editItem, deleteItem, moveItem } =
     useChecklists();
   const { startRun, history, historyLoading } = useRuns();
@@ -52,7 +55,7 @@ export function ChecklistDetailScreen({ navigation, route }: Props) {
           ]
         : undefined,
     });
-  }, [checklist, hasHistory, historyLoading, navigation]);
+  }, [checklist, colors, hasHistory, historyLoading, navigation]);
 
   useLayoutEffect(() => {
     if (checklist) {
@@ -68,7 +71,7 @@ export function ChecklistDetailScreen({ navigation, route }: Props) {
 
   if (!checklist) {
     return (
-      <View style={styles.container}>
+      <View style={styles.container} testID="checklist-detail-screen">
         <Text style={styles.emptyState}>Checklist not found.</Text>
       </View>
     );
@@ -126,13 +129,15 @@ export function ChecklistDetailScreen({ navigation, route }: Props) {
   };
 
   return (
-    <View style={styles.container}>
+    <View style={styles.container} testID="checklist-detail-screen">
       <Text style={styles.title}>{checklist.title}</Text>
 
       <View style={styles.addRow}>
         <TextInput
           style={styles.input}
           placeholder="New item"
+          placeholderTextColor={colors.textMuted}
+          keyboardAppearance={scheme}
           value={newItemText}
           onChangeText={setNewItemText}
           onSubmitEditing={handleAdd}
@@ -217,7 +222,7 @@ export function ChecklistDetailScreen({ navigation, route }: Props) {
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = createThemedStyles(colors => ({
   container: {
     flex: 1,
     padding: 16,
@@ -275,4 +280,4 @@ const styles = StyleSheet.create({
   sortableList: {
     backgroundColor: colors.background,
   },
-});
+}));

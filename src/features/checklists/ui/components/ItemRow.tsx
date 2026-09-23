@@ -1,13 +1,16 @@
 import React, { useState } from 'react';
-import { StyleSheet, Text, TextInput, View } from 'react-native';
+import { Text, TextInput, View } from 'react-native';
 import { Item } from '../../domain/models';
 import { IconButton } from '../../../../shared/ui/IconButton';
-import { colors } from '../../../../shared/theme/colors';
+import { useTheme } from '../../../../shared/theme/useTheme';
+import { createThemedStyles } from '../../../../shared/theme/createThemedStyles';
 
 // ChecklistDetailScreen's Sortable list positions rows using this fixed
-// height, so the row's actual rendered height must never exceed it —
-// hence the item text below is capped to one line.
-export const ITEM_ROW_HEIGHT = 56;
+// slot height, so the row's actual rendered height plus its bottom gap must
+// never exceed it — hence the item text below is capped to one line.
+const ROW_HEIGHT = 56;
+const ROW_GAP = 8;
+export const ITEM_ROW_HEIGHT = ROW_HEIGHT + ROW_GAP;
 
 export function ItemRow({
   item,
@@ -20,6 +23,8 @@ export function ItemRow({
   onDelete: () => void;
   dragHandle: React.ReactNode;
 }) {
+  const { colors, scheme } = useTheme();
+  const styles = useStyles();
   const [isEditing, setIsEditing] = useState(false);
   const [draftText, setDraftText] = useState(item.text);
 
@@ -41,6 +46,8 @@ export function ItemRow({
       <View style={styles.row}>
         <TextInput
           style={styles.input}
+          placeholderTextColor={colors.textMuted}
+          keyboardAppearance={scheme}
           value={draftText}
           onChangeText={setDraftText}
           autoFocus
@@ -88,15 +95,15 @@ export function ItemRow({
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = createThemedStyles(colors => ({
   row: {
-    height: ITEM_ROW_HEIGHT,
+    height: ROW_HEIGHT,
+    marginBottom: ROW_GAP,
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 4,
     backgroundColor: colors.surface,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: colors.border,
+    borderRadius: 10,
   },
   rowBody: {
     flex: 1,
@@ -118,4 +125,4 @@ const styles = StyleSheet.create({
   actionButton: {
     marginLeft: 12,
   },
-});
+}));

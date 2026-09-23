@@ -12,18 +12,23 @@ import { HomeScreen } from './HomeScreen';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { RunsProvider } from '../../runs/useRuns';
 import { AsyncStorageRunRepository } from '../../runs/data/asyncStorageRunRepository';
+import { darkPalette } from '../../../shared/theme/palette';
+import { ThemeProvider } from '../../../shared/theme/useTheme';
 
 async function renderHomeScreen(
   navigate: jest.Mock = jest.fn(),
   runRepository = new AsyncStorageRunRepository(),
+  scheme?: 'light' | 'dark',
 ) {
   const navigation = { navigate, setOptions: jest.fn() };
   const utils = await render(
-    <ChecklistsProvider repository={new AsyncStorageChecklistRepository()}>
-      <RunsProvider repository={runRepository}>
-        <HomeScreen navigation={navigation as any} route={{} as any} />
-      </RunsProvider>
-    </ChecklistsProvider>,
+    <ThemeProvider scheme={scheme}>
+      <ChecklistsProvider repository={new AsyncStorageChecklistRepository()}>
+        <RunsProvider repository={runRepository}>
+          <HomeScreen navigation={navigation as any} route={{} as any} />
+        </RunsProvider>
+      </ChecklistsProvider>
+    </ThemeProvider>,
   );
   return { navigation, ...utils };
 }
@@ -223,5 +228,13 @@ describe('HomeScreen', () => {
 
     expect(screen.getByText('Groceries')).toBeTruthy();
     expect(await repo.getAll()).toHaveLength(1);
+  });
+
+  it('renders with the dark palette when in dark mode', async () => {
+    await renderHomeScreen(jest.fn(), new AsyncStorageRunRepository(), 'dark');
+
+    expect(screen.getByTestId('home-screen').props.style).toEqual(
+      expect.objectContaining({ backgroundColor: darkPalette.background }),
+    );
   });
 });

@@ -8,7 +8,8 @@ import { deliverExternalSelectResult } from '../externalSelectCallbackDelivery';
 import { Checklist } from '../domain/models';
 import { ChecklistSummaryRow } from './components/ChecklistSummaryRow';
 import { IconButton } from '../../../shared/ui/IconButton';
-import { colors } from '../../../shared/theme/colors';
+import { useTheme } from '../../../shared/theme/useTheme';
+import { createThemedStyles } from '../../../shared/theme/createThemedStyles';
 import { analytics } from '../../../shared/analytics/AnalyticsService';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'ChecklistSelect'>;
@@ -29,6 +30,8 @@ async function returnResult(
 }
 
 export function ChecklistSelectScreen({ navigation }: Props) {
+  const { colors } = useTheme();
+  const styles = useStyles();
   const { checklists, loading } = useChecklists();
   const { takePendingCallbackUrl } = useExternalSelection();
   // Whichever of a row tap or the beforeRemove dismissal fires first
@@ -72,7 +75,7 @@ export function ChecklistSelectScreen({ navigation }: Props) {
         },
       ],
     });
-  }, [navigation]);
+  }, [colors, navigation]);
 
   useLayoutEffect(() => {
     return navigation.addListener('beforeRemove', () => {
@@ -104,7 +107,7 @@ export function ChecklistSelectScreen({ navigation }: Props) {
   };
 
   return (
-    <View style={styles.container}>
+    <View style={styles.container} testID="checklist-select-screen">
       <FlatList
         data={checklists}
         keyExtractor={item => item.id}
@@ -121,7 +124,7 @@ export function ChecklistSelectScreen({ navigation }: Props) {
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = createThemedStyles(colors => ({
   container: {
     flex: 1,
     backgroundColor: colors.background,
@@ -135,4 +138,4 @@ const styles = StyleSheet.create({
     borderBottomWidth: StyleSheet.hairlineWidth,
     borderBottomColor: colors.border,
   },
-});
+}));

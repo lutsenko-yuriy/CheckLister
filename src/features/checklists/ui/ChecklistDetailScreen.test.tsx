@@ -9,7 +9,8 @@ import { ChecklistsProvider } from '../useChecklists';
 import { AsyncStorageChecklistRepository } from '../data/asyncStorageChecklistRepository';
 import { ChecklistDetailScreen } from './ChecklistDetailScreen';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { colors } from '../../../shared/theme/colors';
+import { darkPalette, lightPalette } from '../../../shared/theme/palette';
+import { ThemeProvider } from '../../../shared/theme/useTheme';
 import { RunsProvider } from '../../runs/useRuns';
 import { AsyncStorageRunRepository } from '../../runs/data/asyncStorageRunRepository';
 import { analytics } from '../../../shared/analytics/AnalyticsService';
@@ -22,16 +23,19 @@ async function renderDetailScreen(
   checklistId: string,
   navigation = createMockNavigation(),
   runRepository = new AsyncStorageRunRepository(),
+  scheme?: 'light' | 'dark',
 ) {
   const utils = await render(
-    <ChecklistsProvider repository={new AsyncStorageChecklistRepository()}>
-      <RunsProvider repository={runRepository}>
-        <ChecklistDetailScreen
-          navigation={navigation as any}
-          route={{ params: { checklistId } } as any}
-        />
-      </RunsProvider>
-    </ChecklistsProvider>,
+    <ThemeProvider scheme={scheme}>
+      <ChecklistsProvider repository={new AsyncStorageChecklistRepository()}>
+        <RunsProvider repository={runRepository}>
+          <ChecklistDetailScreen
+            navigation={navigation as any}
+            route={{ params: { checklistId } } as any}
+          />
+        </RunsProvider>
+      </ChecklistsProvider>
+    </ThemeProvider>,
   );
   return { navigation, ...utils };
 }
@@ -279,7 +283,24 @@ describe('ChecklistDetailScreen', () => {
     const rowContent = (row.children[0] as any).props.style;
 
     expect(rowContent).toEqual(
-      expect.objectContaining({ backgroundColor: colors.surface }),
+      expect.objectContaining({ backgroundColor: lightPalette.surface }),
+    );
+  });
+
+  it('renders with the dark palette when in dark mode', async () => {
+    const repo = new AsyncStorageChecklistRepository();
+    await repo.saveAll([{ id: '1', title: 'Groceries', items: [] }]);
+
+    await renderDetailScreen(
+      '1',
+      createMockNavigation(),
+      new AsyncStorageRunRepository(),
+      'dark',
+    );
+    await waitFor(() => screen.getByText('Groceries'));
+
+    expect(screen.getByTestId('checklist-detail-screen').props.style).toEqual(
+      expect.objectContaining({ backgroundColor: darkPalette.background }),
     );
   });
 

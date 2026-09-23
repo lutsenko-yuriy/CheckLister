@@ -2,7 +2,6 @@ import React, { useLayoutEffect, useState } from 'react';
 import {
   Alert,
   FlatList,
-  StyleSheet,
   Text,
   TextInput,
   View,
@@ -12,13 +11,16 @@ import { RootStackParamList } from '../../../navigation/types';
 import { useChecklists } from '../useChecklists';
 import { Checklist } from '../domain/models';
 import { IconButton } from '../../../shared/ui/IconButton';
-import { colors } from '../../../shared/theme/colors';
+import { useTheme } from '../../../shared/theme/useTheme';
+import { createThemedStyles } from '../../../shared/theme/createThemedStyles';
 import { useRuns } from '../../runs/useRuns';
 import { ChecklistSummaryRow } from './components/ChecklistSummaryRow';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Home'>;
 
 export function HomeScreen({ navigation }: Props) {
+  const { colors, scheme } = useTheme();
+  const styles = useStyles();
   const { checklists, createChecklist } = useChecklists();
   const { history, historyLoading } = useRuns();
   const [newTitle, setNewTitle] = useState('');
@@ -46,7 +48,7 @@ export function HomeScreen({ navigation }: Props) {
           ]
         : undefined,
     });
-  }, [history.length, historyLoading, navigation]);
+  }, [colors, history.length, historyLoading, navigation]);
 
   const handleAdd = () => {
     const title = newTitle.trim();
@@ -58,11 +60,13 @@ export function HomeScreen({ navigation }: Props) {
   };
 
   return (
-    <View style={styles.container}>
+    <View style={styles.container} testID="home-screen">
       <View style={styles.addRow}>
         <TextInput
           style={styles.input}
           placeholder="New checklist title"
+          placeholderTextColor={colors.textMuted}
+          keyboardAppearance={scheme}
           value={newTitle}
           onChangeText={setNewTitle}
           onSubmitEditing={handleAdd}
@@ -103,6 +107,8 @@ function ChecklistRow({
   checklist: Checklist;
   onOpen: () => void;
 }) {
+  const { colors, scheme } = useTheme();
+  const styles = useStyles();
   const { renameChecklist, deleteChecklist } = useChecklists();
   const [isEditing, setIsEditing] = useState(false);
   const [draftTitle, setDraftTitle] = useState(checklist.title);
@@ -140,6 +146,8 @@ function ChecklistRow({
       <View style={styles.row}>
         <TextInput
           style={styles.input}
+          placeholderTextColor={colors.textMuted}
+          keyboardAppearance={scheme}
           value={draftTitle}
           onChangeText={setDraftTitle}
           autoFocus
@@ -185,7 +193,7 @@ function ChecklistRow({
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = createThemedStyles(colors => ({
   container: {
     flex: 1,
     padding: 16,
@@ -219,12 +227,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingVertical: 12,
-    paddingHorizontal: 4,
+    paddingLeft: 12,
+    paddingRight: 4,
+    marginBottom: 8,
     backgroundColor: colors.surface,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: colors.border,
+    borderRadius: 10,
   },
   actionButton: {
     marginLeft: 12,
   },
-});
+}));
