@@ -21,6 +21,7 @@ A record of all versioned releases. For planned work and known issues, see @docs
 - [wip] CheL-70 (WU1): Theme foundation — light/dark `Palette`, `ThemeProvider`/`useTheme()` following the OS appearance, `createThemedStyles()`, and navigation chrome/status bar now follow the OS setting. Individual screens are migrated in later WUs.
 - [wip] CheL-70 (WU2): Checklists screens (`HomeScreen`, `ChecklistDetailScreen`, `ChecklistSelectScreen`, `ChecklistSummaryRow`, `ItemRow`) migrated to the theme system, including placeholder/keyboard colors on text inputs. Also rounds list-row corners and replaces the row divider with a spacing gap. Runs screens remain in the next WU.
 - [ci] CheL-72: The `ios-build` PR-validation job now compiles with `-configuration Debug` instead of `Release`, caches the CocoaPods spec repo alongside `ios/Pods`, and is skipped entirely when a PR touches no native/app-relevant paths (`ios/`, `android/`, `package.json`, `package-lock.json`, `App.tsx`, `index.js`, `patches/**`).
+- [wip] CheL-70 (WU3): Runs screens (`RunScreen`, `RunHistoryScreen`, `RunItemRow`) migrated to the theme system, completing the checklists+runs theming; deletes the now-unused `shared/theme/colors.ts` alias. Also applies the checklists list's rounded-corners/row-gap treatment to run item rows, and replaces both platforms' default launch screen with the app icon's glyph on a background matching the active theme. Release of CheL-70 is deferred — code is merged but not yet cut as a version release.
 
 ## [0.11.0] — 2026-09-23 (PR #64 merged)
 

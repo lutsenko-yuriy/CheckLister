@@ -1,12 +1,5 @@
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
-import {
-  Alert,
-  FlatList,
-  Pressable,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import { Alert, FlatList, Pressable, Text, View } from 'react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { usePreventRemove } from '@react-navigation/native';
 import { RootStackParamList } from '../../../navigation/types';
@@ -19,7 +12,7 @@ import {
 import type { ExternalRunResult } from '../domain/externalRunLinks';
 import { analytics } from '../../../shared/analytics/AnalyticsService';
 import { RunItemRow } from './components/RunItemRow';
-import { colors } from '../../../shared/theme/colors';
+import { createThemedStyles } from '../../../shared/theme/createThemedStyles';
 import { deliverExternalRunResult } from '../externalRunCallbackDelivery';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Run'>;
@@ -40,6 +33,7 @@ async function returnExternalResult(
 }
 
 export function RunScreen({ navigation }: Props) {
+  const styles = useStyles();
   const { activeRun, toggleItem, completeRun, clearRun } = useRuns();
   // State (not a ref): usePreventRemove needs a value it can react to across
   // renders — it disables native-stack's swipe-back gesture at the native
@@ -151,7 +145,7 @@ export function RunScreen({ navigation }: Props) {
 
   if (!activeRun) {
     return (
-      <View style={styles.container}>
+      <View style={styles.container} testID="run-screen">
         <Text style={styles.emptyState}>No active run.</Text>
         <Pressable
           onPress={() => navigation.goBack()}
@@ -210,7 +204,7 @@ export function RunScreen({ navigation }: Props) {
   const complete = isRunComplete(activeRun);
 
   return (
-    <View style={styles.container}>
+    <View style={styles.container} testID="run-screen">
       <Text style={styles.progress}>
         {checkedCount(activeRun)} of {activeRun.items.length} checked
       </Text>
@@ -246,7 +240,7 @@ export function RunScreen({ navigation }: Props) {
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = createThemedStyles(colors => ({
   container: {
     flex: 1,
     padding: 16,
@@ -295,4 +289,4 @@ const styles = StyleSheet.create({
     color: colors.linkText,
     fontSize: 16,
   },
-});
+}));

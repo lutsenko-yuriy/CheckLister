@@ -1,8 +1,9 @@
 import React from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { RunItem } from '../../domain/models';
-import { colors } from '../../../../shared/theme/colors';
+import { useTheme } from '../../../../shared/theme/useTheme';
+import { createThemedStyles } from '../../../../shared/theme/createThemedStyles';
 
 export const RUN_ITEM_ROW_HEIGHT = 56;
 
@@ -13,6 +14,9 @@ export function RunItemRow({
   item: RunItem;
   onToggle: () => void;
 }) {
+  const { colors } = useTheme();
+  const styles = useStyles();
+
   return (
     <Pressable
       onPress={onToggle}
@@ -37,15 +41,15 @@ export function RunItemRow({
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = createThemedStyles(colors => ({
   row: {
     height: RUN_ITEM_ROW_HEIGHT,
+    marginBottom: 8,
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 4,
     backgroundColor: colors.surface,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: colors.border,
+    borderRadius: 10,
   },
   textContainer: {
     flex: 1,
@@ -59,4 +63,4 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
     textDecorationLine: 'line-through',
   },
-});
+}));

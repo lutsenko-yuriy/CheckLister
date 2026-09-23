@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- API 31+ (Android 12) only: the platform SplashScreen API reads these
+     attributes straight off the launch theme. Below API 31 there is no
+     system splash screen to customize, so this file is inert there and
+     values/styles.xml's plain AppTheme applies as-is (CheL-70). -->
+<resources>
+
+    <style name="AppTheme" parent="Theme.AppCompat.DayNight.NoActionBar">
+        <item name="android:editTextBackground">@drawable/rn_edit_text_material</item>
+        <item name="android:windowSplashScreenBackground">@color/splashBackground</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@mipmap/ic_launcher_foreground</item>
+    </style>
+
+</resources>
