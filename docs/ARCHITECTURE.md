@@ -52,7 +52,7 @@ src/
 │       │   └── components/         # RunItemRow
 │       └── useRuns.tsx             # Context + hook for ephemeral active run + durable completed history
 └── shared/
-    ├── i18n/                       # Localization — en, de, fr, ru (#80; native declarations land in WU4)
+    ├── i18n/                       # Localization — en, de, fr, ru (#80)
     │   ├── languages.ts            # SUPPORTED_LANGUAGES / AppLanguage — single source of truth
     │   ├── resolveLanguage.ts      # Pure: OS preferred locales + country → { appLanguage, requestedLanguage, region? }
     │   ├── plural.ts               # Hand-written CLDR cardinal plural rules for the supported languages
@@ -135,10 +135,7 @@ falls back to light when no `ThemeProvider` is mounted (e.g. in tests that
 render a screen in isolation). `shared/theme/palette.ts` is the single
 source of truth for both the light and dark token sets.
 
-**Localization (#80 — lands across WU1–WU4; WU1 shipped the `shared/i18n/`
-module and mounted `I18nProvider` in `App.tsx`, WU2 extracted every string to
-`locales/en.ts`, WU3 added the `de`/`fr`/`ru` translations below — the native
-declarations are WU4):** every app-provided string is rendered through `t()`
+**Localization (#80):** every app-provided string is rendered through `t()`
 from `shared/i18n/useI18n.tsx` — no user-facing string literals in UI code
 outside `shared/i18n/locales/`. User content (checklist titles, item text,
 history snapshots) is only ever an interpolated parameter, never a
@@ -179,6 +176,20 @@ display name is localized natively
 (`CFBundleLocalizations` in `Info.plist`, `res/xml/locales_config.xml` via
 `android:localeConfig`), and a Jest drift test keeps those in sync with
 `SUPPORTED_LANGUAGES`.
+
+**Adding a new language** is meant to stay a small, mechanical change:
+1. Add `locales/<lang>.ts`, typed as `const <lang>: Translations = {...}` (a
+   missing or extra key fails `npm run typecheck`).
+2. Add it to `LOCALES` in `translate.ts` and to `SUPPORTED_LANGUAGES` in
+   `languages.ts`.
+3. Add the native declarations: `Info.plist`'s `CFBundleLocalizations`, an
+   `<lang>.lproj/InfoPlist.strings` (registered as a `PBXVariantGroup` in
+   `project.pbxproj`) and `knownRegions`, `res/xml/locales_config.xml`, and
+   `res/values-<lang>/strings.xml`.
+4. Run `locales.test.ts` and `nativeLocales.test.ts` — both fail loudly if
+   anything above was missed.
+No other file should need to change for a new language on its own; if one
+does, that's worth a note on why.
 
 `MainActivity` declares `locale|layoutDirection` in `android:configChanges`
 (alongside `uiMode`): without it an Android language change recreates the

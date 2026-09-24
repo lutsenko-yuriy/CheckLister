@@ -8,7 +8,7 @@ The `## In Progress` section at the top is the one exception — it is maintaine
 
 ## In Progress
 
-- [N/A-80: Localization: German, French and Russian](https://github.com/lutsenko-yuriy/CheckLister/issues/80) — WU3 of 4 shipped (i18n infrastructure, English string extraction, German/French/Russian translations); WU4 (native per-app language, display name, layout) remains.
+_(nothing in progress)_
 
 ---
 
