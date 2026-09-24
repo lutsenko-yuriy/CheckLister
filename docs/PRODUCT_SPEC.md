@@ -120,6 +120,22 @@ checklist belongs to the person using the device.
 - The resolved color scheme (light or dark) is recorded in analytics once
   per app session and again whenever it changes.
 
+### Feature 9 — Localization
+- CheckLister is available in English, German, French, and Russian.
+- There is no in-app language picker. The app follows the OS-level per-app
+  language setting (iOS Settings → CheckLister → Language; Android 13+
+  System settings → Apps → CheckLister → Language), the same way it follows
+  the OS's light/dark appearance (Feature 8). On an OS version without
+  per-app language support, the app follows the device's overall language.
+- If none of the device's preferred languages are supported, the app falls
+  back to English.
+- The app's Home Screen / launcher name matches the active language
+  ("CheckLister" in English, German and French; "ЧекЛистер" in Russian).
+- Every app-provided label, button, and message is translated; content the
+  user typed themselves (checklist titles, item text, history entries) is
+  never translated. Item counts and history dates use the plural rules and
+  date/time conventions of the active language.
+
 ## Out of scope for v1
 
 - User accounts, login, or any backend — all data is local to the device.
