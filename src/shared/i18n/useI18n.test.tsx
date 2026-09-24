@@ -65,10 +65,9 @@ describe('I18nProvider / useI18n', () => {
 
     await renderProvider();
 
-    // Only English is supported until WU3, but the region already applies.
-    expect(renders[0]).toBe(`en|2 items|${formatDateTime('en', 'AT', ISO)}`);
+    expect(renders[0]).toBe(`de|2 Einträge|${formatDateTime('de', 'AT', ISO)}`);
     expect(logSpy).toHaveBeenCalledWith('app_language_resolved', {
-      app_language: 'en',
+      app_language: 'de',
       requested_language: 'de',
       region: 'AT',
     });

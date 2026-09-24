@@ -33,8 +33,8 @@ describe('translate', () => {
     expect(translate('en', 'common')).toBe('common');
   });
 
-  it('falls back to English for a language without a locale file yet', () => {
-    expect(translate('ru', 'common.itemCount', { count: 1 })).toBe('1 item');
+  it('looks up a plain string in another locale', () => {
+    expect(translate('ru', 'common.itemCount', { count: 1 })).toBe('1 пункт');
   });
 });
 

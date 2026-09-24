@@ -1,26 +1,21 @@
-import { SUPPORTED_LANGUAGES, type AppLanguage } from './languages';
+import { SUPPORTED_LANGUAGES } from './languages';
 import {
   isSameResolution,
   resolveLanguage,
   type PreferredLocale,
 } from './resolveLanguage';
 
-// The four languages the ticket ships once WU3 lands. Passing this set
-// explicitly exercises the list-walking behaviour now, while the production
-// SUPPORTED_LANGUAGES still only contains 'en'.
-const ALL_LANGUAGES: readonly AppLanguage[] = ['en', 'de', 'fr', 'ru'];
-
 function locales(...codes: string[]): PreferredLocale[] {
   return codes.map(code => ({ languageCode: code }));
 }
 
 describe('SUPPORTED_LANGUAGES', () => {
-  it('contains only English until the translations land', () => {
-    expect(SUPPORTED_LANGUAGES).toEqual(['en']);
+  it('ships all four target languages now that #80 has landed', () => {
+    expect(SUPPORTED_LANGUAGES).toEqual(['en', 'de', 'fr', 'ru']);
   });
 });
 
-describe('resolveLanguage against the full target language set', () => {
+describe('resolveLanguage with the production SUPPORTED_LANGUAGES', () => {
   it.each`
     preferred                   | appLanguage | requestedLanguage
     ${['en']}                   | ${'en'}     | ${'en'}
@@ -32,31 +27,10 @@ describe('resolveLanguage against the full target language set', () => {
     ${['zh', 'pt', 'fr', 'de']} | ${'fr'}     | ${'zh'}
     ${['de', 'en']}             | ${'de'}     | ${'de'}
     ${['en', 'ru']}             | ${'en'}     | ${'en'}
-  `(
-    '$preferred → app $appLanguage, requested $requestedLanguage',
-    ({ preferred, appLanguage, requestedLanguage }) => {
-      const result = resolveLanguage(
-        locales(...preferred),
-        'DE',
-        ALL_LANGUAGES,
-      );
-
-      expect(result.appLanguage).toBe(appLanguage);
-      expect(result.requestedLanguage).toBe(requestedLanguage);
-    },
-  );
-});
-
-describe('resolveLanguage with the production SUPPORTED_LANGUAGES', () => {
-  it.each`
-    preferred       | appLanguage | requestedLanguage
-    ${['en']}       | ${'en'}     | ${'en'}
-    ${['en', 'de']} | ${'en'}     | ${'en'}
-    ${['de', 'en']} | ${'en'}     | ${'de'}
-    ${['ja', 'pt']} | ${'en'}     | ${'ja'}
-    ${['ru', 'fr']} | ${'en'}     | ${'ru'}
-    ${['zh']}       | ${'en'}     | ${'zh'}
-    ${['pt']}       | ${'en'}     | ${'pt'}
+    ${['en', 'de']}             | ${'en'}     | ${'en'}
+    ${['ru', 'fr']}             | ${'ru'}     | ${'ru'}
+    ${['zh']}                   | ${'en'}     | ${'zh'}
+    ${['pt']}                   | ${'en'}     | ${'pt'}
   `(
     '$preferred → app $appLanguage, requested $requestedLanguage',
     ({ preferred, appLanguage, requestedLanguage }) => {
@@ -78,7 +52,7 @@ describe('resolveLanguage with the production SUPPORTED_LANGUAGES', () => {
 
 describe('resolveLanguage normalisation', () => {
   it('matches language codes case-insensitively and reports them lower-cased', () => {
-    const result = resolveLanguage(locales('JA', 'DE'), 'AT', ALL_LANGUAGES);
+    const result = resolveLanguage(locales('JA', 'DE'), 'AT');
 
     expect(result).toEqual({
       appLanguage: 'de',
