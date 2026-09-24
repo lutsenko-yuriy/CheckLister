@@ -13,6 +13,11 @@ A record of all versioned releases. For planned work and known issues, see @docs
 - ...
 -->
 
+## [Unreleased]
+
+### Added
+- [wip] #80 (WU1): Localization infrastructure — `react-native-localize`, a typed in-house `src/shared/i18n/` module (OS preferred-locale resolution, hand-written CLDR plural rules for en/de/fr/ru, `{{param}}` interpolation, locale-aware date formatting), `I18nProvider`/`useI18n()` mounted at the app root, and the `app_language_resolved` analytics event. English only; no visible change yet.
+
 ## [0.12.0] — 2026-09-24 (PR #79 merged)
 
 ### Added
