@@ -177,6 +177,20 @@ display name is localized natively
 `android:localeConfig`), and a Jest drift test keeps those in sync with
 `SUPPORTED_LANGUAGES`.
 
+**Adding a new language** is meant to stay a small, mechanical change:
+1. Add `locales/<lang>.ts`, typed as `const <lang>: Translations = {...}` (a
+   missing or extra key fails `npm run typecheck`).
+2. Add it to `LOCALES` in `translate.ts` and to `SUPPORTED_LANGUAGES` in
+   `languages.ts`.
+3. Add the native declarations: `Info.plist`'s `CFBundleLocalizations`, an
+   `<lang>.lproj/InfoPlist.strings` (registered as a `PBXVariantGroup` in
+   `project.pbxproj`) and `knownRegions`, `res/xml/locales_config.xml`, and
+   `res/values-<lang>/strings.xml`.
+4. Run `locales.test.ts` and `nativeLocales.test.ts` — both fail loudly if
+   anything above was missed.
+No other file should need to change for a new language on its own; if one
+does, that's worth a note on why.
+
 `MainActivity` declares `locale|layoutDirection` in `android:configChanges`
 (alongside `uiMode`): without it an Android language change recreates the
 activity, remounting the React root and silently dropping the in-memory active
