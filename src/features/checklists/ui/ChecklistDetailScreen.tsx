@@ -10,12 +10,14 @@ import { ItemRow, ITEM_ROW_HEIGHT } from './components/ItemRow';
 import { IconButton } from '../../../shared/ui/IconButton';
 import { useTheme } from '../../../shared/theme/useTheme';
 import { createThemedStyles } from '../../../shared/theme/createThemedStyles';
+import { useI18n } from '../../../shared/i18n/useI18n';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'ChecklistDetail'>;
 
 export function ChecklistDetailScreen({ navigation, route }: Props) {
   const { colors, scheme } = useTheme();
   const styles = useStyles();
+  const { t } = useI18n();
   const { checklists, addItem, editItem, deleteItem, moveItem } =
     useChecklists();
   const { startRun, history, historyLoading } = useRuns();
@@ -30,7 +32,7 @@ export function ChecklistDetailScreen({ navigation, route }: Props) {
     const historyButton = () => (
       <IconButton
         icon="history"
-        accessibilityLabel="Run history"
+        accessibilityLabel={t('common.runHistory')}
         onPress={() =>
           checklist &&
           navigation.navigate('RunHistory', {
@@ -43,7 +45,7 @@ export function ChecklistDetailScreen({ navigation, route }: Props) {
     );
 
     navigation.setOptions({
-      title: checklist?.title ?? 'Checklist',
+      title: checklist?.title ?? t('checklistDetail.fallbackTitle'),
       headerRight: showHistory ? historyButton : undefined,
       unstable_headerRightItems: showHistory
         ? () => [
@@ -55,7 +57,7 @@ export function ChecklistDetailScreen({ navigation, route }: Props) {
           ]
         : undefined,
     });
-  }, [checklist, colors, hasHistory, historyLoading, navigation]);
+  }, [checklist, colors, hasHistory, historyLoading, navigation, t]);
 
   useLayoutEffect(() => {
     if (checklist) {
@@ -72,7 +74,7 @@ export function ChecklistDetailScreen({ navigation, route }: Props) {
   if (!checklist) {
     return (
       <View style={styles.container} testID="checklist-detail-screen">
-        <Text style={styles.emptyState}>Checklist not found.</Text>
+        <Text style={styles.emptyState}>{t('checklistDetail.notFound')}</Text>
       </View>
     );
   }
@@ -135,7 +137,7 @@ export function ChecklistDetailScreen({ navigation, route }: Props) {
       <View style={styles.addRow}>
         <TextInput
           style={styles.input}
-          placeholder="New item"
+          placeholder={t('checklistDetail.newItemPlaceholder')}
           placeholderTextColor={colors.textMuted}
           keyboardAppearance={scheme}
           value={newItemText}
@@ -145,7 +147,7 @@ export function ChecklistDetailScreen({ navigation, route }: Props) {
         />
         <IconButton
           icon="add"
-          accessibilityLabel="Add"
+          accessibilityLabel={t('common.add')}
           onPress={handleAdd}
           style={styles.addButton}
         />
@@ -155,18 +157,20 @@ export function ChecklistDetailScreen({ navigation, route }: Props) {
         onPress={handleStartRun}
         disabled={checklist.items.length === 0}
         accessibilityRole="button"
-        accessibilityLabel="Start run"
+        accessibilityLabel={t('checklistDetail.startRun')}
         accessibilityState={{ disabled: checklist.items.length === 0 }}
         style={[
           styles.startRunButton,
           checklist.items.length === 0 && styles.startRunButtonDisabled,
         ]}
       >
-        <Text style={styles.startRunButtonText}>Start run</Text>
+        <Text style={styles.startRunButtonText}>
+          {t('checklistDetail.startRun')}
+        </Text>
       </Pressable>
 
       {checklist.items.length === 0 ? (
-        <Text style={styles.emptyState}>No items yet.</Text>
+        <Text style={styles.emptyState}>{t('checklistDetail.emptyState')}</Text>
       ) : (
         <Sortable
           data={checklist.items}

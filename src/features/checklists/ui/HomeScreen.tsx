@@ -1,11 +1,5 @@
 import React, { useLayoutEffect, useState } from 'react';
-import {
-  Alert,
-  FlatList,
-  Text,
-  TextInput,
-  View,
-} from 'react-native';
+import { Alert, FlatList, Text, TextInput, View } from 'react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../../navigation/types';
 import { useChecklists } from '../useChecklists';
@@ -14,6 +8,7 @@ import { IconButton } from '../../../shared/ui/IconButton';
 import { useTheme } from '../../../shared/theme/useTheme';
 import { createThemedStyles } from '../../../shared/theme/createThemedStyles';
 import { useRuns } from '../../runs/useRuns';
+import { useI18n } from '../../../shared/i18n/useI18n';
 import { ChecklistSummaryRow } from './components/ChecklistSummaryRow';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Home'>;
@@ -21,6 +16,7 @@ type Props = NativeStackScreenProps<RootStackParamList, 'Home'>;
 export function HomeScreen({ navigation }: Props) {
   const { colors, scheme } = useTheme();
   const styles = useStyles();
+  const { t } = useI18n();
   const { checklists, createChecklist } = useChecklists();
   const { history, historyLoading } = useRuns();
   const [newTitle, setNewTitle] = useState('');
@@ -30,7 +26,7 @@ export function HomeScreen({ navigation }: Props) {
     const historyButton = () => (
       <IconButton
         icon="history"
-        accessibilityLabel="Run history"
+        accessibilityLabel={t('common.runHistory')}
         onPress={() => navigation.navigate('RunHistory', {})}
         color={colors.text}
       />
@@ -48,7 +44,7 @@ export function HomeScreen({ navigation }: Props) {
           ]
         : undefined,
     });
-  }, [colors, history.length, historyLoading, navigation]);
+  }, [colors, history.length, historyLoading, navigation, t]);
 
   const handleAdd = () => {
     const title = newTitle.trim();
@@ -64,7 +60,7 @@ export function HomeScreen({ navigation }: Props) {
       <View style={styles.addRow}>
         <TextInput
           style={styles.input}
-          placeholder="New checklist title"
+          placeholder={t('home.newChecklistPlaceholder')}
           placeholderTextColor={colors.textMuted}
           keyboardAppearance={scheme}
           value={newTitle}
@@ -74,14 +70,14 @@ export function HomeScreen({ navigation }: Props) {
         />
         <IconButton
           icon="add"
-          accessibilityLabel="Add"
+          accessibilityLabel={t('common.add')}
           onPress={handleAdd}
           style={styles.addButton}
         />
       </View>
 
       {checklists.length === 0 ? (
-        <Text style={styles.emptyState}>No checklists yet.</Text>
+        <Text style={styles.emptyState}>{t('home.emptyState')}</Text>
       ) : (
         <FlatList
           data={checklists}
@@ -109,6 +105,7 @@ function ChecklistRow({
 }) {
   const { colors, scheme } = useTheme();
   const styles = useStyles();
+  const { t } = useI18n();
   const { renameChecklist, deleteChecklist } = useChecklists();
   const [isEditing, setIsEditing] = useState(false);
   const [draftTitle, setDraftTitle] = useState(checklist.title);
@@ -127,18 +124,14 @@ function ChecklistRow({
   };
 
   const confirmDelete = () => {
-    Alert.alert(
-      'Delete checklist?',
-      'This will delete all of its items. This cannot be undone.',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Delete',
-          style: 'destructive',
-          onPress: () => deleteChecklist(checklist.id),
-        },
-      ],
-    );
+    Alert.alert(t('home.deleteConfirmTitle'), t('home.deleteConfirmBody'), [
+      { text: t('common.cancel'), style: 'cancel' },
+      {
+        text: t('common.delete'),
+        style: 'destructive',
+        onPress: () => deleteChecklist(checklist.id),
+      },
+    ]);
   };
 
   if (isEditing) {
@@ -154,13 +147,13 @@ function ChecklistRow({
         />
         <IconButton
           icon="check"
-          accessibilityLabel="Save"
+          accessibilityLabel={t('common.save')}
           onPress={save}
           style={styles.actionButton}
         />
         <IconButton
           icon="close"
-          accessibilityLabel="Cancel"
+          accessibilityLabel={t('common.cancel')}
           onPress={() => setIsEditing(false)}
           style={styles.actionButton}
         />
@@ -177,13 +170,13 @@ function ChecklistRow({
       />
       <IconButton
         icon="edit"
-        accessibilityLabel="Rename"
+        accessibilityLabel={t('common.rename')}
         onPress={startEditing}
         style={styles.actionButton}
       />
       <IconButton
         icon="delete"
-        accessibilityLabel="Delete"
+        accessibilityLabel={t('common.delete')}
         testID={`delete-checklist-${checklist.title}`}
         onPress={confirmDelete}
         color={colors.danger}

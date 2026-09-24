@@ -1,9 +1,8 @@
 import { Alert, Linking } from 'react-native';
 import { analytics } from '../../shared/analytics/AnalyticsService';
-import {
-  deliverExternalSelectResult,
-  EXTERNAL_SELECT_CALLBACK_FAILURE_MESSAGE,
-} from './externalSelectCallbackDelivery';
+import { deliverExternalSelectResult } from './externalSelectCallbackDelivery';
+
+const FAILURE_MESSAGE = 'Could not return the result to the calling app.';
 
 jest.mock('../../shared/analytics/AnalyticsService', () => ({
   analytics: { logEvent: jest.fn(), logScreenView: jest.fn() },
@@ -20,11 +19,15 @@ describe('deliverExternalSelectResult', () => {
   it('opens the built callback url and logs a delivered success event', async () => {
     jest.spyOn(Linking, 'openURL').mockResolvedValue(undefined);
 
-    await deliverExternalSelectResult(callbackUrl, {
-      status: 'selected',
-      checklistId: 'groceries-id',
-      checklistName: 'Groceries',
-    });
+    await deliverExternalSelectResult(
+      callbackUrl,
+      {
+        status: 'selected',
+        checklistId: 'groceries-id',
+        checklistName: 'Groceries',
+      },
+      FAILURE_MESSAGE,
+    );
 
     expect(Linking.openURL).toHaveBeenCalledWith(
       expect.stringContaining('status=selected'),
@@ -39,7 +42,11 @@ describe('deliverExternalSelectResult', () => {
   it('logs a cancelled delivery without any checklist identifiers', async () => {
     jest.spyOn(Linking, 'openURL').mockResolvedValue(undefined);
 
-    await deliverExternalSelectResult(callbackUrl, { status: 'cancelled' });
+    await deliverExternalSelectResult(
+      callbackUrl,
+      { status: 'cancelled' },
+      FAILURE_MESSAGE,
+    );
 
     expect(analytics.logEvent).toHaveBeenCalledWith(
       'external_select_callback_finished',
@@ -50,15 +57,17 @@ describe('deliverExternalSelectResult', () => {
   it('alerts and logs a failed delivery when openURL rejects', async () => {
     jest.spyOn(Linking, 'openURL').mockRejectedValue(new Error('nope'));
 
-    await deliverExternalSelectResult(callbackUrl, { status: 'error' });
+    await deliverExternalSelectResult(
+      callbackUrl,
+      { status: 'error' },
+      FAILURE_MESSAGE,
+    );
 
     expect(analytics.logEvent).toHaveBeenCalledWith(
       'external_select_callback_finished',
       { status: 'error', delivered: false },
     );
-    expect(Alert.alert).toHaveBeenCalledWith(
-      EXTERNAL_SELECT_CALLBACK_FAILURE_MESSAGE,
-    );
+    expect(Alert.alert).toHaveBeenCalledWith(FAILURE_MESSAGE);
   });
 
   it('never includes the callback url, checklist id or checklist name in analytics payloads', async () => {
@@ -67,11 +76,15 @@ describe('deliverExternalSelectResult', () => {
     const checklistName = 'Very Unique Checklist Name';
     const secretCallbackUrl = `caller-app://select-result?token=${checklistId}`;
 
-    await deliverExternalSelectResult(secretCallbackUrl, {
-      status: 'selected',
-      checklistId,
-      checklistName,
-    });
+    await deliverExternalSelectResult(
+      secretCallbackUrl,
+      {
+        status: 'selected',
+        checklistId,
+        checklistName,
+      },
+      FAILURE_MESSAGE,
+    );
 
     const loggedPayloads = (analytics.logEvent as jest.Mock).mock.calls.map(
       call => JSON.stringify(call[1]),

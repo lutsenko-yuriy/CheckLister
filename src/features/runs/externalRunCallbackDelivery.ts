@@ -5,12 +5,10 @@ import {
   type ExternalRunResult,
 } from './domain/externalRunLinks';
 
-export const EXTERNAL_RUN_CALLBACK_FAILURE_MESSAGE =
-  'Could not return the result to the calling app.';
-
 export async function deliverExternalRunResult(
   callbackUrl: string,
   result: ExternalRunResult,
+  failureMessage: string,
 ): Promise<void> {
   try {
     await Linking.openURL(buildExternalRunCallbackUrl(callbackUrl, result));
@@ -23,6 +21,6 @@ export async function deliverExternalRunResult(
       status: result.status,
       delivered: false,
     });
-    Alert.alert(EXTERNAL_RUN_CALLBACK_FAILURE_MESSAGE);
+    Alert.alert(failureMessage);
   }
 }

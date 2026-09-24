@@ -4,6 +4,7 @@ import { Item } from '../../domain/models';
 import { IconButton } from '../../../../shared/ui/IconButton';
 import { useTheme } from '../../../../shared/theme/useTheme';
 import { createThemedStyles } from '../../../../shared/theme/createThemedStyles';
+import { useI18n } from '../../../../shared/i18n/useI18n';
 
 // ChecklistDetailScreen's Sortable list positions rows using this fixed
 // slot height, so the row's actual rendered height plus its bottom gap must
@@ -25,6 +26,7 @@ export function ItemRow({
 }) {
   const { colors, scheme } = useTheme();
   const styles = useStyles();
+  const { t } = useI18n();
   const [isEditing, setIsEditing] = useState(false);
   const [draftText, setDraftText] = useState(item.text);
 
@@ -54,13 +56,13 @@ export function ItemRow({
         />
         <IconButton
           icon="check"
-          accessibilityLabel="Save"
+          accessibilityLabel={t('common.save')}
           onPress={save}
           style={styles.actionButton}
         />
         <IconButton
           icon="close"
-          accessibilityLabel="Cancel"
+          accessibilityLabel={t('common.cancel')}
           onPress={() => setIsEditing(false)}
           style={styles.actionButton}
         />
@@ -78,14 +80,14 @@ export function ItemRow({
       </View>
       <IconButton
         icon="edit"
-        accessibilityLabel="Edit"
+        accessibilityLabel={t('common.edit')}
         onPress={startEditing}
         style={styles.actionButton}
         testID={`edit-item-${item.text}`}
       />
       <IconButton
         icon="delete"
-        accessibilityLabel="Delete"
+        accessibilityLabel={t('common.delete')}
         onPress={onDelete}
         color={colors.danger}
         style={styles.actionButton}

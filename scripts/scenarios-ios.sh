@@ -33,6 +33,14 @@ if ! xcrun simctl get_app_container "$scenarios_device" "$scenarios_app" app >/d
   exit 1
 fi
 
+# Scenario assertions are written in English. Pin the simulator's preferred
+# language/locale so a developer's non-English simulator (or #80's own
+# German/French/Russian testing) still resolves the app to English —
+# per-app launch args don't cover the deep-link-triggered relaunches these
+# scenarios also exercise (openLink, stopApp), so the pin is device-wide.
+xcrun simctl spawn "$scenarios_device" defaults write -g AppleLanguages -array en
+xcrun simctl spawn "$scenarios_device" defaults write -g AppleLocale -string en_US
+
 scenarios_artifacts="${SCENARIOS_ARTIFACTS_DIR:-$scenarios_root/artifacts/scenarios-ios}"
 mkdir -p "$scenarios_artifacts"
 scenarios_output="$(mktemp -d "$scenarios_artifacts/run-XXXXXXXX")"

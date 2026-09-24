@@ -6,11 +6,13 @@ import { analytics } from '../../../shared/analytics/AnalyticsService';
 import { createThemedStyles } from '../../../shared/theme/createThemedStyles';
 import { RunHistoryEntry } from '../domain/models';
 import { useRuns } from '../useRuns';
+import { useI18n } from '../../../shared/i18n/useI18n';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'RunHistory'>;
 
 export function RunHistoryScreen({ navigation, route }: Props) {
   const styles = useStyles();
+  const { t } = useI18n();
   const { history, historyLoading } = useRuns();
   const { checklistId, checklistTitle } = route.params;
   const hasLoggedView = useRef(false);
@@ -26,10 +28,10 @@ export function RunHistoryScreen({ navigation, route }: Props) {
     navigation.setOptions({
       title:
         checklistId && checklistTitle
-          ? `${checklistTitle} history`
-          : 'Run history',
+          ? t('runHistory.checklistTitle', { title: checklistTitle })
+          : t('common.runHistory'),
     });
-  }, [checklistId, checklistTitle, navigation]);
+  }, [checklistId, checklistTitle, navigation, t]);
 
   useEffect(() => {
     if (historyLoading || hasLoggedView.current) {
@@ -46,7 +48,7 @@ export function RunHistoryScreen({ navigation, route }: Props) {
   return (
     <View style={styles.container} testID="run-history-screen">
       {visibleEntries.length === 0 ? (
-        <Text style={styles.emptyState}>No completed runs yet.</Text>
+        <Text style={styles.emptyState}>{t('runHistory.emptyState')}</Text>
       ) : (
         <FlatList
           data={visibleEntries}
@@ -60,12 +62,15 @@ export function RunHistoryScreen({ navigation, route }: Props) {
 
 function RunHistoryRow({ entry }: { entry: RunHistoryEntry }) {
   const styles = useStyles();
+  const { t, formatDateTime } = useI18n();
   return (
     <View style={styles.row} testID={`run-history-entry-${entry.id}`}>
       <Text style={styles.rowTitle}>{entry.checklistTitle}</Text>
       <Text style={styles.rowSubtitle}>
-        {entry.itemCount} item{entry.itemCount === 1 ? '' : 's'} • Run on{' '}
-        {new Date(entry.completedAt).toLocaleString()}
+        {t('runHistory.row', {
+          count: entry.itemCount,
+          date: formatDateTime(entry.completedAt),
+        })}
       </Text>
     </View>
   );

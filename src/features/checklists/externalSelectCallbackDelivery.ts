@@ -5,12 +5,10 @@ import {
   type ExternalSelectResult,
 } from './domain/externalSelectLinks';
 
-export const EXTERNAL_SELECT_CALLBACK_FAILURE_MESSAGE =
-  'Could not return the result to the calling app.';
-
 export async function deliverExternalSelectResult(
   callbackUrl: string,
   result: ExternalSelectResult,
+  failureMessage: string,
 ): Promise<void> {
   try {
     await Linking.openURL(buildExternalSelectCallbackUrl(callbackUrl, result));
@@ -23,6 +21,6 @@ export async function deliverExternalSelectResult(
       status: result.status,
       delivered: false,
     });
-    Alert.alert(EXTERNAL_SELECT_CALLBACK_FAILURE_MESSAGE);
+    Alert.alert(failureMessage);
   }
 }

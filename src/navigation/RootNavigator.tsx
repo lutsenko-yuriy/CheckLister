@@ -12,16 +12,18 @@ import { RunHistoryScreen } from '../features/runs/ui/RunHistoryScreen';
 import { ChecklistSelectScreen } from '../features/checklists/ui/ChecklistSelectScreen';
 import { IconButton } from '../shared/ui/IconButton';
 import { useTheme } from '../shared/theme/useTheme';
+import { useI18n } from '../shared/i18n/useI18n';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 function FlatBackButton(_props?: NativeStackHeaderLeftProps) {
   const navigation = useNavigation();
   const { colors } = useTheme();
+  const { t } = useI18n();
   return (
     <IconButton
       icon="arrow-back"
-      accessibilityLabel="Back"
+      accessibilityLabel={t('common.back')}
       onPress={() => navigation.goBack()}
       color={colors.text}
     />
@@ -30,6 +32,7 @@ function FlatBackButton(_props?: NativeStackHeaderLeftProps) {
 
 export function RootNavigator() {
   const { colors } = useTheme();
+  const { t } = useI18n();
   const screenOptions = useMemo(
     () => ({
       headerStyle: { backgroundColor: colors.headerBackground },
@@ -44,7 +47,7 @@ export function RootNavigator() {
       <Stack.Screen
         name="Home"
         component={HomeScreen}
-        options={{ title: 'CheckLister' }}
+        options={{ title: t('common.appName') }}
       />
       <Stack.Screen
         name="ChecklistDetail"
@@ -89,7 +92,7 @@ export function RootNavigator() {
         name="RunHistory"
         component={RunHistoryScreen}
         options={{
-          title: 'Run history',
+          title: t('common.runHistory'),
           headerLeft: FlatBackButton,
           unstable_headerLeftItems: () => [
             {
@@ -103,7 +106,7 @@ export function RootNavigator() {
       <Stack.Screen
         name="ChecklistSelect"
         component={ChecklistSelectScreen}
-        options={{ title: 'Select checklist' }}
+        options={{ title: t('nav.selectChecklistTitle') }}
       />
     </Stack.Navigator>
   );

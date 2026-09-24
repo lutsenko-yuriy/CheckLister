@@ -14,11 +14,9 @@ import { analytics } from '../../../shared/analytics/AnalyticsService';
 import { RunItemRow } from './components/RunItemRow';
 import { createThemedStyles } from '../../../shared/theme/createThemedStyles';
 import { deliverExternalRunResult } from '../externalRunCallbackDelivery';
+import { useI18n } from '../../../shared/i18n/useI18n';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Run'>;
-
-const EXTERNAL_RUN_WARNING =
-  'Started by another app. Finishing or cancelling returns you to that app.';
 
 function waitForNextFrame(): Promise<void> {
   return new Promise(resolve => requestAnimationFrame(() => resolve()));
@@ -27,13 +25,15 @@ function waitForNextFrame(): Promise<void> {
 async function returnExternalResult(
   callbackUrl: string,
   result: ExternalRunResult,
+  failureMessage: string,
 ): Promise<void> {
   await waitForNextFrame();
-  await deliverExternalRunResult(callbackUrl, result);
+  await deliverExternalRunResult(callbackUrl, result, failureMessage);
 }
 
 export function RunScreen({ navigation }: Props) {
   const styles = useStyles();
+  const { t } = useI18n();
   const { activeRun, toggleItem, completeRun, clearRun } = useRuns();
   // State (not a ref): usePreventRemove needs a value it can react to across
   // renders — it disables native-stack's swipe-back gesture at the native
@@ -56,8 +56,10 @@ export function RunScreen({ navigation }: Props) {
   }, [activeRun?.id]);
 
   useLayoutEffect(() => {
-    navigation.setOptions({ title: activeRun?.checklistTitle ?? 'Run' });
-  }, [navigation, activeRun?.checklistTitle]);
+    navigation.setOptions({
+      title: activeRun?.checklistTitle ?? t('run.fallbackTitle'),
+    });
+  }, [navigation, activeRun?.checklistTitle, t]);
 
   useLayoutEffect(() => {
     if (!activeRun) {
@@ -76,40 +78,37 @@ export function RunScreen({ navigation }: Props) {
     if (isCompleting) {
       return;
     }
-    Alert.alert(
-      'Are you sure?',
-      'Leaving now will discard this run. Your progress will not be saved.',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Discard',
-          style: 'destructive',
-          onPress: () => {
-            if (activeRunRef.current?.id !== activeRun?.id) {
-              return;
-            }
-            const externalResult =
-              activeRun?.origin.type === 'external'
-                ? {
-                    callbackUrl: activeRun.origin.callbackUrl,
-                    result: {
-                      status: 'cancelled' as const,
-                      checklistId: activeRun.checklistId,
-                    },
-                  }
-                : null;
-            clearRun();
-            navigation.dispatch(data.action);
-            if (externalResult) {
-              returnExternalResult(
-                externalResult.callbackUrl,
-                externalResult.result,
-              );
-            }
-          },
+    Alert.alert(t('run.discardTitle'), t('run.discardBody'), [
+      { text: t('common.cancel'), style: 'cancel' },
+      {
+        text: t('run.discardConfirm'),
+        style: 'destructive',
+        onPress: () => {
+          if (activeRunRef.current?.id !== activeRun?.id) {
+            return;
+          }
+          const externalResult =
+            activeRun?.origin.type === 'external'
+              ? {
+                  callbackUrl: activeRun.origin.callbackUrl,
+                  result: {
+                    status: 'cancelled' as const,
+                    checklistId: activeRun.checklistId,
+                  },
+                }
+              : null;
+          clearRun();
+          navigation.dispatch(data.action);
+          if (externalResult) {
+            returnExternalResult(
+              externalResult.callbackUrl,
+              externalResult.result,
+              t('errors.callbackDeliveryFailed'),
+            );
+          }
         },
-      ],
-    );
+      },
+    ]);
   });
 
   // Deferred to an effect (not called inline in handleComplete) so
@@ -138,22 +137,26 @@ export function RunScreen({ navigation }: Props) {
       clearRun();
       navigation.goBack();
       if (externalResult) {
-        returnExternalResult(externalResult.callbackUrl, externalResult.result);
+        returnExternalResult(
+          externalResult.callbackUrl,
+          externalResult.result,
+          t('errors.callbackDeliveryFailed'),
+        );
       }
     }
-  }, [activeRun, justCompleted, navigation, clearRun]);
+  }, [activeRun, justCompleted, navigation, clearRun, t]);
 
   if (!activeRun) {
     return (
       <View style={styles.container} testID="run-screen">
-        <Text style={styles.emptyState}>No active run.</Text>
+        <Text style={styles.emptyState}>{t('run.noActiveRun')}</Text>
         <Pressable
           onPress={() => navigation.goBack()}
           accessibilityRole="button"
-          accessibilityLabel="Back"
+          accessibilityLabel={t('common.back')}
           style={styles.backButton}
         >
-          <Text style={styles.backButtonText}>Back</Text>
+          <Text style={styles.backButtonText}>{t('common.back')}</Text>
         </Pressable>
       </View>
     );
@@ -194,10 +197,7 @@ export function RunScreen({ navigation }: Props) {
         return;
       }
       setIsCompleting(false);
-      Alert.alert(
-        'Could not complete run',
-        'This run has not been saved. Please try again.',
-      );
+      Alert.alert(t('run.completeFailedTitle'), t('run.completeFailedBody'));
     }
   };
 
@@ -206,7 +206,10 @@ export function RunScreen({ navigation }: Props) {
   return (
     <View style={styles.container} testID="run-screen">
       <Text style={styles.progress}>
-        {checkedCount(activeRun)} of {activeRun.items.length} checked
+        {t('run.progress', {
+          checked: checkedCount(activeRun),
+          total: activeRun.items.length,
+        })}
       </Text>
       <FlatList
         data={activeRun.items}
@@ -219,13 +222,15 @@ export function RunScreen({ navigation }: Props) {
         )}
       />
       {activeRun.origin.type === 'external' ? (
-        <Text style={styles.externalRunWarning}>{EXTERNAL_RUN_WARNING}</Text>
+        <Text style={styles.externalRunWarning}>
+          {t('run.externalWarning')}
+        </Text>
       ) : null}
       <Pressable
         onPress={handleComplete}
         disabled={!complete || isCompleting}
         accessibilityRole="button"
-        accessibilityLabel="Complete the checklist"
+        accessibilityLabel={t('run.completeButton')}
         accessibilityState={{ disabled: !complete || isCompleting }}
         style={[
           styles.completeButton,
@@ -234,7 +239,7 @@ export function RunScreen({ navigation }: Props) {
           (!complete || isCompleting) && styles.completeButtonDisabled,
         ]}
       >
-        <Text style={styles.completeButtonText}>Complete the checklist</Text>
+        <Text style={styles.completeButtonText}>{t('run.completeButton')}</Text>
       </Pressable>
     </View>
   );

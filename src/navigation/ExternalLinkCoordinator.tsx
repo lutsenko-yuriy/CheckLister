@@ -10,15 +10,9 @@ import { deliverExternalRunResult } from '../features/runs/externalRunCallbackDe
 import { useRuns } from '../features/runs/useRuns';
 import { analytics } from '../shared/analytics/AnalyticsService';
 import { parseExternalLinkKind } from '../shared/links/externalLinkUrls';
+import { useI18n } from '../shared/i18n/useI18n';
 import { useExternalLinkQueue } from './useExternalLinkQueue';
 import { RootStackParamList } from './types';
-
-const INVALID_CALLBACK_MESSAGE = 'We do not know which app to return to.';
-// Shown for an unexpected failure while dispatching a URL, distinct from
-// the per-verb delivery-failure alerts each deliverExternal*Result already
-// shows for an ordinary openURL rejection.
-const UNEXPECTED_DISPATCH_FAILURE_MESSAGE =
-  'Could not return the result to the calling app.';
 
 function waitForNextFrame(): Promise<void> {
   return new Promise(resolve => requestAnimationFrame(() => resolve()));
@@ -41,6 +35,9 @@ export function ExternalLinkCoordinator({
   const { activeRun, startExternalRun } = useRuns();
   const { beginSelection, takePendingCallbackUrl } = useExternalSelection();
   const { pendingUrls, dequeueUrl } = useExternalLinkQueue();
+  const { t } = useI18n();
+  const invalidCallbackMessage = t('errors.invalidCallback');
+  const deliveryFailedMessage = t('errors.callbackDeliveryFailed');
 
   const handleRunUrl = useCallback(
     async (url: string) => {
@@ -54,9 +51,11 @@ export function ExternalLinkCoordinator({
       if (pendingSelectionCallbackUrl) {
         navigationRef.goBack();
         await waitForNextFrame();
-        await deliverExternalSelectResult(pendingSelectionCallbackUrl, {
-          status: 'cancelled',
-        });
+        await deliverExternalSelectResult(
+          pendingSelectionCallbackUrl,
+          { status: 'cancelled' },
+          deliveryFailedMessage,
+        );
       }
 
       const request = parseExternalRunRequest(url);
@@ -65,7 +64,7 @@ export function ExternalLinkCoordinator({
           outcome: 'invalid_callback',
           replaced_active_run: false,
         });
-        Alert.alert(INVALID_CALLBACK_MESSAGE);
+        Alert.alert(invalidCallbackMessage);
         return;
       }
 
@@ -77,10 +76,11 @@ export function ExternalLinkCoordinator({
           outcome: 'error',
           replaced_active_run: false,
         });
-        await deliverExternalRunResult(request.callbackUrl, {
-          status: 'error',
-          checklistId: request.checklistId,
-        });
+        await deliverExternalRunResult(
+          request.callbackUrl,
+          { status: 'error', checklistId: request.checklistId },
+          deliveryFailedMessage,
+        );
         return;
       }
 
@@ -92,7 +92,15 @@ export function ExternalLinkCoordinator({
         replaced_active_run: replacedActiveRun,
       });
     },
-    [activeRun, checklists, navigationRef, startExternalRun, takePendingCallbackUrl],
+    [
+      activeRun,
+      checklists,
+      deliveryFailedMessage,
+      invalidCallbackMessage,
+      navigationRef,
+      startExternalRun,
+      takePendingCallbackUrl,
+    ],
   );
 
   const handleSelectUrl = useCallback(
@@ -102,7 +110,7 @@ export function ExternalLinkCoordinator({
         analytics.logEvent('external_select_request_handled', {
           outcome: 'invalid_callback',
         });
-        Alert.alert(INVALID_CALLBACK_MESSAGE);
+        Alert.alert(invalidCallbackMessage);
         return;
       }
 
@@ -110,9 +118,11 @@ export function ExternalLinkCoordinator({
         analytics.logEvent('external_select_request_handled', {
           outcome: 'error',
         });
-        await deliverExternalSelectResult(request.callbackUrl, {
-          status: 'error',
-        });
+        await deliverExternalSelectResult(
+          request.callbackUrl,
+          { status: 'error' },
+          deliveryFailedMessage,
+        );
         return;
       }
 
@@ -120,9 +130,11 @@ export function ExternalLinkCoordinator({
       // the picker at the new callback instead of pushing a second one.
       const previousCallbackUrl = takePendingCallbackUrl();
       if (previousCallbackUrl) {
-        await deliverExternalSelectResult(previousCallbackUrl, {
-          status: 'cancelled',
-        });
+        await deliverExternalSelectResult(
+          previousCallbackUrl,
+          { status: 'cancelled' },
+          deliveryFailedMessage,
+        );
       }
       beginSelection(request.callbackUrl);
       if (!previousCallbackUrl) {
@@ -132,7 +144,14 @@ export function ExternalLinkCoordinator({
         outcome: 'opened',
       });
     },
-    [beginSelection, checklists, navigationRef, takePendingCallbackUrl],
+    [
+      beginSelection,
+      checklists,
+      deliveryFailedMessage,
+      invalidCallbackMessage,
+      navigationRef,
+      takePendingCallbackUrl,
+    ],
   );
 
   const handleUrl = useCallback(
@@ -155,9 +174,9 @@ export function ExternalLinkCoordinator({
         outcome: 'invalid_callback',
         replaced_active_run: false,
       });
-      Alert.alert(INVALID_CALLBACK_MESSAGE);
+      Alert.alert(invalidCallbackMessage);
     },
-    [handleRunUrl, handleSelectUrl],
+    [handleRunUrl, handleSelectUrl, invalidCallbackMessage],
   );
 
   useEffect(() => {
@@ -168,9 +187,16 @@ export function ExternalLinkCoordinator({
     const [nextUrl] = pendingUrls;
     dequeueUrl();
     handleUrl(nextUrl).catch(() => {
-      Alert.alert(UNEXPECTED_DISPATCH_FAILURE_MESSAGE);
+      Alert.alert(deliveryFailedMessage);
     });
-  }, [dequeueUrl, handleUrl, loading, navigationReady, pendingUrls]);
+  }, [
+    deliveryFailedMessage,
+    dequeueUrl,
+    handleUrl,
+    loading,
+    navigationReady,
+    pendingUrls,
+  ]);
 
   return null;
 }
