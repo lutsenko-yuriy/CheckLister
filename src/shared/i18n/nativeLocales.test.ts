@@ -85,9 +85,7 @@ describe('Android localization declarations', () => {
   });
 
   it('sets the default resource locale explicitly', () => {
-    const contents = readFile(
-      'android/app/src/main/res/resources.properties',
-    );
+    const contents = readFile('android/app/src/main/res/resources.properties');
     expect(contents).toContain('unqualifiedResLocale=en');
   });
 
