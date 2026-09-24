@@ -51,7 +51,6 @@ platform :ios do
       api_key: api_key,
       changelog: testflight_changelog,
       skip_submission: true,
-      skip_waiting_for_build_processing: true,
       distribute_external: false,
       groups: ['Testers'],
     )
