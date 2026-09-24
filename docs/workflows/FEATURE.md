@@ -86,6 +86,8 @@ behaviour beyond a literal value, it is not trivial — use the full workflow in
       **Scope-expansion discoveries:** If implementation surfaces a question like "does this pattern/bug exist elsewhere in the app too?", do not revise the current ticket's plan (or add new work units) to investigate app-wide — capture the question via `/note` and schedule a dedicated follow-up ticket after this one ships. Small, directly-related fixes discovered along the way can still be folded in with a quick check — it's broadening the ticket's own charter mid-flight that compounds scope.
 
       **User-initiated scope additions:** The same principle applies when the user raises a new, tangential ask mid-session (e.g. "let's also redesign the splash screen") that isn't part of the current ticket/WU's planned scope. Before implementing, name the tradeoff explicitly and ask whether it belongs in the current ticket or should become its own follow-up ticket — don't silently fold it in.
+      If it becomes a follow-up ticket, default to starting it only after the current ticket ships — same as a scope-expansion discovery — rather than opening a second branch/PR and working both at once. Only interleave if the user explicitly asks to.
+      Any `/note` entries already captured about the new scope before its ticket existed (i.e. filed under the original ticket's knowledge-base note by necessity) should be moved to the new ticket's note file once it's created, not left behind.
    3. **Refactor and commit** — Clean up without breaking tests, then commit this micro-cycle as one atomic commit before moving to the next logical unit:
       ```
       git commit -m "feat: <what this logical unit does>"
