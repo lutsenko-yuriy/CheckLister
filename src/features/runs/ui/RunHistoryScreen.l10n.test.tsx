@@ -4,7 +4,8 @@
 describe('RunHistoryScreen localization (#80)', () => {
   // TODO:
   // 1. Mock preferred locales as [de-DE] with country DE.
-  // 2. Seed a history entry "Packing", 8 items, completed 2026-09-18T18:42:00.000Z.
+  // 2. Seed a history entry "Packing", 8 items, completed 2026-09-18T12:00:00.000Z (midday UTC, so the
+  //    calendar date is the 18th in any UTC-11…UTC+11 test-machine time zone).
   // 3. Render the all-checklists history inside I18nProvider.
   // 4. Verify the row title is exactly "Packing".
   // 5. Verify the subtitle equals the `de` `runHistory.row` value built from the `de`

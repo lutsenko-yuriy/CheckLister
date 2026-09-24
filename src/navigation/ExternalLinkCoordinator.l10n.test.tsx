@@ -17,10 +17,11 @@ describe('ExternalLinkCoordinator localization (#80)', () => {
   it.todo('shows the callback delivery failure message in German');
 
   // TODO:
-  // 1. For each of en, de, fr, ru: mock preferred locales accordingly.
-  // 2. Complete an external run of "Groceries" and record the URL passed to Linking.openURL.
-  // 3. Separately select "Groceries" through an external select request and record that URL.
-  // 4. Verify the recorded URLs are identical across all four languages
+  // 1. Mock generateId (src/shared/ids.ts) to a fixed value so runId is deterministic.
+  // 2. For each of en, de, fr, ru: mock preferred locales accordingly.
+  // 3. Complete an external run of "Groceries" and record the URL passed to Linking.openURL.
+  // 4. Separately select "Groceries" through an external select request and record that URL.
+  // 5. Verify the recorded URLs are identical across all four languages
   //    (same status, checklistId, runId and untranslated name).
   it.todo('returns identical callback URLs regardless of UI language');
 });

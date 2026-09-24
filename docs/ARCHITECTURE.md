@@ -52,7 +52,7 @@ src/
 │       │   └── components/         # RunItemRow
 │       └── useRuns.tsx             # Context + hook for ephemeral active run + durable completed history
 └── shared/
-    ├── i18n/                       # Localization — en, de, fr, ru (#80)
+    ├── i18n/                       # Localization — en, de, fr, ru (#80; planned, lands in WU1–WU4)
     │   ├── languages.ts            # SUPPORTED_LANGUAGES / AppLanguage — single source of truth
     │   ├── resolveLanguage.ts      # Pure: OS preferred locales + country → { appLanguage, requestedLanguage, region? }
     │   ├── plural.ts               # Hand-written CLDR cardinal plural rules for the supported languages
@@ -135,7 +135,8 @@ falls back to light when no `ThemeProvider` is mounted (e.g. in tests that
 render a screen in isolation). `shared/theme/palette.ts` is the single
 source of truth for both the light and dark token sets.
 
-**Localization (#80):** every app-provided string is rendered through `t()`
+**Localization (#80 — planned; `shared/i18n/` lands across WU1–WU4, so
+until then parts of this section describe the target design):** every app-provided string is rendered through `t()`
 from `shared/i18n/useI18n.tsx` — no user-facing string literals in UI code
 outside `shared/i18n/locales/`. User content (checklist titles, item text,
 history snapshots) is only ever an interpolated parameter, never a
