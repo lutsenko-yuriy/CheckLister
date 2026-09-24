@@ -18,6 +18,7 @@ A record of all versioned releases. For planned work and known issues, see @docs
 ### Added
 - [wip] #80 (WU1): Localization infrastructure — `react-native-localize`, a typed in-house `src/shared/i18n/` module (OS preferred-locale resolution, hand-written CLDR plural rules for en/de/fr/ru, `{{param}}` interpolation, locale-aware date formatting), `I18nProvider`/`useI18n()` mounted at the app root, and the `app_language_resolved` analytics event. English only; no visible change yet.
 - [wip] #80 (WU2): Extracted every UI-facing string (screen titles, button/field labels, alerts, empty states, the checklist item-count and run-history plurals, and history dates) into `src/shared/i18n/locales/en.ts`, wired through `t()`/`formatDateTime()` in place of hardcoded literals. English only; no visible change yet.
+- [wip] #80 (WU3): Added German, French and Russian translations (`src/shared/i18n/locales/{de,fr,ru}.ts`), extended `SUPPORTED_LANGUAGES` to all four languages, a locale-integrity test guarding key parity/placeholders/plural coverage against `en.ts`, and translated integration scenarios for the localized screens. The UI now actually renders in the OS-preferred language; the native per-app language switch, localized display name and layout hardening land in WU4.
 
 ## [0.12.0] — 2026-09-24 (PR #79 merged)
 

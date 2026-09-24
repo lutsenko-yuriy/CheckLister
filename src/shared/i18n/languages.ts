@@ -10,6 +10,11 @@ export const DEFAULT_LANGUAGE: AppLanguage = 'en';
 /**
  * Single source of truth for the languages that have a locale file. The
  * native declarations (Info.plist CFBundleLocalizations, Android
- * locales_config.xml) are drift-tested against this list.
+ * locales_config.xml) are drift-tested against this list — added in WU4.
  */
-export const SUPPORTED_LANGUAGES: readonly AppLanguage[] = ['en'];
+export const SUPPORTED_LANGUAGES: readonly AppLanguage[] = [
+  'en',
+  'de',
+  'fr',
+  'ru',
+];

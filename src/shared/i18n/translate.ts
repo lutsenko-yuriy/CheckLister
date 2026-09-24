@@ -1,5 +1,8 @@
 import type { AppLanguage } from './languages';
+import { de } from './locales/de';
 import { en, type PluralForms, type Translations } from './locales/en';
+import { fr } from './locales/fr';
+import { ru } from './locales/ru';
 import { pluralCategory } from './plural';
 
 export type TranslationParams = Readonly<Record<string, string | number>>;
@@ -13,8 +16,12 @@ type LeafKeys<T> = {
 
 export type TranslationKey = LeafKeys<Translations>;
 
-// Languages without a locale file yet (until #80 WU3) render in English.
-const LOCALES: Readonly<Partial<Record<AppLanguage, Translations>>> = { en };
+const LOCALES: Readonly<Record<AppLanguage, Translations>> = {
+  en,
+  de,
+  fr,
+  ru,
+};
 
 const PLACEHOLDER_PATTERN = /\{\{(\w+)\}\}/g;
 
@@ -75,7 +82,7 @@ export function translate(
   key: TranslationKey,
   params?: TranslationParams,
 ): string {
-  const message = lookup(LOCALES[language] ?? en, key);
+  const message = lookup(LOCALES[language], key);
   return message === undefined ? key : formatMessage(language, message, params);
 }
 
