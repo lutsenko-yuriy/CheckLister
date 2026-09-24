@@ -53,6 +53,7 @@ platform :ios do
       skip_submission: true,
       skip_waiting_for_build_processing: true,
       distribute_external: false,
+      groups: ['Testers'],
     )
   end
 end

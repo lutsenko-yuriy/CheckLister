@@ -13,6 +13,11 @@ A record of all versioned releases. For planned work and known issues, see @docs
 - ...
 -->
 
+## [0.13.1] — 2026-09-25 (PR #88 merged)
+
+### Changed
+- [ci] CHL-2: Fastlane's `beta` lane now auto-assigns the "Testers" TestFlight group on upload, instead of requiring it to be assigned manually in App Store Connect after every build.
+
 ## [0.13.0] — 2026-09-24 (PR #86 merged)
 
 ### Added
