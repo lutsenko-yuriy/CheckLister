@@ -78,6 +78,13 @@ android {
     compileSdk rootProject.ext.compileSdkVersion
 
     namespace "com.checklister"
+
+    // Keep the packaged resource locales in lockstep with
+    // src/shared/i18n/languages.ts's SUPPORTED_LANGUAGES (#80); drift-tested
+    // in src/shared/i18n/nativeLocales.test.ts.
+    androidResources {
+        localeFilters += ["en", "de", "fr", "ru"]
+    }
     defaultConfig {
         applicationId "com.checklister"
         minSdkVersion rootProject.ext.minSdkVersion
