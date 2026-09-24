@@ -33,3 +33,4 @@ Write one when a ticket's research or implementation concludes in a decision tha
 |---|---|---|---|---|
 | ADR-0001 | run a two-tier (light/heavy) periodic checkup for non-mechanical code quality dimensions | `accepted` | 2026-09-09 | N/A-XX |
 | ADR-0002 | build a single-pass dialectical (thesis/antithesis/synthesis) research skill, steelman-bounded, over six other candidate methodologies | `accepted` | 2026-09-09 | N/A-XX |
+| ADR-0003 | localize with a small typed in-house i18n module on top of react-native-localize instead of an i18n framework | `accepted` | 2026-09-24 | #80 |

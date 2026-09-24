@@ -52,7 +52,7 @@ src/
 │       │   └── components/         # RunItemRow
 │       └── useRuns.tsx             # Context + hook for ephemeral active run + durable completed history
 └── shared/
-    ├── i18n/                       # Localization — en, de, fr, ru (#80; planned, lands in WU1–WU4)
+    ├── i18n/                       # Localization — en, de, fr, ru (#80; module in WU1, rest lands in WU2–WU4)
     │   ├── languages.ts            # SUPPORTED_LANGUAGES / AppLanguage — single source of truth
     │   ├── resolveLanguage.ts      # Pure: OS preferred locales + country → { appLanguage, requestedLanguage, region? }
     │   ├── plural.ts               # Hand-written CLDR cardinal plural rules for the supported languages
@@ -135,8 +135,10 @@ falls back to light when no `ThemeProvider` is mounted (e.g. in tests that
 render a screen in isolation). `shared/theme/palette.ts` is the single
 source of truth for both the light and dark token sets.
 
-**Localization (#80 — planned; `shared/i18n/` lands across WU1–WU4, so
-until then parts of this section describe the target design):** every app-provided string is rendered through `t()`
+**Localization (#80 — lands across WU1–WU4; WU1 shipped the `shared/i18n/`
+module and mounted `I18nProvider` in `App.tsx` with English only, so the
+string extraction, other locales and native declarations below still
+describe the target design):** every app-provided string is rendered through `t()`
 from `shared/i18n/useI18n.tsx` — no user-facing string literals in UI code
 outside `shared/i18n/locales/`. User content (checklist titles, item text,
 history snapshots) is only ever an interpolated parameter, never a
@@ -152,14 +154,21 @@ bare language code is in `SUPPORTED_LANGUAGES`; if none matches, English.
 Walking the list keeps the JS UI consistent with the language iOS/Android pick
 for native resources (the home-screen app name). `requestedLanguage` is the
 bare code of the *top* preferred locale, so analytics can see demand for
-unsupported languages. Values returned to other apps through callback URLs
+unsupported languages. `region` is the device country (`getCountry()`),
+kept only when it is a two-letter ISO 3166-1 code and otherwise omitted, so a
+malformed value can never produce an invalid `Intl` locale tag. Values returned to other apps through callback URLs
 (status, IDs, names) are language-independent and must never be translated.
 
 Locale files are plain typed TS objects: `en.ts` defines the `Translations`
 shape and the other locales are typed against it, so a missing or extra key
-fails `npm run typecheck`. Plural rules are hand-written in `plural.ts`
+fails `npm run typecheck`; `t()` keys are typed as the dotted leaf paths of
+`Translations`. A plural entry is an object `{ one?, few?, many?, other }`
+(so `other` is reserved for plural leaves); a category a language omits
+falls back to `other`. Plural rules are hand-written in `plural.ts`
 rather than relying on Hermes' `Intl.PluralRules`; dates use
-`Intl.DateTimeFormat`. The app display name is localized natively
+`Intl.DateTimeFormat` with `dateStyle`/`timeStyle`, falling back to
+explicit fields if a Hermes build rejects those options. A language in
+`AppLanguage` without a locale file yet renders English. The app display name is localized natively
 (`ios/CheckLister/*.lproj/InfoPlist.strings`,
 `android/app/src/main/res/values-*/strings.xml`): "CheckLister" for en/de/fr,
 "ЧекЛистер" for ru. The supported set is also declared natively
@@ -171,8 +180,18 @@ rather than relying on Hermes' `Intl.PluralRules`; dates use
 (alongside `uiMode`): without it an Android language change recreates the
 activity, remounting the React root and silently dropping the in-memory active
 run and any pending external-selection callback. `I18nProvider` re-resolves
-on `AppState` → `active` instead. iOS relaunches the process on a per-app
-language change, which is accepted.
+on `AppState` → `active` instead (an equal resolution keeps the previous
+state object, so consumers don't re-render). iOS relaunches the process on a
+per-app language change, which is accepted.
+
+`useLanguageAnalytics` dedupes `app_language_resolved` on the full
+(`app_language`, `requested_language`, `region`) tuple held in a
+**module-level** variable rather than a `useRef` (unlike
+`useColorSchemeAnalytics`): a React root remount or Android activity
+recreation keeps the JS module alive and must not re-log, while a genuinely
+new session (fresh JS context) starts clean. Tests reset it with
+`resetLanguageAnalyticsForTesting()`. Jest maps `react-native-localize` to
+the library's own `react-native-localize/mock/jest` (`jest.config.js`).
 
 ### State management
 
