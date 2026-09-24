@@ -29,16 +29,35 @@ Move each issue linked to the PR/MR to **Done** (or the equivalent closed state)
 
 ### 2. Add a CHANGELOG entry
 
-Open `docs/CHANGELOG.md` and prepend a new entry at the top:
+Determine the entry's classification tag(s) first (`[user]`, `[app]`, `[ci]`, `[meta]`, `[test]`,
+`[wip]` — see `docs/VERSIONING.md`), then branch:
+
+**If the entry carries `[user]` or `[app]`:** open `docs/CHANGELOG.md` and convert any existing
+`## [Unreleased]` heading at the top into a real numbered entry, folding in its existing bullets
+alongside this one (or just prepend a fresh `## [X.Y.Z]` entry if there's no `## [Unreleased]`
+section to convert):
 
 ```markdown
 ## [X.Y.Z] — YYYY-MM-DD
 
 ### Added / Changed / Fixed
 - N/A-XX: <one-line summary of what changed>
+- <any bullet already waiting under ## [Unreleased], carried over unchanged>
 ```
 
-Follow semantic versioning (`docs/VERSIONING.md`): patch for bug fixes, minor for new features, major for breaking changes.
+Follow semantic versioning (`docs/VERSIONING.md`): patch for bug fixes, minor for new features, major for breaking changes. Proceed to step 4 to bump the version.
+
+**Otherwise** (`[ci]`, `[meta]`, `[test]`, `[wip]` only): append a bullet under a `## [Unreleased]`
+heading at the top of the file instead (create the heading if it doesn't exist yet):
+
+```markdown
+## [Unreleased]
+
+### Added / Changed / Fixed
+- N/A-XX: <one-line summary of what changed>
+```
+
+Do **not** bump the version for this case — skip step 4 entirely and go straight to step 5.
 
 ### 3. Regenerate BACKLOG.md
 
@@ -51,7 +70,7 @@ Do not rewrite the rest of the file — the milestone sections are the source of
 
 ### 4. Bump the version
 
-Find the project's version file (check `CLAUDE.md` → "Common Commands" for the stack-specific location, e.g. `pubspec.yaml`, `package.json`, `build.gradle`). Update the version string to match the new `[X.Y.Z]` entry added in step 2.
+Only reached when step 2 added a `[user]`/`[app]` entry. Find the project's version file (check `CLAUDE.md` → "Common Commands" for the stack-specific location, e.g. `pubspec.yaml`, `package.json`, `build.gradle`). Update the version string to match the new `[X.Y.Z]` entry added in step 2.
 
 **No version file exists yet** (common for a project with no build tool chosen, or a script/CLI project that doesn't version itself): skip this step entirely — do not fail or block on it. Note in the step 7 report that there was no version file to bump, so this doesn't silently look skipped.
 
@@ -93,6 +112,6 @@ Then merge the PR/MR on your Git host:
 
 ### 7. Report back
 
-Confirm: issue(s) closed, changelog updated, version bumped, docs updated (list which files changed), PR/MR merged. Include the new version number and the PR/MR URL.
+Confirm: issue(s) closed, changelog updated, version bumped (or "no version bump — entry filed under `## [Unreleased]`, no `[user]`/`[app]` tag"), docs updated (list which files changed), PR/MR merged. Include the version number (or note there was none this time) and the PR/MR URL.
 
 After reporting, propose: *"Want to run `/debrief N/A-XX` to capture what you learned from this ticket?"* (optional — do not block on it)
