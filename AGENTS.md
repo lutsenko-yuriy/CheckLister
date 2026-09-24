@@ -35,6 +35,7 @@ Full product specifications: docs/PRODUCT_SPEC.md
 | skills/configure/style/SKILL.md | Switch communication style: DETAILED, CONCISE, or SCHEMATIC |
 | skills/manage/summarize/SKILL.md | Session-start: fetch and display the backlog |
 | skills/manage/ship/SKILL.md | Post-merge housekeeping: close issues, update docs, bump version, merge |
+| skills/manage/draft-release-notes/SKILL.md | Draft plain-language `[user]` "What's New"/"What to Test" CHANGELOG bullets for a PR/ticket, self-checked against a jargon/tone checklist; invoked inline by `ship` or standalone |
 | skills/manage/debrief/SKILL.md | Post-ticket retrospective: structured dialog → workflow improvements + knowledge base entry |
 | skills/manage/note/SKILL.md | Capture a quick observation mid-session into `docs/knowledge/notes/` |
 | skills/manage/checkup/SKILL.md | Two-tier periodic code-quality checkup (light monthly / heavy quarterly) — walks 9 non-mechanical dimensions, fixes inline or defers findings to a ledger with deadlines |

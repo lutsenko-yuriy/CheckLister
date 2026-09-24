@@ -29,13 +29,29 @@ Move each issue linked to the PR/MR to **Done** (or the equivalent closed state)
 
 ### 2. Add a CHANGELOG entry
 
+Invoke `draft-release-notes` inline for this PR (pass the PR number already in hand from step 1).
+It returns zero or more approved, plain-language `[user]` bullets — possibly empty, which is a
+valid outcome for a PR with no user-visible change.
+
 Open `docs/CHANGELOG.md` and prepend a new entry at the top:
 
 ```markdown
 ## [X.Y.Z] — YYYY-MM-DD
 
 ### Added / Changed / Fixed
-- N/A-XX: <one-line summary of what changed>
+- [user] N/A-XX: <drafted bullet from draft-release-notes>
+- [user] N/A-XX: <another drafted bullet, if more than one>
+```
+
+If `draft-release-notes` returned an empty list (no user-visible change), fall back to the
+original single-bullet form instead, tagged with whichever classification actually fits
+(`[app]`, `[ci]`, `[meta]`, `[test]`, `[wip]` — see `docs/VERSIONING.md`):
+
+```markdown
+## [X.Y.Z] — YYYY-MM-DD
+
+### Added / Changed / Fixed
+- [app] N/A-XX: <one-line technical summary of what changed>
 ```
 
 Follow semantic versioning (`docs/VERSIONING.md`): patch for bug fixes, minor for new features, major for breaking changes.
