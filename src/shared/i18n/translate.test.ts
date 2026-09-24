@@ -110,9 +110,21 @@ describe('formatDateTime', () => {
         return new RealDateTimeFormat(locale, options);
       });
 
-    const result = formatDateTime('de', 'DE', iso);
+    // A tag no other test uses, since formatters are cached per tag.
+    const result = formatDateTime('de', 'LI', iso);
 
     spy.mockRestore();
     expect(result).toBe('24.09.2026, 14:05');
+  });
+
+  it('reuses one formatter per locale tag across calls', () => {
+    const spy = jest.spyOn(Intl, 'DateTimeFormat');
+
+    formatDateTime('fr', 'BE', iso);
+    formatDateTime('fr', 'BE', iso);
+    formatDateTime('fr', 'BE', new Date(2026, 0, 1).toISOString());
+
+    expect(spy).toHaveBeenCalledTimes(1);
+    spy.mockRestore();
   });
 });

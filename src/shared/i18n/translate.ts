@@ -1,4 +1,4 @@
-import { DEFAULT_LANGUAGE, type AppLanguage } from './languages';
+import type { AppLanguage } from './languages';
 import { en, type PluralForms, type Translations } from './locales/en';
 import { pluralCategory } from './plural';
 
@@ -75,14 +75,25 @@ export function translate(
   key: TranslationKey,
   params?: TranslationParams,
 ): string {
-  const message =
-    lookup(LOCALES[language] ?? en, key) ??
-    (language === DEFAULT_LANGUAGE ? undefined : lookup(en, key));
+  const message = lookup(LOCALES[language] ?? en, key);
   return message === undefined ? key : formatMessage(language, message, params);
 }
 
 function localeTag(language: AppLanguage, region: string | undefined): string {
   return region === undefined ? language : `${language}-${region}`;
+}
+
+// Constructing an Intl.DateTimeFormat is the expensive part (ICU via JNI on
+// Android Hermes), and a history list formats one date per row per render.
+const dateTimeFormats = new Map<string, Intl.DateTimeFormat>();
+
+function getDateTimeFormat(tag: string): Intl.DateTimeFormat {
+  let format = dateTimeFormats.get(tag);
+  if (format === undefined) {
+    format = createDateTimeFormat(tag);
+    dateTimeFormats.set(tag, format);
+  }
+  return format;
 }
 
 function createDateTimeFormat(tag: string): Intl.DateTimeFormat {
@@ -117,5 +128,5 @@ export function formatDateTime(
   if (Number.isNaN(date.getTime())) {
     return isoString;
   }
-  return createDateTimeFormat(localeTag(language, region)).format(date);
+  return getDateTimeFormat(localeTag(language, region)).format(date);
 }
