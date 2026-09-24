@@ -149,6 +149,10 @@ necessary, keep it local and document the reason.
   difference.
 - Nested virtualized lists or unbounded rendering without considering mobile
   memory and interaction performance.
+- A user-facing string literal in UI code outside `src/shared/i18n/locales/`
+  (labels, placeholders, alert titles/bodies) instead of a `t()` key —
+  including a hand-rolled `item{s}` plural where `common.itemCount` (or a
+  new plural key) belongs.
 
 ### State and async smells
 

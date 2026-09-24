@@ -11,6 +11,7 @@ import { IconButton } from '../../../shared/ui/IconButton';
 import { useTheme } from '../../../shared/theme/useTheme';
 import { createThemedStyles } from '../../../shared/theme/createThemedStyles';
 import { analytics } from '../../../shared/analytics/AnalyticsService';
+import { useI18n } from '../../../shared/i18n/useI18n';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'ChecklistSelect'>;
 
@@ -24,14 +25,16 @@ function waitForNextFrame(): Promise<void> {
 async function returnResult(
   callbackUrl: string,
   result: Parameters<typeof deliverExternalSelectResult>[1],
+  failureMessage: string,
 ): Promise<void> {
   await waitForNextFrame();
-  await deliverExternalSelectResult(callbackUrl, result);
+  await deliverExternalSelectResult(callbackUrl, result, failureMessage);
 }
 
 export function ChecklistSelectScreen({ navigation }: Props) {
   const { colors } = useTheme();
   const styles = useStyles();
+  const { t } = useI18n();
   const { checklists, loading } = useChecklists();
   const { takePendingCallbackUrl } = useExternalSelection();
   // Whichever of a row tap or the beforeRemove dismissal fires first
@@ -53,17 +56,14 @@ export function ChecklistSelectScreen({ navigation }: Props) {
   }, [loading]);
 
   useLayoutEffect(() => {
-    const cancel = () => {
-      const accessibilityLabel = 'Cancel';
-      return (
-        <IconButton
-          icon="close"
-          accessibilityLabel={accessibilityLabel}
-          onPress={() => navigation.goBack()}
-          color={colors.text}
-        />
-      );
-    };
+    const cancel = () => (
+      <IconButton
+        icon="close"
+        accessibilityLabel={t('common.cancel')}
+        onPress={() => navigation.goBack()}
+        color={colors.text}
+      />
+    );
 
     navigation.setOptions({
       headerRight: cancel,
@@ -75,7 +75,7 @@ export function ChecklistSelectScreen({ navigation }: Props) {
         },
       ],
     });
-  }, [colors, navigation]);
+  }, [colors, navigation, t]);
 
   useLayoutEffect(() => {
     return navigation.addListener('beforeRemove', () => {
@@ -85,10 +85,14 @@ export function ChecklistSelectScreen({ navigation }: Props) {
       resolvedRef.current = true;
       const callbackUrl = takePendingCallbackUrl();
       if (callbackUrl) {
-        returnResult(callbackUrl, { status: 'cancelled' });
+        returnResult(
+          callbackUrl,
+          { status: 'cancelled' },
+          t('errors.callbackDeliveryFailed'),
+        );
       }
     });
-  }, [navigation, takePendingCallbackUrl]);
+  }, [navigation, t, takePendingCallbackUrl]);
 
   const handleSelect = (checklist: Checklist) => {
     if (resolvedRef.current) {
@@ -98,11 +102,15 @@ export function ChecklistSelectScreen({ navigation }: Props) {
     const callbackUrl = takePendingCallbackUrl();
     navigation.goBack();
     if (callbackUrl) {
-      returnResult(callbackUrl, {
-        status: 'selected',
-        checklistId: checklist.id,
-        checklistName: checklist.title,
-      });
+      returnResult(
+        callbackUrl,
+        {
+          status: 'selected',
+          checklistId: checklist.id,
+          checklistName: checklist.title,
+        },
+        t('errors.callbackDeliveryFailed'),
+      );
     }
   };
 

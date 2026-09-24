@@ -7,6 +7,7 @@ import { RunsProvider } from '../useRuns';
 import { RunHistoryScreen } from './RunHistoryScreen';
 import { darkPalette } from '../../../shared/theme/palette';
 import { ThemeProvider } from '../../../shared/theme/useTheme';
+import { formatDateTime } from '../../../shared/i18n/translate';
 
 const packing: RunHistoryEntry = {
   id: 'newer',
@@ -49,18 +50,6 @@ async function renderHistory(
 }
 
 describe('RunHistoryScreen', () => {
-  beforeEach(() => {
-    jest
-      .spyOn(Date.prototype, 'toLocaleString')
-      .mockImplementation(function (this: Date) {
-        return this.toISOString();
-      });
-  });
-
-  afterEach(() => {
-    jest.restoreAllMocks();
-  });
-
   it('renders global history newest-first with snapshotted item counts', async () => {
     await renderHistory({});
 
@@ -68,7 +57,13 @@ describe('RunHistoryScreen', () => {
     const rows = screen.getAllByTestId(/run-history-entry-/);
     expect(within(rows[0]).getByText('Packing')).toBeTruthy();
     expect(
-      within(rows[0]).getByText('8 items • Run on 2026-09-18T18:42:00.000Z'),
+      within(rows[0]).getByText(
+        `8 items • Run on ${formatDateTime(
+          'en',
+          undefined,
+          packing.completedAt,
+        )}`,
+      ),
     ).toBeTruthy();
     expect(within(rows[1]).getByText('Groceries')).toBeTruthy();
   });

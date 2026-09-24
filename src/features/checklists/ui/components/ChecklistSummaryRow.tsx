@@ -2,6 +2,7 @@ import React from 'react';
 import { Pressable, StyleProp, Text, ViewStyle } from 'react-native';
 import { Checklist } from '../../domain/models';
 import { createThemedStyles } from '../../../../shared/theme/createThemedStyles';
+import { useI18n } from '../../../../shared/i18n/useI18n';
 
 export function ChecklistSummaryRow({
   checklist,
@@ -15,13 +16,17 @@ export function ChecklistSummaryRow({
   testID?: string;
 }) {
   const styles = useStyles();
+  const { t } = useI18n();
   return (
-    <Pressable style={[styles.rowBody, style]} onPress={onPress} testID={testID}>
+    <Pressable
+      style={[styles.rowBody, style]}
+      onPress={onPress}
+      testID={testID}
+    >
       <Text style={styles.rowTitle}>{checklist.title}</Text>
       {checklist.items.length > 0 && (
         <Text style={styles.rowSubtitle}>
-          {checklist.items.length} item
-          {checklist.items.length === 1 ? '' : 's'}
+          {t('common.itemCount', { count: checklist.items.length })}
         </Text>
       )}
     </Pressable>

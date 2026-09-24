@@ -145,11 +145,15 @@ describe('ChecklistSelectScreen', () => {
     await fireEvent.press(screen.getByText('Groceries'));
 
     await waitFor(() =>
-      expect(deliverSpy).toHaveBeenCalledWith('caller-app://select-result', {
-        status: 'selected',
-        checklistId: '1',
-        checklistName: 'Groceries',
-      }),
+      expect(deliverSpy).toHaveBeenCalledWith(
+        'caller-app://select-result',
+        {
+          status: 'selected',
+          checklistId: '1',
+          checklistName: 'Groceries',
+        },
+        expect.any(String),
+      ),
     );
     await waitFor(() =>
       expect(navigationRef.getCurrentRoute()?.name).toBe('Placeholder'),
@@ -166,9 +170,11 @@ describe('ChecklistSelectScreen', () => {
     await fireEvent.press(screen.getByLabelText('Cancel'));
 
     await waitFor(() =>
-      expect(deliverSpy).toHaveBeenCalledWith('caller-app://select-result', {
-        status: 'cancelled',
-      }),
+      expect(deliverSpy).toHaveBeenCalledWith(
+        'caller-app://select-result',
+        { status: 'cancelled' },
+        expect.any(String),
+      ),
     );
     expect(deliverSpy).toHaveBeenCalledTimes(1);
   });
@@ -186,6 +192,7 @@ describe('ChecklistSelectScreen', () => {
     expect(deliverSpy).toHaveBeenCalledWith(
       'caller-app://select-result',
       expect.objectContaining({ status: 'selected' }),
+      expect.any(String),
     );
   });
 
