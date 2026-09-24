@@ -21,6 +21,7 @@ import { AsyncStorageRunRepository } from './src/features/runs/data/asyncStorage
 import { RootNavigator } from './src/navigation/RootNavigator';
 import { ExternalLinkCoordinator } from './src/navigation/ExternalLinkCoordinator';
 import { RootStackParamList } from './src/navigation/types';
+import { I18nProvider } from './src/shared/i18n/useI18n';
 import { ThemeProvider, useTheme } from './src/shared/theme/useTheme';
 
 const checklistRepository = new AsyncStorageChecklistRepository();
@@ -83,7 +84,9 @@ function AppContent() {
 function App() {
   return (
     <ThemeProvider>
-      <AppContent />
+      <I18nProvider>
+        <AppContent />
+      </I18nProvider>
     </ThemeProvider>
   );
 }
