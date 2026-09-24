@@ -145,6 +145,17 @@ Fired once per app session when the app resolves the OS appearance setting at la
 |---|---|---|
 | `color_scheme` | `string` | Resolved OS appearance: `light` or `dark` |
 
+<!-- Added for #80: Localization (German, French and Russian) -->
+
+### `app_language_resolved`
+
+Fired once per app session when the app resolves its UI language at launch, and again if it changes while the app is foregrounded. The language comes from the OS (per-app language setting if set, otherwise the device language); there is no in-app picker. Only bare language codes are logged — region and script subtags (e.g. the `BR` in `pt-BR`) must be stripped, and the full preferred-locale list is never logged.
+
+| Property | Type | Description |
+|---|---|---|
+| `app_language` | `string` | Language the UI is rendered in: `en`, `de`, `fr`, or `ru` |
+| `requested_language` | `string` | Bare language code the OS requested (per-app setting or top device language), e.g. `pt`, `ja`. Differs from `app_language` when the app fell back to English |
+
 ---
 
 ## Screen Views
