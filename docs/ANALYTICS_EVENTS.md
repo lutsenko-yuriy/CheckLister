@@ -153,8 +153,8 @@ Fired once per app session when the app resolves its UI language at launch, and 
 
 | Property | Type | Description |
 |---|---|---|
-| `app_language` | `string` | Language the UI is rendered in: `en`, `de`, `fr`, or `ru` |
-| `requested_language` | `string` | Bare language code the OS requested (per-app setting or top device language), e.g. `pt`, `ja`. Differs from `app_language` when the app fell back to English |
+| `app_language` | `string` | Language the UI is rendered in: `en`, `de`, `fr`, or `ru` — the first supported language in the OS preferred-locale list, else `en` |
+| `requested_language` | `string` | Bare language code of the *top* OS preferred locale (per-app setting or top device language), e.g. `pt`, `ja`. Differs from `app_language` when the top preference is unsupported and the app used a lower-ranked supported language or fell back to English |
 | `region` | `string` | ISO 3166-1 alpha-2 country code of the device's region setting (e.g. `DE`, `BR`). Omitted when the OS reports no region. Country-level only — never finer-grained location |
 
 ---

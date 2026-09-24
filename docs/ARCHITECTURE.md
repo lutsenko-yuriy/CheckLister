@@ -52,6 +52,14 @@ src/
 │       │   └── components/         # RunItemRow
 │       └── useRuns.tsx             # Context + hook for ephemeral active run + durable completed history
 └── shared/
+    ├── i18n/                       # Localization — en, de, fr, ru (#80)
+    │   ├── languages.ts            # SUPPORTED_LANGUAGES / AppLanguage — single source of truth
+    │   ├── resolveLanguage.ts      # Pure: OS preferred locales + country → { appLanguage, requestedLanguage, region? }
+    │   ├── plural.ts               # Hand-written CLDR cardinal plural rules for the supported languages
+    │   ├── translate.ts            # Pure lookup, {{param}} interpolation, plural selection, Intl date formatting
+    │   ├── useI18n.tsx             # I18nProvider + useI18n(): { language, t, formatDateTime }
+    │   ├── useLanguageAnalytics.ts # Emits app_language_resolved once per session / on change
+    │   └── locales/                # en.ts (defines the Translations shape), de.ts, fr.ts, ru.ts
     ├── links/
     │   └── externalLinkUrls.ts     # Verb-agnostic URL primitives + parseExternalLinkKind('run' | 'select' | null)
     ├── storage/
@@ -126,6 +134,44 @@ which resolves the OS appearance via React Native's `useColorScheme()` and
 falls back to light when no `ThemeProvider` is mounted (e.g. in tests that
 render a screen in isolation). `shared/theme/palette.ts` is the single
 source of truth for both the light and dark token sets.
+
+**Localization (#80):** every app-provided string is rendered through `t()`
+from `shared/i18n/useI18n.tsx` — no user-facing string literals in UI code
+outside `shared/i18n/locales/`. User content (checklist titles, item text,
+history snapshots) is only ever an interpolated parameter, never a
+translation key. Modules that must stay React-free (e.g. the callback
+delivery helpers) take already-translated messages as arguments. Like
+`useTheme`, `useI18n` falls back to English when no `I18nProvider` is mounted,
+so screens rendered in isolation in tests keep their English text.
+
+The UI language follows the OS; there is no in-app picker.
+`resolveLanguage` walks the OS preferred-locale list (which already reflects
+the per-app language on iOS and Android 13+) and picks the first entry whose
+bare language code is in `SUPPORTED_LANGUAGES`; if none matches, English.
+Walking the list keeps the JS UI consistent with the language iOS/Android pick
+for native resources (the home-screen app name). `requestedLanguage` is the
+bare code of the *top* preferred locale, so analytics can see demand for
+unsupported languages. Values returned to other apps through callback URLs
+(status, IDs, names) are language-independent and must never be translated.
+
+Locale files are plain typed TS objects: `en.ts` defines the `Translations`
+shape and the other locales are typed against it, so a missing or extra key
+fails `npm run typecheck`. Plural rules are hand-written in `plural.ts`
+rather than relying on Hermes' `Intl.PluralRules`; dates use
+`Intl.DateTimeFormat`. The app display name is localized natively
+(`ios/CheckLister/*.lproj/InfoPlist.strings`,
+`android/app/src/main/res/values-*/strings.xml`): "CheckLister" for en/de/fr,
+"ЧекЛистер" for ru. The supported set is also declared natively
+(`CFBundleLocalizations` in `Info.plist`, `res/xml/locales_config.xml` via
+`android:localeConfig`), and a Jest drift test keeps those in sync with
+`SUPPORTED_LANGUAGES`.
+
+`MainActivity` declares `locale|layoutDirection` in `android:configChanges`
+(alongside `uiMode`): without it an Android language change recreates the
+activity, remounting the React root and silently dropping the in-memory active
+run and any pending external-selection callback. `I18nProvider` re-resolves
+on `AppState` → `active` instead. iOS relaunches the process on a per-app
+language change, which is accepted.
 
 ### State management
 
@@ -232,6 +278,16 @@ or sent to analytics.
   MaterialIcons.ttf"). iOS still needs the font declared in
   `ios/CheckLister/Info.plist`'s `UIAppFonts` so it's registered at runtime;
   run `pod install` after adding the dependency.
+
+- [`react-native-localize`](https://github.com/zoontek/react-native-localize) —
+  reads the OS preferred-locale list and device country for localization (#80).
+  Chosen over `expo-localization` (bare CLI project, same reason as
+  `@expo/vector-icons` above) and over `I18nManager`'s single
+  `localeIdentifier` (no preference list or country; unreliable for the
+  Android per-app locale). Deliberately **no** i18n framework (`i18next` /
+  `react-i18next`): ~50 strings in 4 languages with no in-app switching don't
+  justify two dependencies plus an `Intl.PluralRules` polyfill for Hermes; see
+  `shared/i18n/`. Run `pod install` after adding the dependency.
 
 ## Local simulator scenarios
 
