@@ -113,10 +113,12 @@ not affect app data.
 CheL-36 adds two installed-app contracts for cold and foreground external-run
 links. CheL-40 adds three more for the `checklister://select` picker: an
 invalid cold callback, a failed callback delivery, and a select request
-arriving during an active run. Valid-checklist external-run/-select
-completion and cancellation remain component integration scenarios until
-CheL-34 provides safe, deterministic checklist IDs for installed-app tests
-without clearing simulator data.
+arriving during an active run. Valid-checklist external-run/-select completion and cancellation remain
+component integration scenarios; CheL-34's snapshot mechanism (see
+"Isolating persistent test data" below) makes a deterministic, known
+checklist ID available at the installed-app level (seed it once, capture it,
+restore it every run), but promoting these flows to real Maestro coverage
+is separate, unstarted follow-up work.
 
 `run-complete.yaml` and `run-exit.yaml` run on both platforms
 (`tags: [ios, android]`); `run-exit-system-back-android.yaml` is
@@ -155,11 +157,43 @@ remain for diagnosis; delete that specific `Scenario ...` checklist manually aft
 inspection. Existing checklists are never bulk-cleared. Run flows serially on a
 single device; concurrent suites on that device would interfere.
 
-`run-history.yaml` necessarily leaves one uniquely named completed-history
-entry after deleting its checklist because history deletion is intentionally
-not part of the product. Run the suite on a dedicated test simulator. CheL-34
-tracks a safe isolation/cleanup mechanism that preserves unrelated data while
-preventing this generated history from accumulating.
+## Isolating persistent test data (CheL-34)
+
+`run-history.yaml` (and any future persistent scenario-owned record) can't be
+cleaned up through the product UI: completed-run history deletion is
+intentionally not part of the app. Rather than parsing AsyncStorage's on-disk
+format directly (an undocumented, version-fragile internal), isolation works
+one level up, on the app's own sandboxed data directory as a whole:
+
+1. **Capture a baseline once**: after seeding whatever unrelated checklists
+   or history you want the suite to always see on this simulator, run
+   `npm run scenarios:snapshot:ios -- <UDID>`. This terminates the app,
+   resolves its container via `xcrun simctl get_app_container <UDID>
+   com.checklister.checklisterApp data`, and `rsync -a --delete`s it into
+   `artifacts/scenarios-ios/snapshot/<UDID>/` (gitignored). Re-run it any
+   time you want to refresh that baseline.
+2. **Every suite run restores that baseline first, not after**:
+   `npm run scenarios:ios` checks for a snapshot for the selected device
+   before invoking Maestro; if one exists, it terminates the app and
+   `rsync -a --delete`s the snapshot back onto the live container, so the
+   suite always starts from the identical, byte-for-byte state the snapshot
+   captured — no `Scenario ...` history entries or checklists from a prior
+   run can ever accumulate. If no snapshot has been captured yet for that
+   device, the runner says so and proceeds without restoring, so first-time
+   use is unaffected.
+3. **Failure diagnosis is unaffected, and easier**: because restore happens
+   before a run rather than clearing up after one, a failed run's on-device
+   state — its fixture checklist, any history it created, an in-progress
+   run — is left exactly as the failure produced it. Inspect it directly on
+   the simulator; the *next* invocation's restore step is what eventually
+   clears it, not this one.
+
+This isolates the whole app sandbox, not just `runHistory`, so it covers any
+future persistent scenario-owned record with no per-record cleanup logic to
+maintain. Android isolation is tracked separately (N/A-97) since Android's
+app-private storage needs a different mechanism (likely `adb shell run-as` +
+`tar`, unverified) — CheL-34's own scope allows deferring it since nothing
+here forces the two platforms to share a mechanism.
 
 ## Results and diagnosis
 

@@ -22,6 +22,16 @@ xcrun simctl spawn "$scenarios_device" defaults write -g AppleLanguages -array e
 xcrun simctl spawn "$scenarios_device" defaults write -g AppleLocale -string en_US
 
 scenarios_artifacts="${SCENARIOS_ARTIFACTS_DIR:-$scenarios_root/artifacts/scenarios-ios}"
+scenarios_snapshot_dir="$scenarios_artifacts/snapshot/$scenarios_device"
+if [[ -d "$scenarios_snapshot_dir" ]]; then
+  echo "Restoring app data from snapshot: $scenarios_snapshot_dir"
+  xcrun simctl terminate "$scenarios_device" "$scenarios_app" >/dev/null 2>&1 || true
+  scenarios_container="$(xcrun simctl get_app_container "$scenarios_device" "$scenarios_app" data)"
+  rsync -a --delete "$scenarios_snapshot_dir/" "$scenarios_container/"
+else
+  echo 'No snapshot found for this device — running without restoring app data. See npm run scenarios:snapshot:ios in docs/SCENARIOS.md.'
+fi
+
 mkdir -p "$scenarios_artifacts"
 scenarios_output="$(mktemp -d "$scenarios_artifacts/run-XXXXXXXX")"
 echo "Scenario artifacts: $scenarios_output"
