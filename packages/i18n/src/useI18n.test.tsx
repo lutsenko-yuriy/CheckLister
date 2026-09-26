@@ -2,7 +2,6 @@ import React from 'react';
 import { act, render, renderHook, screen } from '@testing-library/react-native';
 import { AppState, Text, type AppStateStatus } from 'react-native';
 import { getCountry, getLocales } from 'react-native-localize';
-import { analytics } from '../analytics/AnalyticsService';
 import { formatDateTime } from './translate';
 import { I18nProvider, useI18n } from './useI18n';
 import { resetLanguageAnalyticsForTesting } from './useLanguageAnalytics';
@@ -27,6 +26,7 @@ function latestAppStateHandler(): (state: AppStateStatus) => void {
 }
 
 const renders: string[] = [];
+const logSpy = jest.fn();
 
 function Probe() {
   const { language, t, formatDateTime: format } = useI18n();
@@ -39,25 +39,19 @@ function Probe() {
 
 async function renderProvider(language?: 'en' | 'de' | 'fr' | 'ru') {
   return render(
-    <I18nProvider language={language}>
+    <I18nProvider language={language} onLanguageResolved={logSpy}>
       <Probe />
     </I18nProvider>,
   );
 }
 
 describe('I18nProvider / useI18n', () => {
-  let logSpy: jest.SpyInstance;
-
   beforeEach(() => {
     renders.length = 0;
     resetLanguageAnalyticsForTesting();
     jest.mocked(AppState.addEventListener).mockClear();
-    logSpy = jest.spyOn(analytics, 'logEvent').mockImplementation(() => {});
+    logSpy.mockClear();
     mockOS(['en-US'], 'US');
-  });
-
-  afterEach(() => {
-    logSpy.mockRestore();
   });
 
   it('resolves from the OS synchronously, so the very first render is already correct', async () => {

@@ -19,7 +19,10 @@ import {
   type TranslationKey,
   type TranslationParams,
 } from './translate';
-import { useLanguageAnalytics } from './useLanguageAnalytics';
+import {
+  useLanguageAnalytics,
+  type LanguageAnalyticsSink,
+} from './useLanguageAnalytics';
 
 interface I18nContextValue {
   language: AppLanguage;
@@ -50,11 +53,14 @@ function resolveFromOS(): LanguageResolution {
 
 export function I18nProvider({
   language,
+  onLanguageResolved,
   children,
 }: {
   // Test-only override; production never passes this and always follows the
   // OS preferred-locale list via react-native-localize.
   language?: AppLanguage;
+  // Host app's analytics sink, e.g. `(event, props) => analytics.logEvent(event, props)`.
+  onLanguageResolved?: LanguageAnalyticsSink;
   children: React.ReactNode;
 }) {
   // Lazy initial state resolves before the first paint — no English flash.
@@ -84,7 +90,7 @@ export function I18nProvider({
         : { ...osResolution, appLanguage: language },
     [language, osResolution],
   );
-  useLanguageAnalytics(resolution);
+  useLanguageAnalytics(resolution, onLanguageResolved);
 
   const { appLanguage, region } = resolution;
   const value = useMemo(

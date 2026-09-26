@@ -6,7 +6,7 @@ import React from 'react';
 import ReactTestRenderer from 'react-test-renderer';
 import App from '../App';
 import { analytics } from '../src/shared/analytics/AnalyticsService';
-import { resetLanguageAnalyticsForTesting } from '../src/shared/i18n/useLanguageAnalytics';
+import { resetLanguageAnalyticsForTesting } from '@checklister/i18n';
 
 test('renders correctly', async () => {
   await ReactTestRenderer.act(() => {
