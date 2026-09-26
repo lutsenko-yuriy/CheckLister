@@ -28,6 +28,7 @@ A record of all versioned releases. For planned work and known issues, see @docs
 
 - [ci] CHL-2: Fastlane's `beta` lane now auto-assigns the "Testers" TestFlight group on upload, instead of requiring it to be assigned manually in App Store Connect after every build.
 - [meta] #87: `shared/i18n/` is now the `@checklister/i18n` npm-workspace package (`packages/i18n/`), with an ESLint-enforced import boundary preventing it from ever depending back on app code (`src/`/`App.tsx`); the one dependency it previously had on the host's analytics module now crosses via a caller-supplied callback prop instead. No behavior change.
+- [test] #34: Local iOS Maestro scenarios now capture and restore a "golden" app-data snapshot (`npm run scenarios:snapshot:ios`) before every suite run, so completed-run history (and any future persistent scenario-owned record) can never accumulate across repeated runs — no product/`src/` change, and a failed run's on-device state is left untouched for diagnosis rather than cleared. Android isolation and CI integration are tracked separately (#97, #100).
 
 ## [0.13.0] — 2026-09-24 (PR #86 merged)
 
