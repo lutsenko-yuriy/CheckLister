@@ -16,4 +16,5 @@ _(nothing in progress)_
 
 ## Unscheduled
 
-- [CheL-32: Separate and review the every-ticket scenario workflow policy](https://github.com/lutsenko-yuriy/CheckLister/issues/32)
+- [CheL-36: Externally started checklist runs with callback results](https://github.com/lutsenko-yuriy/CheckLister/issues/36)
+- [CheL-34: Isolate Maestro scenarios from persistent test data](https://github.com/lutsenko-yuriy/CheckLister/issues/34)
