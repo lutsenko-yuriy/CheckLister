@@ -44,8 +44,11 @@ Open `docs/CHANGELOG.md` and prepend a new entry at the top:
 ```
 
 If `draft-release-notes` returned an empty list (no user-visible change), fall back to the
-original single-bullet form instead, tagged with whichever classification actually fits
-(`[app]`, `[ci]`, `[meta]`, `[test]`, `[wip]` — see `docs/VERSIONING.md`):
+original single-bullet form instead, tagged with whichever release-worthy classification
+actually fits (`[app]`, `[ci]`, `[meta]` — never `[wip]`/`[test]` here: this step is only
+reached for the ticket's final WU, where `ship` proceeds to an unconditional version bump in
+step 4, and `[wip]`/`[test]` are reserved for intermediate WUs that skip `ship` entirely —
+see `docs/workflows/MULTI_WU.md` and `docs/VERSIONING.md`):
 
 ```markdown
 ## [X.Y.Z] — YYYY-MM-DD

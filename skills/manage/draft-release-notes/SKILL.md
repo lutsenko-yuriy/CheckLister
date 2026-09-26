@@ -30,8 +30,9 @@ Everything else below is derived — do not ask the user for anything except fin
 Collect observable before/after behaviour from these sources, in order:
 
 1. **Ticket description** (fetch via the PM tool — see `skills/shared/pm-tool-mapping.md`'s
-   "Fetch issue" operation; skip if already fetched this session per the fetch-once convention) —
-   the *intended* user-facing behaviour, and its Work Units section if present.
+   "Fetch issue" operation; skip the fetch if the ticket description is already in hand from
+   earlier this session) — the *intended* user-facing behaviour, and its Work Units section if
+   present.
 2. **PR diff**, scoped to what a user could actually notice: `gh pr diff <N>` filtered to
    `src/shared/i18n/locales/en.ts` (user-facing copy), `src/features/*/ui/**` (screens and
    components), and any native-visible resource change (`assets/icon/**`, `ios/**/Info.plist`,
