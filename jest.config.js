@@ -8,7 +8,7 @@ module.exports = {
     '^react-native-localize$': 'react-native-localize/mock/jest',
   },
   transformIgnorePatterns: [
-    'node_modules/(?!((jest-)?react-native|@react-native(-community)?|@react-native-async-storage|@react-navigation|react-native-screens|react-native-safe-area-context|react-native-gesture-handler|react-native-reanimated|react-native-reanimated-dnd|react-native-vector-icons)/)',
+    'node_modules/(?!((jest-)?react-native|@react-native(-community)?|@react-native-async-storage|@react-navigation|react-native-screens|react-native-safe-area-context|react-native-gesture-handler|react-native-reanimated|react-native-reanimated-dnd|react-native-vector-icons|@checklister)/)',
   ],
   setupFiles: ['./jest.setup.js'],
 };
