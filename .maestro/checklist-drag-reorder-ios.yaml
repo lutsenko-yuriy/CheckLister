@@ -22,11 +22,16 @@ tags:
 # gesture uses activateAfterLongPress(200), and a fast synthetic swipe moves
 # too much before that timer elapses for it to activate at all (confirmed:
 # 1.5s duration produced zero movement). A slow swipe keeps the initial
-# movement small enough to activate, then completes the drag.
+# movement small enough to activate, then completes the drag. CheL-98:
+# even with correctly-landing coordinates this still raced the timer
+# intermittently at 4000/8000ms (Maestro reports the swipe COMPLETED but
+# the app shows zero movement) — 12000ms cleared this in on-device
+# validation (multiple consecutive runs on an iPhone 17 and an iPhone 17
+# Pro simulator).
 - swipe:
     start: 7%,35%
     end: 7%,69%
-    duration: 4000
+    duration: 12000
 - assertVisible:
     text: '.*Scenario third.*'
     below:
@@ -36,11 +41,18 @@ tags:
     below:
       text: '.*Scenario third.*'
 # Drag "first" (now at the bottom) upward back to the top, restoring the
-# original order: first, second, third.
+# original order: first, second, third. CheL-98: the start point must land
+# on the item's drag-handle testID — at 48% this silently missed it by
+# ~7.5pt on a 402x874pt screen (handle top edge measured via the
+# screen-hierarchy debug artifact at y=427, vs. 48%'s y=419.5), so Maestro
+# reported the swipe as completed while the app saw no touch on the handle
+# at all and nothing moved. 50% (integer — Maestro's percentage
+# coordinates don't accept decimals) lands on the handle's measured
+# vertical center with margin. Same 12000ms rationale as the swipe above.
 - swipe:
-    start: 7%,48%
+    start: 7%,50%
     end: 7%,17%
-    duration: 4000
+    duration: 12000
 - assertVisible:
     text: '.*Scenario second.*'
     below:
