@@ -33,7 +33,15 @@ Invoke `draft-release-notes` inline for this PR (pass the PR number already in h
 It returns zero or more approved, plain-language `[user]` bullets — possibly empty, which is a
 valid outcome for a PR with no user-visible change.
 
-Open `docs/CHANGELOG.md` and prepend a new entry at the top:
+Determine the entry's classification tag(s) first (`[user]`, `[app]`, `[ci]`, `[meta]`, `[test]`,
+`[wip]` — see `docs/VERSIONING.md`), then branch:
+
+**If the entry carries `[user]` or `[app]`:** open `docs/CHANGELOG.md` and convert any existing
+`## [Unreleased]` heading at the top into a real numbered entry, folding in its existing bullets
+alongside the new one(s) — carry each existing bullet under its own original subsection
+(`### Added`/`### Changed`/`### Fixed`); if the new bullet(s) need a different subsection than
+what's already there, add that subsection rather than merging unlike bullets under one heading
+(or just prepend a fresh `## [X.Y.Z]` entry if there's no `## [Unreleased]` section to convert):
 
 ```markdown
 ## [X.Y.Z] — YYYY-MM-DD
@@ -41,14 +49,12 @@ Open `docs/CHANGELOG.md` and prepend a new entry at the top:
 ### Added / Changed / Fixed
 - [user] N/A-XX: <drafted bullet from draft-release-notes>
 - [user] N/A-XX: <another drafted bullet, if more than one>
+- <any bullet already waiting under ## [Unreleased], carried over unchanged under its own subsection>
 ```
 
-If `draft-release-notes` returned an empty list (no user-visible change), fall back to the
-original single-bullet form instead, tagged with whichever release-worthy classification
-actually fits (`[app]`, `[ci]`, `[meta]` — never `[wip]`/`[test]` here: this step is only
-reached for the ticket's final WU, where `ship` proceeds to an unconditional version bump in
-step 4, and `[wip]`/`[test]` are reserved for intermediate WUs that skip `ship` entirely —
-see `docs/workflows/MULTI_WU.md` and `docs/VERSIONING.md`):
+If `draft-release-notes` returned an empty list (no user-visible change) but the entry still
+carries `[app]` (a release-worthy but non-user-facing change), use the original single-bullet
+form instead:
 
 ```markdown
 ## [X.Y.Z] — YYYY-MM-DD
@@ -57,7 +63,19 @@ see `docs/workflows/MULTI_WU.md` and `docs/VERSIONING.md`):
 - [app] N/A-XX: <one-line technical summary of what changed>
 ```
 
-Follow semantic versioning (`docs/VERSIONING.md`): patch for bug fixes, minor for new features, major for breaking changes.
+Follow semantic versioning (`docs/VERSIONING.md`): patch for bug fixes, minor for new features, major for breaking changes. Proceed to step 4 to bump the version.
+
+**Otherwise** (`[ci]`, `[meta]`, `[test]`, `[wip]` only): append a bullet under a `## [Unreleased]`
+heading at the top of the file instead (create the heading if it doesn't exist yet):
+
+```markdown
+## [Unreleased]
+
+### Added / Changed / Fixed
+- [ci] N/A-XX: <one-line technical summary of what changed>
+```
+
+Do **not** bump the version for this case — skip step 4 entirely and go straight to step 5.
 
 ### 3. Regenerate BACKLOG.md
 
@@ -70,7 +88,7 @@ Do not rewrite the rest of the file — the milestone sections are the source of
 
 ### 4. Bump the version
 
-Find the project's version file (check `CLAUDE.md` → "Common Commands" for the stack-specific location, e.g. `pubspec.yaml`, `package.json`, `build.gradle`). Update the version string to match the new `[X.Y.Z]` entry added in step 2.
+Only reached when step 2 added a `[user]`/`[app]` entry. Find the project's version file (check `CLAUDE.md` → "Common Commands" for the stack-specific location, e.g. `pubspec.yaml`, `package.json`, `build.gradle`). Update the version string to match the new `[X.Y.Z]` entry added in step 2.
 
 **No version file exists yet** (common for a project with no build tool chosen, or a script/CLI project that doesn't version itself): skip this step entirely — do not fail or block on it. Note in the step 7 report that there was no version file to bump, so this doesn't silently look skipped.
 
@@ -112,6 +130,6 @@ Then merge the PR/MR on your Git host:
 
 ### 7. Report back
 
-Confirm: issue(s) closed, changelog updated, version bumped, docs updated (list which files changed), PR/MR merged. Include the new version number and the PR/MR URL.
+Confirm: issue(s) closed, changelog updated, version bumped (or "no version bump — entry filed under `## [Unreleased]`, no `[user]`/`[app]` tag"), docs updated (list which files changed), PR/MR merged. Include the version number (or note there was none this time) and the PR/MR URL.
 
 After reporting, propose: *"Want to run `/debrief N/A-XX` to capture what you learned from this ticket?"* (optional — do not block on it)
