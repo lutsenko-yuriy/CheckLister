@@ -17,6 +17,18 @@ repository persists to on-device `AsyncStorage` as JSON.
 App.tsx                        # Composition root: providers + RootNavigator
 index.js                       # RN entry point, registers App
 
+packages/
+└── i18n/                      # @checklister/i18n — npm-workspace package, enforced import boundary (N/A-87)
+    └── src/
+        ├── languages.ts            # SUPPORTED_LANGUAGES / AppLanguage — single source of truth
+        ├── resolveLanguage.ts      # Pure: OS preferred locales + country → { appLanguage, requestedLanguage, region? }
+        ├── plural.ts               # Hand-written CLDR cardinal plural rules for the supported languages
+        ├── translate.ts            # Pure lookup, {{param}} interpolation, plural selection, Intl date formatting
+        ├── useI18n.tsx             # I18nProvider + useI18n(): { language, t, formatDateTime }
+        ├── useLanguageAnalytics.ts # Emits app_language_resolved via a caller-supplied sink (no analytics import of its own)
+        ├── locales/                # en.ts (defines the Translations shape), de.ts, fr.ts, ru.ts
+        └── index.ts                # Public barrel — the only import path the app uses (`@checklister/i18n`)
+
 src/
 ├── navigation/
 │   ├── RootNavigator.tsx      # Native-stack routes: Home, ChecklistDetail, Run, RunHistory, ChecklistSelect
@@ -52,14 +64,6 @@ src/
 │       │   └── components/         # RunItemRow
 │       └── useRuns.tsx             # Context + hook for ephemeral active run + durable completed history
 └── shared/
-    ├── i18n/                       # Localization — en, de, fr, ru (#80)
-    │   ├── languages.ts            # SUPPORTED_LANGUAGES / AppLanguage — single source of truth
-    │   ├── resolveLanguage.ts      # Pure: OS preferred locales + country → { appLanguage, requestedLanguage, region? }
-    │   ├── plural.ts               # Hand-written CLDR cardinal plural rules for the supported languages
-    │   ├── translate.ts            # Pure lookup, {{param}} interpolation, plural selection, Intl date formatting
-    │   ├── useI18n.tsx             # I18nProvider + useI18n(): { language, t, formatDateTime }
-    │   ├── useLanguageAnalytics.ts # Emits app_language_resolved once per session / on change
-    │   └── locales/                # en.ts (defines the Translations shape), de.ts, fr.ts, ru.ts
     ├── links/
     │   └── externalLinkUrls.ts     # Verb-agnostic URL primitives + parseExternalLinkKind('run' | 'select' | null)
     ├── storage/
@@ -136,13 +140,30 @@ render a screen in isolation). `shared/theme/palette.ts` is the single
 source of truth for both the light and dark token sets.
 
 **Localization (#80):** every app-provided string is rendered through `t()`
-from `shared/i18n/useI18n.tsx` — no user-facing string literals in UI code
-outside `shared/i18n/locales/`. User content (checklist titles, item text,
-history snapshots) is only ever an interpolated parameter, never a
-translation key. Modules that must stay React-free (e.g. the callback
-delivery helpers) take already-translated messages as arguments. Like
-`useTheme`, `useI18n` falls back to English when no `I18nProvider` is mounted,
-so screens rendered in isolation in tests keep their English text.
+from `@checklister/i18n` (`packages/i18n/src/useI18n.tsx`) — no user-facing
+string literals in UI code outside `packages/i18n/src/locales/`. User content
+(checklist titles, item text, history snapshots) is only ever an interpolated
+parameter, never a translation key. Modules that must stay React-free (e.g.
+the callback delivery helpers) take already-translated messages as arguments.
+Like `useTheme`, `useI18n` falls back to English when no `I18nProvider` is
+mounted, so screens rendered in isolation in tests keep their English text.
+
+**Module boundary (N/A-87):** `@checklister/i18n` is an npm-workspace package
+(`packages/i18n/`, root `package.json`'s `workspaces`), not just a `shared/`
+directory — a generic subdomain with an _enforced_ one-directional dependency:
+the app may import from it (`@checklister/i18n`, resolved via the workspace
+symlink at `node_modules/@checklister/i18n`), but it must never import back
+from `src/` or `App.tsx`. `.eslintrc.js`'s `no-restricted-imports` override
+(scoped to `packages/i18n/**`) fails any import matching `**/src/**` or
+`**/App(.tsx)`. The one dependency the package would otherwise have needed —
+the host's analytics sink — crosses the boundary as a caller-supplied callback
+instead: `I18nProvider`'s `onLanguageResolved` prop, wired in `App.tsx` to
+`analytics.logEvent`, rather than the package importing
+`shared/analytics/AnalyticsService` directly. `metro.config.js` (`watchFolders`
+
+- `resolver.unstable_enableSymlinks`) and `jest.config.js`
+  (`transformIgnorePatterns`) both explicitly allow this workspace package to be
+  watched/transformed like first-party app code.
 
 The UI language follows the OS; there is no in-app picker.
 `resolveLanguage` walks the OS preferred-locale list (which already reflects
@@ -150,7 +171,7 @@ the per-app language on iOS and Android 13+) and picks the first entry whose
 bare language code is in `SUPPORTED_LANGUAGES`; if none matches, English.
 Walking the list keeps the JS UI consistent with the language iOS/Android pick
 for native resources (the home-screen app name). `requestedLanguage` is the
-bare code of the *top* preferred locale, so analytics can see demand for
+bare code of the _top_ preferred locale, so analytics can see demand for
 unsupported languages. `region` is the device country (`getCountry()`),
 kept only when it is a two-letter ISO 3166-1 code and otherwise omitted, so a
 malformed value can never produce an invalid `Intl` locale tag. Values returned to other apps through callback URLs
@@ -165,7 +186,7 @@ falls back to `other`. Plural rules are hand-written in `plural.ts`
 rather than relying on Hermes' `Intl.PluralRules`; dates use
 `Intl.DateTimeFormat` with `dateStyle`/`timeStyle`, falling back to
 explicit fields if a Hermes build rejects those options.
-`shared/i18n/locales/locales.test.ts` checks every non-English locale against
+`packages/i18n/src/locales/locales.test.ts` checks every non-English locale against
 `en.ts`: identical key set, preserved `{{placeholder}}`s, no empty or
 English-identical values (besides the allowlisted app name), and every
 plural category `pluralCategory` can return for that language. The app
@@ -178,6 +199,7 @@ display name is localized natively
 `SUPPORTED_LANGUAGES`.
 
 **Adding a new language** is meant to stay a small, mechanical change:
+
 1. Add `locales/<lang>.ts`, typed as `const <lang>: Translations = {...}` (a
    missing or extra key fails `npm run typecheck`).
 2. Add it to `LOCALES` in `translate.ts` and to `SUPPORTED_LANGUAGES` in
@@ -188,8 +210,8 @@ display name is localized natively
    `res/values-<lang>/strings.xml`.
 4. Run `locales.test.ts` and `nativeLocales.test.ts` — both fail loudly if
    anything above was missed.
-No other file should need to change for a new language on its own; if one
-does, that's worth a note on why.
+   No other file should need to change for a new language on its own; if one
+   does, that's worth a note on why.
 
 `MainActivity` declares `locale|layoutDirection` in `android:configChanges`
 (alongside `uiMode`): without it an Android language change recreates the
@@ -231,6 +253,7 @@ pending-URL drain, and the cross-channel dedupe), since a second parallel
 coordinator would double-handle every URL. It waits for checklist hydration and
 navigation readiness, then dispatches each URL by verb
 (`shared/links/parseExternalLinkKind`):
+
 - `run` (CheL-36): resolves an incoming checklist ID and asks `useRuns` to
   replace the active run.
 - `select` (CheL-40): asks `useExternalSelection` to begin a selection session
@@ -322,7 +345,7 @@ or sent to analytics.
   Android per-app locale). Deliberately **no** i18n framework (`i18next` /
   `react-i18next`): ~50 strings in 4 languages with no in-app switching don't
   justify two dependencies plus an `Intl.PluralRules` polyfill for Hermes; see
-  `shared/i18n/`. Run `pod install` after adding the dependency.
+  `packages/i18n/`. Run `pod install` after adding the dependency.
 
 ## Local simulator scenarios
 
@@ -368,6 +391,7 @@ theme's `colors.background` (light `#EAF2FB` / dark `#0E1724`, from
 `shared/theme/palette.ts`) instead of the OS-templated default. This can't
 read the JS palette at launch, so the colors are duplicated as native
 resources kept in sync by hand, not generated:
+
 - iOS: `ios/CheckLister/LaunchScreen.storyboard`, sourcing
   `Images.xcassets/LaunchLogo.imageset` (a copy of the Android adaptive
   icon's transparent foreground PNG — see "App icon" above) and the

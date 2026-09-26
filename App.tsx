@@ -21,8 +21,9 @@ import { AsyncStorageRunRepository } from './src/features/runs/data/asyncStorage
 import { RootNavigator } from './src/navigation/RootNavigator';
 import { ExternalLinkCoordinator } from './src/navigation/ExternalLinkCoordinator';
 import { RootStackParamList } from './src/navigation/types';
-import { I18nProvider } from './src/shared/i18n/useI18n';
+import { analytics } from './src/shared/analytics/AnalyticsService';
 import { ThemeProvider, useTheme } from './src/shared/theme/useTheme';
+import { I18nProvider } from '@checklister/i18n';
 
 const checklistRepository = new AsyncStorageChecklistRepository();
 const runRepository = new AsyncStorageRunRepository();
@@ -84,7 +85,11 @@ function AppContent() {
 function App() {
   return (
     <ThemeProvider>
-      <I18nProvider>
+      <I18nProvider
+        onLanguageResolved={(event, properties) =>
+          analytics.logEvent(event, properties)
+        }
+      >
         <AppContent />
       </I18nProvider>
     </ThemeProvider>

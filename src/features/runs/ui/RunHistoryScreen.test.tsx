@@ -7,7 +7,7 @@ import { RunsProvider } from '../useRuns';
 import { RunHistoryScreen } from './RunHistoryScreen';
 import { darkPalette } from '../../../shared/theme/palette';
 import { ThemeProvider } from '../../../shared/theme/useTheme';
-import { formatDateTime } from '../../../shared/i18n/translate';
+import { formatDateTime } from '@checklister/i18n';
 
 const packing: RunHistoryEntry = {
   id: 'newer',

@@ -7,8 +7,7 @@ import { RunHistoryEntry } from '../domain/models';
 import { RunsProvider } from '../useRuns';
 import { RunHistoryScreen } from './RunHistoryScreen';
 import { ThemeProvider } from '../../../shared/theme/useTheme';
-import { I18nProvider } from '../../../shared/i18n/useI18n';
-import { formatDateTime, translate } from '../../../shared/i18n/translate';
+import { formatDateTime, I18nProvider, translate } from '@checklister/i18n';
 
 const packing: RunHistoryEntry = {
   id: 'packing-run',

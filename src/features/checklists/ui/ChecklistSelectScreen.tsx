@@ -11,7 +11,7 @@ import { IconButton } from '../../../shared/ui/IconButton';
 import { useTheme } from '../../../shared/theme/useTheme';
 import { createThemedStyles } from '../../../shared/theme/createThemedStyles';
 import { analytics } from '../../../shared/analytics/AnalyticsService';
-import { useI18n } from '../../../shared/i18n/useI18n';
+import { useI18n } from '@checklister/i18n';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'ChecklistSelect'>;
 

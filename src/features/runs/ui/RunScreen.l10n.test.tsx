@@ -13,7 +13,7 @@ import { RunScreen } from './RunScreen';
 import { createChecklist, createItem } from '../../checklists/domain/models';
 import { AsyncStorageRunRepository } from '../data/asyncStorageRunRepository';
 import { ThemeProvider } from '../../../shared/theme/useTheme';
-import { I18nProvider } from '../../../shared/i18n/useI18n';
+import { I18nProvider } from '@checklister/i18n';
 
 type TestParamList = { Placeholder: undefined; Run: { checklistId: string } };
 const Stack = createNativeStackNavigator<TestParamList>();

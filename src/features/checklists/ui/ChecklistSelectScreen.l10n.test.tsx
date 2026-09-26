@@ -15,7 +15,7 @@ import {
   useExternalSelection,
 } from '../useExternalSelection';
 import { ChecklistSelectScreen } from './ChecklistSelectScreen';
-import { I18nProvider, useI18n } from '../../../shared/i18n/useI18n';
+import { I18nProvider, useI18n } from '@checklister/i18n';
 import { getCountry, getLocales } from 'react-native-localize';
 
 jest.mock('../../../shared/analytics/AnalyticsService', () => ({

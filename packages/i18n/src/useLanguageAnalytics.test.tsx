@@ -1,5 +1,4 @@
 import { renderHook } from '@testing-library/react-native';
-import { analytics } from '../analytics/AnalyticsService';
 import type { LanguageResolution } from './resolveLanguage';
 import {
   resetLanguageAnalyticsForTesting,
@@ -13,21 +12,17 @@ const ENGLISH_US: LanguageResolution = {
 };
 
 describe('useLanguageAnalytics', () => {
-  let spy: jest.SpyInstance;
+  let spy: jest.Mock;
 
   beforeEach(() => {
     resetLanguageAnalyticsForTesting();
-    spy = jest.spyOn(analytics, 'logEvent').mockImplementation(() => {});
-  });
-
-  afterEach(() => {
-    spy.mockRestore();
+    spy = jest.fn();
   });
 
   async function renderWith(resolution: LanguageResolution) {
     return renderHook(
       (props: { resolution: LanguageResolution }) =>
-        useLanguageAnalytics(props.resolution),
+        useLanguageAnalytics(props.resolution, spy),
       { initialProps: { resolution } },
     );
   }

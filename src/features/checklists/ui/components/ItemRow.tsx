@@ -4,7 +4,7 @@ import { Item } from '../../domain/models';
 import { IconButton } from '../../../../shared/ui/IconButton';
 import { useTheme } from '../../../../shared/theme/useTheme';
 import { createThemedStyles } from '../../../../shared/theme/createThemedStyles';
-import { useI18n } from '../../../../shared/i18n/useI18n';
+import { useI18n } from '@checklister/i18n';
 
 // ChecklistDetailScreen's Sortable list positions rows using this fixed
 // slot height, so the row's actual rendered height plus its bottom gap must

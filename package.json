@@ -2,6 +2,9 @@
   "name": "CheckLister",
   "version": "0.13.0",
   "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
   "scripts": {
     "android": "react-native run-android",
     "ios": "react-native run-ios",

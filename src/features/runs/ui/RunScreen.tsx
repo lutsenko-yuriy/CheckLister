@@ -14,7 +14,7 @@ import { analytics } from '../../../shared/analytics/AnalyticsService';
 import { RunItemRow } from './components/RunItemRow';
 import { createThemedStyles } from '../../../shared/theme/createThemedStyles';
 import { deliverExternalRunResult } from '../externalRunCallbackDelivery';
-import { useI18n } from '../../../shared/i18n/useI18n';
+import { useI18n } from '@checklister/i18n';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Run'>;
 

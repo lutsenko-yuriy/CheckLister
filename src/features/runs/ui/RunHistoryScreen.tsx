@@ -6,7 +6,7 @@ import { analytics } from '../../../shared/analytics/AnalyticsService';
 import { createThemedStyles } from '../../../shared/theme/createThemedStyles';
 import { RunHistoryEntry } from '../domain/models';
 import { useRuns } from '../useRuns';
-import { useI18n } from '../../../shared/i18n/useI18n';
+import { useI18n } from '@checklister/i18n';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'RunHistory'>;
 
