@@ -19,11 +19,17 @@ class ScenarioRunnerTests(unittest.TestCase):
                         SCENARIOS_ARTIFACTS_DIR=str(self.path / 'artifacts'))
         self.write_tool('maestro', 'printf "%s\\n" "$@" > "$CALLS"\nexit "${RESULT:-0}"')
         self.env['CALLS'] = str(self.path / 'calls')
-        self.write_tool('xcrun', '''if [ "$2" = list ]; then
-  printf '%s' "$DEVICES"
-else
-  exit "${APP_RESULT:-0}"
-fi''')
+        self.container = self.path / 'container'
+        self.container.mkdir()
+        self.write_tool('xcrun', f'''case "$2" in
+  list) printf '%s' "$DEVICES" ;;
+  get_app_container)
+    if [ "$5" = app ]; then exit "${{APP_RESULT:-0}}"; fi
+    if [ "$5" = data ]; then printf '%s' "{self.container}"; fi
+    ;;
+  terminate) exit 0 ;;
+  spawn) exit 0 ;;
+esac''')
         self.env['DEVICES'] = json.dumps({'devices': {'com.apple.CoreSimulator.SimRuntime.iOS-26-5': [
             {'udid': 'test-device', 'state': 'Booted', 'isAvailable': True}]}})
 
@@ -81,6 +87,40 @@ fi''')
 
     def test_success_returns_zero(self):
         self.assertEqual(self.run_script('test-device').returncode, 0)
+
+    def test_runs_without_restoring_when_no_snapshot_exists(self):
+        result = self.run_script('test-device')
+        self.assertEqual(result.returncode, 0)
+        self.assertIn('No snapshot found', result.stdout)
+        self.assertEqual(list(self.container.iterdir()), [])
+
+    def test_restores_snapshot_onto_container_before_maestro_runs(self):
+        snapshot = self.path / 'artifacts/snapshot/test-device'
+        snapshot.mkdir(parents=True)
+        (snapshot / 'Documents').mkdir()
+        (snapshot / 'Documents' / 'runHistory.json').write_text('seeded')
+        (self.container / 'stale.json').write_text('leftover from a previous run')
+
+        result = self.run_script('test-device')
+
+        self.assertEqual(result.returncode, 0)
+        self.assertIn('Restoring app data from snapshot', result.stdout)
+        self.assertEqual(
+            (self.container / 'Documents' / 'runHistory.json').read_text(), 'seeded',
+        )
+        self.assertFalse((self.container / 'stale.json').exists())
+
+    def test_restore_does_not_wipe_the_containers_cache(self):
+        snapshot = self.path / 'artifacts/snapshot/test-device'
+        snapshot.mkdir(parents=True)
+        (self.container / 'Library' / 'Caches').mkdir(parents=True)
+        (self.container / 'Library' / 'Caches' / 'webkit.db').write_text('regenerable')
+
+        self.run_script('test-device')
+
+        self.assertTrue(
+            (self.container / 'Library' / 'Caches' / 'webkit.db').exists(),
+        )
 
 
 if __name__ == '__main__':

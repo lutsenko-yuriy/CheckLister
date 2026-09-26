@@ -16,5 +16,7 @@ _(nothing in progress)_
 
 ## Unscheduled
 
+- [CheL-100: Run Android Maestro scenarios in CI on PR open](https://github.com/lutsenko-yuriy/CheckLister/issues/100)
+- [CheL-98: Scenario flows fail on first tap right after a text-entry step (run-complete, run-history, drag-reorder)](https://github.com/lutsenko-yuriy/CheckLister/issues/98)
+- [CheL-97: Isolate Android Maestro scenarios from persistent test data](https://github.com/lutsenko-yuriy/CheckLister/issues/97)
 - [CheL-36: Externally started checklist runs with callback results](https://github.com/lutsenko-yuriy/CheckLister/issues/36)
-- [CheL-34: Isolate Maestro scenarios from persistent test data](https://github.com/lutsenko-yuriy/CheckLister/issues/34)
