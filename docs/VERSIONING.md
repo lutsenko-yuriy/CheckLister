@@ -8,7 +8,22 @@ This project follows [Semantic Versioning](https://semver.org/): `MAJOR.MINOR.PA
 **Minor** — new features added in a backwards-compatible manner.
 **Patch** — backwards-compatible bug fixes.
 
-Version bumps are manual and require user approval before any change.
+Version bumps are manual and require user approval before any change. The version file only
+ever moves for a `docs/CHANGELOG.md` entry carrying a `[user]` or `[app]` tag — see "The
+`[Unreleased]` section" below for where every other entry goes instead.
+
+## The `[Unreleased]` section
+
+A `docs/CHANGELOG.md` entry that carries no `[user]`/`[app]` tag (i.e. only `[ci]`, `[meta]`,
+`[test]`, and/or `[wip]`) never gets its own numbered `## [X.Y.Z]` heading — it's appended as a
+bullet under a `## [Unreleased]` heading at the top of the file instead (create the heading if it
+doesn't exist yet), and `package.json`'s version is left untouched. This generalizes the
+`[wip]`-only convention `docs/workflows/MULTI_WU.md` already describes for intermediate multi-WU
+merges to every non-user-facing entry, single-WU or not — one mechanism, not two.
+
+The next time an entry *does* carry `[user]`/`[app]`, `ship` converts `## [Unreleased]` into the
+real `## [X.Y.Z] — YYYY-MM-DD (PR #N merged)` heading, folding in whatever bullets were already
+waiting there alongside the new one, and bumps the version to match.
 
 ## CI/CD
 
@@ -29,9 +44,12 @@ commit warrants a release build — both conditions must hold:
    (see `docs/workflows/MULTI_WU.md`'s CHANGELOG-tag rules — `[test]`,
    `[meta]`, `[ci]`, and `[wip]` never trigger a release).
 
-Any repository state the gate can't classify (a decreased version, a
-malformed/missing CHANGELOG tag, a shallow checkout) fails the job loudly
-rather than silently skipping.
+Any repository state the gate can't classify (a malformed/missing CHANGELOG
+tag, a shallow checkout, or a decreased version paired with a `[user]`/`[app]`
+entry) fails the job loudly rather than silently skipping. A decreased version
+paired with a non-release tag is treated as a deliberate correction (see "The
+`[Unreleased]` section" above) rather than a failure — it never triggers a
+release, same as any other non-release-tagged entry.
 
 The workflow can also be run manually (`workflow_dispatch`, e.g. via
 "Run workflow" in the Actions tab or `gh workflow run "iOS release"`),
