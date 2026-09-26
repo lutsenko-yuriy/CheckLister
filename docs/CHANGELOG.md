@@ -13,6 +13,11 @@ A record of all versioned releases. For planned work and known issues, see @docs
 - ...
 -->
 
+## [Unreleased]
+
+### Fixed
+- [wip] #92 (WU1): TestFlight's "What to Test" was silently dropped because `pilot` returned before Apple finished processing the build — `skip_waiting_for_build_processing` is removed so the changelog actually sets, and the `testflight` job now has a `timeout-minutes: 45` safety net in case a stuck previous build's "Processing" state makes the wait hang (fastlane/fastlane#6069).
+
 ## [0.13.1] — 2026-09-25 (PR #88 merged)
 
 ### Changed

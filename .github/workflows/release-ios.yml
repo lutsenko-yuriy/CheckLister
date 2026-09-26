@@ -31,6 +31,12 @@ jobs:
     if: github.event_name == 'workflow_dispatch' || needs.gate.outputs.should_release == 'true'
     runs-on: macos-26
     environment: testflight
+    # pilot now waits for Apple to finish processing the build (CHL-3) before
+    # setting the changelog - normally ~15 min, but a previous build stuck in
+    # ASC's "Processing" state can make that wait hang indefinitely
+    # (fastlane/fastlane#6069). This bounds the job so a stuck wait fails
+    # loudly instead of silently eating GitHub's 6-hour default.
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v7
 
