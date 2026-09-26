@@ -35,7 +35,7 @@ Each WU gets its own branch (`feature/N/A-XX-WUN-<short>`, where N is the WU num
 
 Use `[wip]` as the classification tag for all intermediate WU CHANGELOG entries — every WU except the final one. `[wip]` suppresses builds and distribution so testers do not receive partial builds mid-ticket. The final WU uses whichever tag actually reflects what the ticket produced: a user-facing/app-changing tag if it's user-facing (this is when CI builds and distributes, and "What's New" aggregates all user-facing content back to the last published tag), or an internal-only tag if the ticket is pure process/CI/tooling work end-to-end with nothing user-facing to ship.
 
-An intermediate WU's `[wip]` entry goes under a `## [Unreleased]` heading at the top of `docs/CHANGELOG.md` — create that heading if it doesn't exist yet rather than appending into the most recent numbered `## [X.Y.Z]` entry (which is already-released). The final WU's `ship` pass converts `## [Unreleased]` into the real `## [X.Y.Z] — YYYY-MM-DD` entry.
+An intermediate WU's `[wip]` entry follows the general `## [Unreleased]` rule in `docs/VERSIONING.md` — same as any non-`[user]`/`[app]` entry, single-WU ticket or not. The final WU's `ship` pass converts `## [Unreleased]` into the real `## [X.Y.Z] — YYYY-MM-DD` entry, same as any other `[user]`/`[app]` entry would.
 
 ## WU cycle (WU1 onwards)
 

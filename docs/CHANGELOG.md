@@ -21,8 +21,6 @@ A record of all versioned releases. For planned work and known issues, see @docs
 ### Added
 - [wip] #92 (WU2): New `draft-release-notes` skill drafts plain-language `[user]` "What's New"/"What to Test" CHANGELOG bullets for a PR, self-checked against a jargon/tone/promotional-language checklist; wired inline into `ship`.
 
-## [0.13.1] — 2026-09-25 (PR #88 merged)
-
 ### Changed
 - [ci] CHL-2: Fastlane's `beta` lane now auto-assigns the "Testers" TestFlight group on upload, instead of requiring it to be assigned manually in App Store Connect after every build.
 

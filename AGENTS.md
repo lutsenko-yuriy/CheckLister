@@ -75,7 +75,7 @@ recurring convention or smell is discovered.
 
 ## Versioning
 
-Update the version name whenever a new `CHANGELOG.md` entry is added — no separate approval needed.
+Update the version name whenever a new `CHANGELOG.md` entry carries a `[user]`/`[app]` tag — no separate approval needed. Every other entry goes under `## [Unreleased]` instead and never touches the version file (see `docs/VERSIONING.md`).
 CI handles build numbers automatically — do not touch.
 Details: @docs/VERSIONING.md
 
