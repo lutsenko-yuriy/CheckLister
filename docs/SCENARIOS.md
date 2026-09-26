@@ -247,8 +247,25 @@ testing. Maestro's `swipe` command also doesn't accept a `start`/`end`
 element selector (`id`/`text`) at all — the flow schema only parses plain
 point/percentage coordinates — so `checklist-drag-reorder-ios.yaml` swipes
 between the handles' known screen percentages (fixed item row height, fixed
-vertical offset above the list) with `duration: 4000`, which reliably
-triggers and completes the drag.
+vertical offset above the list).
+
+CheL-98 found two compounding problems with the original `duration: 4000`
+percentages: one swipe's start coordinate (`48%`) silently missed its
+target drag-handle by ~7.5pt on a 402x874pt screen — Maestro reported the
+swipe as `COMPLETED` while the app received no touch on the handle at all,
+so nothing moved — and even once corrected to land on the handle's
+measured center, the drag still failed to activate in roughly a third of
+runs at `4000`/`8000ms`, a residual `activateAfterLongPress(200)` race
+(Maestro's `swipe` has no stationary hold before it starts interpolating
+toward the end point, so how much the touch has moved by the 200ms mark is
+timing-dependent, not purely a function of the coordinates). `duration:
+12000` on both swipes cleared this reliably (10/10 standalone runs plus a
+full-suite pass, split across an iPhone 17 and an iPhone 17 Pro simulator).
+Maestro reporting a `swipe`/`tapOn` as completed is therefore not
+sufficient evidence the app actually received the gesture — a silent no-op
+swipe only surfaces via the following order assertion, so pull the
+`screen-hierarchy` debug artifact to check actual element bounds before
+assuming a coordinate is correct.
 
 Persistence-across-restart flows (CheL-30) use `stopApp` + `launchApp:
 clearState: false` to simulate a real app-process kill without wiping
@@ -398,3 +415,22 @@ three flows run serially; initial driver startup adds overhead to wall time.
 - **253 Jest tests**, **17 runner/guard contract tests**
   (`test_scenarios_ios.py`, `test_scenarios_android.py`,
   `test_maestro_flow_conventions.py`), and ESLint passed. No `src/` changes.
+
+## Verified CheL-98 fix — 2026-09-26
+
+- `checklist-drag-reorder-ios.yaml` was intermittently/deterministically
+  failing (see "Real drag-to-reorder" above for the root cause: a
+  coordinate miss plus a residual gesture-activation timing race).
+  `duration: 12000` on both swipes, with the second swipe's start
+  coordinate corrected from `48%` to `50%`, passed **10/10** standalone
+  runs split across an iPhone 17 and an iPhone 17 Pro simulator (402x874pt,
+  same logical resolution on both), plus a full 13-flow suite run
+  (**13/13** passed, 8m 8s) on a Release build.
+- CheL-98 also reported an intermittent swallowed tap on
+  `run-complete.yaml`/`run-history.yaml`'s "Complete the checklist" button,
+  hypothesized as a lingering keyboard-dismiss gesture. Not reproduced in
+  this investigation (9 runs across the same two simulators/builds) — left
+  open in the ticket pending further evidence rather than an unverified
+  code fix.
+- ESLint and the `test_maestro_flow_conventions.py` contract test passed.
+  No `src/` changes.

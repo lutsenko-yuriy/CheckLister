@@ -17,6 +17,7 @@ A record of all versioned releases. For planned work and known issues, see @docs
 
 ### Fixed
 
+- [test] #98: `checklist-drag-reorder-ios.yaml`'s two drag swipes were unreliable — one swipe's fixed start coordinate (`48%`) missed the target drag-handle entirely on-device, and even once corrected both swipes could still lose a timing race against `react-native-reanimated-dnd`'s `activateAfterLongPress(200)` gesture activation. Corrected the coordinate and slowed both swipes to `duration: 12000`, verified 10/10 across an iPhone 17 and an iPhone 17 Pro simulator plus a full-suite pass. No `src/` change; the reported "Complete the checklist" tap-swallow symptom on `run-complete.yaml`/`run-history.yaml` remains open in #98, unreproduced.
 - [wip] #92 (WU1): TestFlight's "What to Test" was silently dropped because `pilot` returned before Apple finished processing the build — `skip_waiting_for_build_processing` is removed so the changelog actually sets, and the `testflight` job now has a `timeout-minutes: 45` safety net in case a stuck previous build's "Processing" state makes the wait hang (fastlane/fastlane#6069).
 - [meta] #92 (WU3): The app version now only bumps for a `[user]`/`[app]` CHANGELOG entry — every other tag files under `## [Unreleased]` instead, generalizing the multi-WU `[wip]` convention to all non-user-facing changes. Also corrects CHL-2's `0.13.1` version bump (an earlier `[ci]`-only entry with nothing user-facing) back to `0.13.0`, and updates `release_gate.py` so a deliberate version-decrease correction like this one no longer fails CI.
 
