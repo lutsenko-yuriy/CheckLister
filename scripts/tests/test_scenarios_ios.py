@@ -110,6 +110,18 @@ esac''')
         )
         self.assertFalse((self.container / 'stale.json').exists())
 
+    def test_restore_does_not_wipe_the_containers_cache(self):
+        snapshot = self.path / 'artifacts/snapshot/test-device'
+        snapshot.mkdir(parents=True)
+        (self.container / 'Library' / 'Caches').mkdir(parents=True)
+        (self.container / 'Library' / 'Caches' / 'webkit.db').write_text('regenerable')
+
+        self.run_script('test-device')
+
+        self.assertTrue(
+            (self.container / 'Library' / 'Caches' / 'webkit.db').exists(),
+        )
+
 
 if __name__ == '__main__':
     unittest.main()

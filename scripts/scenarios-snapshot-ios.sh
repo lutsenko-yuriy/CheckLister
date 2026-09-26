@@ -19,5 +19,7 @@ scenarios_container="$(xcrun simctl get_app_container "$scenarios_device" "$scen
 scenarios_artifacts="${SCENARIOS_ARTIFACTS_DIR:-$scenarios_root/artifacts/scenarios-ios}"
 scenarios_snapshot_dir="$scenarios_artifacts/snapshot/$scenarios_device"
 mkdir -p "$scenarios_snapshot_dir"
-rsync -a --delete "$scenarios_container/" "$scenarios_snapshot_dir/"
+# Library/Caches is regenerable and irrelevant to isolation correctness —
+# excluding it keeps the snapshot smaller without affecting what gets restored.
+rsync -a --delete --exclude 'Library/Caches' "$scenarios_container/" "$scenarios_snapshot_dir/"
 echo "Captured app data snapshot: $scenarios_snapshot_dir"

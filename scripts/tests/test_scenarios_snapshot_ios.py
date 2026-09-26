@@ -19,6 +19,8 @@ class ScenarioSnapshotTests(unittest.TestCase):
         self.container = self.path / 'container'
         (self.container / 'Documents').mkdir(parents=True)
         (self.container / 'Documents' / 'RCTAsyncLocalStorage_V1').write_text('fixture')
+        (self.container / 'Library' / 'Caches').mkdir(parents=True)
+        (self.container / 'Library' / 'Caches' / 'webkit.db').write_text('regenerable')
         self.env = dict(os.environ, PATH=f'{self.path}:' + os.environ['PATH'],
                         SCENARIOS_ARTIFACTS_DIR=str(self.path / 'artifacts'))
         self.write_tool('xcrun', f'''case "$2" in
@@ -79,6 +81,12 @@ esac''')
 
         self.assertFalse((snapshot / 'stale.txt').exists())
         self.assertTrue((snapshot / 'Documents' / 'RCTAsyncLocalStorage_V1').exists())
+
+    def test_excludes_library_caches_from_the_snapshot(self):
+        self.run_script('test-device')
+
+        snapshot = self.path / 'artifacts/snapshot/test-device'
+        self.assertFalse((snapshot / 'Library' / 'Caches').exists())
 
 
 if __name__ == '__main__':

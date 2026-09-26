@@ -27,7 +27,9 @@ if [[ -d "$scenarios_snapshot_dir" ]]; then
   echo "Restoring app data from snapshot: $scenarios_snapshot_dir"
   xcrun simctl terminate "$scenarios_device" "$scenarios_app" >/dev/null 2>&1 || true
   scenarios_container="$(xcrun simctl get_app_container "$scenarios_device" "$scenarios_app" data)"
-  rsync -a --delete "$scenarios_snapshot_dir/" "$scenarios_container/"
+  # Excluded from the snapshot itself (see scenarios-snapshot-ios.sh) — exclude
+  # it here too so restore doesn't wipe the container's regenerable cache.
+  rsync -a --delete --exclude 'Library/Caches' "$scenarios_snapshot_dir/" "$scenarios_container/"
 else
   echo 'No snapshot found for this device — running without restoring app data. See npm run scenarios:snapshot:ios in docs/SCENARIOS.md.'
 fi

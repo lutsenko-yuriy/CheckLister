@@ -170,17 +170,20 @@ one level up, on the app's own sandboxed data directory as a whole:
    `npm run scenarios:snapshot:ios -- <UDID>`. This terminates the app,
    resolves its container via `xcrun simctl get_app_container <UDID>
    com.checklister.checklisterApp data`, and `rsync -a --delete`s it into
-   `artifacts/scenarios-ios/snapshot/<UDID>/` (gitignored). Re-run it any
-   time you want to refresh that baseline.
+   `artifacts/scenarios-ios/snapshot/<UDID>/` (gitignored), excluding
+   `Library/Caches` (regenerable, irrelevant to isolation correctness — keeps
+   the snapshot smaller). Re-run it any time you want to refresh that
+   baseline.
 2. **Every suite run restores that baseline first, not after**:
    `npm run scenarios:ios` checks for a snapshot for the selected device
    before invoking Maestro; if one exists, it terminates the app and
-   `rsync -a --delete`s the snapshot back onto the live container, so the
-   suite always starts from the identical, byte-for-byte state the snapshot
-   captured — no `Scenario ...` history entries or checklists from a prior
-   run can ever accumulate. If no snapshot has been captured yet for that
-   device, the runner says so and proceeds without restoring, so first-time
-   use is unaffected.
+   `rsync -a --delete`s the snapshot back onto the live container (same
+   `Library/Caches` exclusion, so restore never wipes the container's
+   regenerable cache), so the suite always starts from the identical
+   baseline the snapshot captured for everything else — no `Scenario ...`
+   history entries or checklists from a prior run can ever accumulate. If no
+   snapshot has been captured yet for that device, the runner says so and
+   proceeds without restoring, so first-time use is unaffected.
 3. **Failure diagnosis is unaffected, and easier**: because restore happens
    before a run rather than clearing up after one, a failed run's on-device
    state — its fixture checklist, any history it created, an in-progress
