@@ -10,7 +10,7 @@ import { ItemRow, ITEM_ROW_HEIGHT } from './components/ItemRow';
 import { IconButton } from '../../../shared/ui/IconButton';
 import { useTheme } from '../../../shared/theme/useTheme';
 import { createThemedStyles } from '../../../shared/theme/createThemedStyles';
-import { useI18n } from '../../../shared/i18n/useI18n';
+import { useI18n } from '@checklister/i18n';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'ChecklistDetail'>;
 

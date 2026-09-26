@@ -7,9 +7,7 @@ import { Checklist } from '../features/checklists/domain/models';
 import { startRun } from '../features/runs/domain/models';
 import { deliverExternalRunResult } from '../features/runs/externalRunCallbackDelivery';
 import { deliverExternalSelectResult } from '../features/checklists/externalSelectCallbackDelivery';
-import { I18nProvider } from '../shared/i18n/useI18n';
-import { translate } from '../shared/i18n/translate';
-import type { AppLanguage } from '../shared/i18n/languages';
+import { I18nProvider, translate, type AppLanguage } from '@checklister/i18n';
 import { ExternalLinkCoordinator } from './ExternalLinkCoordinator';
 import { RootStackParamList } from './types';
 

@@ -15,7 +15,7 @@ import { HomeScreen } from './HomeScreen';
 import { RunsProvider } from '../../runs/useRuns';
 import { AsyncStorageRunRepository } from '../../runs/data/asyncStorageRunRepository';
 import { ThemeProvider } from '../../../shared/theme/useTheme';
-import { I18nProvider } from '../../../shared/i18n/useI18n';
+import { I18nProvider } from '@checklister/i18n';
 
 function mockOS(languageTag: string) {
   const [languageCode, countryCode = ''] = languageTag.split('-');

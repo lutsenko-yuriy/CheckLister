@@ -10,7 +10,7 @@ import { deliverExternalRunResult } from '../features/runs/externalRunCallbackDe
 import { useRuns } from '../features/runs/useRuns';
 import { analytics } from '../shared/analytics/AnalyticsService';
 import { parseExternalLinkKind } from '../shared/links/externalLinkUrls';
-import { useI18n } from '../shared/i18n/useI18n';
+import { useI18n } from '@checklister/i18n';
 import { useExternalLinkQueue } from './useExternalLinkQueue';
 import { RootStackParamList } from './types';
 

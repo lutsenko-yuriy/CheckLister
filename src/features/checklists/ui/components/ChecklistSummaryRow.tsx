@@ -2,7 +2,7 @@ import React from 'react';
 import { Pressable, StyleProp, Text, ViewStyle } from 'react-native';
 import { Checklist } from '../../domain/models';
 import { createThemedStyles } from '../../../../shared/theme/createThemedStyles';
-import { useI18n } from '../../../../shared/i18n/useI18n';
+import { useI18n } from '@checklister/i18n';
 
 export function ChecklistSummaryRow({
   checklist,

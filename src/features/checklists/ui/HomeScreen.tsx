@@ -8,7 +8,7 @@ import { IconButton } from '../../../shared/ui/IconButton';
 import { useTheme } from '../../../shared/theme/useTheme';
 import { createThemedStyles } from '../../../shared/theme/createThemedStyles';
 import { useRuns } from '../../runs/useRuns';
-import { useI18n } from '../../../shared/i18n/useI18n';
+import { useI18n } from '@checklister/i18n';
 import { ChecklistSummaryRow } from './components/ChecklistSummaryRow';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Home'>;
