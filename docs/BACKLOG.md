@@ -8,7 +8,7 @@ The `## In Progress` section at the top is the one exception — it is maintaine
 
 ## In Progress
 
-- [#92: Consolidated: TestFlight changelog fix, draft-release-notes skill, version-bump rule](https://github.com/lutsenko-yuriy/CheckLister/issues/92) — WU1 shipped (PR #93); WU2 (draft-release-notes skill) and WU3 (version-bump rule) remain.
+- [#92: Consolidated: TestFlight changelog fix, draft-release-notes skill, version-bump rule](https://github.com/lutsenko-yuriy/CheckLister/issues/92) — WU1 and WU2 shipped (PRs #93, #94); WU3 (version-bump rule, final WU) remains.
 
 ---
 

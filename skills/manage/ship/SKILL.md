@@ -29,13 +29,32 @@ Move each issue linked to the PR/MR to **Done** (or the equivalent closed state)
 
 ### 2. Add a CHANGELOG entry
 
+Invoke `draft-release-notes` inline for this PR (pass the PR number already in hand from step 1).
+It returns zero or more approved, plain-language `[user]` bullets — possibly empty, which is a
+valid outcome for a PR with no user-visible change.
+
 Open `docs/CHANGELOG.md` and prepend a new entry at the top:
 
 ```markdown
 ## [X.Y.Z] — YYYY-MM-DD
 
 ### Added / Changed / Fixed
-- N/A-XX: <one-line summary of what changed>
+- [user] N/A-XX: <drafted bullet from draft-release-notes>
+- [user] N/A-XX: <another drafted bullet, if more than one>
+```
+
+If `draft-release-notes` returned an empty list (no user-visible change), fall back to the
+original single-bullet form instead, tagged with whichever release-worthy classification
+actually fits (`[app]`, `[ci]`, `[meta]` — never `[wip]`/`[test]` here: this step is only
+reached for the ticket's final WU, where `ship` proceeds to an unconditional version bump in
+step 4, and `[wip]`/`[test]` are reserved for intermediate WUs that skip `ship` entirely —
+see `docs/workflows/MULTI_WU.md` and `docs/VERSIONING.md`):
+
+```markdown
+## [X.Y.Z] — YYYY-MM-DD
+
+### Added / Changed / Fixed
+- [app] N/A-XX: <one-line technical summary of what changed>
 ```
 
 Follow semantic versioning (`docs/VERSIONING.md`): patch for bug fixes, minor for new features, major for breaking changes.
