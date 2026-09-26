@@ -81,17 +81,25 @@ def extract_newest_entry_tags(changelog_text):
 
 
 def decide(version_before, version_after, tags):
-    """Returns True (release) / False (skip); raises ReleaseGateError to fail loudly."""
-    if version_after < version_before:
-        before_str = '.'.join(map(str, version_before))
-        after_str = '.'.join(map(str, version_after))
-        raise ReleaseGateError(
-            f'version decreased ({before_str} -> {after_str}) - '
-            'looks like a bad merge or revert, not a release'
-        )
+    """Returns True (release) / False (skip); raises ReleaseGateError to fail loudly.
+
+    A decreased version only fails loudly when paired with a release-worthy tag - that
+    combination would mean actually releasing a lower version, which is always a mistake.
+    Paired with a non-release tag (`docs/VERSIONING.md`'s `## [Unreleased]` convention: the
+    version file only ever moves for a `[user]`/`[app]` entry), a decrease is a deliberate,
+    non-releasing correction, e.g. unwinding a version bump that should never have happened -
+    same as any other non-release-tagged change, it's a no-op for this gate.
+    """
     if version_after == version_before:
         return False
     if tags & RELEASE_TAGS:
+        if version_after < version_before:
+            before_str = '.'.join(map(str, version_before))
+            after_str = '.'.join(map(str, version_after))
+            raise ReleaseGateError(
+                f'version decreased ({before_str} -> {after_str}) while the newest '
+                'CHANGELOG entry is release-tagged - looks like a bad merge or revert, not a release'
+            )
         return True
     if tags & NO_RELEASE_TAGS:
         return False

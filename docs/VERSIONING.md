@@ -44,9 +44,12 @@ commit warrants a release build — both conditions must hold:
    (see `docs/workflows/MULTI_WU.md`'s CHANGELOG-tag rules — `[test]`,
    `[meta]`, `[ci]`, and `[wip]` never trigger a release).
 
-Any repository state the gate can't classify (a decreased version, a
-malformed/missing CHANGELOG tag, a shallow checkout) fails the job loudly
-rather than silently skipping.
+Any repository state the gate can't classify (a malformed/missing CHANGELOG
+tag, a shallow checkout, or a decreased version paired with a `[user]`/`[app]`
+entry) fails the job loudly rather than silently skipping. A decreased version
+paired with a non-release tag is treated as a deliberate correction (see "The
+`[Unreleased]` section" above) rather than a failure — it never triggers a
+release, same as any other non-release-tagged entry.
 
 The workflow can also be run manually (`workflow_dispatch`, e.g. via
 "Run workflow" in the Actions tab or `gh workflow run "iOS release"`),

@@ -36,9 +36,20 @@ class DecideTests(unittest.TestCase):
         with self.assertRaises(release_gate.ReleaseGateError):
             release_gate.decide((1, 0, 0), (1, 0, 1), {'bogus'})
 
-    def test_version_decrease_fails_loudly(self):
+    def test_version_decrease_with_release_tag_fails_loudly(self):
         with self.assertRaises(release_gate.ReleaseGateError):
             release_gate.decide((1, 0, 1), (1, 0, 0), {'user'})
+        with self.assertRaises(release_gate.ReleaseGateError):
+            release_gate.decide((1, 0, 1), (1, 0, 0), {'app'})
+
+    def test_version_decrease_with_only_internal_tags_skips(self):
+        for tags in ({'meta'}, {'ci'}, {'test'}, {'wip'}, {'meta', 'wip'}):
+            with self.subTest(tags=tags):
+                self.assertFalse(release_gate.decide((1, 0, 1), (1, 0, 0), tags))
+
+    def test_version_decrease_with_unrecognised_tag_fails_loudly(self):
+        with self.assertRaises(release_gate.ReleaseGateError):
+            release_gate.decide((1, 0, 1), (1, 0, 0), set())
 
 
 class ParseVersionTests(unittest.TestCase):
