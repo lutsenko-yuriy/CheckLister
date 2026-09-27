@@ -14,6 +14,26 @@ scenarios_resolve_adb
 scenarios_validate_device_and_app "$scenarios_serial"
 
 scenarios_artifacts="${SCENARIOS_ARTIFACTS_DIR:-$scenarios_root/artifacts/scenarios-android}"
+scenarios_avd_name="$(scenarios_resolve_avd_name "$scenarios_serial")"
+scenarios_snapshot_tar="$scenarios_artifacts/snapshot/$scenarios_avd_name.tar"
+if [[ -f "$scenarios_snapshot_tar" ]]; then
+  echo "Restoring app data from snapshot: $scenarios_snapshot_tar"
+  scenarios_ensure_root "$scenarios_serial"
+  "$scenarios_adb" -s "$scenarios_serial" shell am force-stop "$scenarios_app" >/dev/null 2>&1 || true
+  # Explicit allowlist, not `rm -rf *`, so app_* dirs, cache, code_cache and
+  # lib are never touched by restore — the equivalent of iOS's
+  # `rsync -a --delete`, without which a record from a failed prior run
+  # would survive into the next.
+  "$scenarios_adb" -s "$scenarios_serial" shell rm -rf \
+    "/data/data/$scenarios_app/files" "/data/data/$scenarios_app/databases" \
+    "/data/data/$scenarios_app/shared_prefs" "/data/data/$scenarios_app/no_backup"
+  "$scenarios_adb" -s "$scenarios_serial" push "$scenarios_snapshot_tar" /data/local/tmp/scenarios-restore.tar >/dev/null
+  "$scenarios_adb" -s "$scenarios_serial" shell tar -x -C "/data/data/$scenarios_app" -f /data/local/tmp/scenarios-restore.tar
+  "$scenarios_adb" -s "$scenarios_serial" shell rm /data/local/tmp/scenarios-restore.tar >/dev/null 2>&1 || true
+else
+  echo 'No snapshot found for this AVD — running without restoring app data. See npm run scenarios:snapshot:android in docs/SCENARIOS.md.'
+fi
+
 mkdir -p "$scenarios_artifacts"
 scenarios_output="$(mktemp -d "$scenarios_artifacts/run-XXXXXXXX")"
 echo "Scenario artifacts: $scenarios_output"
