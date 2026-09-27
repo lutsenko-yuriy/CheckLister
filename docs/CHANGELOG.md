@@ -18,6 +18,7 @@ A record of all versioned releases. For planned work and known issues, see @docs
 ### Changed
 
 - [wip] #105 (WU1): Local iOS/Android scenario runners now accept a comma-separated device list and split the suite across them via Maestro's own `--udid`/`--shard-split`, restoring each device's own snapshot first — a real sharded iOS run measured a 41% wall-time reduction. Single-device invocation is unchanged. No product/`src/` change.
+- [test] #105 (WU2): Re-probed `checklist-drag-reorder-ios.yaml`'s swipe duration now that CheL-98's coordinate fix is in place; lowered both swipes from `12000ms` to `8000ms` (10/10 clean at 8000ms, 9/10 failing at 4000ms — a 4000ms margin over the failure edge). No product/`src/` change.
 - [test] #97: Local Android Maestro scenarios now capture and restore an app-data snapshot (`npm run scenarios:snapshot:android`) before every suite run, the same restore-before-run mechanism #34 added for iOS — via `adb root` + `tar` rather than `rsync`, since Android app-private storage isn't host-readable and this suite's Release build is never `run-as`-debuggable, and keyed by AVD name (not the port-based emulator serial) to avoid cross-AVD snapshot mix-ups. `run-history.yaml`/`run-history-discard.yaml` are now also tagged `android` (previously `ios`-only, promoted alongside the mechanism that isolates their persistent state) — see `docs/SCENARIOS.md`'s "Isolating persistent test data" section. No product/`src/` change.
 
 ### Fixed
