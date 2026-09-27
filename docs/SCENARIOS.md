@@ -587,7 +587,7 @@ three flows run serially; initial driver startup adds overhead to wall time.
   with a 4000ms margin over the nearest known-failing value (well past the
   1000ms floor this WU's plan required). Did not narrow further between
   `4000ms` and `8000ms` — the margin requirement was already satisfied and
-  tighter values shrinks the buffer without shrinking suite time by a
+  tighter values shrink the buffer without shrinking suite time by a
   useful amount.
 - Closed with one full 13-flow suite run on the committed value:
   **13/13 passed, 8m 9s** (drag-reorder flow itself: 50s, down from the
