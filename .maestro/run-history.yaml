@@ -2,6 +2,7 @@ appId: ${APP_ID}
 name: Completed run appears in filtered and global history
 tags:
   - ios
+  - android
 ---
 - runFlow: helpers/create-checklist.yaml
 - assertNotVisible: Run history

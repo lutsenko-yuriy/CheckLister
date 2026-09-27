@@ -15,7 +15,8 @@
     "typecheck": "tsc --noEmit",
     "scenarios:ios": "bash scripts/scenarios-ios.sh",
     "scenarios:snapshot:ios": "bash scripts/scenarios-snapshot-ios.sh",
-    "scenarios:android": "bash scripts/scenarios-android.sh"
+    "scenarios:android": "bash scripts/scenarios-android.sh",
+    "scenarios:snapshot:android": "bash scripts/scenarios-snapshot-android.sh"
   },
   "dependencies": {
     "@react-native-async-storage/async-storage": "^3.1.1",
