@@ -16,7 +16,8 @@ _(nothing in progress)_
 
 ## Unscheduled
 
-- [CheL-102: Research: speed up the Maestro iOS scenario suite (8.5min full run)](https://github.com/lutsenko-yuriy/CheckLister/issues/102)
+- [CheL-105: Implement CheL-102 findings: local suite sharding + drag-reorder swipe-duration reduction](https://github.com/lutsenko-yuriy/CheckLister/issues/105)
+- [CheL-104: Investigate Android equivalents for checklist-persistence-restart and run-gesture flows](https://github.com/lutsenko-yuriy/CheckLister/issues/104)
 - [CheL-100: Run Android Maestro scenarios in CI on PR open](https://github.com/lutsenko-yuriy/CheckLister/issues/100)
 - [CheL-98: Scenario flows fail on first tap right after a text-entry step (run-complete, run-history, drag-reorder)](https://github.com/lutsenko-yuriy/CheckLister/issues/98)
 - [CheL-36: Externally started checklist runs with callback results](https://github.com/lutsenko-yuriy/CheckLister/issues/36)
