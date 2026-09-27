@@ -17,6 +17,7 @@ Full product specifications: docs/PRODUCT_SPEC.md
 | docs/BACKLOG.md | Known issues and remaining work not yet released |
 | docs/CHANGELOG.md | Released version history |
 | docs/VERSIONING.md | Version numbering rules and CI/CD pipeline |
+| docs/CONSTRAINTS.md | Standing team/stage/device constraints — referenced by research tickets for trade-off evaluation |
 | docs/ANALYTICS_EVENTS.md | Analytics event catalogue — events, screen views, and their properties |
 | CODE_STYLE.md | TypeScript and React Native coding practices and code-smell catalogue |
 | docs/MODEL_TIERS.md | Effort Tier and Reasoning Depth vocabulary; active model → tier mapping |
@@ -73,6 +74,14 @@ sources of truth where their configured rules apply.
 first feature implementation and extend its code-smell catalogue whenever a
 recurring convention or smell is discovered.
 
+## Constraints
+
+Standing team/stage/device constraints for evaluating trade-offs: @docs/CONSTRAINTS.md
+
+`docs/CONSTRAINTS.md` is a required project-bootstrap artifact — should have existed from
+this project's start, not been discovered missing mid-ticket (CheL-102). Create/update it
+whenever a standing constraint is discovered or changes.
+
 ## Versioning
 
 Update the version name whenever a new `CHANGELOG.md` entry carries a `[user]`/`[app]` tag — no separate approval needed. Every other entry goes under `## [Unreleased]` instead and never touches the version file (see `docs/VERSIONING.md`).
@@ -83,12 +92,13 @@ Details: @docs/VERSIONING.md
 
 At the beginning of every new session, before doing anything else:
 
-1. Ensure your PM tool MCP (if used) is authenticated. If MCP tools for your PM tool are unavailable, run `/mcp` to trigger the OAuth flow — see `CLAUDE.local.md` for setup notes.
-2. Check `CLAUDE.local.md` for an `## Active communication style` section and silently load that style (see `styles/`). If absent, each skill will use its own `output_style` — no global default.
-3. Invoke the `summarize` skill to present the current backlog.
-4. Run `scripts/checkup/due.py --format=session`. If it reports a tier as due, recommend running `/checkup` before picking up a new ticket, alongside the backlog summary.
-5. The skill will summarise what has been done and what is remaining, then ask *"What goes into the next release? Pick an existing ticket or describe something new."*
-6. Wait for the user's answer before proceeding. If the user wants to describe something new, invoke the `brief` skill before any planning begins.
+1. Verify every file flagged as a "required project-bootstrap artifact" in this document exists (currently: `CODE_STYLE.md`, `docs/CONSTRAINTS.md`). If any is missing, flag it to the user before continuing rather than silently working around the gap.
+2. Ensure your PM tool MCP (if used) is authenticated. If MCP tools for your PM tool are unavailable, run `/mcp` to trigger the OAuth flow — see `CLAUDE.local.md` for setup notes.
+3. Check `CLAUDE.local.md` for an `## Active communication style` section and silently load that style (see `styles/`). If absent, each skill will use its own `output_style` — no global default.
+4. Invoke the `summarize` skill to present the current backlog.
+5. Run `scripts/checkup/due.py --format=session`. If it reports a tier as due, recommend running `/checkup` before picking up a new ticket, alongside the backlog summary.
+6. The skill will summarise what has been done and what is remaining, then ask *"What goes into the next release? Pick an existing ticket or describe something new."*
+7. Wait for the user's answer before proceeding. If the user wants to describe something new, invoke the `brief` skill before any planning begins.
 
 ## Workflow
 
