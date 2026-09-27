@@ -67,11 +67,15 @@ System Events UI scripting.
 ## Android setup
 
 Install Android Studio (or the standalone SDK) with an emulator system image,
-the project's JS dependencies, Java 17+, and Maestro CLI. `adb` must resolve
-either on `PATH` or under `$ANDROID_HOME`/`$ANDROID_SDK_ROOT`'s
-`platform-tools/` — `scripts/scenarios-android.sh` falls back to that path
-when `adb` is not on `PATH` directly (this shell does not export
-`ANDROID_HOME` by default):
+the project's JS dependencies, Java 17+, and Maestro CLI. **The system image
+must be tagged "Google APIs", not "Google Play"** (check in Android Studio's
+AVD selector, or `tag.id` in `~/.android/avd/<name>.avd/config.ini`) — CheL-97's
+snapshot isolation mechanism (see "Isolating persistent test data" below)
+needs `adb root`, which only a Google APIs (userdebug) image permits; a
+Google Play image refuses it. `adb` must resolve either on `PATH` or under
+`$ANDROID_HOME`/`$ANDROID_SDK_ROOT`'s `platform-tools/` —
+`scripts/scenarios-android.sh` falls back to that path when `adb` is not on
+`PATH` directly (this shell does not export `ANDROID_HOME` by default):
 
 ```bash
 export ANDROID_HOME="$HOME/Library/Android/sdk"
@@ -98,6 +102,7 @@ and install with `-r` to preserve existing app data:
 ```bash
 cd android && ./gradlew assembleRelease && cd ..
 adb -s <serial> install -r android/app/build/outputs/apk/release/app-release.apk
+npm run scenarios:snapshot:android -- <serial>  # optional: seed a baseline first — see "Isolating persistent test data" below
 npm run scenarios:android -- <serial>
 ```
 
@@ -120,13 +125,13 @@ checklist ID available at the installed-app level (seed it once, capture it,
 restore it every run), but promoting these flows to real Maestro coverage
 is separate, unstarted follow-up work.
 
-`run-complete.yaml` and `run-exit.yaml` run on both platforms
-(`tags: [ios, android]`); `run-exit-system-back-android.yaml` is
-Android-only, covering what the app-level Back button flow cannot: the
-hardware/gesture system-back key. Every other flow below is iOS-only,
-matching the ticket's own scope (edge-swipe gestures, item editing,
-drag-reorder, restart persistence, run history, and external-link handling
-stay iOS-only until a dedicated ticket promotes them).
+`run-complete.yaml`, `run-exit.yaml`, `run-history.yaml`, and
+`run-history-discard.yaml` run on both platforms (`tags: [ios, android]`);
+`run-exit-system-back-android.yaml` is Android-only, covering what the
+app-level Back button flow cannot: the hardware/gesture system-back key.
+Every other flow below is iOS-only (edge-swipe gestures, item editing,
+drag-reorder, restart persistence, and external-link handling stay iOS-only
+until a dedicated ticket promotes them).
 
 | Flow                                        | Assertions                                                                                                                                                                                                                                                                             |
 | ------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -193,10 +198,60 @@ one level up, on the app's own sandboxed data directory as a whole:
 
 This isolates the whole app sandbox, not just `runHistory`, so it covers any
 future persistent scenario-owned record with no per-record cleanup logic to
-maintain. Android isolation is tracked separately (N/A-97) since Android's
-app-private storage needs a different mechanism (likely `adb shell run-as` +
-`tar`, unverified) — CheL-34's own scope allows deferring it since nothing
-here forces the two platforms to share a mechanism.
+maintain.
+
+**Android (CheL-97)** follows the identical restore-before-run lifecycle,
+capture-once/restore-always semantics, and gitignored artifact layout, but a
+different transport: Android app-private storage (`/data/data/<app>`) isn't
+host-readable the way an iOS simulator's container is, so there's no local
+directory for `rsync` to sync against directly. `run-as` (the usual
+no-root way to reach app-private storage) doesn't work here either — it
+requires a debuggable build, and this suite always installs a Release APK
+(CheL-97 confirmed: `run-as` fails with `package not debuggable` against
+it). `adb root` is the actual mechanism instead — see the Android setup
+section above for the Google APIs system-image requirement this implies.
+
+1. **Capture a baseline once**: `npm run scenarios:snapshot:android -- <serial>`
+   force-stops the app, then `adb exec-out tar`s `/data/data/com.checklister`
+   (as root) into a single tar file at
+   `artifacts/scenarios-android/snapshot/<AVD name>.tar` (gitignored),
+   excluding `cache` and `code_cache` (the `Library/Caches` analogue) and
+   `lib` (a native-library symlink on API levels where it exists under
+   app-private storage at all — confirmed absent on API 36; excluding it is
+   harmless either way, since it belongs to the install, not the data).
+   Written atomically (a temp file, then renamed into place) so an
+   interrupted capture can't leave a later run restoring a truncated
+   snapshot.
+2. **Keyed by AVD name, not the emulator serial**: `emulator-5554` is a
+   port, not a stable identity — it's reused by whatever AVD boots first
+   and changes for the same AVD across reboots, so a serial-keyed snapshot
+   would risk silently restoring one AVD's data onto a different AVD's.
+   `adb -s <serial> emu avd name` resolves the stable identity instead;
+   if that ever fails to resolve (falls back to the serial with a printed
+   warning) rather than erroring.
+3. **Every suite run restores that baseline first, not after** — same
+   shape as iOS: `npm run scenarios:android` checks for a snapshot keyed
+   to the selected emulator's AVD name before invoking Maestro, force-stops
+   the app, deletes an explicit allowlist (`files`, `databases`,
+   `shared_prefs`, `no_backup` — the `rsync -a --delete` equivalent, so a
+   record from a failed prior run can't survive into the next), pushes the
+   snapshot tar to `/data/local/tmp/` and extracts it in place as root
+   (ownership is preserved automatically — no `chown` needed), then removes
+   the staged tar. If no snapshot exists yet for that AVD, the runner says
+   so and proceeds without restoring, same as iOS.
+
+**Known flakiness (unrelated to this mechanism):** during CheL-97's
+verification, one of three consecutive full-suite runs saw 3 flows fail at
+`helpers/create-checklist.yaml`'s very first assertion
+(`assertVisible: New checklist title`) immediately after a cold app launch —
+but the failure screenshot for each showed the home screen already correctly
+rendered with that exact text visible, and the same failure hit
+`run-exit-system-back-android.yaml` (a flow this ticket never touched)
+identically. This is a pre-existing assertion-timing race on Android cold
+launch, not a snapshot-restore defect — the other two runs (including one
+directly before and one directly after the flaky run, same snapshot, same
+mechanism) passed 5/5. Re-run once if a suite fails only on an early
+`create-checklist.yaml` assertion before assuming a real regression.
 
 ## Results and diagnosis
 

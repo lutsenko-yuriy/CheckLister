@@ -15,6 +15,10 @@ A record of all versioned releases. For planned work and known issues, see @docs
 
 ## [Unreleased]
 
+### Changed
+
+- [test] #97: Local Android Maestro scenarios now capture and restore an app-data snapshot (`npm run scenarios:snapshot:android`) before every suite run, the same restore-before-run mechanism #34 added for iOS — via `adb root` + `tar` rather than `rsync`, since Android app-private storage isn't host-readable and this suite's Release build is never `run-as`-debuggable, and keyed by AVD name (not the port-based emulator serial) to avoid cross-AVD snapshot mix-ups. `run-history.yaml`/`run-history-discard.yaml` are now also tagged `android` (previously `ios`-only, promoted alongside the mechanism that isolates their persistent state) — see `docs/SCENARIOS.md`'s "Isolating persistent test data" section. No product/`src/` change.
+
 ### Fixed
 
 - [test] #98: `checklist-drag-reorder-ios.yaml`'s two drag swipes were unreliable — one swipe's fixed start coordinate (`48%`) missed the target drag-handle entirely on-device, and even once corrected both swipes could still lose a timing race against `react-native-reanimated-dnd`'s `activateAfterLongPress(200)` gesture activation. Corrected the coordinate and slowed both swipes to `duration: 12000`, verified 10/10 across an iPhone 17 and an iPhone 17 Pro simulator plus a full-suite pass. No `src/` change; the reported "Complete the checklist" tap-swallow symptom on `run-complete.yaml`/`run-history.yaml` remains open in #98, unreproduced.

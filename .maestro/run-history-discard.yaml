@@ -2,6 +2,7 @@ appId: ${APP_ID}
 name: Discarded run creates no checklist history
 tags:
   - ios
+  - android
 ---
 - runFlow: helpers/create-checklist.yaml
 - assertNotVisible: Run history
