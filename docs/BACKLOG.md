@@ -8,7 +8,7 @@ The `## In Progress` section at the top is the one exception — it is maintaine
 
 ## In Progress
 
-_(nothing in progress)_
+- [CheL-104: Investigate Android equivalents for checklist-persistence-restart and run-gesture flows](https://github.com/lutsenko-yuriy/CheckLister/issues/104)
 
 ---
 
@@ -16,7 +16,6 @@ _(nothing in progress)_
 
 ## Unscheduled
 
-- [CheL-104: Investigate Android equivalents for checklist-persistence-restart and run-gesture flows](https://github.com/lutsenko-yuriy/CheckLister/issues/104)
 - [CheL-100: Run Android Maestro scenarios in CI on PR open](https://github.com/lutsenko-yuriy/CheckLister/issues/100)
 - [CheL-98: Scenario flows fail on first tap right after a text-entry step (run-complete, run-history, drag-reorder)](https://github.com/lutsenko-yuriy/CheckLister/issues/98)
 - [CheL-36: Externally started checklist runs with callback results](https://github.com/lutsenko-yuriy/CheckLister/issues/36)
