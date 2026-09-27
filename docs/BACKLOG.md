@@ -8,7 +8,7 @@ The `## In Progress` section at the top is the one exception — it is maintaine
 
 ## In Progress
 
-- [CheL-105: Implement CheL-102 findings: local suite sharding + drag-reorder swipe-duration reduction](https://github.com/lutsenko-yuriy/CheckLister/issues/105) — WU1 (sharding) shipped, WU2 (swipe-duration floor) remaining
+_(nothing in progress)_
 
 ---
 
