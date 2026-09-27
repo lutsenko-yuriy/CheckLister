@@ -19,5 +19,4 @@ _(nothing in progress)_
 - [CheL-102: Research: speed up the Maestro iOS scenario suite (8.5min full run)](https://github.com/lutsenko-yuriy/CheckLister/issues/102)
 - [CheL-100: Run Android Maestro scenarios in CI on PR open](https://github.com/lutsenko-yuriy/CheckLister/issues/100)
 - [CheL-98: Scenario flows fail on first tap right after a text-entry step (run-complete, run-history, drag-reorder)](https://github.com/lutsenko-yuriy/CheckLister/issues/98)
-- [CheL-97: Isolate Android Maestro scenarios from persistent test data](https://github.com/lutsenko-yuriy/CheckLister/issues/97)
 - [CheL-36: Externally started checklist runs with callback results](https://github.com/lutsenko-yuriy/CheckLister/issues/36)
