@@ -113,6 +113,33 @@ physical-device serial the same way. On first run per emulator, Maestro
 installs its own driver/server APKs; that is inherent to the tool and does
 not affect app data.
 
+## Sharding the suite across devices (CheL-105)
+
+Both runners accept a comma-separated device list in place of a single
+UDID/serial — `npm run scenarios:ios -- "<udid1>,<udid2>"` or
+`npm run scenarios:android -- "<serial1>,<serial2>"` — and split the suite
+across them via Maestro's own `--udid`/`--shard-split`, derived from the
+device count (never caller-supplied: there's no reason to shard N devices
+into a different number of shards). A single device is unaffected — that
+invocation is byte-for-byte the same command as before this ticket.
+
+Each device restores its own snapshot (keyed by its own UDID/AVD name, same
+mechanism as the single-device case) before Maestro starts on any of them —
+a sharded run's isolation guarantee only holds if every device that
+executes real flows started from its own restored baseline. **Capture a
+snapshot for every device you intend to shard across** — an un-snapshotted
+device runs unprotected exactly like an un-snapshotted single device would,
+so a flow that fails and leaves residue on it can break the next flow on
+the same device (confirmed during verification below).
+
+**Sharded runs write debug artifacts (screenshots, hierarchy, logs)
+differently from single-device runs**: `--test-output-dir` is not used for
+a sharded run (`--format junit --output <path>` still produces the combined
+JUnit report there), and Maestro instead writes each flow's full debug
+output to its own default location, `~/.maestro/tests/<timestamp>/<flow
+name>-shard-<N>/`. Look there, not under `artifacts/`, when diagnosing a
+sharded-run failure.
+
 ## Coverage
 
 CheL-36 adds two installed-app contracts for cold and foreground external-run
@@ -495,3 +522,46 @@ three flows run serially; initial driver startup adds overhead to wall time.
   code fix.
 - ESLint and the `test_maestro_flow_conventions.py` contract test passed.
   No `src/` changes.
+
+## Verified CheL-105 WU1 (sharding) — 2026-09-27
+
+- **iOS**: a real sharded run across an iPhone 17 and an iPhone 17 Pro
+  simulator (`npm run scenarios:ios -- "<udid1>,<udid2>"`) correctly
+  produced `--udid "<udid1>,<udid2>" --shard-split=2`, split 13 flows into
+  7/6, and restored each simulator's own snapshot independently (one
+  printed "Restoring app data from snapshot", the other "No snapshot
+  found", matching which simulator actually had one captured) — **293.7s**
+  total wall time, versus a same-session single-device baseline of
+  **13/13 passed in 8m 18s (498s)**, a **41% reduction**, consistent with
+  CheL-102's earlier 45% measurement. One flow
+  (`checklist-persistence-restart-ios.yaml`) failed only in the sharded
+  run; confirmed clean when re-run standalone immediately after, so this
+  is resource contention from two simulators running concurrently, not a
+  sharding-logic defect — expect occasional single-flow flakiness from
+  contention on a loaded machine, distinct from a real regression.
+  Single-device path re-verified with zero changes to its own contract
+  tests or command shape: **13/13 passed, 8m 18s**.
+- **Android**: `--udid` accepts comma-separated emulator serials the same
+  way it accepts iOS UDIDs (previously unverified). A real sharded run
+  across two concurrently-booted "Google APIs" AVDs (`Pixel_5_API36` +
+  `API29_CI_Match`, both required per the Android setup section above)
+  correctly derived `--shard-split=2` and restored each serial's own
+  AVD-keyed snapshot independently. First attempt (no snapshot yet
+  captured for `API29_CI_Match`) demonstrated exactly the residue risk the
+  "capture a snapshot for every device" warning above describes: a failed
+  flow left two leftover checklists that broke the next flow on the same
+  unprotected device. After capturing a proper baseline for both AVDs,
+  `Pixel_5_API36`'s shard passed except for one contention-flaky flow
+  (matching the iOS pattern, confirmed clean standalone: **5/5 passed,
+  5m 28s**), but **`API29_CI_Match` (Android 10) failed the same
+  `"Start run", disabled` assertion consistently (2/2), even from a clean
+  snapshot** — a real, reproducible flow/API-level compatibility issue on
+  that specific AVD, unrelated to sharding and out of this WU's scope.
+  Recommend sharding Android runs across AVDs already known to pass the
+  suite individually (`Pixel_5_API36` is), rather than an untested older
+  API level; flag `API29_CI_Match`'s failure as a candidate for its own
+  investigation ticket if that AVD needs to be a supported target.
+- `python3 -m unittest discover -s scripts/tests` — 81/81 pass (10 new
+  multi-device/sharding contract tests across both platforms; every
+  pre-existing test passes unmodified). `npm run lint` clean. No `src/`
+  changes.
