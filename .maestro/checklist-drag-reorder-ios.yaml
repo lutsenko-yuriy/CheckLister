@@ -27,11 +27,16 @@ tags:
 # intermittently at 4000/8000ms (Maestro reports the swipe COMPLETED but
 # the app shows zero movement) — 12000ms cleared this in on-device
 # validation (multiple consecutive runs on an iPhone 17 and an iPhone 17
-# Pro simulator).
+# Pro simulator). CheL-105 WU2 re-probed after CheL-98's coordinate fix
+# landed: 10000/9000/8000ms all cleared 10/10 consecutive runs on the same
+# devices; 4000ms failed 9/10 (the coordinate fix removed the *positional*
+# miss but not the activateAfterLongPress(200) race itself). 8000ms is a
+# 4000ms margin above that failure — well past the 1000ms floor — and
+# saves 4s per swipe over the old 12000ms value.
 - swipe:
     start: 7%,35%
     end: 7%,69%
-    duration: 12000
+    duration: 8000
 - assertVisible:
     text: '.*Scenario third.*'
     below:
@@ -48,11 +53,12 @@ tags:
 # reported the swipe as completed while the app saw no touch on the handle
 # at all and nothing moved. 50% (integer — Maestro's percentage
 # coordinates don't accept decimals) lands on the handle's measured
-# vertical center with margin. Same 12000ms rationale as the swipe above.
+# vertical center with margin. Same 8000ms rationale as the swipe above
+# (CheL-105 WU2).
 - swipe:
     start: 7%,50%
     end: 7%,17%
-    duration: 12000
+    duration: 8000
 - assertVisible:
     text: '.*Scenario second.*'
     below:

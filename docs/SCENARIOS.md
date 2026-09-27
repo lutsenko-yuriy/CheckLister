@@ -349,6 +349,9 @@ toward the end point, so how much the touch has moved by the 200ms mark is
 timing-dependent, not purely a function of the coordinates). `duration:
 12000` on both swipes cleared this reliably (10/10 standalone runs plus a
 full-suite pass, split across an iPhone 17 and an iPhone 17 Pro simulator).
+CheL-105 WU2 later re-probed once the coordinate fix was in place and found
+`8000ms` sufficient (see "Verified CheL-105 WU2" below) — the flow's
+current committed value is `8000ms`, not `12000ms`.
 Maestro reporting a `swipe`/`tapOn` as completed is therefore not
 sufficient evidence the app actually received the gesture — a silent no-op
 swipe only surfaces via the following order assertion, so pull the
@@ -565,3 +568,29 @@ three flows run serially; initial driver startup adds overhead to wall time.
   multi-device/sharding contract tests across both platforms; every
   pre-existing test passes unmodified). `npm run lint` clean. No `src/`
   changes.
+
+## Verified CheL-105 WU2 (swipe-duration floor) — 2026-09-27
+
+- Re-probed `checklist-drag-reorder-ios.yaml`'s two swipe `duration` values
+  now that CheL-98's coordinate fix (the `48%`→`50%` handle-center
+  correction) is in place, since that fix removed the *positional* miss
+  that CheL-98's original `12000ms` choice had to cover for alongside the
+  gesture-activation timing race — the two problems were compounding, and
+  fixing one meant the other's margin needed re-measuring rather than
+  assuming `12000ms` was still the minimum required.
+- Probed on an iPhone 17 simulator, 10 standalone runs per value:
+  `10000ms`, `9000ms`, and `8000ms` each passed **10/10**. `4000ms` (one of
+  CheL-98's two originally-flaky values) failed **9/10** — the residual
+  `activateAfterLongPress(200)` race is still real, just with a much lower
+  floor than `12000ms` once the coordinate miss stopped compounding it.
+- Committed **`8000ms`** on both swipes: the lowest clean value probed,
+  with a 4000ms margin over the nearest known-failing value (well past the
+  1000ms floor this WU's plan required). Did not narrow further between
+  `4000ms` and `8000ms` — the margin requirement was already satisfied and
+  tighter values shrinks the buffer without shrinking suite time by a
+  useful amount.
+- Closed with one full 13-flow suite run on the committed value:
+  **13/13 passed, 8m 9s** (drag-reorder flow itself: 50s, down from the
+  `12000ms` baseline).
+- No `src/` or contract-test changes — this WU is a Maestro-flow data
+  change only.
