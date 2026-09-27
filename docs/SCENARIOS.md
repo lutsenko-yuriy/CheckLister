@@ -160,7 +160,13 @@ on success. Do not run the suite while using an unfinished in-memory run: launch
 the app restarts its process. If a flow fails or is interrupted, its fixture can
 remain for diagnosis; delete that specific `Scenario ...` checklist manually after
 inspection. Existing checklists are never bulk-cleared. Run flows serially on a
-single device; concurrent suites on that device would interfere.
+single device; concurrent suites on that device would interfere. The same
+holds for ad-hoc diagnostic commands (`adb shell`, `uiautomator dump`,
+`xcrun simctl`, etc.) issued against a device while a suite is actively
+running against it — CheL-97 saw a live Maestro run hang for ~1h47m after a
+concurrent diagnostic `adb`/`uiautomator` call interfered with its driver
+connection. Wait for a run to finish (or kill it first) before touching the
+device directly.
 
 ## Isolating persistent test data (CheL-34)
 
