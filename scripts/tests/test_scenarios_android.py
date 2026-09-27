@@ -13,10 +13,12 @@ CONTAINER_PREFIX = '/data/data/com.checklister'
 STAGING_PREFIX = '/data/local/tmp'
 
 ADB_STUB = r'''#!/bin/bash
+scenarios_serial="$2"
+scenarios_serial_key="$(printf '%s' "$scenarios_serial" | tr -c 'A-Za-z0-9' '_')"
 map() {
   case "$1" in
-    ''' + CONTAINER_PREFIX + r'''*) printf '%s' "$CONTAINER${1#''' + CONTAINER_PREFIX + r'''}" ;;
-    ''' + STAGING_PREFIX + r'''*) printf '%s' "$STAGING${1#''' + STAGING_PREFIX + r'''}" ;;
+    ''' + CONTAINER_PREFIX + r'''*) printf '%s' "$CONTAINER_ROOT/$scenarios_serial${1#''' + CONTAINER_PREFIX + r'''}" ;;
+    ''' + STAGING_PREFIX + r'''*) printf '%s' "$STAGING_ROOT/$scenarios_serial${1#''' + STAGING_PREFIX + r'''}" ;;
     *) printf '%s' "$1" ;;
   esac
 }
@@ -54,12 +56,13 @@ case "$1" in
   emu)
     shift
     if [ "$1" = avd ] && [ "$2" = name ]; then
-      printf '%s\nOK\n' "$AVD_NAME"
+      avd_var="AVD_NAME_$scenarios_serial_key"
+      printf '%s\nOK\n' "${!avd_var:-$AVD_NAME}"
     fi
     ;;
   push)
     echo push >> "$SEQUENCE_LOG"
-    mkdir -p "$STAGING"
+    mkdir -p "$STAGING_ROOT/$scenarios_serial"
     cp "$2" "$(map "$3")"
     ;;
 esac
@@ -77,13 +80,11 @@ class ScenarioRunnerTests(unittest.TestCase):
         self.tmp = tempfile.TemporaryDirectory()
         self.addCleanup(self.tmp.cleanup)
         self.path = Path(self.tmp.name)
-        self.container = self.path / 'container'
+        self.container = self.path / 'containers' / 'emulator-5554'
         (self.container / 'files').mkdir(parents=True)
         (self.container / 'files' / 'stale-from-a-failed-run.txt').write_text('stale')
         (self.container / 'cache').mkdir()
         (self.container / 'code_cache').mkdir()
-        self.staging = self.path / 'staging'
-        self.staging.mkdir()
         self.env = dict(os.environ, PATH=f'{self.path}:' + os.environ['PATH'],
                         SCENARIOS_ARTIFACTS_DIR=str(self.path / 'artifacts'))
         self.env.pop('ANDROID_HOME', None)
@@ -94,8 +95,12 @@ class ScenarioRunnerTests(unittest.TestCase):
         self.write_tool('adb', ADB_STUB)
         self.env['DEVICES'] = 'List of devices attached\nemulator-5554\tdevice\n\n'
         self.env['AVD_NAME'] = 'Pixel_5_API36'
-        self.env['CONTAINER'] = str(self.container)
-        self.env['STAGING'] = str(self.staging)
+        self.env['CONTAINER_ROOT'] = str(self.path / 'containers')
+        self.env['STAGING_ROOT'] = str(self.path / 'staging')
+
+    def devices_str(self, *serials):
+        lines = ['List of devices attached'] + [f'{s}\tdevice' for s in serials] + ['', '']
+        return '\n'.join(lines)
 
     def write_tool(self, name, body):
         path = self.path / name
@@ -241,6 +246,56 @@ class ScenarioRunnerTests(unittest.TestCase):
 
         self.assertNotEqual(result.returncode, 0)
         self.assertFalse((self.path / 'calls').exists())
+
+    # --- CheL-105: multi-device / sharding ---
+
+    def test_rejects_malformed_device_list_before_validation(self):
+        for value in ('emulator-5554,', ',emulator-5554',
+                      'emulator-5554,,emulator-5556', 'emulator-5554,emulator-5554'):
+            with self.subTest(value=value):
+                result = self.run_script(value)
+                self.assertNotEqual(result.returncode, 0)
+                self.assertFalse((self.path / 'calls').exists())
+
+    def test_second_serial_validation_failure_stops_before_maestro(self):
+        self.env['DEVICES'] = self.devices_str('emulator-5554')  # emulator-5556 not listed
+        result = self.run_script('emulator-5554,emulator-5556')
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn('running emulator', result.stderr)
+        self.assertFalse((self.path / 'calls').exists())
+
+    def test_two_serials_produce_udid_and_shard_split(self):
+        self.env['DEVICES'] = self.devices_str('emulator-5554', 'emulator-5556')
+        result = self.run_script('emulator-5554,emulator-5556')
+        self.assertEqual(result.returncode, 0)
+        args = (self.path / 'calls').read_text().splitlines()
+        self.assertNotIn('--device', args)
+        self.assertNotIn('--test-output-dir', args)
+        udid_index = args.index('--udid')
+        self.assertEqual(args[udid_index + 1], 'emulator-5554,emulator-5556')
+        self.assertIn('--shard-split=2', args)
+        tags_index = args.index('--include-tags')
+        self.assertEqual(args[tags_index + 1], 'android')
+
+    def test_restores_snapshot_for_each_serial_independently(self):
+        self.env['DEVICES'] = self.devices_str('emulator-5554', 'emulator-5556')
+        self.env['AVD_NAME_emulator_5554'] = 'Pixel_5_API36'
+        self.env['AVD_NAME_emulator_5556'] = 'Pixel_6_API34'
+        snap_dir = self.path / 'artifacts/snapshot'
+        snap_dir.mkdir(parents=True)
+        (snap_dir / 'Pixel_5_API36.tar').write_text('snapshot-a')
+        # Pixel_6_API34 (emulator-5556) has no snapshot.
+
+        result = self.run_script('emulator-5554,emulator-5556')
+
+        self.assertEqual(result.returncode, 0)
+        self.assertEqual(result.stdout.count('Restoring app data from snapshot'), 1)
+        self.assertIn('No snapshot found', result.stdout)
+        # emulator-5556 (no snapshot) contributes nothing to the sequence —
+        # it takes the "no snapshot" branch entirely — so the log is
+        # identical in shape to the single-serial restore case, just for
+        # the one serial that actually had a snapshot to restore.
+        self.assertEqual(self.sequence(), ['delete', 'push', 'extract', 'delete', 'maestro'])
 
 
 if __name__ == '__main__':

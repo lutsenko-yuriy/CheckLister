@@ -2,42 +2,47 @@
 set -euo pipefail
 
 if [[ $# -ne 1 || -z "$1" ]]; then
-  echo 'Usage: npm run scenarios:android -- <running-android-emulator-serial>' >&2
+  echo 'Usage: npm run scenarios:android -- <running-android-emulator-serial>[,<serial2>,...]' >&2
   exit 2
 fi
 
 scenarios_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 source "$scenarios_root/scripts/scenarios-android-common.sh"
 
-scenarios_serial="$1"
 scenarios_resolve_adb
-scenarios_validate_device_and_app "$scenarios_serial"
+scenarios_parse_devices "$1"
+
+for scenarios_serial in "${scenarios_devices[@]}"; do
+  scenarios_validate_device_and_app "$scenarios_serial"
+done
 
 scenarios_artifacts="${SCENARIOS_ARTIFACTS_DIR:-$scenarios_root/artifacts/scenarios-android}"
-scenarios_avd_name="$(scenarios_resolve_avd_name "$scenarios_serial")"
-scenarios_snapshot_tar="$scenarios_artifacts/snapshot/$scenarios_avd_name.tar"
-if [[ -f "$scenarios_snapshot_tar" ]]; then
-  echo "Restoring app data from snapshot: $scenarios_snapshot_tar"
-  scenarios_ensure_root "$scenarios_serial"
-  "$scenarios_adb" -s "$scenarios_serial" shell am force-stop "$scenarios_app" >/dev/null 2>&1 || true
-  # Explicit allowlist, not `rm -rf *`, so app_* dirs, cache, code_cache and
-  # lib are never touched by restore — the equivalent of iOS's
-  # `rsync -a --delete`, without which a record from a failed prior run
-  # would survive into the next.
-  "$scenarios_adb" -s "$scenarios_serial" shell rm -rf \
-    "/data/data/$scenarios_app/files" "/data/data/$scenarios_app/databases" \
-    "/data/data/$scenarios_app/shared_prefs" "/data/data/$scenarios_app/no_backup"
-  "$scenarios_adb" -s "$scenarios_serial" push "$scenarios_snapshot_tar" /data/local/tmp/scenarios-restore.tar >/dev/null
-  "$scenarios_adb" -s "$scenarios_serial" shell tar -x -C "/data/data/$scenarios_app" -f /data/local/tmp/scenarios-restore.tar
-  "$scenarios_adb" -s "$scenarios_serial" shell rm /data/local/tmp/scenarios-restore.tar >/dev/null 2>&1 || true
-else
-  echo 'No snapshot found for this AVD — running without restoring app data. See npm run scenarios:snapshot:android in docs/SCENARIOS.md.'
-fi
+
+# CheL-105: each serial's snapshot is keyed by its own AVD name, and every
+# device in a sharded run executes real flows, so each must restore its own
+# baseline before Maestro starts on any of them — otherwise CheL-97's
+# isolation guarantee would silently apply to only one of N devices.
+for scenarios_serial in "${scenarios_devices[@]}"; do
+  scenarios_restore_android_snapshot "$scenarios_serial"
+done
 
 mkdir -p "$scenarios_artifacts"
 scenarios_output="$(mktemp -d "$scenarios_artifacts/run-XXXXXXXX")"
 echo "Scenario artifacts: $scenarios_output"
-exec maestro --device "$scenarios_serial" test \
-  --format junit --output "$scenarios_output/report.xml" \
-  --test-output-dir "$scenarios_output" \
-  -e "APP_ID=$scenarios_app" --include-tags android "$scenarios_root/.maestro"
+
+if [[ ${#scenarios_devices[@]} -eq 1 ]]; then
+  exec maestro --device "${scenarios_devices[0]}" test \
+    --format junit --output "$scenarios_output/report.xml" \
+    --test-output-dir "$scenarios_output" \
+    -e "APP_ID=$scenarios_app" --include-tags android "$scenarios_root/.maestro"
+else
+  # CheL-105: --udid takes a comma-separated list; --shard-split derives
+  # from the device count rather than being caller-supplied, since there's
+  # no meaningful reason to shard N devices into a different number of
+  # shards. No --test-output-dir here — a sharded run writes its own
+  # per-shard subdirectories under Maestro's output structure instead.
+  scenarios_serials="$(IFS=,; echo "${scenarios_devices[*]}")"
+  exec maestro test --udid "$scenarios_serials" --shard-split="${#scenarios_devices[@]}" \
+    --format junit --output "$scenarios_output/report.xml" \
+    -e "APP_ID=$scenarios_app" --include-tags android "$scenarios_root/.maestro"
+fi

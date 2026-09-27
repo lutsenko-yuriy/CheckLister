@@ -27,6 +27,30 @@ scenarios_resolve_adb() {
   fi
 }
 
+# CheL-105: parses a comma-separated device-list positional arg into the
+# global `scenarios_devices` array. A single value with no comma is a
+# one-element list, so callers that only ever passed one serial keep working
+# unchanged. Rejects an empty entry (stray/leading/trailing comma) or a
+# duplicate before any device is touched. Duplicated verbatim from
+# scenarios-ios-common.sh rather than shared — mirrors this project's
+# existing per-platform duplication (e.g. scenarios_require_tools).
+scenarios_parse_devices() {
+  local input="$1"
+  if [[ "$input" == ,* || "$input" == *, || "$input" == *,,* ]]; then
+    echo 'Device list contains an empty entry — check for extra commas.' >&2
+    exit 2
+  fi
+  IFS=',' read -ra scenarios_devices <<< "$input"
+  local seen=' '
+  for d in "${scenarios_devices[@]}"; do
+    if [[ "$seen" == *" $d "* ]]; then
+      echo "Duplicate device in list: $d" >&2
+      exit 2
+    fi
+    seen+="$d "
+  done
+}
+
 scenarios_validate_device_and_app() {
   local serial="$1"
   if ! "$scenarios_adb" devices | awk -v serial="$serial" \
@@ -73,4 +97,31 @@ scenarios_resolve_avd_name() {
     name="$serial"
   fi
   printf '%s' "$name"
+}
+
+# CheL-105: extracted from scenarios-android.sh so a sharded run can restore
+# each serial's own snapshot before Maestro starts on any of them. Requires
+# `scenarios_artifacts` to already be set by the caller.
+scenarios_restore_android_snapshot() {
+  local serial="$1"
+  local avd_name snapshot_tar
+  avd_name="$(scenarios_resolve_avd_name "$serial")"
+  snapshot_tar="$scenarios_artifacts/snapshot/$avd_name.tar"
+  if [[ -f "$snapshot_tar" ]]; then
+    echo "Restoring app data from snapshot: $snapshot_tar"
+    scenarios_ensure_root "$serial"
+    "$scenarios_adb" -s "$serial" shell am force-stop "$scenarios_app" >/dev/null 2>&1 || true
+    # Explicit allowlist, not `rm -rf *`, so app_* dirs, cache, code_cache and
+    # lib are never touched by restore — the equivalent of iOS's
+    # `rsync -a --delete`, without which a record from a failed prior run
+    # would survive into the next.
+    "$scenarios_adb" -s "$serial" shell rm -rf \
+      "/data/data/$scenarios_app/files" "/data/data/$scenarios_app/databases" \
+      "/data/data/$scenarios_app/shared_prefs" "/data/data/$scenarios_app/no_backup"
+    "$scenarios_adb" -s "$serial" push "$snapshot_tar" /data/local/tmp/scenarios-restore.tar >/dev/null
+    "$scenarios_adb" -s "$serial" shell tar -x -C "/data/data/$scenarios_app" -f /data/local/tmp/scenarios-restore.tar
+    "$scenarios_adb" -s "$serial" shell rm /data/local/tmp/scenarios-restore.tar >/dev/null 2>&1 || true
+  else
+    echo 'No snapshot found for this AVD — running without restoring app data. See npm run scenarios:snapshot:android in docs/SCENARIOS.md.'
+  fi
 }

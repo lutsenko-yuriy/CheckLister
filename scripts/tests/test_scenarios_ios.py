@@ -19,19 +19,24 @@ class ScenarioRunnerTests(unittest.TestCase):
                         SCENARIOS_ARTIFACTS_DIR=str(self.path / 'artifacts'))
         self.write_tool('maestro', 'printf "%s\\n" "$@" > "$CALLS"\nexit "${RESULT:-0}"')
         self.env['CALLS'] = str(self.path / 'calls')
-        self.container = self.path / 'container'
-        self.container.mkdir()
+        self.env['CONTAINER_ROOT'] = str(self.path / 'containers')
+        self.container = self.path / 'containers' / 'test-device'
+        self.container.mkdir(parents=True)
         self.write_tool('xcrun', f'''case "$2" in
   list) printf '%s' "$DEVICES" ;;
   get_app_container)
     if [ "$5" = app ]; then exit "${{APP_RESULT:-0}}"; fi
-    if [ "$5" = data ]; then printf '%s' "{self.container}"; fi
+    if [ "$5" = data ]; then mkdir -p "$CONTAINER_ROOT/$3"; printf '%s' "$CONTAINER_ROOT/$3"; fi
     ;;
   terminate) exit 0 ;;
   spawn) exit 0 ;;
 esac''')
         self.env['DEVICES'] = json.dumps({'devices': {'com.apple.CoreSimulator.SimRuntime.iOS-26-5': [
             {'udid': 'test-device', 'state': 'Booted', 'isAvailable': True}]}})
+
+    def devices_json(self, *udids):
+        return json.dumps({'devices': {'com.apple.CoreSimulator.SimRuntime.iOS-26-5': [
+            {'udid': u, 'state': 'Booted', 'isAvailable': True} for u in udids]}})
 
     def write_tool(self, name, body):
         path = self.path / name
@@ -121,6 +126,62 @@ esac''')
         self.assertTrue(
             (self.container / 'Library' / 'Caches' / 'webkit.db').exists(),
         )
+
+    # --- CheL-105: multi-device / sharding ---
+
+    def test_rejects_malformed_device_list_before_validation(self):
+        for value in ('test-device,', ',test-device',
+                      'test-device,,device-b', 'device-a,device-a'):
+            with self.subTest(value=value):
+                result = self.run_script(value)
+                self.assertNotEqual(result.returncode, 0)
+                self.assertFalse((self.path / 'calls').exists())
+
+    def test_second_device_validation_failure_stops_before_maestro(self):
+        self.env['DEVICES'] = self.devices_json('device-a')  # device-b not booted
+        result = self.run_script('device-a,device-b')
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn('booted iOS simulator', result.stderr)
+        self.assertFalse((self.path / 'calls').exists())
+
+    def test_two_devices_produce_udid_and_shard_split(self):
+        self.env['DEVICES'] = self.devices_json('device-a', 'device-b')
+        result = self.run_script('device-a,device-b')
+        self.assertEqual(result.returncode, 0)
+        args = (self.path / 'calls').read_text().splitlines()
+        self.assertNotIn('--device', args)
+        self.assertNotIn('--test-output-dir', args)
+        udid_index = args.index('--udid')
+        self.assertEqual(args[udid_index + 1], 'device-a,device-b')
+        self.assertIn('--shard-split=2', args)
+        e_index = args.index('-e')
+        self.assertEqual(args[e_index + 1], 'APP_ID=com.checklister.checklisterApp')
+        tags_index = args.index('--include-tags')
+        self.assertEqual(args[tags_index + 1], 'ios')
+
+    def test_three_devices_produce_shard_split_three(self):
+        self.env['DEVICES'] = self.devices_json('device-a', 'device-b', 'device-c')
+        result = self.run_script('device-a,device-b,device-c')
+        self.assertEqual(result.returncode, 0)
+        args = (self.path / 'calls').read_text().splitlines()
+        self.assertIn('--shard-split=3', args)
+
+    def test_restores_snapshot_for_each_device_independently(self):
+        self.env['DEVICES'] = self.devices_json('device-a', 'device-b')
+        snap_a = self.path / 'artifacts/snapshot/device-a'
+        snap_a.mkdir(parents=True)
+        (snap_a / 'seed-a.txt').write_text('a')
+        # device-b has no snapshot.
+
+        result = self.run_script('device-a,device-b')
+
+        self.assertEqual(result.returncode, 0)
+        container_a = self.path / 'containers' / 'device-a'
+        container_b = self.path / 'containers' / 'device-b'
+        self.assertEqual((container_a / 'seed-a.txt').read_text(), 'a')
+        self.assertFalse((container_b / 'seed-a.txt').exists())
+        self.assertEqual(result.stdout.count('Restoring app data from snapshot'), 1)
+        self.assertIn('No snapshot found', result.stdout)
 
 
 if __name__ == '__main__':
