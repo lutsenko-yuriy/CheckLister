@@ -296,6 +296,17 @@ configurations unrelated to the race itself. Any other Android flow using
 either helper is equally exposed each time it launches/relaunches. Root
 cause and a real fix (versus "known flaky, re-run") tracked in #110.
 
+**Resolved (CheL-110, 2026-09-28):** confirmed as a structural timing-margin
+issue, not rare flakiness — the emulator's cold-start-to-interactive latency
+averages ~5.5-10s (measured post-first-frame vs. raw process-start
+respectively) with a fat tail up to 13-16s, sitting right at/above Maestro's
+7s `assertVisible` default. Both helpers now use `extendedWaitUntil` with a
+20000ms timeout on the `New checklist title` check instead of a bare
+`assertVisible` (which has no timeout field of its own). A standalone probe
+mirroring the flow above (3 cold-launch/relaunch opportunities, no drag
+step) ran 15/15 clean (60/60 opportunities) after the fix, versus the ~35%
+baseline. See `docs/knowledge/notes/110.md` for the full probe data.
+
 ## Results and diagnosis
 
 Both runners require an explicit, validated target and installed app. Each
