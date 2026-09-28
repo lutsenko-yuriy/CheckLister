@@ -286,6 +286,16 @@ directly before and one directly after the flaky run, same snapshot, same
 mechanism) passed 5/5. Re-run once if a suite fails only on an early
 `create-checklist.yaml` assertion before assuming a real regression.
 
+**Update (CheL-104, 2026-09-28):** the full-suite anecdote above undersells
+the per-launch-opportunity rate. Standalone probing of
+`checklist-persistence-restart-ios.yaml` — a flow that cold-launches/
+relaunches three times in one run via `helpers/create-checklist.yaml` and
+two calls to `helpers/relaunch-and-open-checklist.yaml` — hit this same
+race on 7 of 20 standalone runs (35%), across two different swipe-duration
+configurations unrelated to the race itself. Any other Android flow using
+either helper is equally exposed each time it launches/relaunches. Root
+cause and a real fix (versus "known flaky, re-run") tracked in #110.
+
 ## Results and diagnosis
 
 Both runners require an explicit, validated target and installed app. Each
@@ -594,3 +604,38 @@ three flows run serially; initial driver startup adds overhead to wall time.
   `12000ms` baseline).
 - No `src/` or contract-test changes — this WU is a Maestro-flow data
   change only.
+
+## Verified CheL-104 — 2026-09-28
+
+- Investigated `checklist-persistence-restart-ios.yaml` and
+  `run-gesture-ios.yaml` for Android equivalents, on `Pixel_5_API36`
+  (gesture-navigation mode confirmed via `navigation_mode=2`) plus an
+  iPhone 17 Pro simulator.
+- **`checklist-persistence-restart-ios.yaml`**: the flow's own drag swipe
+  hits the identical `activateAfterLongPress(200)` race CheL-105 WU2
+  probed for `checklist-drag-reorder-ios.yaml` — confirmed via a
+  screen-hierarchy bounds check that the swipe's start coordinate lands
+  correctly on the drag handle both times it fails, ruling out a selector
+  issue. Raised `duration: 4000 -> 8000`, matching CheL-105 WU2's iOS
+  floor: **10/10 standalone on iPhone 17 Pro.** Android did not clear the
+  race at the same bar: 8000ms scored 2/10 genuine drag-order failures
+  (plus 3/10 unrelated cold-launch/relaunch failures, see "Known
+  flakiness" update above); a further probe at 12000ms scored 1/10 drag
+  failures (plus 4/10 cold-launch/relaunch). **`checklist-persistence-restart-android.yaml`
+  is not added** — Android's drag-activation margin and the cold-launch/
+  relaunch race frequency both need their own investigation, tracked in
+  #110. The iOS `8000ms` fix ships regardless (validated standalone,
+  independent of the Android outcome).
+- **`run-gesture-ios.yaml`**: an edge swipe (`0%,50% -> 90%,50%`) on
+  `ChecklistDetail` navigated back to Home on Android — the system
+  predictive-back gesture region is reachable via Maestro's synthetic
+  swipe in gesture-navigation mode. The same swipe during an active run
+  produced the identical `usePreventRemove` "Are you sure? / CANCEL /
+  DISCARD" dialog `run-exit-system-back-android.yaml`'s `back`-key path
+  already asserts — byte-for-byte the same copy. **No new
+  `run-gesture-android.yaml`** — this is a deliberate conclusion: both
+  paths reach the same app-level `beforeRemove` callback, so there is no
+  distinct Android navigation-gesture behavior left uncovered. 3-button
+  navigation mode was not probed.
+- No `src/` changes. Full findings and raw per-run evidence in
+  `docs/knowledge/notes/104.md`.

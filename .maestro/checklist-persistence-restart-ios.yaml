@@ -14,10 +14,15 @@ tags:
 - tapOn: Save
 # Drag the edited item down two rows, landing in the last slot. See
 # checklist-drag-reorder-ios.yaml for why this needs a slow synthetic swipe.
+# CheL-104: raised 4000ms -> 8000ms after reproducing the same
+# activateAfterLongPress(200) activation race CheL-105 WU2 probed for
+# checklist-drag-reorder-ios.yaml (9/10 failing at 4000ms, 10/10 clean at
+# 8000ms) -- this flow's own drag was hitting the identical race, on both
+# platforms, not just an Android-specific divergence.
 - swipe:
     start: 7%,35%
     end: 7%,69%
-    duration: 4000
+    duration: 8000
 - assertVisible:
     text: '.*Scenario third.*'
     below:

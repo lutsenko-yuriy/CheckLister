@@ -8,7 +8,7 @@ The `## In Progress` section at the top is the one exception — it is maintaine
 
 ## In Progress
 
-- [CheL-104: Investigate Android equivalents for checklist-persistence-restart and run-gesture flows](https://github.com/lutsenko-yuriy/CheckLister/issues/104)
+_(nothing in progress)_
 
 ---
 
