@@ -9,7 +9,13 @@ appId: ${APP_ID}
 - stopApp
 - launchApp:
     clearState: false
-- assertVisible: New checklist title
+# CheL-110: same cold-start timing-margin race as helpers/create-checklist.yaml
+# — see that file's comment for the probe data behind the 20000ms timeout
+# and why extendedWaitUntil (not assertVisible, which has no timeout field)
+# is used here.
+- extendedWaitUntil:
+    visible: New checklist title
+    timeout: 20000
 - scrollUntilVisible:
     element:
       id: checklist-row-${output.title}
