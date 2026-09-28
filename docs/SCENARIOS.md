@@ -207,7 +207,7 @@ one level up, on the app's own sandboxed data directory as a whole:
    or history you want the suite to always see on this simulator, run
    `npm run scenarios:snapshot:ios -- <UDID>`. This terminates the app,
    resolves its container via `xcrun simctl get_app_container <UDID>
-   com.checklister.checklisterApp data`, and `rsync -a --delete`s it into
+com.checklister.checklisterApp data`, and `rsync -a --delete`s it into
    `artifacts/scenarios-ios/snapshot/<UDID>/` (gitignored), excluding
    `Library/Caches` (regenerable, irrelevant to isolation correctness — keeps
    the snapshot smaller). Re-run it any time you want to refresh that
@@ -226,7 +226,7 @@ one level up, on the app's own sandboxed data directory as a whole:
    before a run rather than clearing up after one, a failed run's on-device
    state — its fixture checklist, any history it created, an in-progress
    run — is left exactly as the failure produced it. Inspect it directly on
-   the simulator; the *next* invocation's restore step is what eventually
+   the simulator; the _next_ invocation's restore step is what eventually
    clears it, not this one.
 
 This isolates the whole app sandbox, not just `runHistory`, so it covers any
@@ -594,7 +594,7 @@ three flows run serially; initial driver startup adds overhead to wall time.
 
 - Re-probed `checklist-drag-reorder-ios.yaml`'s two swipe `duration` values
   now that CheL-98's coordinate fix (the `48%`→`50%` handle-center
-  correction) is in place, since that fix removed the *positional* miss
+  correction) is in place, since that fix removed the _positional_ miss
   that CheL-98's original `12000ms` choice had to cover for alongside the
   gesture-activation timing race — the two problems were compounding, and
   fixing one meant the other's margin needed re-measuring rather than
