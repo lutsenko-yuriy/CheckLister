@@ -3,15 +3,8 @@ appId: ${APP_ID}
 - evalScript: ${output.title = 'Scenario ' + Date.now() + '-' + Math.floor(Math.random() * 1000000)}
 - launchApp:
     clearState: false
-# CheL-110: Android's cold-start-to-interactive latency on the emulator
-# averages ~5.5-10s (measured post-first-frame vs. raw process-start,
-# respectively) with a fat tail up to 13-16s, sitting right at/above
-# Maestro's 7s assertVisible default. 20000ms covered all 40 samples across
-# two 20-trial probe runs. iOS is unaffected by this timeout (comfortably
-# fast), so this is a pure safety margin there. assertVisible has no
-# timeout field of its own (Unknown Property error) -- extendedWaitUntil is
-# Maestro's mechanism for a wait beyond its 7s default, and doubles as the
-# assertion itself (fails the flow if the timeout expires unmet).
+# CheL-110: Android cold-start latency (up to ~16s tail) exceeds Maestro's
+# 7s assertVisible default; extendedWaitUntil covers it. See docs/knowledge/notes/110.md.
 - extendedWaitUntil:
     visible: New checklist title
     timeout: 20000

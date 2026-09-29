@@ -650,3 +650,42 @@ three flows run serially; initial driver startup adds overhead to wall time.
   navigation mode was not probed.
 - No `src/` changes. Full findings and raw per-run evidence in
   `docs/knowledge/notes/104.md`.
+
+## Verified CheL-110 (drag-activation half) — 2026-09-29
+
+- #110's cold-launch/relaunch half shipped separately (see the `[test] #110`
+  CHANGELOG entry). This closes the remaining drag-activation-race half,
+  which had left `checklist-persistence-restart-android.yaml` unshipped
+  since CheL-104 (8000ms: 2/10 drag-order failures; 12000ms: 1/10 —
+  raising `duration` further plateaus rather than reaching 0, and #110's
+  own earlier investigation ruled out a true hold-then-move gesture as
+  untestable with current tooling).
+- Wrapped the flow's drag swipe (`duration: 8000`, matching the iOS/other
+  Android flows' floor) and its two order assertions in Maestro's native
+  `retry` command (`maxRetries: 3` — 0-3 is the documented range). A
+  failed attempt leaves either a no-op or an adjacent-slot swap; either
+  way the wrapped assertions only pass on the true final order, so a
+  retry starting from an already-wrong layout still fails and retries
+  again rather than producing a false pass.
+- Added `checklist-persistence-restart-android.yaml` (Android tag) and
+  verified on `Pixel_5_API36`: **10/10 full-flow runs passed** (each with
+  3 relaunches plus the retry-wrapped drag), with the drag succeeding on
+  its first attempt in all 10 — consistent with 8000ms's already-measured
+  ~80-90% single-attempt rate.
+- Separately confirmed the `retry` block itself works when actually
+  needed: a throwaway variant with `duration: 2000` (a known near-0%
+  floor) exhausted all 4 attempts (1 + 3 retries) and failed cleanly in
+  5/5 stress runs — screen-hierarchy dumps across all 4 attempts showed
+  the same unchanged item order each time (a clean no-op, not a
+  compounding partial-swap), confirming a failed attempt doesn't corrupt
+  state for the next retry.
+- One false lead during this investigation: an early run showed an item's
+  text rendering truncated (`"Scenario second"` → `"Scenario"`) across
+  all 4 retry attempts, alongside a stray floating IME overlay and,
+  shortly after, a "Process system isn't responding" ANR dialog — a
+  degraded emulator after a long session, not an app bug. A clean restart
+  (`adb emu kill` + relaunch) reproduced the same steps with no
+  truncation. Full narrative in `docs/knowledge/notes/110.md`.
+- ESLint, `tsc --noEmit`, the full Jest suite, and
+  `test_maestro_flow_conventions.py` all pass. No `src/` change — this is
+  a new Maestro flow file only.
