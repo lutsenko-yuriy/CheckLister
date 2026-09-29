@@ -8,7 +8,7 @@ The `## In Progress` section at the top is the one exception — it is maintaine
 
 ## In Progress
 
-- [CheL-110: Android drag-activation race — retry-wrap the persistence-restart flow's drag step](https://github.com/lutsenko-yuriy/CheckLister/issues/110)
+_(nothing in progress)_
 
 ---
 
