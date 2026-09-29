@@ -12,21 +12,8 @@ tags:
 - eraseText: 30
 - inputText: Scenario first edited
 - tapOn: Save
-# CheL-110: Android's activateAfterLongPress(200) drag-activation race (see
-# docs/knowledge/notes/110.md) left this flow's Android variant deliberately
-# unshipped after CheL-104 measured 8000ms at 2/10 genuine drag-order
-# failures and 12000ms at 1/10 — raising duration further plateaus rather
-# than reaching 0, and #110 confirmed there's no way to test a true
-# hold-then-move sequence with current tooling (Maestro `swipe` and `adb
-# input draganddrop` are both linear-interpolation-only). `retry` (Maestro's
-# native block-retry command, 0-3 attempts) instead absorbs the residual
-# per-attempt failure rate: at the measured ~20% ceiling, P(4 consecutive
-# failures) ~ 0.2^4 = 0.0016. A failed attempt leaves the swipe short of a
-# full reorder (no-op) or, less often, lands one slot over — either way the
-# assertVisible below only passes on the true post-drag order, so a retry
-# that starts from an already-wrong layout still fails and retries again
-# rather than producing a false pass. See docs/SCENARIOS.md's "Verified
-# CheL-110 (drag-activation half)" section for the probe data behind this.
+# CheL-110: Android's activateAfterLongPress(200) race caps a single drag
+# attempt at ~80-90%; retry absorbs the rest. See docs/knowledge/notes/110.md.
 - retry:
     maxRetries: 3
     commands:
