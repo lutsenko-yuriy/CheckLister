@@ -1,0 +1,79 @@
+appId: ${APP_ID}
+name: Checklist edits, deletions, and run state across app restarts
+tags:
+  - android
+---
+- runFlow: helpers/create-checklist.yaml
+- tapOn: New item
+- inputText: Scenario third
+- pressKey: Enter
+- tapOn:
+    id: edit-item-Scenario first
+- eraseText: 30
+- inputText: Scenario first edited
+- tapOn: Save
+# CheL-110: Android's activateAfterLongPress(200) drag-activation race (see
+# docs/knowledge/notes/110.md) left this flow's Android variant deliberately
+# unshipped after CheL-104 measured 8000ms at 2/10 genuine drag-order
+# failures and 12000ms at 1/10 — raising duration further plateaus rather
+# than reaching 0, and #110 confirmed there's no way to test a true
+# hold-then-move sequence with current tooling (Maestro `swipe` and `adb
+# input draganddrop` are both linear-interpolation-only). `retry` (Maestro's
+# native block-retry command, 0-3 attempts) instead absorbs the residual
+# per-attempt failure rate: at the measured ~20% ceiling, P(4 consecutive
+# failures) ~ 0.2^4 = 0.0016. A failed attempt leaves the swipe short of a
+# full reorder (no-op) or, less often, lands one slot over — either way the
+# assertVisible below only passes on the true post-drag order, so a retry
+# that starts from an already-wrong layout still fails and retries again
+# rather than producing a false pass. See docs/SCENARIOS.md's "Verified
+# CheL-110 (drag-activation half)" section for the probe data behind this.
+- retry:
+    maxRetries: 3
+    commands:
+      - swipe:
+          start: 7%,35%
+          end: 7%,69%
+          duration: 8000
+      - assertVisible:
+          text: '.*Scenario third.*'
+          below:
+            text: '.*Scenario second.*'
+      - assertVisible:
+          text: '.*Scenario first edited.*'
+          below:
+            text: '.*Scenario third.*'
+
+# Restart 1: confirm the title, edited text, and new order all survived.
+- runFlow: helpers/relaunch-and-open-checklist.yaml
+- assertVisible:
+    text: '.*Scenario third.*'
+    below:
+      text: '.*Scenario second.*'
+- assertVisible:
+    text: '.*Scenario first edited.*'
+    below:
+      text: '.*Scenario third.*'
+
+# Delete one item, then restart again: the deletion must persist and the
+# unrelated remaining items must be untouched.
+- tapOn:
+    id: delete-item-Scenario third
+- assertNotVisible: '.*Scenario third.*'
+- runFlow: helpers/relaunch-and-open-checklist.yaml
+- assertNotVisible: '.*Scenario third.*'
+- assertVisible: '.*Scenario second.*'
+- assertVisible: '.*Scenario first edited.*'
+
+# Start a run, check one item, then restart mid-run. Active run state is
+# in-memory only and must NOT be recovered: relaunching lands on Home, the
+# template is unaffected, and a freshly started run is fully unchecked.
+- tapOn: Start run
+- tapOn: .*Scenario second.*
+- assertVisible: 1 of 2 checked
+- runFlow: helpers/relaunch-and-open-checklist.yaml
+- assertVisible: '.*Scenario second.*'
+- assertVisible: '.*Scenario first edited.*'
+- tapOn: Start run
+- assertVisible: 0 of 2 checked
+- runFlow: helpers/discard-run.yaml
+- runFlow: helpers/delete-checklist.yaml
