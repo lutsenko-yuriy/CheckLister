@@ -6,7 +6,7 @@
 
 `badge` needs GIST_TOKEN and GIST_ID; without them it skips. A failed gist
 update only warns — the badge is cosmetic and must never fail the job.
-No results (e.g. the emulator never came up) is reported as such, never green.
+No results is never green: grey, or red when the job itself failed (JOB_STATUS).
 """
 import json
 import os
@@ -19,7 +19,12 @@ import xml.etree.ElementTree as ET
 def load_results(root):
     results = []
     for report in sorted(Path(root).glob('**/report.xml')):
-        for case in ET.parse(report).iter('testcase'):
+        try:
+            cases = list(ET.parse(report).iter('testcase'))
+        except ET.ParseError as e:
+            print(f'::warning::Skipping unreadable {report}: {e}')
+            continue
+        for case in cases:
             results.append({
                 'name': case.get('name', ''),
                 'file': case.get('file', ''),
@@ -51,11 +56,11 @@ def summary_markdown(results):
     return '\n'.join(lines) + '\n'
 
 
-def badge(results):
+def badge(results, job_failed=False):
     total = len(results)
     passed = sum(r['passed'] for r in results)
     if not total:
-        message, color = 'no results', 'lightgrey'
+        message, color = ('failed', 'red') if job_failed else ('no results', 'lightgrey')
     else:
         message, color = f'{passed}/{total} passed', 'brightgreen' if passed == total else 'red'
     return {'schemaVersion': 1, 'label': 'scenarios', 'message': message, 'color': color}
@@ -83,7 +88,7 @@ def main(argv):
         if not token or not gist_id:
             print('GIST_TOKEN or GIST_ID not set; skipping badge update.')
             return 0
-        content = badge(results)
+        content = badge(results, job_failed=os.environ.get('JOB_STATUS') == 'failure')
         try:
             patch_gist(gist_id, token, content)
             print(f"Badge updated: {content['message']}")

@@ -116,10 +116,12 @@ jobs:
         run: python3 scripts/ci/scenarios_report.py summary artifacts/scenarios-android
 
       - name: Update README badge
-        if: always() && github.event_name == 'push' && github.ref == 'refs/heads/main'
+        # Not always(): a run superseded by a newer main push must not publish its partial result.
+        if: ${{ !cancelled() && github.event_name == 'push' && github.ref == 'refs/heads/main' }}
         env:
           GIST_TOKEN: ${{ secrets.GIST_TOKEN }}
           GIST_ID: ${{ vars.SCENARIOS_GIST_ID }}
+          JOB_STATUS: ${{ job.status }}
         run: python3 scripts/ci/scenarios_report.py badge artifacts/scenarios-android
 
       - name: Upload scenario artifacts

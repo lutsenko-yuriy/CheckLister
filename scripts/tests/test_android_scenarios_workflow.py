@@ -93,7 +93,10 @@ class AndroidScenariosWorkflowTests(unittest.TestCase):
         self.assertIsNotNone(step, 'no badge step')
         self.assertRegex(
             step,
-            r"(?m)^\s+if:\s*always\(\) && github\.event_name == 'push' && github\.ref == 'refs/heads/main'\s*$")
+            r"(?m)^\s+if:\s*\$\{\{ !cancelled\(\) && github\.event_name == 'push' && github\.ref == 'refs/heads/main' \}\}\s*$")
+        # A superseded (cancelled) run must not publish its partial result.
+        self.assertNotRegex(step, r'(?m)^\s+if:.*always\(\)')
+        self.assertRegex(step, r'(?m)^\s+JOB_STATUS:\s*\$\{\{ job\.status \}\}\s*$')
 
     def test_job_has_a_timeout(self):
         self.assertRegex(read_workflow(), r'(?m)^\s+timeout-minutes:\s*\d+\s*$')

@@ -45,6 +45,13 @@ class LoadResultsTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as root:
             self.assertEqual(scenarios_report.load_results(root), [])
 
+    def test_unreadable_report_is_skipped_not_crashed_on(self):
+        with tempfile.TemporaryDirectory() as root:
+            write_report(root, text='<testsuites><testsuite>')
+            write_report(root, subdir='run-ok')
+            results = scenarios_report.load_results(root)
+        self.assertEqual([r['name'] for r in results], ['Complete a run', 'Run history'])
+
     def test_missing_artifacts_dir_yields_no_results(self):
         self.assertEqual(scenarios_report.load_results('/nonexistent/scenarios'), [])
 
@@ -80,6 +87,12 @@ class BadgeTests(unittest.TestCase):
             scenarios_report.badge([{'passed': True}, {'passed': False}])['color'], 'red')
         self.assertEqual(
             scenarios_report.badge([{'passed': True}, {'passed': False}])['message'], '1/2 passed')
+
+    def test_no_results_after_a_failed_job_is_red(self):
+        # A broken main (build failed, emulator never booted) must not look neutral.
+        self.assertEqual(
+            scenarios_report.badge([], job_failed=True),
+            {'schemaVersion': 1, 'label': 'scenarios', 'message': 'failed', 'color': 'red'})
 
     def test_no_results_is_grey_not_green(self):
         self.assertEqual(
@@ -117,6 +130,15 @@ class CliTests(unittest.TestCase):
         self.assertEqual(code, 0)
         patch_gist.assert_called_once_with('g', 't', {
             'schemaVersion': 1, 'label': 'scenarios', 'message': '1/2 passed', 'color': 'red'})
+
+    def test_badge_reads_job_status_for_the_no_results_case(self):
+        with tempfile.TemporaryDirectory() as root, \
+                mock.patch.dict(os.environ, {'GIST_TOKEN': 't', 'GIST_ID': 'g', 'JOB_STATUS': 'failure'},
+                                clear=True), \
+                mock.patch.object(scenarios_report, 'patch_gist') as patch_gist:
+            scenarios_report.main(['badge', root])
+        patch_gist.assert_called_once_with('g', 't', {
+            'schemaVersion': 1, 'label': 'scenarios', 'message': 'failed', 'color': 'red'})
 
     def test_badge_update_failure_warns_without_failing_the_job(self):
         with tempfile.TemporaryDirectory() as root, \
