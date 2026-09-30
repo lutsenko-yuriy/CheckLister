@@ -8,7 +8,7 @@ The `## In Progress` section at the top is the one exception — it is maintaine
 
 ## In Progress
 
-_(nothing in progress)_
+- [CheL-100: Run Android Maestro scenarios in CI on PR open](https://github.com/lutsenko-yuriy/CheckLister/issues/100)
 
 ---
 
