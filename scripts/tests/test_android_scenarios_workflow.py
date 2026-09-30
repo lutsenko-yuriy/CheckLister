@@ -71,6 +71,30 @@ class AndroidScenariosWorkflowTests(unittest.TestCase):
             step,
             r'npm run scenarios:android -- emulator-5554 \|\| \{ adb logcat -d > "\$SCENARIOS_ARTIFACTS_DIR/logcat\.txt"; exit 1; \}')
 
+    def test_runs_on_push_to_main_for_the_badge(self):
+        self.assertRegex(read_workflow(), r'(?m)^  push:\n    branches: \[main\]')
+
+    def test_per_flow_results_publish_as_a_check_even_on_failure(self):
+        text = read_workflow()
+        self.assertRegex(text, r'(?m)^\s+checks:\s*write\s*$')
+        step = step_using(text, 'dorny/test-reporter')
+        self.assertIsNotNone(step, 'no test-reporter step')
+        self.assertRegex(step, r'(?m)^\s+if:\s*always\(\)\s*$')
+        self.assertRegex(step, r'(?m)^\s+reporter:\s*java-junit\s*$')
+
+    def test_run_summary_written_even_on_failure(self):
+        step = next((s for s in steps(read_workflow()) if 'scenarios_report.py summary' in s), None)
+        self.assertIsNotNone(step, 'no summary step')
+        self.assertRegex(step, r'(?m)^\s+if:\s*always\(\)\s*$')
+
+    def test_badge_only_updates_from_main_pushes(self):
+        # A PR branch's result must never repaint the README badge.
+        step = next((s for s in steps(read_workflow()) if 'scenarios_report.py badge' in s), None)
+        self.assertIsNotNone(step, 'no badge step')
+        self.assertRegex(
+            step,
+            r"(?m)^\s+if:\s*always\(\) && github\.event_name == 'push' && github\.ref == 'refs/heads/main'\s*$")
+
     def test_job_has_a_timeout(self):
         self.assertRegex(read_workflow(), r'(?m)^\s+timeout-minutes:\s*\d+\s*$')
 
