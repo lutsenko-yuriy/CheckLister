@@ -63,6 +63,14 @@ class AndroidScenariosWorkflowTests(unittest.TestCase):
         self.assertIsNotNone(step, 'no upload-artifact step')
         self.assertRegex(step, r'(?m)^\s+if:\s*always\(\)\s*$')
 
+    def test_failed_suite_dumps_logcat_into_artifacts_after_the_run(self):
+        # Diagnostics only after Maestro exits — never alongside it (docs/CONSTRAINTS.md).
+        step = step_using(read_workflow(), 'reactivecircus/android-emulator-runner')
+        self.assertIsNotNone(step, 'no android-emulator-runner step')
+        self.assertRegex(
+            step,
+            r'npm run scenarios:android -- emulator-5554 \|\| \{ adb logcat -d > "\$SCENARIOS_ARTIFACTS_DIR/logcat\.txt"; exit 1; \}')
+
     def test_job_has_a_timeout(self):
         self.assertRegex(read_workflow(), r'(?m)^\s+timeout-minutes:\s*\d+\s*$')
 

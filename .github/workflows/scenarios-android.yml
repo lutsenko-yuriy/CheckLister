@@ -71,6 +71,7 @@ jobs:
 
       # google_apis, never Play: snapshot isolation needs adb root (docs/CONSTRAINTS.md).
       # Animations stay on to match every local baseline (#110 timing tuning).
+      # Logcat is dumped only after Maestro exits (docs/CONSTRAINTS.md).
       - name: Run scenarios on emulator
         uses: reactivecircus/android-emulator-runner@v2
         with:
@@ -82,7 +83,12 @@ jobs:
           disable-animations: false
           script: |
             adb install -r android/app/build/outputs/apk/release/app-release.apk
-            npm run scenarios:android -- emulator-5554
+            npm run scenarios:android -- emulator-5554 || { adb logcat -d > "$SCENARIOS_ARTIFACTS_DIR/logcat.txt"; exit 1; }
+
+      # Host-side OOM/KVM evidence for emulator drop-outs.
+      - name: Dump host kernel log
+        if: failure()
+        run: sudo dmesg | tail -200
 
       - name: Upload scenario artifacts
         if: always()
