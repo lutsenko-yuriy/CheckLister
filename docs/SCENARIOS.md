@@ -3,8 +3,9 @@
 CheL-26 adds Maestro flows against the installed app and real native navigation;
 CheL-5 extends them with completed-run history coverage. CheL-31 adds an
 Android emulator runner and system-back coverage alongside the existing iOS
-suite. Jest remains the unit/component test suite. These scenarios are local
-only; CI integration remains follow-up work.
+suite. Jest remains the unit/component test suite. The local runners below are
+the primary developer path; CheL-100 also runs the Android suite in CI — see
+"CI (Android, CheL-100)".
 
 Every top-level flow declares `appId: ${APP_ID}` (interpolated by Maestro from
 the `-e APP_ID=...` runner flag, per platform bundle id) and a `tags:` list
@@ -139,6 +140,56 @@ JUnit report there), and Maestro instead writes each flow's full debug
 output to its own default location, `~/.maestro/tests/<timestamp>/<flow
 name>-shard-<N>/`. Look there, not under `artifacts/`, when diagnosing a
 sharded-run failure.
+
+## CI (Android, CheL-100)
+
+`.github/workflows/scenarios-android.yml` ("Android scenarios") runs the
+Android-tagged suite on every PR to `main` that touches app-affecting paths
+(`src/`, `.maestro/`, `android/`, JS/Babel/Metro config, `package*.json`,
+`patches/`, the Android runner scripts, the workflow itself), and on demand:
+
+```bash
+gh workflow run "Android scenarios" --ref <branch>
+```
+
+It builds the Release APK for `x86_64` only, boots an API 36 `google_apis` /
+`pixel_5` emulator on a KVM-accelerated `ubuntu-latest` runner via
+`reactivecircus/android-emulator-runner`, installs the APK, and runs the same
+`npm run scenarios:android -- emulator-5554` as locally. It also runs on
+pushes to `main` touching the same paths, to keep the README badge current.
+`scripts/tests/test_android_scenarios_workflow.py` pins these choices.
+
+- **Image parity.** API 36 / Pixel 5 matches `Pixel_5_API36`, the only AVD the
+  suite is verified on locally (API 29 failed in CheL-105). `google_apis`,
+  never Play, per `docs/CONSTRAINTS.md`. Animations stay on, matching every
+  local baseline and #110's timing tuning.
+- **No snapshot.** A fresh CI emulator plus a fresh install is already a clean
+  baseline; the runner prints "No snapshot found" and continues.
+- **Serial, not sharded.** The repo is public, so standard runners are free
+  and sharding could only buy wall-clock time. Two emulators on one 4-vCPU
+  runner would contend for CPU (CheL-105 saw contention-only failures on a
+  faster Mac). Revisit past ~12 Android flows or ~20 min of suite time — via a
+  job matrix across separate runners, not more emulators per runner.
+- **Informational.** Not a required check (`main` has no branch protection).
+  FEATURE.md step 10.6 still requires it green, or flagged flaky after three
+  attempts, before a review loop closes. Promoting it to required needs a
+  job-level path filter (like `pr-validation.yml`'s `changes` job) instead of
+  the trigger-level `paths:`, or docs-only PRs would sit on a pending check.
+- **Results.** Every run publishes an "Android scenario flows" check listing
+  each flow's pass/fail (`dorny/test-reporter`, from Maestro's JUnit report),
+  and a per-flow table on the run page (`scripts/ci/scenarios_report.py
+  summary`). Runs on pushes to `main` also update the README's "Android
+  scenarios" badge: a shields.io endpoint read from the public gist in the
+  `SCENARIOS_GIST_ID` repo variable, written with the `GIST_TOKEN` secret (a PAT
+  with gist write). PR runs never touch the badge. Without the secret, the badge
+  step skips and the badge keeps its last value. A run that produced no report
+  shows "no results", never green.
+- **Speed.** A green run takes ~19–21 min, about half of it the cold
+  `assembleRelease`. Optimizing it is tracked in CheL-115.
+- **Diagnosis.** The `scenarios-android` artifact (JUnit `report.xml`, per-flow
+  `maestro.log`, screenshots, hierarchy) uploads on every run. On failure it
+  also holds `logcat.txt`, dumped only after Maestro exits (never alongside
+  it — `docs/CONSTRAINTS.md`), and the job log has a host `dmesg` step.
 
 ## Coverage
 
@@ -689,3 +740,32 @@ three flows run serially; initial driver startup adds overhead to wall time.
 - ESLint, `tsc --noEmit`, the full Jest suite, and
   `test_maestro_flow_conventions.py` all pass. No `src/` change — this is
   a new Maestro flow file only.
+
+## Verified CheL-100 (Android scenarios in CI) — 2026-09-30
+
+Four runs of `.github/workflows/scenarios-android.yml` on PR #114
+(`ubuntu-latest`, API 36 / `google_apis` / `pixel_5`, KVM):
+
+| Run | Build APK | Emulator + suite | Total | Flows |
+|---|---|---|---|---|
+| #1 | 10m 08s | 4m 33s | 15m 18s | 1/6: emulator lost, see below |
+| #2 | 10m 05s | 10m 24s | 21m 03s | 6/6 (suite 7m 55s) |
+| #3 | ~10m | ~9m | 19m 12s | 6/6 (suite 7m 18s) |
+| #4 | ~10m | ~9m | 20m 40s | 6/6 (suite 7m 55s) |
+
+- **Run #1's failure was the environment, not a flow.** About 2 min into the
+  suite, right after the first flow passed, adb reported the emulator as
+  `device offline`. The next flow's very first call (clearing logcat) already
+  failed, and the other five errored in under 150 ms each (`Unknown error`,
+  `DeviceServerDiedException ... UNAVAILABLE` in `maestro.log`). The emulator
+  process itself stayed up (`emu kill` succeeded afterwards). It hasn't
+  recurred in runs #2–#4. The post-run `logcat.txt` and `dmesg` diagnostics
+  were added so a recurrence shows why, instead of guessing from one sample.
+- Per-flow times on the runner are ~1.5–2.5× local (for example
+  `run-complete` 1m 27s–1m 41s vs ~38s locally); text entry dominates.
+- Run #4 also verified reporting: the "Android scenario flows" check showed
+  "6 passed, 0 failed", the run-summary table was written, and the badge step
+  skipped as intended on a PR run. The badge's first real update happens on
+  the first push to `main` after merge.
+- The Gradle cache is never warm on PR runs yet: `setup-gradle` only writes
+  from `main`. Speeding up the workflow is CheL-115.
