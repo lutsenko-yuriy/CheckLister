@@ -182,8 +182,10 @@ summary`). Runs on pushes to `main` also update the README's "Android
   scenarios" badge: a shields.io endpoint read from the public gist in the
   `SCENARIOS_GIST_ID` repo variable, written with the `GIST_TOKEN` secret (a PAT
   with gist write). PR runs never touch the badge. Without the secret, the badge
-  step skips and the badge keeps its last value. A run that produced no report
-  shows "no results", never green.
+  step skips and the badge keeps its last value. A run with no report is never
+  green: red "failed" if the job failed first (for example the build), otherwise
+  grey "no results". A run cancelled by a newer `main` push leaves the badge
+  alone.
 - **Speed.** A green run takes ~19–21 min, about half of it the cold
   `assembleRelease`. Optimizing it is tracked in CheL-115.
 - **Diagnosis.** The `scenarios-android` artifact (JUnit `report.xml`, per-flow
