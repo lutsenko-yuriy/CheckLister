@@ -178,7 +178,7 @@ pushes to `main` touching the same paths, to keep the README badge current.
 - **Results.** Every run publishes an "Android scenario flows" check listing
   each flow's pass/fail (`dorny/test-reporter`, from Maestro's JUnit report),
   and a per-flow table on the run page (`scripts/ci/scenarios_report.py
-  summary`). Runs on pushes to `main` also update the README's "Android
+summary`). Runs on pushes to `main` also update the README's "Android
   scenarios" badge: a shields.io endpoint read from the public gist in the
   `SCENARIOS_GIST_ID` repo variable, written with the `GIST_TOKEN` secret (a PAT
   with gist write). PR runs never touch the badge. Without the secret, the badge
@@ -746,12 +746,12 @@ three flows run serially; initial driver startup adds overhead to wall time.
 Four runs of `.github/workflows/scenarios-android.yml` on PR #114
 (`ubuntu-latest`, API 36 / `google_apis` / `pixel_5`, KVM):
 
-| Run | Build APK | Emulator + suite | Total | Flows |
-|---|---|---|---|---|
-| #1 | 10m 08s | 4m 33s | 15m 18s | 1/6: emulator lost, see below |
-| #2 | 10m 05s | 10m 24s | 21m 03s | 6/6 (suite 7m 55s) |
-| #3 | ~10m | ~9m | 19m 12s | 6/6 (suite 7m 18s) |
-| #4 | ~10m | ~9m | 20m 40s | 6/6 (suite 7m 55s) |
+| Run | Build APK | Emulator + suite | Total   | Flows                         |
+| --- | --------- | ---------------- | ------- | ----------------------------- |
+| #1  | 10m 08s   | 4m 33s           | 15m 18s | 1/6: emulator lost, see below |
+| #2  | 10m 05s   | 10m 24s          | 21m 03s | 6/6 (suite 7m 55s)            |
+| #3  | ~10m      | ~9m              | 19m 12s | 6/6 (suite 7m 18s)            |
+| #4  | ~10m      | ~9m              | 20m 40s | 6/6 (suite 7m 55s)            |
 
 - **Run #1's failure was the environment, not a flow.** About 2 min into the
   suite, right after the first flow passed, adb reported the emulator as
