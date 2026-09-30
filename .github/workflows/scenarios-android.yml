@@ -106,7 +106,7 @@ jobs:
           name: Android scenario flows
           path: artifacts/scenarios-android/**/report.xml
           reporter: java-junit
-          fail-on-error: false
+          # No report means the job already failed before the suite ran.
           fail-on-empty: false
           # The run page's table comes from scenarios_report.py; this step owns the check.
           use-actions-summary: 'false'

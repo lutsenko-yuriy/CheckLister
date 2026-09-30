@@ -81,6 +81,8 @@ class AndroidScenariosWorkflowTests(unittest.TestCase):
         self.assertIsNotNone(step, 'no test-reporter step')
         self.assertRegex(step, r'(?m)^\s+if:\s*always\(\)\s*$')
         self.assertRegex(step, r'(?m)^\s+reporter:\s*java-junit\s*$')
+        # fail-on-error: false marks the check green even when a flow failed.
+        self.assertNotRegex(step, r'(?m)^\s+fail-on-error:\s*false')
 
     def test_run_summary_written_even_on_failure(self):
         step = next((s for s in steps(read_workflow()) if 'scenarios_report.py summary' in s), None)
