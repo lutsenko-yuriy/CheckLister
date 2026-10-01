@@ -92,6 +92,8 @@ Use today's date. Mirror the content from the dialog — do not ask the user for
 
 ### 7. Commit and open a PR
 
+If a PR/MR is already open for this ticket's feature branch (the normal case per `docs/workflows/FEATURE.md` step 12), commit onto that branch instead and skip the new branch/PR below.
+
 Create a branch from the latest `origin/main`, stage all changed files (approved workflow/skill files from step 5 + knowledge base entry from step 6), commit, push, and open a PR:
 
 ```bash
