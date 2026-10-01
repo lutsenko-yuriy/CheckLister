@@ -8,7 +8,7 @@ The `## In Progress` section at the top is the one exception — it is maintaine
 
 ## In Progress
 
-- [CheL-100: Run Android Maestro scenarios in CI on PR open](https://github.com/lutsenko-yuriy/CheckLister/issues/100)
+_(nothing in progress)_
 
 ---
 
@@ -16,6 +16,6 @@ The `## In Progress` section at the top is the one exception — it is maintaine
 
 ## Unscheduled
 
-- [CheL-100: Run Android Maestro scenarios in CI on PR open](https://github.com/lutsenko-yuriy/CheckLister/issues/100)
-- [CheL-98: Scenario flows fail on first tap right after a text-entry step (run-complete, run-history, drag-reorder)](https://github.com/lutsenko-yuriy/CheckLister/issues/98)
+- [CheL-116: Android scenario item text truncated at space ("Scenario second" → "Scenario")](https://github.com/lutsenko-yuriy/CheckLister/issues/116)
+- [CheL-115: Speed up the Android scenarios CI workflow (~20 min per run)](https://github.com/lutsenko-yuriy/CheckLister/issues/115)
 - [CheL-36: Externally started checklist runs with callback results](https://github.com/lutsenko-yuriy/CheckLister/issues/36)
