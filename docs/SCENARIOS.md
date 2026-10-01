@@ -186,7 +186,7 @@ summary`). Runs on pushes to `main` also update the README's "Android
   green: red "failed" if the job failed first (for example the build), otherwise
   grey "no results". A run cancelled by a newer `main` push leaves the badge
   alone.
-- **Speed.** A green run takes ~19–21 min, about half of it the cold
+- **Speed.** A green run takes ~19–24 min, about half of it the cold
   `assembleRelease`. Optimizing it is tracked in CheL-115.
 - **Diagnosis.** The `scenarios-android` artifact (JUnit `report.xml`, per-flow
   `maestro.log`, screenshots, hierarchy) uploads on every run. On failure it
@@ -745,15 +745,17 @@ three flows run serially; initial driver startup adds overhead to wall time.
 
 ## Verified CheL-100 (Android scenarios in CI) — 2026-09-30
 
-Four runs of `.github/workflows/scenarios-android.yml` on PR #114
+Six runs of `.github/workflows/scenarios-android.yml` on PR #114
 (`ubuntu-latest`, API 36 / `google_apis` / `pixel_5`, KVM):
 
-| Run | Build APK | Emulator + suite | Total   | Flows                         |
-| --- | --------- | ---------------- | ------- | ----------------------------- |
-| #1  | 10m 08s   | 4m 33s           | 15m 18s | 1/6: emulator lost, see below |
-| #2  | 10m 05s   | 10m 24s          | 21m 03s | 6/6 (suite 7m 55s)            |
-| #3  | ~10m      | ~9m              | 19m 12s | 6/6 (suite 7m 18s)            |
-| #4  | ~10m      | ~9m              | 20m 40s | 6/6 (suite 7m 55s)            |
+| Run | Build APK | Emulator + suite | Total   | Flows                              |
+| --- | --------- | ---------------- | ------- | ---------------------------------- |
+| #1  | 10m 08s   | 4m 33s           | 15m 18s | 1/6: emulator lost, see below      |
+| #2  | 10m 05s   | 10m 24s          | 21m 03s | 6/6 (suite 7m 55s)                 |
+| #3  | ~10m      | ~9m              | 19m 12s | 6/6 (suite 7m 18s)                 |
+| #4  | ~10m      | ~9m              | 20m 40s | 6/6 (suite 7m 55s)                 |
+| #5  | ~10m      | ~10m             | 21m 31s | 5/6: item text truncated, CheL-116 |
+| #6  | ~10m      | ~12m             | 23m 53s | 6/6 (suite 10m 29s)                |
 
 - **Run #1's failure was the environment, not a flow.** About 2 min into the
   suite, right after the first flow passed, adb reported the emulator as
@@ -763,6 +765,15 @@ Four runs of `.github/workflows/scenarios-android.yml` on PR #114
   process itself stayed up (`emu kill` succeeded afterwards). It hasn't
   recurred in runs #2–#4. The post-run `logcat.txt` and `dmesg` diagnostics
   were added so a recurrence shows why, instead of guessing from one sample.
+- **Run #5 failed on an app-or-input issue, not on the CI wiring.** In
+  `run-exit-system-back-android`, the second item was saved as "Scenario"
+  instead of "Scenario second". That's the same truncation `notes/110.md`
+  wrote off as a degraded long-running emulator, now seen on a fresh one.
+  Tracked in CheL-116. The re-dispatch (run #6) passed 6/6, though its
+  `run-history` took 4m 02s against its usual ~1m 15s.
+- Run #5 also showed that `fail-on-error: false` left the "Android scenario
+  flows" check green despite a failed flow. It's now left at its default, and a
+  contract test pins that.
 - Per-flow times on the runner are ~1.5–2.5× local (for example
   `run-complete` 1m 27s–1m 41s vs ~38s locally); text entry dominates.
 - Run #4 also verified reporting: the "Android scenario flows" check showed
