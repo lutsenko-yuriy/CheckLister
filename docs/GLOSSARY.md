@@ -27,9 +27,10 @@ When a new term is introduced during a `brief` session, add it here before creat
 |---|---|---|
 | Callback URL | An app-specific URL supplied by another mobile app so CheckLister can return the outcome of an externally started run or checklist selection request | — |
 | Checklist | A named list of items the user creates and manages (e.g. "Groceries") | `Checklist` |
-| Checklist selection request | A request from another mobile app, via a deep link, asking the user to pick one of their checklists, with the choice (or a cancellation) returned through a callback URL | — |
+| Checklist selection request | A request from another mobile app, via a deep link, asking the user to pick one of their checklists, with the choice (or a cancellation) returned through a callback URL | `ExternalSelectRequest` |
 | Deep link | A URL that opens CheckLister at a specific action or destination, such as starting a run or a checklist selection for another app | — |
-| Externally started run | A fresh checklist run started by a deep link from another mobile app, with its outcome returned through a callback URL | — |
+| Externally started run | A fresh checklist run started by a deep link from another mobile app, with its outcome returned through a callback URL | `ExternalRunRequest` |
 | Item | A single line entry within a checklist template. Has no checked/unchecked state itself — checking off happens on the item's copy within a run | `Item` |
 | Run | A snapshot copy of a checklist's items, created when the user starts working through it. Checking items off happens on this copy — never on the source checklist | `ChecklistRun` |
+| Run item | An item's copy within a run, carrying the checked/unchecked state the template item lacks | `RunItem` |
 | Run history entry | An immutable summary of one completed run, preserving its checklist identifier and title, item count, and completion time independently of later checklist changes or deletion | `RunHistoryEntry` |
