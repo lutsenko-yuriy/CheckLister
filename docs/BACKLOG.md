@@ -8,7 +8,7 @@ The `## In Progress` section at the top is the one exception — it is maintaine
 
 ## In Progress
 
-_(nothing in progress)_
+- [CheL-116: Android scenario item text truncated at space ("Scenario second" → "Scenario")](https://github.com/lutsenko-yuriy/CheckLister/issues/116)
 
 ---
 
