@@ -208,9 +208,9 @@ describe('ChecklistDetailScreen', () => {
       await renderDetailScreen('1');
       await waitFor(() => screen.getByText('Milk'));
 
-      expect(screen.getByTestId('sortable-list').props.keyboardShouldPersistTaps).toBe(
-        'handled',
-      );
+      expect(
+        screen.getByTestId('sortable-list').props.keyboardShouldPersistTaps,
+      ).toBe('handled');
     },
   );
 
@@ -233,7 +233,7 @@ describe('ChecklistDetailScreen', () => {
     expect((await repo.getAll())[0].items).toHaveLength(0);
   });
 
-  it('exposes a row-scoped testID on each item\'s drag handle', async () => {
+  it("exposes a row-scoped testID on each item's drag handle", async () => {
     const repo = new AsyncStorageChecklistRepository();
     await repo.saveAll([
       {
