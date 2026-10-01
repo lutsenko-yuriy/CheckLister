@@ -107,6 +107,27 @@ describe('HomeScreen', () => {
     );
   });
 
+  // CheL-116: an IME autocorrect on Enter can fire submit before React state
+  // catches up, so submit must use the native text.
+  it('creates a checklist from the submitted native text on Enter even if state lags behind', async () => {
+    await renderHomeScreen();
+    await waitFor(() => screen.getByPlaceholderText('New checklist title'));
+
+    const input = screen.getByPlaceholderText('New checklist title');
+    await fireEvent.changeText(input, 'Weekly ');
+    await fireEvent(input, 'submitEditing', {
+      nativeEvent: { text: 'Weekly Groceries' },
+    });
+
+    await waitFor(() =>
+      expect(screen.getByText('Weekly Groceries')).toBeTruthy(),
+    );
+    expect(screen.queryByText('Weekly')).toBeNull();
+    expect(screen.getByPlaceholderText('New checklist title').props.value).toBe(
+      '',
+    );
+  });
+
   it('shows the item count only once a checklist has items', async () => {
     const repo = new AsyncStorageChecklistRepository();
     await repo.saveAll([
