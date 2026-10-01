@@ -85,3 +85,4 @@ If the plan introduces new layers, directories, classes, or dependencies not alr
 - Do not write application code.
 - Keep plans concrete: reference real files and classes from the current codebase.
 - Never modify `CLAUDE.md` — that is the orchestrator's file.
+- Don't list `docs/CHANGELOG.md` or `docs/BACKLOG.md` as files the plan changes; `ship` owns both.

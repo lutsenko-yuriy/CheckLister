@@ -32,6 +32,8 @@ A record of all versioned releases. For planned work and known issues, see @docs
 
 ### Added
 
+- [ci] #100: New "Android scenarios" workflow (`.github/workflows/scenarios-android.yml`) runs the Android-tagged Maestro suite on an API 36 `google_apis` emulator for PRs and `main` pushes touching app paths, plus `workflow_dispatch`. It is informational, not a required check. It publishes a per-flow "Android scenario flows" check, a run-summary table (`scripts/ci/scenarios_report.py`) and a README badge updated from `main` only, and on failure it dumps logcat and the host `dmesg`. Follow-ups: CheL-115 (speed, ~20 min per run) and CheL-116 (item text truncated at a space, seen in CI).
+- [meta] #100: Debrief. FEATURE.md now requires reporting and alerting CI steps to be verified against a failing run; `debrief` commits onto an already-open feature-branch PR; `plan` no longer lists ship-owned `CHANGELOG.md`/`BACKLOG.md` as changed files.
 - [wip] #92 (WU2): New `draft-release-notes` skill drafts plain-language `[user]` "What's New"/"What to Test" CHANGELOG bullets for a PR, self-checked against a jargon/tone/promotional-language checklist; wired inline into `ship`.
 
 ### Changed

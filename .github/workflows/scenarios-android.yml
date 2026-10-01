@@ -1,0 +1,133 @@
+name: Android scenarios
+
+# CheL-100: runs the Android-tagged Maestro suite on a KVM emulator.
+# Informational (not a required check) — see docs/SCENARIOS.md "CI (Android)".
+# Pushes to main update the README badge (and let setup-gradle write its cache).
+on:
+  push:
+    branches: [main]
+    paths: &app-paths
+      - 'src/**'
+      - '.maestro/**'
+      - 'android/**'
+      - 'packages/**'
+      - 'patches/**'
+      - 'App.tsx'
+      - 'index.js'
+      - 'app.json'
+      - 'babel.config.js'
+      - 'metro.config.js'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'scripts/scenarios-android*.sh'
+      - '.github/workflows/scenarios-android.yml'
+      - 'scripts/ci/scenarios_report.py'
+  pull_request:
+    branches: [main]
+    paths: *app-paths
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  checks: write
+
+concurrency:
+  group: scenarios-android-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  android-scenarios:
+    name: Android Maestro scenarios
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      MAESTRO_VERSION: 2.10.0
+      SCENARIOS_ARTIFACTS_DIR: ${{ github.workspace }}/artifacts/scenarios-android
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: package.json
+          cache: npm
+
+      - name: Install JS dependencies
+        run: npm ci
+
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: gradle/actions/setup-gradle@v6
+
+      # x86_64 only: the emulator's ABI; halves native build time vs. all four.
+      - name: Build Release APK
+        working-directory: android
+        run: ./gradlew assembleRelease -PreactNativeArchitectures=x86_64
+
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' \
+            | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      - name: Install Maestro
+        run: |
+          curl -fsSL https://get.maestro.mobile.dev | bash
+          echo "$HOME/.maestro/bin" >> "$GITHUB_PATH"
+
+      # google_apis, never Play: snapshot isolation needs adb root (docs/CONSTRAINTS.md).
+      # Animations stay on to match every local baseline (#110 timing tuning).
+      # Logcat is dumped only after Maestro exits (docs/CONSTRAINTS.md).
+      - name: Run scenarios on emulator
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 36
+          target: google_apis
+          arch: x86_64
+          profile: pixel_5
+          emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim
+          disable-animations: false
+          script: |
+            adb install -r android/app/build/outputs/apk/release/app-release.apk
+            npm run scenarios:android -- emulator-5554 || { adb logcat -d > "$SCENARIOS_ARTIFACTS_DIR/logcat.txt"; exit 1; }
+
+      # Host-side OOM/KVM evidence for emulator drop-outs.
+      - name: Dump host kernel log
+        if: failure()
+        run: sudo dmesg | tail -200
+
+      - name: Publish per-flow results
+        if: always()
+        uses: dorny/test-reporter@v3
+        with:
+          name: Android scenario flows
+          path: artifacts/scenarios-android/**/report.xml
+          reporter: java-junit
+          # No report means the job already failed before the suite ran.
+          fail-on-empty: false
+          # The run page's table comes from scenarios_report.py; this step owns the check.
+          use-actions-summary: 'false'
+
+      - name: Write run summary
+        if: always()
+        run: python3 scripts/ci/scenarios_report.py summary artifacts/scenarios-android
+
+      - name: Update README badge
+        # Not always(): a run superseded by a newer main push must not publish its partial result.
+        if: ${{ !cancelled() && github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+        env:
+          GIST_TOKEN: ${{ secrets.GIST_TOKEN }}
+          GIST_ID: ${{ vars.SCENARIOS_GIST_ID }}
+          JOB_STATUS: ${{ job.status }}
+        run: python3 scripts/ci/scenarios_report.py badge artifacts/scenarios-android
+
+      - name: Upload scenario artifacts
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: scenarios-android
+          path: artifacts/scenarios-android
+          if-no-files-found: ignore

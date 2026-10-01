@@ -1,6 +1,7 @@
 # Multi-Agent Project Template
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Android scenarios](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/lutsenko-yuriy/4c1cf29720637d82c5d7262aa7bbac74/raw/scenarios.json)](https://github.com/lutsenko-yuriy/CheckLister/actions/workflows/scenarios-android.yml?query=branch%3Amain)
 
 A GitHub template repository that bootstraps a **multi-skill AI workflow** with your choice of project management tool (Linear, Jira, GitHub Issues, etc.) and Git host (GitHub, GitLab, Bitbucket) for any new project in minutes.
 

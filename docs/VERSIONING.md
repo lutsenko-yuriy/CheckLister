@@ -35,6 +35,13 @@ app's version name (`CFBundleShortVersionString` on iOS). CI only ever
 request: lint, typecheck, unit tests, script contract tests, a workflow-YAML
 lint pass, and an unsigned iOS simulator build. No credentials involved.
 
+**Android scenarios** (`.github/workflows/scenarios-android.yml`) runs the
+Android-tagged Maestro suite on a Linux emulator for pull requests and pushes
+to `main` that touch app-affecting paths, and via `workflow_dispatch`.
+Informational, not a required check. Its only credential is the optional
+`GIST_TOKEN` secret, used on `main` pushes to update the README badge. See `docs/SCENARIOS.md`'s
+"CI (Android, CheL-100)".
+
 **iOS release** (`.github/workflows/release-ios.yml`) runs on every push to
 `main`. A `gate` job (`scripts/ci/release_gate.py`) decides whether the
 commit warrants a release build — both conditions must hold:
