@@ -8,7 +8,7 @@ Each tier is tracked as "not yet done this period" — a period label, not an ex
 
 | Tier | Cadence | Last run | Period covered | Next due |
 |---|---|---|---|---|
-| Light | 1st of every calendar month | 2026-09-20 | 2026-09 | 2026-10 |
+| Light | 1st of every calendar month | 2026-10-01 | 2026-10 | 2026-11 |
 | Heavy | 14th of Jan/Apr/Jul/Oct | 2026-09-20 | 2026-Q3 | 2026-Q4 |
 
 ## Open findings
@@ -17,8 +17,7 @@ Findings needing human decision or larger effort, each carrying an explicit dead
 
 | ID | Opened | Tier | Dimension | Debt quadrant | Summary | Deadline | Write-up |
 |---|---|---|---|---|---|---|---|
-| CHK-2026-09-20-heavy-1 | 2026-09-20 | heavy | Accessibility | prudent-inadvertent | `colors.primary` as `RunScreen` "Back" button text measures 4.02:1, under WCAG AA 4.5:1 for normal text; needs a design decision (dedicated link-text color vs. darker primary) rather than a blind palette change | 2026-10-31 | [CHK-2026-09-20-heavy](CHK-2026-09-20-heavy.md) |
-| CHK-2026-09-20-heavy-2 | 2026-09-20 | heavy | Accessibility | prudent-inadvertent | `IconButton`'s ~38×38pt effective touch target (22px icon + 8pt hitSlop) is below the 44×44pt/48×48dp guidance, affecting every icon-only action across the app | 2026-11-15 | [CHK-2026-09-20-heavy](CHK-2026-09-20-heavy.md) |
+| CHK-2026-10-01-light-1 | 2026-10-01 | light | Scenario quality | prudent-deliberate | Valid-checklist external-run/-select completion and cancellation (CheL-36/CheL-40 happy paths) have only component-level coverage; promoting them to installed-app Maestro flows (now feasible via CheL-34's snapshot) is untracked | 2026-11-30 | [CHK-2026-10-01-light](CHK-2026-10-01-light.md) |
 
 ## Resolved findings
 
@@ -26,4 +25,5 @@ Archive of findings once fixed or otherwise closed out.
 
 | ID | Opened | Resolved | Tier | Dimension | Summary | Write-up |
 |---|---|---|---|---|---|---|
-| _none yet_ | | | | | | |
+| CHK-2026-09-20-heavy-1 | 2026-09-20 | 2026-09-20 | heavy | Accessibility | `RunScreen` "Back" text under WCAG AA — fixed by CheL-45 (#47): dedicated `linkText` token (4.82:1 light; 9.26:1 dark, re-verified 2026-10-01) | [CHK-2026-09-20-heavy](CHK-2026-09-20-heavy.md) |
+| CHK-2026-09-20-heavy-2 | 2026-09-20 | 2026-09-20 | heavy | Accessibility | `IconButton` touch target below 44×44pt — fixed by CheL-46 (#48): 44pt min width/height (re-verified 2026-10-01) | [CHK-2026-09-20-heavy](CHK-2026-09-20-heavy.md) |

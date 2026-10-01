@@ -64,6 +64,8 @@ src/
 │       │   └── components/         # RunItemRow
 │       └── useRuns.tsx             # Context + hook for ephemeral active run + durable completed history
 └── shared/
+    ├── analytics/
+    │   └── AnalyticsService.ts     # AnalyticsService interface + `analytics` singleton (no-op until an SDK is wired)
     ├── links/
     │   └── externalLinkUrls.ts     # Verb-agnostic URL primitives + parseExternalLinkKind('run' | 'select' | null)
     ├── storage/
@@ -76,10 +78,8 @@ src/
     └── ui/                         # Cross-feature presentational components
         └── IconButton.tsx          # Shared icon-only action button (Pressable + vector icon glyph)
 
-test/
-└── features/                       # Mirrors src/features/
-    ├── checklists/
-    └── runs/
+__tests__/
+└── App.test.tsx                    # Composition-root smoke test; all other tests sit beside their source as *.test.ts(x)
 
 assets/
 └── icon/
