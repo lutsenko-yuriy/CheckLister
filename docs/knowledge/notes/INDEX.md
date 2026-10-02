@@ -41,6 +41,7 @@ Generated from `bookmarks:` frontmatter in `docs/knowledge/notes/*.md`. Run `pyt
 
 ## Not yet reviewed
 
+- [CheL-100: Run Android Maestro scenarios in CI on PR open](100.md)
 - [102: Research: speed up the Maestro iOS scenario suite (8.5min full run)](102.md)
 - [104: Investigate Android equivalents for checklist-persistence-restart and run-gesture flows](104.md)
 - [105: Implement CheL-102 findings: local suite sharding + drag-reorder swipe-duration reduction](105.md)

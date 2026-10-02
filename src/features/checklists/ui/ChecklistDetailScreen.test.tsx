@@ -149,6 +149,28 @@ describe('ChecklistDetailScreen', () => {
     expect(screen.getByPlaceholderText('New item').props.value).toBe('');
   });
 
+  // CheL-116: an IME autocorrect on Enter can fire submit before React state
+  // catches up, so submit must use the native text.
+  it('adds the submitted native text on Enter even if state lags behind', async () => {
+    const repo = new AsyncStorageChecklistRepository();
+    await repo.saveAll([{ id: '1', title: 'Groceries', items: [] }]);
+
+    await renderDetailScreen('1');
+    await waitFor(() => screen.getByPlaceholderText('New item'));
+
+    const input = screen.getByPlaceholderText('New item');
+    await fireEvent.changeText(input, 'Scenario ');
+    await fireEvent(input, 'submitEditing', {
+      nativeEvent: { text: 'Scenario Second' },
+    });
+
+    await waitFor(() =>
+      expect(screen.getByText('Scenario Second')).toBeTruthy(),
+    );
+    expect(screen.queryByText('Scenario')).toBeNull();
+    expect(screen.getByPlaceholderText('New item').props.value).toBe('');
+  });
+
   it("edits an item's text", async () => {
     const repo = new AsyncStorageChecklistRepository();
     await repo.saveAll([
@@ -186,9 +208,9 @@ describe('ChecklistDetailScreen', () => {
       await renderDetailScreen('1');
       await waitFor(() => screen.getByText('Milk'));
 
-      expect(screen.getByTestId('sortable-list').props.keyboardShouldPersistTaps).toBe(
-        'handled',
-      );
+      expect(
+        screen.getByTestId('sortable-list').props.keyboardShouldPersistTaps,
+      ).toBe('handled');
     },
   );
 
@@ -211,7 +233,7 @@ describe('ChecklistDetailScreen', () => {
     expect((await repo.getAll())[0].items).toHaveLength(0);
   });
 
-  it('exposes a row-scoped testID on each item\'s drag handle', async () => {
+  it("exposes a row-scoped testID on each item's drag handle", async () => {
     const repo = new AsyncStorageChecklistRepository();
     await repo.saveAll([
       {

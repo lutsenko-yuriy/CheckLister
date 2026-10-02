@@ -46,8 +46,10 @@ export function HomeScreen({ navigation }: Props) {
     });
   }, [colors, history.length, historyLoading, navigation, t]);
 
-  const handleAdd = () => {
-    const title = newTitle.trim();
+  // Enter passes the native text: an IME autocorrect on Enter can fire submit
+  // before newTitle catches up (CheL-116).
+  const handleAdd = (rawTitle: string = newTitle) => {
+    const title = rawTitle.trim();
     if (!title) {
       return;
     }
@@ -65,13 +67,13 @@ export function HomeScreen({ navigation }: Props) {
           keyboardAppearance={scheme}
           value={newTitle}
           onChangeText={setNewTitle}
-          onSubmitEditing={handleAdd}
+          onSubmitEditing={e => handleAdd(e.nativeEvent.text)}
           returnKeyType="done"
         />
         <IconButton
           icon="add"
           accessibilityLabel={t('common.add')}
-          onPress={handleAdd}
+          onPress={() => handleAdd()}
           style={styles.addButton}
         />
       </View>

@@ -81,8 +81,10 @@ export function ChecklistDetailScreen({ navigation, route }: Props) {
 
   const checklistId = checklist.id;
 
-  const handleAdd = () => {
-    const text = newItemText.trim();
+  // Enter passes the native text: an IME autocorrect on Enter can fire submit
+  // before newItemText catches up (CheL-116).
+  const handleAdd = (rawText: string = newItemText) => {
+    const text = rawText.trim();
     if (!text) {
       return;
     }
@@ -142,13 +144,13 @@ export function ChecklistDetailScreen({ navigation, route }: Props) {
           keyboardAppearance={scheme}
           value={newItemText}
           onChangeText={setNewItemText}
-          onSubmitEditing={handleAdd}
+          onSubmitEditing={e => handleAdd(e.nativeEvent.text)}
           returnKeyType="done"
         />
         <IconButton
           icon="add"
           accessibilityLabel={t('common.add')}
-          onPress={handleAdd}
+          onPress={() => handleAdd()}
           style={styles.addButton}
         />
       </View>

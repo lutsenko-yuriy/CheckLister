@@ -149,10 +149,13 @@ necessary, keep it local and document the reason.
   difference.
 - Nested virtualized lists or unbounded rendering without considering mobile
   memory and interaction performance.
-- A user-facing string literal in UI code outside `src/shared/i18n/locales/`
+- A user-facing string literal in UI code outside `packages/i18n/src/locales/`
   (labels, placeholders, alert titles/bodies) instead of a `t()` key —
   including a hand-rolled `item{s}` plural where `common.itemCount` (or a
   new plural key) belongs.
+- An `onSubmitEditing` handler reading the `TextInput`'s React state instead of
+  `event.nativeEvent.text` — an IME autocorrect on Enter can fire submit before
+  (or midway through) the final `onChangeText` updates (CheL-116).
 
 ### State and async smells
 
