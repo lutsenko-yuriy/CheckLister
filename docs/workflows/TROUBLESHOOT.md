@@ -16,6 +16,7 @@ For new features, enhancements, and planned changes, use `docs/workflows/FEATURE
 - Check recent changes: `git log --oneline -20`, recent PRs/MRs, recent dependency bumps.
 - For third-party tool failures: read the changelog for breaking changes around the time the failure started.
 - **Before writing off a failing test as "known flaky"**, re-run it in isolation at least once to confirm it's actually intermittent, not deterministic. A symptom that looks like known flakiness (e.g. a timeout) can be a real, consistent bug wearing the same clothes.
+- **A symptom that vanishes on a fresh/clean device is not proof of a degraded environment.** A timing race can only show up when the device is slow. Before blaming the environment, try to reproduce under artificial load (e.g. CPU busy-loops on the emulator, started before and stopped after the run, never during it, per `docs/CONSTRAINTS.md`) with temporary logging at the suspected race point (CheL-116).
 - Form a hypothesis before attempting any fix. **If a hypothesis is disproven by a live CI run, don't form a second one from code reading alone** — add targeted diagnostic instrumentation and validate against real data before the next attempt.
 - **Same rule for a visual/timing bug** reported by the user: if a fix attempt doesn't resolve it, ask for concrete evidence of the actual runtime state (a screen recording, a trace, a log capture) instead of forming another hypothesis from code alone.
 
