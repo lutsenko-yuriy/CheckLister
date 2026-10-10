@@ -95,7 +95,7 @@ Details: @docs/VERSIONING.md
 At the beginning of every new session, before doing anything else:
 
 1. Verify every file flagged as a "required project-bootstrap artifact" in this document exists (currently: `docs/CODE_STYLE.md`, `docs/CONSTRAINTS.md`). If any is missing, flag it to the user before continuing rather than silently working around the gap.
-2. Ensure your PM tool MCP (if used) is authenticated. If MCP tools for your PM tool are unavailable, run `/mcp` to trigger the OAuth flow — see `CLAUDE.local.md` for setup notes.
+2. Read `[providers].pm` in `skill_router.toml`: it is the only PM tool for this repo. With `github`, ticket `CheL-N` is GitHub issue #N (use `gh`); ignore any other PM MCP tools (e.g. Linear) in the session. With an MCP-backed PM tool, ensure it is authenticated; if its tools are unavailable, run `/mcp` to trigger the OAuth flow — see `CLAUDE.local.md` for setup notes.
 3. Check `CLAUDE.local.md` for an `## Active communication style` section and silently load that style (see `styles/`). If absent, each skill will use its own `output_style` — no global default.
 4. Invoke the `summarize` skill to present the current backlog.
 5. Run `scripts/checkup/due.py --format=session`. If it reports a tier as due, recommend running `/checkup` before picking up a new ticket, alongside the backlog summary.

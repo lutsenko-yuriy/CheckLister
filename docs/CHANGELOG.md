@@ -17,6 +17,7 @@ A record of all versioned releases. For planned work and known issues, see @docs
 
 Internal-only changes (CI, tooling, tests, workflow/skill docs) that did not change the app — no version bump, no build, no release.
 
+- [wip] HAB-278 WU23: port YAB onboarding remote/README/CHANGELOG handling and skill_router fixes; session start reads [providers].pm (PR #123)
 - [meta] (PR #122) HAB-278 WU15: README rewritten for CheckLister — Running it, Testing, Architecture and Claude Code onboarding sections replace the template README and its Placeholders table.
 - [meta] (PR #121) HAB-278 WU14: /onboard output — skill_router.toml filled (pm = github, CheL prefix), docs/TECH_STACK.md written, CODE_STYLE Base standard extended to all 8 languages, .mcp.json removed.
 - [meta] (PR #120) HAB-278 WU13: renamed knowledge notes to `CheL-N` (CHL-2/CHL-3 → CheL-88/CheL-93 after their shipping PRs), added missing `bookmarks:` frontmatter, moved `CODE_STYLE.md` into `docs/` with a `## Base standard` (TypeScript, Python, Shell), and replaced `N/A-XX` ticket placeholders with `CheL-XX`.
