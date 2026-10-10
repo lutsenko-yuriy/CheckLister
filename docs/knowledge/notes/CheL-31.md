@@ -1,3 +1,7 @@
+---
+bookmarks: []
+---
+
 # CheL-31: Smoke tests: local Android emulator coverage
 
 ## Notes

@@ -1,3 +1,7 @@
+---
+bookmarks: []
+---
+
 # CheL-29: Smoke tests: drag-to-reorder on iOS
 
 ## Notes

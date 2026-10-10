@@ -1,3 +1,7 @@
+---
+bookmarks: []
+---
+
 # CheL-77: Dark-appearance app icon variant (iOS 18+) to match the dark splash screen
 
 ## Notes

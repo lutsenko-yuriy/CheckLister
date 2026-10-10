@@ -1,4 +1,8 @@
-# CHL-3: TestFlight "What to Test" not set — skip_waiting_for_build_processing drops the changelog
+---
+bookmarks: []
+---
+
+# CheL-93: TestFlight "What to Test" not set — skip_waiting_for_build_processing drops the changelog
 
 ## Notes
 

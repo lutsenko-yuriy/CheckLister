@@ -1,3 +1,7 @@
+---
+bookmarks: []
+---
+
 # CheL-100: Run Android Maestro scenarios in CI on PR open
 
 ## Notes

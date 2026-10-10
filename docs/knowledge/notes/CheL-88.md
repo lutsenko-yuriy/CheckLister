@@ -1,4 +1,8 @@
-# CHL-2: Auto-assign Testers group on TestFlight upload
+---
+bookmarks: []
+---
+
+# CheL-88: Auto-assign Testers group on TestFlight upload
 
 ## Notes
 

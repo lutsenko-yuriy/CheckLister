@@ -1,3 +1,7 @@
+---
+bookmarks: []
+---
+
 # CheL-30: Smoke tests: checklist persistence across app restarts
 
 ## Notes

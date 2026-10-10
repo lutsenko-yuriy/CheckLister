@@ -1,4 +1,8 @@
-# 34: Isolate Maestro scenarios from persistent test data
+---
+bookmarks: []
+---
+
+# CheL-34: Isolate Maestro scenarios from persistent test data
 
 ## Notes
 

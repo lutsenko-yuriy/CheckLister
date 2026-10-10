@@ -1,4 +1,8 @@
-# 70: Night mode (dark theme, follows OS setting)
+---
+bookmarks: []
+---
+
+# CheL-70: Night mode (dark theme, follows OS setting)
 
 ## Notes
 
