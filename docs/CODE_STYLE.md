@@ -11,9 +11,19 @@ future changes can recognize and avoid it.
 
 TypeScript: [`@react-native/eslint-config`](https://github.com/facebook/react-native/tree/main/packages/eslint-config-react-native) (`.eslintrc.js`) and [Prettier](https://prettier.io/docs/en/options.html) (`.prettierrc.js`)
 
-Python: [PEP 8](https://peps.python.org/pep-0008/)
+JavaScript: the same ESLint and Prettier configs as TypeScript
 
-Shell: [Google Shell Style Guide](https://google.github.io/styleguide/shellguide.html)
+Kotlin: [Kotlin coding conventions](https://kotlinlang.org/docs/coding-conventions.html) (no enforcer configured)
+
+Swift: [Swift API Design Guidelines](https://www.swift.org/documentation/api-design-guidelines/) (no enforcer configured)
+
+Objective-C: [Apple Coding Guidelines for Cocoa](https://developer.apple.com/library/archive/documentation/Cocoa/Conceptual/CodingGuidelines/CodingGuidelines.html) (no enforcer configured)
+
+Ruby: [Ruby Style Guide](https://rubystyle.guide/) (no enforcer configured)
+
+Python: [PEP 8](https://peps.python.org/pep-0008/) (no enforcer configured)
+
+Shell: [Google Shell Style Guide](https://google.github.io/styleguide/shellguide.html) (no enforcer configured)
 
 ## General principles
 
