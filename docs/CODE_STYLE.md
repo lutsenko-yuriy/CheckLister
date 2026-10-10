@@ -10,7 +10,9 @@ future changes can recognize and avoid it.
 ## Base standard
 
 TypeScript: [`@react-native/eslint-config`](https://github.com/facebook/react-native/tree/main/packages/eslint-config-react-native) (`.eslintrc.js`) and [Prettier](https://prettier.io/docs/en/options.html) (`.prettierrc.js`)
+
 Python: [PEP 8](https://peps.python.org/pep-0008/)
+
 Shell: [Google Shell Style Guide](https://google.github.io/styleguide/shellguide.html)
 
 ## General principles

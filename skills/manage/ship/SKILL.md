@@ -6,7 +6,7 @@ output_style: CONCISE
 description: Post-merge housekeeping after a PR/MR is approved. Closes the linked PM issues, adds a CHANGELOG entry, regenerates BACKLOG.md, bumps the version, proposes PRODUCT_SPEC.md and GLOSSARY.md updates for approval, commits everything onto the feature branch, pushes, and merges. Invoke when the user approves a PR/MR, before merging.
 ---
 
-The project management tool is **GitHub Issues**. The issue identifier prefix is **N/A**.
+The project management tool is **GitHub Issues**. The issue identifier prefix is **CheL**.
 
 @skills/shared/git-cli-safety.md
 

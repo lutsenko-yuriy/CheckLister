@@ -4,7 +4,7 @@ appId: ${APP_ID}
 - launchApp:
     clearState: false
 # CheL-110: Android cold-start latency (up to ~16s tail) exceeds Maestro's
-# 7s assertVisible default; extendedWaitUntil covers it. See docs/knowledge/notes/110.md.
+# 7s assertVisible default; extendedWaitUntil covers it. See docs/knowledge/notes/CheL-110.md.
 - extendedWaitUntil:
     visible: New checklist title
     timeout: 20000
