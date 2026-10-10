@@ -1,137 +1,88 @@
-# Multi-Agent Project Template
+# CheckLister
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Android scenarios](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/lutsenko-yuriy/4c1cf29720637d82c5d7262aa7bbac74/raw/scenarios.json)](https://github.com/lutsenko-yuriy/CheckLister/actions/workflows/scenarios-android.yml?query=branch%3Amain)
 
-A GitHub template repository that bootstraps a **multi-skill AI workflow** with your choice of project management tool (Linear, Jira, GitHub Issues, etc.) and Git host (GitHub, GitLab, Bitbucket) for any new project in minutes.
+A personal checklist app for iOS and Android, built with React Native and TypeScript.
 
-CheckLister integrations can start runs and receive results through the
+Checklists are reusable templates. You check items off in a run, and completed runs go
+to a history. There are no accounts and no backend: all data stays on the device.
+Other apps can start runs and get the results back through the
 [`checklister://run` external-run contract](docs/EXTERNAL_RUNS.md).
 
-## What's included
+## Running it
 
-| File | Purpose |
-|---|---|
-| `skills/configure/calibrate/SKILL.md` | One-time setup: propose and approve the model → tier mapping |
-| `skills/configure/style/SKILL.md` | Switch communication style: DETAILED, CONCISE, or SCHEMATIC |
-| `skills/manage/summarize/SKILL.md` | Session-start: fetch and display the backlog |
-| `skills/manage/ship/SKILL.md` | Post-merge housekeeping: close issues, update docs, bump version, merge |
-| `skills/design/analyze/SKILL.md` | Analytics planning: identify events and screen views for a feature |
-| `skills/design/experiment/SKILL.md` | Experiment design: hypothesis, metrics, variant spec, registry entry |
-| `skills/design/plan/SKILL.md` | Implementation planning: structured plan from a PM issue |
-| `skills/build/implement/SKILL.md` | TDD implementation and PR/MR |
-| `skills/verify/review/SKILL.md` | Architectural PR/MR review |
-| `skills/verify/audit/SKILL.md` | Runtime and migration PR/MR review |
-| `styles/DETAILED.md` | Style def: full prose, default |
-| `styles/CONCISE.md` | Style def: lecture-note shorthand, abbreviation-friendly |
-| `styles/SCHEMATIC.md` | Style def: TeX-math + Haskell notation |
-| `CLAUDE.md` | Orchestrator file: session start, workflow steps, branch naming, review chain |
-| `docs/PRODUCT_SPEC.md` | Blank product spec template |
-| `docs/ARCHITECTURE.md` | Blank architecture doc template |
-| `docs/BACKLOG.md` | Generated from your PM tool — do not edit by hand |
-| `docs/CHANGELOG.md` | Maintained by the `ship` skill after each merged PR/MR |
-| `docs/VERSIONING.md` | Versioning strategy template |
-| `docs/MODEL_TIERS.md` | Effort Tier + Reasoning Depth vocabulary; active model → tier mapping |
-| `setup.sh` | Interactive setup script — substitutes `{{PLACEHOLDERS}}` throughout |
-
-## Skill workflow
-
-```
-Session start
-  └─▶ summarize — presents backlog, asks "what goes into the next release?"
-
-User-facing feature
-  └─▶ analyze — plans analytics events and screen views, waits for approval
-        └─▶ plan — produces implementation plan, waits for approval
-               └─▶ implement — TDD, opens PR/MR
-                      └─▶ review + audit — parallel review (architectural + runtime)
-                             └─▶ ship — closes issues, regenerates docs, merges PR/MR
-```
-
-## Quick start
-
-### 1. Create a new repo from this template
-
-Click **"Use this template"** → **"Create a new repository"** on GitHub.
-
-### 2. Clone your new repo
+**Requires:** Node 22.11+, plus the
+[React Native environment](https://reactnative.dev/docs/set-up-your-environment)
+for your target platform (Xcode for iOS, the Android SDK and a JDK for Android).
 
 ```bash
-git clone https://github.com/<you>/<your-project>.git
-cd <your-project>
+npm install                                   # also applies patches/ via patch-package
+npm start                                     # Metro bundler
+npm run android                               # in a second terminal
 ```
 
-### 3. Run the setup script
+For iOS, install the pods first:
 
 ```bash
-chmod +x setup.sh
-./setup.sh
+bundle install                                # once, installs CocoaPods
+cd ios && bundle exec pod install && cd ..    # after each native dependency change
+npm run ios
 ```
 
-The script will prompt for:
-- Project name and description
-- Tech stack and architecture summary
-- PM tool name (Linear, Jira, GitHub Issues, etc.) and issue prefix
-- Git host (GitHub, GitLab, Bitbucket)
-- Available AI models (comma-separated — used by `calibrate`)
-- Experiment tracking tool
-- AI commit trailer and PR/MR credit lines
+See `docs/PRODUCT_SPEC.md` for the features and behaviour.
 
-All `{{PLACEHOLDER}}` values across every file are substituted in one step.
+## Testing
 
-### 4. Finish manual setup
-
-After `setup.sh`:
-
-1. **`CLAUDE.md` — Common Commands**: fill in the test, lint, build, and install commands for your stack.
-2. **`docs/PRODUCT_SPEC.md`**: describe your features from the user's perspective.
-3. **`docs/ARCHITECTURE.md`**: add your directory tree and layer rules.
-4. **`CLAUDE.local.md`** *(not committed)*: add local binary paths, PM tool auth notes, and any machine-specific config.
-
-### 5. Map your models to tiers
-
-Invoke the `calibrate` skill:
-
-```
-Invoke the calibrate skill
+```bash
+npm test                                                    # Jest unit and component tests
+npm run lint                                                # ESLint
+npm run typecheck                                           # tsc --noEmit
+npm run scenarios:ios -- <booted-simulator-udid>            # Maestro, iOS
+npm run scenarios:android -- <running-emulator-serial>      # Maestro, Android
+python3 -m unittest discover -s scripts/tests               # scenario and release tooling
+python3 -m unittest discover -s scripts/onboard/tests -t .  # onboarding tooling
+python3 -m unittest discover -s scripts/notes/tests -t .    # knowledge-base notes tooling
+python3 -m unittest discover -s scripts/checkup/tests -t scripts  # checkup tooling
 ```
 
-This skill uses **THOROUGH + ARCHITECTURAL** reasoning (your most capable model) to read the model list you provided, characterise each model's strengths, and propose which model should handle each Effort Tier + Reasoning Depth combination. Review and approve the proposal — it gets written into `docs/MODEL_TIERS.md` as the **Active mapping**.
+The scenarios need Maestro and a Release build installed on the device. A saved
+baseline snapshot is optional but isolates test data. `docs/SCENARIOS.md` covers the setup.
 
-Re-run `calibrate` any time your available models change.
+Run the onboarding tests on Python 3.11+ for full coverage. Under 3.9 the `tomllib` tests are skipped.
 
-### 6. Authenticate your PM tool MCP (if applicable)
+## Architecture
 
-If your PM tool has an MCP server (e.g. Linear), open Claude Code in your project directory and run `/mcp` to authenticate. See `CLAUDE.local.md` for notes.
+Feature-based modules with React Navigation and local persistence:
 
-### 7. Start your first session
+- `src/features/checklists`: checklist templates and their items.
+- `src/features/runs`: the active run and completed-run history.
+- Each feature splits into `domain` (plain TypeScript), `data` (AsyncStorage repositories) and `ui`.
+- `src/shared`: analytics, external-link URLs, storage, theme and shared UI.
+- `packages/i18n`: translations (English, German, French, Russian), imported only as `@checklister/i18n`.
 
-The `CLAUDE.md` session-start instructions will automatically invoke the `summarize` skill, which will present an empty backlog and ask: **"What goes into the first release?"**
+`App.tsx` is the composition root. See `docs/ARCHITECTURE.md` for the full layout and the
+dependency rules.
 
-## Placeholders reference
+## Working on this project with Claude Code
 
-| Placeholder | Example value |
-|---|---|
-| `CheckLister` | `My App` |
-| `A cross-platform checklist app for iOS and Android` | `A task manager for remote teams` |
-| `React Native/TypeScript` | `Flutter/Dart` |
-| `Feature-based modules with React Navigation and local persistence` | `Vertical-slice with Riverpod + sqflite` |
-| `React Native / Airbnb TypeScript style` | `Flutter style guide` |
-| `GitHub Issues` | `Linear` |
-| `N/A` | `APP` |
-| `N/A` | `https://linear.app/my-workspace/project/...` |
-| `GitHub` | `GitHub` |
-| `Firebase A/B Testing` | `Firebase A/B Testing` |
-| `qwen3.6` | `gpt-4o, gpt-4o-mini` |
-| `Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>` | `Co-Authored-By: AI Assistant <ai@example.com>` |
-| `🤖 Generated with [Claude Code](https://claude.com/claude-code)` | `🤖 Generated with Claude Code` |
+This repo uses the
+[agentic-boyz](https://github.com/lutsenko-yuriy/yuriys-agentic-boyz)
+multi-skill workflow. `AGENTS.md`, included via `CLAUDE.md`, is the
+orchestrator. It points to the skills under `skills/` and to the project facts in `docs/`.
+Issues and backlog live in [GitHub Issues](https://github.com/lutsenko-yuriy/CheckLister/issues).
 
-## Notes
+**Requires:** `git`, `python3`, a Python 3.11+ interpreter, and an authenticated `gh` (`gh auth login`).
+The gate runs on any `python3`, 3.9 included. Without `python3`, the gate denies every tool call, and `/onboard` can't fix that.
+Onboarding's `check`, `apply` and `mark` need 3.11+ (for example `python3.12`). `/onboard` finds one on its own.
 
-- **`.claude/skills/` is committed** — skills are part of the project workflow. If you want them local-only, add `.claude/skills/` to `.gitignore` after setup.
-- **No external PM tool required** — leave the PM tool blank during `setup.sh` and the template defaults to your Git host's built-in issue tracker (GitHub Issues, GitLab Issues, etc.). No MCP, no extra auth, no configuration. Add an external tool later if the project outgrows it.
-- **PM tool auth is per-developer** — when using an external PM tool with an MCP server (e.g. Linear), each team member authenticates independently. No secrets are stored in the repo.
-- **`CLAUDE.local.md` is gitignored** — put machine-specific paths and personal notes there.
-- **Tool-agnostic by design** — skills describe what to do with multi-tool example tables (Linear/Jira/GitHub Issues/GitLab Issues, GitHub/GitLab/Bitbucket). Specific commands depend on your configured tools.
-- **Model-agnostic by design** — skills declare `effort` and `reasoning` tiers instead of model names. The `calibrate` skill maps your available models to those tiers once, and the active mapping lives in `docs/MODEL_TIERS.md`.
-- **Communication styles** — the `style` skill switches between DETAILED (full prose), CONCISE (lecture-note shorthand), and SCHEMATIC (TeX-like notation). Active style persists across sessions via `CLAUDE.local.md`.
+1. Open Claude Code **from the repo root**. Claude Code reads `.claude/settings.json` only
+   from the directory it starts in. If you start it from a subdirectory, the gate hooks
+   don't load.
+2. Run `/onboard`. Until it finishes, a gate blocks most writes, other skills, subagents
+   and shell commands. The project is already configured, so here it gives a short
+   orientation and then writes a per-clone marker inside the git dir. The marker is never
+   committed, so each collaborator runs `/onboard` once.
+3. Start with `/summarize`.
+
+If you change the configuration, commit and push it, so collaborators don't work from a stale one.
