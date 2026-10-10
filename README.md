@@ -42,6 +42,8 @@ npm run scenarios:ios -- <booted-simulator-udid>            # Maestro, iOS
 npm run scenarios:android -- <running-emulator-serial>      # Maestro, Android
 python3 -m unittest discover -s scripts/tests               # scenario and release tooling
 python3 -m unittest discover -s scripts/onboard/tests -t .  # onboarding tooling
+python3 -m unittest discover -s scripts/notes/tests -t .    # knowledge-base notes tooling
+python3 -m unittest discover -s scripts/checkup/tests -t scripts  # checkup tooling
 ```
 
 The scenarios need Maestro and a Release build installed on the device. A saved
