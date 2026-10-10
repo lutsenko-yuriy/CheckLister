@@ -2,8 +2,35 @@
 # Add a [<provider_name>] table below for any provider that needs project-specific settings.
 
 [providers]
-pm  = "github_issues"
+# pm is mandatory and the only record of the PM tool; it must name a provider above: linear | github (GitHub Issues).
+# It is empty in the template; /onboard fills it in and `onboard.py apply` reconciles .mcp.json to match.
+pm = ""
 vcs = "github"
+
+[project]
+# Answers that used to be {{PLACEHOLDER}} values; `scripts/onboard/onboard.py apply` substitutes them into
+# tracked files. Empty values are left as placeholders so `onboard.py check` still reports them.
+name = ""
+description = ""
+architecture_summary = ""
+issue_prefix = ""
+git_host = ""
+pm_project_url = ""
+team_id = ""
+project_id = ""
+experiment_tool = ""
+available_models = ""
+ai_commit_trailer = ""
+ai_tool_credit = ""
+test_command = ""
+integration_test_dir = ""
+test_harness_file = ""
+test_harness_class = ""
+version_file = ""
+version_field = ""
+in_qa_paths = ""
+# false: apply deletes LICENSE (the project is not MIT-licensed like the template).
+keep_licence = true
 
 [llm]
 # Set to true once an LM Studio (or other local model) instance is actually

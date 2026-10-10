@@ -1,21 +1,12 @@
 # Project Config
 
 Read this file to resolve all project-specific constants referenced in skill instructions.
-When setting up the project, fill in every `{{placeholder}}`. Skills stay unchanged.
-
-## Source control
-
-| Setting | Value |
-|---|---|
-| Git host | `GitHub` (e.g. GitHub, GitLab, Bitbucket) |
+Project identity (name, issue prefix, git host, PM tool, test/version settings) lives in `skill_router.toml`
+(`[project]`, `[providers]`). Skills stay unchanged.
 
 ## Tech stack
 
-| Layer | Technology |
-|---|---|
-| Framework | `React Native 0.87 / TypeScript` |
-| State management | `React built-in state (useState/useContext)` — revisit if complexity grows |
-| Local persistence | `@react-native-async-storage/async-storage` (installed) |
+Languages, frameworks, platforms and tooling: `docs/TECH_STACK.md`.
 
 ## Project management
 

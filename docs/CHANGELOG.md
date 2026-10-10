@@ -13,6 +13,12 @@ A record of all versioned releases. For planned work and known issues, see @docs
 - ...
 -->
 
+## [Unreleased]
+
+Internal-only changes (CI, tooling, tests, workflow/skill docs) that did not change the app — no version bump, no build, no release.
+
+- [meta] (PR #119) HAB-278 WU12: port /onboard skill and onboarding gate from YAB; tests.yml CI workflow.
+
 ## [0.13.1] — 2026-10-02 (PR #118 merged)
 
 ### Changed
