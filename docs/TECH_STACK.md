@@ -13,7 +13,7 @@ Agents read this file to know which languages, tools and platforms the project u
 | Objective-C | n/a (`ios/CheckLister/ExternalRunLinking.m`) | React Native bridge declaration for the Swift module |
 | Ruby | 3.4 in CI (`.github/workflows/pr-validation.yml`) | `Gemfile`, `ios/Podfile`, `fastlane/Fastfile` |
 | Python | 3.9 and 3.12 in CI (`.github/workflows/tests.yml`) | Agent tooling under `scripts/` (onboarding, notes, checkup, skill router) |
-| Shell | bash (`scripts/*.sh`) | Maestro scenario runners, onboarding gate wrapper |
+| Shell | bash (`scripts/**/*.sh`) | Maestro scenario runners, onboarding gate wrapper |
 
 ## Frameworks and libraries
 
