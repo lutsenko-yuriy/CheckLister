@@ -24,7 +24,7 @@ This skill produces workflow improvements and a retrospective record, not code.
 
 Ask one open question:
 
-> "Let's debrief N/A-XX. How did it go overall?"
+> "Let's debrief CheL-XX. How did it go overall?"
 
 ### 3. Iterate — one question at a time
 
@@ -61,12 +61,12 @@ Write only the approved changes to their respective files. Skip any the user dec
 
 ### 6. Write to the knowledge base
 
-Append a dated block to the `## Debrief summary` section of `docs/knowledge/notes/N/A-XX.md`.
+Append a dated block to the `## Debrief summary` section of `docs/knowledge/notes/CheL-XX.md`.
 
 **If the file does not exist:** create it with this structure first:
 
 ```markdown
-# N/A-XX: <ticket title>
+# CheL-XX: <ticket title>
 
 ## Notes
 
@@ -98,16 +98,16 @@ Create a branch from the latest `origin/main`, stage all changed files (approved
 
 ```bash
 git fetch origin
-git checkout -b feature/N/A-XX-debrief origin/main
+git checkout -b feature/CheL-XX-debrief origin/main
 git add <files>
-git commit -m "meta: debrief N/A-XX — <short summary>"
+git commit -m "meta: debrief CheL-XX — <short summary>"
 ```
 
-PR title: `meta: debrief N/A-XX — <short summary>`. Include the PR URL in the report (step 8).
+PR title: `meta: debrief CheL-XX — <short summary>`. Include the PR URL in the report (step 8).
 
 ### 8. Report back
 
-Confirm: knowledge base updated at `docs/knowledge/notes/N/A-XX.md`, list any workflow/skill files changed (or "no file changes").
+Confirm: knowledge base updated at `docs/knowledge/notes/CheL-XX.md`, list any workflow/skill files changed (or "no file changes").
 
 ---
 

@@ -22,7 +22,7 @@ Languages, frameworks, platforms and tooling: `docs/TECH_STACK.md`.
 | Changelog | `docs/CHANGELOG.md` |
 | Architecture | `docs/ARCHITECTURE.md` |
 | Agent workflow | `AGENTS.md` |
-| Knowledge base | `docs/knowledge/notes/` (one `N/A-XX.md` file per ticket) |
+| Knowledge base | `docs/knowledge/notes/` (one `CheL-XX.md` file per ticket) |
 
 ## Testing
 

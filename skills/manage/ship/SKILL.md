@@ -47,8 +47,8 @@ what's already there, add that subsection rather than merging unlike bullets und
 ## [X.Y.Z] — YYYY-MM-DD
 
 ### Added / Changed / Fixed
-- [user] N/A-XX: <drafted bullet from draft-release-notes>
-- [user] N/A-XX: <another drafted bullet, if more than one>
+- [user] CheL-XX: <drafted bullet from draft-release-notes>
+- [user] CheL-XX: <another drafted bullet, if more than one>
 - <any bullet already waiting under ## [Unreleased], carried over unchanged under its own subsection>
 ```
 
@@ -60,7 +60,7 @@ form instead:
 ## [X.Y.Z] — YYYY-MM-DD
 
 ### Added / Changed / Fixed
-- [app] N/A-XX: <one-line technical summary of what changed>
+- [app] CheL-XX: <one-line technical summary of what changed>
 ```
 
 Follow semantic versioning (`docs/VERSIONING.md`): patch for bug fixes, minor for new features, major for breaking changes. Proceed to step 4 to bump the version.
@@ -72,7 +72,7 @@ heading at the top of the file instead (create the heading if it doesn't exist y
 ## [Unreleased]
 
 ### Added / Changed / Fixed
-- [ci] N/A-XX: <one-line technical summary of what changed>
+- [ci] CheL-XX: <one-line technical summary of what changed>
 ```
 
 Do **not** bump the version for this case — skip step 4 entirely and go straight to step 5.
@@ -116,7 +116,7 @@ Stage only the files changed above and commit onto the feature branch:
 git add docs/CHANGELOG.md docs/BACKLOG.md <version-file>
 # add only if modified in step 5:
 git add docs/PRODUCT_SPEC.md docs/GLOSSARY.md
-git commit -m "chore: release N/A-XX, bump version to X.Y.Z"
+git commit -m "chore: release CheL-XX, bump version to X.Y.Z"
 git push
 ```
 
@@ -132,4 +132,4 @@ Then merge the PR/MR on your Git host:
 
 Confirm: issue(s) closed, changelog updated, version bumped (or "no version bump — entry filed under `## [Unreleased]`, no `[user]`/`[app]` tag"), docs updated (list which files changed), PR/MR merged. Include the version number (or note there was none this time) and the PR/MR URL.
 
-After reporting, propose: *"Want to run `/debrief N/A-XX` to capture what you learned from this ticket?"* (optional — do not block on it)
+After reporting, propose: *"Want to run `/debrief CheL-XX` to capture what you learned from this ticket?"* (optional — do not block on it)

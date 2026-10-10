@@ -16,7 +16,7 @@ This skill produces a ticket, not code.
 
 ### 0. Existing ticket check (only when called with a ticket ID)
 
-If the user invokes this skill with an existing issue ID (e.g. `/brief N/A-XX`):
+If the user invokes this skill with an existing issue ID (e.g. `/brief CheL-XX`):
 
 1. Fetch the issue (PM mapping: **Fetch issue**).
 2. Read `docs/PRODUCT_SPEC.md` and `docs/GLOSSARY.md`.

@@ -1,4 +1,4 @@
-## Analytics plan — N/A-XX: <title>
+## Analytics plan — CheL-XX: <title>
 
 ### Screen views
 | Screen name | Trigger | Properties |

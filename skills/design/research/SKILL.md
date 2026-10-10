@@ -70,7 +70,7 @@ Run this yourself — never delegate it to another subagent, and never repeat it
 
 Present the full result — evidence table(s) plus synthesis/map — to the user and wait for approval or requested adjustments.
 
-If this skill was invoked as part of an existing ticket's research (a `N/A-XX` ID was given, or is inferable from the conversation), write the findings into that ticket's `docs/knowledge/notes/N/A-XX.md`, following the existing per-ticket note format (dated heading under `## Notes`) — this is what `docs/workflows/RESEARCH.md` step 4 means by "capture findings mid-session, don't batch to the end." If invoked standalone, the conversation output is the deliverable; do not create a notes file for a ticket that doesn't exist.
+If this skill was invoked as part of an existing ticket's research (a `CheL-XX` ID was given, or is inferable from the conversation), write the findings into that ticket's `docs/knowledge/notes/CheL-XX.md`, following the existing per-ticket note format (dated heading under `## Notes`) — this is what `docs/workflows/RESEARCH.md` step 4 means by "capture findings mid-session, don't batch to the end." If invoked standalone, the conversation output is the deliverable; do not create a notes file for a ticket that doesn't exist.
 
 ---
 

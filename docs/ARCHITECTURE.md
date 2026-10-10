@@ -24,7 +24,7 @@ App.tsx                        # Composition root: providers + RootNavigator
 index.js                       # RN entry point, registers App
 
 packages/
-└── i18n/                      # @checklister/i18n — npm-workspace package, enforced import boundary (N/A-87)
+└── i18n/                      # @checklister/i18n — npm-workspace package, enforced import boundary (CheL-87)
     └── src/
         ├── languages.ts            # SUPPORTED_LANGUAGES / AppLanguage — single source of truth
         ├── resolveLanguage.ts      # Pure: OS preferred locales + country → { appLanguage, requestedLanguage, region? }
@@ -154,7 +154,7 @@ the callback delivery helpers) take already-translated messages as arguments.
 Like `useTheme`, `useI18n` falls back to English when no `I18nProvider` is
 mounted, so screens rendered in isolation in tests keep their English text.
 
-**Module boundary (N/A-87):** `@checklister/i18n` is an npm-workspace package
+**Module boundary (CheL-87):** `@checklister/i18n` is an npm-workspace package
 (`packages/i18n/`, root `package.json`'s `workspaces`), not just a `shared/`
 directory — a generic subdomain with an _enforced_ one-directional dependency:
 the app may import from it (`@checklister/i18n`, resolved via the workspace

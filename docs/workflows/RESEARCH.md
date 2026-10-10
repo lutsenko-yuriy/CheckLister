@@ -14,8 +14,8 @@ Use this workflow for research-only tickets (no production code, no PR beyond th
 
 3. **Evaluate trade-offs against `docs/CONSTRAINTS.md`.** For each option, assess how well it fits the standing constraints, rank options by fit, and call out explicitly what could go wrong with each given current constraints (e.g. "requires ongoing human review — unsustainable for a small team").
 
-4. **Capture findings mid-session** with `/note N/A-XX: <observation>` as conclusions emerge — do not batch everything to the end.
+4. **Capture findings mid-session** with `/note CheL-XX: <observation>` as conclusions emerge — do not batch everything to the end.
 
 5. **If the research concludes in a standing decision** — one that should be discoverable without knowing which ticket produced it — write an `ADR-NNNN` in `docs/knowledge/decisions/` (see `docs/knowledge/decisions/README.md`) before debriefing. Day-to-day findings stay in the ticket's own notes file; the ADR is only for the decision itself.
 
-6. **Debrief and close** with `/debrief N/A-XX` when all research questions are answered.
+6. **Debrief and close** with `/debrief CheL-XX` when all research questions are answered.

@@ -3,7 +3,7 @@ name: draft-release-notes
 effort: RAPID
 reasoning: TACTICAL
 output_style: CONCISE
-description: Draft the [user] "What's New"/"What to Test" CHANGELOG bullets for a PR or ticket, separately from the technical N/A-XX bullet. Gathers observable before/after behaviour from the ticket, the PR diff, and (for multi-WU tickets) the reconciled final state across all WUs, drafts one bullet per user-noticeable change, self-checks each against the plain-language checklist, and returns the approved list (possibly empty) to its caller.
+description: Draft the [user] "What's New"/"What to Test" CHANGELOG bullets for a PR or ticket, separately from the technical CheL-XX bullet. Gathers observable before/after behaviour from the ticket, the PR diff, and (for multi-WU tickets) the reconciled final state across all WUs, drafts one bullet per user-noticeable change, self-checks each against the plain-language checklist, and returns the approved list (possibly empty) to its caller.
 ---
 
 @skills/shared/project-config.md

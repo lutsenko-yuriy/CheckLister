@@ -24,7 +24,7 @@ Fired when <trigger condition>.
 | `property_name` | `string` | Description |
 -->
 
-<!-- Added for N/A-2: Checklist items -->
+<!-- Added for CheL-2: Checklist items -->
 
 ### `item_added`
 
@@ -169,7 +169,7 @@ Fired once per app session when the app resolves its UI language at launch, and 
 | `screen_name` | When the screen opens |
 -->
 
-<!-- Added for N/A-2: Checklist items; screen_checklist_run row added for CheL-4 -->
+<!-- Added for CheL-2: Checklist items; screen_checklist_run row added for CheL-4 -->
 
 <!-- Added for CheL-5: Checklist run history -->
 
