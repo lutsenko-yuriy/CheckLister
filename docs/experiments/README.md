@@ -3,7 +3,7 @@
 All product experiments are tracked here. One file per experiment under this directory.
 
 ## Stack
-- **Running experiments:** Firebase A/B Testing (e.g. Firebase Remote Config + Firebase A/B Testing, Statsig, LaunchDarkly, or PostHog)
+- **Running experiments:** none configured yet (candidates: Firebase Remote Config + A/B Testing, Statsig, LaunchDarkly, or PostHog)
 - **Tracking outcomes:** This registry (one `.md` file per experiment)
 - **When to revisit dedicated tooling:** when running >5 concurrent experiments or needing richer governance/analysis
 

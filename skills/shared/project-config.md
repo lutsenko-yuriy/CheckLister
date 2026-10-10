@@ -28,10 +28,10 @@ Languages, frameworks, platforms and tooling: `docs/TECH_STACK.md`.
 
 | Setting | Value |
 |---|---|
-| Integration test directory | `.maestro/*.yaml` for installed-app iOS scenarios; colocated `*.test.tsx` files under `src/features/<feature>/ui/` for component-level integration |
+| Integration test directory | `.maestro/*.yaml` for installed-app iOS and Android scenarios; colocated `*.test.tsx` files under `src/features/<feature>/ui/` for component-level integration |
 | Test harness file | `docs/SCENARIOS.md` and `.maestro/helpers/*.yaml` for Maestro; `@testing-library/react-native` for component tests |
-| Harness class / entry point | `npm run scenarios:ios -- <UDID>` for Maestro; `render()` / `fireEvent` for component tests |
-| Unit / integration test command | `npm test` (Jest) plus `npm run scenarios:ios -- <UDID>` against the installed iOS app |
+| Harness class / entry point | `npm run scenarios:ios -- <UDID>` or `npm run scenarios:android` for Maestro; `render()` / `fireEvent` for component tests |
+| Unit / integration test command | `npm test` (Jest) plus `npm run scenarios:ios -- <UDID>` / `npm run scenarios:android` against the installed app |
 
 ## Version management
 
