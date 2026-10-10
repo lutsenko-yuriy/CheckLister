@@ -44,12 +44,13 @@ python3 -m unittest discover -s scripts/tests               # scenario and relea
 python3 -m unittest discover -s scripts/onboard/tests -t .  # onboarding tooling
 python3 -m unittest discover -s scripts/notes/tests -t .    # knowledge-base notes tooling
 python3 -m unittest discover -s scripts/checkup/tests -t scripts  # checkup tooling
+python3 -m unittest discover -s scripts/skill_router/tests -t scripts  # skill router
 ```
 
 The scenarios need Maestro and a Release build installed on the device. A saved
 baseline snapshot is optional but isolates test data. `docs/SCENARIOS.md` covers the setup.
 
-Run the onboarding tests on Python 3.11+ for full coverage. Under 3.9 the `tomllib` tests are skipped.
+Run the onboarding and skill router tests on Python 3.11+ for full coverage. Under 3.9 the `tomllib` tests are skipped.
 
 ## Architecture
 
