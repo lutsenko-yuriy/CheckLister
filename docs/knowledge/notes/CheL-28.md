@@ -1,3 +1,7 @@
+---
+bookmarks: []
+---
+
 # CheL-28: Smoke tests: checklist item editing on iOS
 
 ## Notes

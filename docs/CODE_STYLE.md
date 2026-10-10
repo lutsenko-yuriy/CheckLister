@@ -7,6 +7,14 @@ parts; this guide covers design choices that tools cannot fully judge.
 When a recurring code smell is discovered, add it to the catalogue below so
 future changes can recognize and avoid it.
 
+## Base standard
+
+TypeScript: [`@react-native/eslint-config`](https://github.com/facebook/react-native/tree/main/packages/eslint-config-react-native) (`.eslintrc.js`) and [Prettier](https://prettier.io/docs/en/options.html) (`.prettierrc.js`)
+
+Python: [PEP 8](https://peps.python.org/pep-0008/)
+
+Shell: [Google Shell Style Guide](https://google.github.io/styleguide/shellguide.html)
+
 ## General principles
 
 - Optimize for clarity before cleverness. Prefer code whose intent is visible

@@ -45,10 +45,10 @@ Get the current milestone (sprint, version, or release) and its completion perce
 ### Active milestone: <name> (<X>% complete)
 
 ### Issues (bugs & tech debt)
-- N/A-XX: <title> — <one-line description>
+- CheL-XX: <title> — <one-line description>
 
 ### Remaining work
-- N/A-XX: <title> — <one-line description>
+- CheL-XX: <title> — <one-line description>
 
 ### Recently completed
 - <version>: <summary of what shipped>

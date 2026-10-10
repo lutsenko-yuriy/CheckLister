@@ -1,4 +1,8 @@
-# 87: Extract shared/i18n into @checklister/i18n workspace package
+---
+bookmarks: []
+---
+
+# CheL-87: Extract shared/i18n into @checklister/i18n workspace package
 
 ## Notes
 

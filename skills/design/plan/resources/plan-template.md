@@ -1,7 +1,7 @@
 ## Implementation plan — <short title>
 
 ### Issues
-- N/A-XX: <title>
+- CheL-XX: <title>
 
 ### New packages / dependencies
 - <package>: <why needed>
@@ -34,4 +34,4 @@ Each unit is one focused session. Keep units small enough to fit in a single PR/
 
 | # | Unit | Issues | Changed lines (approx) | Substantive files | Files touched (approx) |
 |---|---|---|---|---|---|
-| 1 | <unit name> | N/A-XX | <range> | <count> | <files> |
+| 1 | <unit name> | CheL-XX | <range> | <count> | <files> |

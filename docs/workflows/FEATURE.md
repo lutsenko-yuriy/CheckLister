@@ -42,12 +42,12 @@ behaviour beyond a literal value, it is not trivial — use the full workflow in
    1. **Sharpen the spec.** If the ticket lacks a clear spec (no explicit description of behaviour, interaction, or layout), or predates the `/brief` skill: run `/brief` first, before anything else below.
    2. **Analytics planning.** For features with user-visible screens or interactions: invoke `analyze` and wait for approval.
       ```
-      Invoke the analyze skill for N/A-XX: <issue title>
+      Invoke the analyze skill for CheL-XX: <issue title>
       ```
       Identifies trackable moments, proposes events, flags PII concerns. Pure infrastructure or CI changes with no user-facing screens skip this gate.
    3. **Implementation plan.** For large changes (spanning multiple files, introducing new domain entities, new dependencies, or architectural shifts): invoke `plan` and wait for approval, before writing any code.
       ```
-      Invoke the plan skill for N/A-XX: <issue title>
+      Invoke the plan skill for CheL-XX: <issue title>
       ```
       Produces a structured plan (dependencies, models, UI changes, test strategy, ordered phases, work units).
 
@@ -56,12 +56,12 @@ behaviour beyond a literal value, it is not trivial — use the full workflow in
    5. **Create the feature branch** from the latest default branch, before writing any code. Always include the ticket number after `feature/`:
       ```
       git fetch origin
-      git checkout -b feature/N/A-XX-<short-description> origin/main
+      git checkout -b feature/CheL-XX-<short-description> origin/main
       ```
       If the branch already exists, rebase it onto `origin/main` first so the PR/MR diff contains only the new work. **Before merging**, rebase onto `origin/main` again so the branch is current and the merge lands cleanly.
    6. **Draft scenarios.** For every ticket with user-facing flows: invoke `draft-scenarios` and wait for approval.
       ```
-      Invoke the draft-scenarios skill for N/A-XX: <issue title>
+      Invoke the draft-scenarios skill for CheL-XX: <issue title>
       ```
       Reads the ticket (and any `plan` comment), drafts scenario/integration-test stubs with `// TODO:`-style comments. `implement` fills in driver code per WU and makes them green. Pure infrastructure or CI-only changes with no user-facing flows may skip this gate.
 
@@ -126,7 +126,7 @@ behaviour beyond a literal value, it is not trivial — use the full workflow in
 11. Remind the user to compact context after each commit to keep the conversation lean.
 12. When the user approves the PR/MR, invoke `debrief` on the current feature branch to capture the retrospective before merging:
     ```
-    Invoke the debrief skill for N/A-XX
+    Invoke the debrief skill for CheL-XX
     ```
     Since a PR/MR is already open for this branch, debrief commits its knowledge-base entry (and any approved workflow/skill changes) directly onto it instead of opening a separate PR/MR.
 13. Then invoke the `ship` skill:

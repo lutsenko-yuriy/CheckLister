@@ -1,3 +1,7 @@
+---
+bookmarks: []
+---
+
 # CheL-61: iOS release pipeline: GitHub Actions CI + TestFlight automation
 
 ## Notes

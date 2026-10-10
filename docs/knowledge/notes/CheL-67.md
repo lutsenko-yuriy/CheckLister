@@ -1,4 +1,8 @@
-# GH-67: Add CheckLister app icon for iOS and Android
+---
+bookmarks: []
+---
+
+# CheL-67: Add CheckLister app icon for iOS and Android
 
 ## Notes
 

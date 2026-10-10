@@ -10,7 +10,7 @@ module.exports = {
   },
   overrides: [
     {
-      // @checklister/i18n (N/A-87) is a generic-subdomain workspace package:
+      // @checklister/i18n (CheL-87) is a generic-subdomain workspace package:
       // it must never import back into the host app, only its own files and
       // external dependencies. A host-side dependency (e.g. analytics)
       // crosses this boundary via a caller-supplied callback prop instead

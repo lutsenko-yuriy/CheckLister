@@ -363,7 +363,7 @@ respectively) with a fat tail up to 13-16s, sitting right at/above Maestro's
 `assertVisible` (which has no timeout field of its own). A standalone probe
 mirroring the flow above (3 cold-launch/relaunch opportunities, no drag
 step) ran 15/15 clean (60/60 opportunities) after the fix, versus the ~35%
-baseline. See `docs/knowledge/notes/110.md` for the full probe data.
+baseline. See `docs/knowledge/notes/CheL-110.md` for the full probe data.
 
 ## Results and diagnosis
 
@@ -707,7 +707,7 @@ three flows run serially; initial driver startup adds overhead to wall time.
   distinct Android navigation-gesture behavior left uncovered. 3-button
   navigation mode was not probed.
 - No `src/` changes. Full findings and raw per-run evidence in
-  `docs/knowledge/notes/104.md`.
+  `docs/knowledge/notes/CheL-104.md`.
 
 ## Verified CheL-110 (drag-activation half) — 2026-09-29
 
@@ -743,7 +743,7 @@ three flows run serially; initial driver startup adds overhead to wall time.
   shortly after, a "Process system isn't responding" ANR dialog — a
   degraded emulator after a long session, not an app bug. A clean restart
   (`adb emu kill` + relaunch) reproduced the same steps with no
-  truncation. Full narrative in `docs/knowledge/notes/110.md`.
+  truncation. Full narrative in `docs/knowledge/notes/CheL-110.md`.
 - ESLint, `tsc --noEmit`, the full Jest suite, and
   `test_maestro_flow_conventions.py` all pass. No `src/` change — this is
   a new Maestro flow file only.
@@ -772,7 +772,7 @@ Six runs of `.github/workflows/scenarios-android.yml` on PR #114
   were added so a recurrence shows why, instead of guessing from one sample.
 - **Run #5 failed on an app-or-input issue, not on the CI wiring.** In
   `run-exit-system-back-android`, the second item was saved as "Scenario"
-  instead of "Scenario second". That's the same truncation `notes/110.md`
+  instead of "Scenario second". That's the same truncation `notes/CheL-110.md`
   wrote off as a degraded long-running emulator, now seen on a fresh one.
   Tracked in CheL-116. The re-dispatch (run #6) passed 6/6, though its
   `run-history` took 4m 02s against its usual ~1m 15s.

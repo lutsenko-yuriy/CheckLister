@@ -20,7 +20,7 @@ Full product specifications: docs/PRODUCT_SPEC.md
 | docs/VERSIONING.md | Version numbering rules and CI/CD pipeline |
 | docs/CONSTRAINTS.md | Standing team/stage/device constraints — referenced by research tickets for trade-off evaluation |
 | docs/ANALYTICS_EVENTS.md | Analytics event catalogue — events, screen views, and their properties |
-| CODE_STYLE.md | TypeScript and React Native coding practices and code-smell catalogue |
+| docs/CODE_STYLE.md | TypeScript and React Native coding practices and code-smell catalogue |
 | docs/MODEL_TIERS.md | Effort Tier and Reasoning Depth vocabulary; active model → tier mapping |
 | docs/experiments/README.md | Experiment registry index — one `.md` file per experiment |
 | docs/knowledge/README.md | Project knowledge base — vault layout, per-ticket file format, how `/note` and `/debrief` write entries |
@@ -69,10 +69,10 @@ Details and directory layout: @docs/ARCHITECTURE.md. Languages and tooling: docs
 
 ## Code style
 
-Follow [CODE_STYLE.md](CODE_STYLE.md). ESLint and Prettier remain the mechanical
+Follow [docs/CODE_STYLE.md](docs/CODE_STYLE.md). ESLint and Prettier remain the mechanical
 sources of truth where their configured rules apply.
 
-`CODE_STYLE.md` is a required project-bootstrap artifact: create it before the
+`docs/CODE_STYLE.md` is a required project-bootstrap artifact: create it before the
 first feature implementation and extend its code-smell catalogue whenever a
 recurring convention or smell is discovered.
 
@@ -94,7 +94,7 @@ Details: @docs/VERSIONING.md
 
 At the beginning of every new session, before doing anything else:
 
-1. Verify every file flagged as a "required project-bootstrap artifact" in this document exists (currently: `CODE_STYLE.md`, `docs/CONSTRAINTS.md`). If any is missing, flag it to the user before continuing rather than silently working around the gap.
+1. Verify every file flagged as a "required project-bootstrap artifact" in this document exists (currently: `docs/CODE_STYLE.md`, `docs/CONSTRAINTS.md`). If any is missing, flag it to the user before continuing rather than silently working around the gap.
 2. Ensure your PM tool MCP (if used) is authenticated. If MCP tools for your PM tool are unavailable, run `/mcp` to trigger the OAuth flow — see `CLAUDE.local.md` for setup notes.
 3. Check `CLAUDE.local.md` for an `## Active communication style` section and silently load that style (see `styles/`). If absent, each skill will use its own `output_style` — no global default.
 4. Invoke the `summarize` skill to present the current backlog.

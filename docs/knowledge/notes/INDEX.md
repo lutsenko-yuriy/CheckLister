@@ -7,9 +7,9 @@ Generated from `bookmarks:` frontmatter in `docs/knowledge/notes/*.md`. Run `pyt
 ## Top themes
 
 - **agent-model-calibration** (2)
+- **async-lifecycle-races** (2)
 - **real-device-only-bugs** (2)
 - **scenario-fixture-isolation** (2)
-- **async-lifecycle-races** (1)
 
 ## By bookmark
 
@@ -18,6 +18,7 @@ Generated from `bookmarks:` frontmatter in `docs/knowledge/notes/*.md`. Run `pyt
 - [CheL-36: Externally started checklist runs with callback results](CheL-36.md)
 
 ### async-lifecycle-races
+- [CheL-116: Android scenario item text truncated at space ("Scenario second" → "Scenario")](CheL-116.md)
 - [CheL-36: Externally started checklist runs with callback results](CheL-36.md)
 
 ### real-device-only-bugs
@@ -30,39 +31,36 @@ Generated from `bookmarks:` frontmatter in `docs/knowledge/notes/*.md`. Run `pyt
 
 ## Reviewed — nothing noteworthy
 
-- [1: Checklists](1.md)
-- [2: Checklist items](2.md)
+- [CheL-1: Checklists](CheL-1.md)
+- [CheL-100: Run Android Maestro scenarios in CI on PR open](CheL-100.md)
+- [CheL-102: Research: speed up the Maestro iOS scenario suite (8.5min full run)](CheL-102.md)
+- [CheL-104: Investigate Android equivalents for checklist-persistence-restart and run-gesture flows](CheL-104.md)
+- [CheL-105: Implement CheL-102 findings: local suite sharding + drag-reorder swipe-duration reduction](CheL-105.md)
+- [CheL-110: Android drag-activation race and cold-launch/relaunch race frequency: investigate root cause](CheL-110.md)
 - [CheL-14: UI polish: consistent color scheme, icons, and drag visual feedback](CheL-14.md)
 - [CheL-15: Clarify: checking items on the checklist template vs. within a run](CheL-15.md)
+- [CheL-2: Checklist items](CheL-2.md)
 - [CheL-20: Remove the sections feature altogether](CheL-20.md)
-- [CheL-3: Reordering & sections](CheL-3.md)
-- [CheL-45: Run screen Back button text fails WCAG AA contrast](CheL-45.md)
-- [CheL-46: IconButton touch target below 44x44pt minimum](CheL-46.md)
-
-## Not yet reviewed
-
-- [CheL-100: Run Android Maestro scenarios in CI on PR open](100.md)
-- [102: Research: speed up the Maestro iOS scenario suite (8.5min full run)](102.md)
-- [104: Investigate Android equivalents for checklist-persistence-restart and run-gesture flows](104.md)
-- [105: Implement CheL-102 findings: local suite sharding + drag-reorder swipe-duration reduction](105.md)
-- [CheL-110: Android drag-activation race and cold-launch/relaunch race frequency: investigate root cause](110.md)
-- [34: Isolate Maestro scenarios from persistent test data](34.md)
-- [70: Night mode (dark theme, follows OS setting)](70.md)
-- [72: Faster iOS PR-validation build (Debug config, spec-repo cache, path filtering)](72.md)
-- [CheL-74: Research: structured representation for deep-link contracts](74.md)
-- [CheL-77: Dark-appearance app icon variant (iOS 18+) to match the dark splash screen](77.md)
-- [N/A-80: Localization: German, French and Russian](80.md)
-- [87: Extract shared/i18n into @checklister/i18n workspace package](87.md)
-- [92: Consolidated: TestFlight changelog fix, draft-release-notes skill, version-bump rule](92.md)
-- [97: Isolate Android Maestro scenarios from persistent test data](97.md)
-- [98: Scenario flows fail on first tap right after a text-entry step (run-complete, run-history, drag-reorder)](98.md)
-- [CHL-2: Auto-assign Testers group on TestFlight upload](CHL-2.md)
-- [CHL-3: TestFlight "What to Test" not set — skip_waiting_for_build_processing drops the changelog](CHL-3.md)
 - [CheL-28: Smoke tests: checklist item editing on iOS](CheL-28.md)
 - [CheL-29: Smoke tests: drag-to-reorder on iOS](CheL-29.md)
+- [CheL-3: Reordering & sections](CheL-3.md)
 - [CheL-30: Smoke tests: checklist persistence across app restarts](CheL-30.md)
 - [CheL-31: Smoke tests: local Android emulator coverage](CheL-31.md)
+- [CheL-34: Isolate Maestro scenarios from persistent test data](CheL-34.md)
 - [CheL-40: Externally requested checklist selection](CheL-40.md)
+- [CheL-45: Run screen Back button text fails WCAG AA contrast](CheL-45.md)
+- [CheL-46: IconButton touch target below 44x44pt minimum](CheL-46.md)
 - [CheL-54: Checklist item edit Save/Cancel require a double tap](CheL-54.md)
 - [CheL-61: iOS release pipeline: GitHub Actions CI + TestFlight automation](CheL-61.md)
-- [GH-67: Add CheckLister app icon for iOS and Android](GH-67.md)
+- [CheL-67: Add CheckLister app icon for iOS and Android](CheL-67.md)
+- [CheL-70: Night mode (dark theme, follows OS setting)](CheL-70.md)
+- [CheL-72: Faster iOS PR-validation build (Debug config, spec-repo cache, path filtering)](CheL-72.md)
+- [CheL-74: Research: structured representation for deep-link contracts](CheL-74.md)
+- [CheL-77: Dark-appearance app icon variant (iOS 18+) to match the dark splash screen](CheL-77.md)
+- [CheL-80: Localization: German, French and Russian](CheL-80.md)
+- [CheL-87: Extract shared/i18n into @checklister/i18n workspace package](CheL-87.md)
+- [CheL-88: Auto-assign Testers group on TestFlight upload](CheL-88.md)
+- [CheL-92: Consolidated: TestFlight changelog fix, draft-release-notes skill, version-bump rule](CheL-92.md)
+- [CheL-93: TestFlight "What to Test" not set — skip_waiting_for_build_processing drops the changelog](CheL-93.md)
+- [CheL-97: Isolate Android Maestro scenarios from persistent test data](CheL-97.md)
+- [CheL-98: Scenario flows fail on first tap right after a text-entry step (run-complete, run-history, drag-reorder)](CheL-98.md)

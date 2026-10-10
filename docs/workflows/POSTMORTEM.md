@@ -25,7 +25,7 @@ research, use `docs/workflows/RESEARCH.md`.
 5. **Assess the detection gap.** Why didn't review or tests catch it? A test that encodes the
    bug as its expected, passing behavior is a real gap — but check whether there's more to it,
    e.g. two individually-reasonable decisions in separate PRs/MRs whose *interaction* nothing tested.
-6. **Capture findings** via `/note N/A-XX: <finding>` as they emerge, same as
+6. **Capture findings** via `/note CheL-XX: <finding>` as they emerge, same as
    `docs/workflows/RESEARCH.md`.
 7. **Open a PR/MR for the findings note as soon as it's substantive**, even though there's no code
    — unlike `docs/workflows/RESEARCH.md`'s default of no PR/MR beyond the debrief commit, a
@@ -33,4 +33,4 @@ research, use `docs/workflows/RESEARCH.md`.
    Push follow-up commits (more findings, the debrief) onto the same branch/PR.
 8. **Propose a concrete prevention change**, if one exists — sized to the actual gap found, not
    a blanket policy.
-9. **Debrief and close** with `/debrief N/A-XX` when all investigation questions are answered.
+9. **Debrief and close** with `/debrief CheL-XX` when all investigation questions are answered.

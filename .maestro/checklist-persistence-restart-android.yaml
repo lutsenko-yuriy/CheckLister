@@ -13,7 +13,7 @@ tags:
 - inputText: Scenario first edited
 - tapOn: Save
 # CheL-110: Android's activateAfterLongPress(200) race caps a single drag
-# attempt at ~80-90%; retry absorbs the rest. See docs/knowledge/notes/110.md.
+# attempt at ~80-90%; retry absorbs the rest. See docs/knowledge/notes/CheL-110.md.
 - retry:
     maxRetries: 3
     commands:
