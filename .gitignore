@@ -17,6 +17,10 @@ __pycache__/
 #
 .DS_Store
 
+# Firebase config (CheL-126): written from GitHub secrets in CI, placed by hand locally
+ios/CheckLister/GoogleService-Info.plist
+android/app/google-services.json
+
 # Xcode
 #
 build/

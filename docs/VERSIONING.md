@@ -81,4 +81,16 @@ Required GitHub Actions secrets for the release job: `APP_STORE_CONNECT_API_KEY_
 `IOS_PROVISIONING_PROFILE`, `IOS_TEAM_ID`. These are manual, out-of-band
 setup — no agent or workflow can provision them.
 
+The Firebase config files are not committed (CheL-126). Three workflows (PR
+validation's iOS build, Android scenarios, iOS release) recreate them with
+`scripts/ci/write_firebase_config.py` from two base64-encoded secrets,
+`GOOGLE_SERVICE_INFO_PLIST_B64` and `GOOGLE_SERVICES_JSON_B64`, and fail if a
+secret is missing or belongs to another app. Pull requests from forks get no
+secrets, so those jobs fail there. To (re)create a secret:
+
+```
+gh secret set GOOGLE_SERVICE_INFO_PLIST_B64 < <(base64 -i GoogleService-Info.plist)
+gh secret set GOOGLE_SERVICES_JSON_B64 < <(base64 -i google-services.json)
+```
+
 <!-- Describe your CI/CD pipeline here. -->

@@ -25,6 +25,7 @@ jobs:
               - 'android/**'
               - 'package.json'
               - 'package-lock.json'
+              - 'firebase.json'
               - 'App.tsx'
               - 'index.js'
               - 'patches/**'
@@ -105,6 +106,11 @@ jobs:
       - name: Install CocoaPods dependencies
         working-directory: ios
         run: bundle exec pod install
+
+      - name: Write Firebase config from secrets
+        env:
+          GOOGLE_SERVICE_INFO_PLIST_B64: ${{ secrets.GOOGLE_SERVICE_INFO_PLIST_B64 }}
+        run: python3 scripts/ci/write_firebase_config.py ios
 
       - name: Build for iOS Simulator (unsigned, compile-check only)
         run: |

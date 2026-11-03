@@ -67,7 +67,9 @@ src/
 │       └── useRuns.tsx             # Context + hook for ephemeral active run + durable completed history
 └── shared/
     ├── analytics/
-    │   └── AnalyticsService.ts     # AnalyticsService interface + `analytics` singleton (no-op until an SDK is wired)
+    │   ├── AnalyticsService.ts     # AnalyticsService interface, NoopAnalyticsService (test double), `analytics` singleton (consent-gated, Firebase-backed)
+    │   ├── ConsentGatedAnalyticsService.ts # Forwards only while consent is `granted`; drops (never buffers) otherwise
+    │   └── FirebaseAnalyticsService.ts     # React Native Firebase delegate; booleans sent as strings, null dropped, native errors swallowed
     ├── links/
     │   └── externalLinkUrls.ts     # Verb-agnostic URL primitives + parseExternalLinkKind('run' | 'select' | null)
     ├── storage/

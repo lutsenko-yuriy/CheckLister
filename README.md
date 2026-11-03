@@ -30,6 +30,12 @@ cd ios && bundle exec pod install && cd ..    # after each native dependency cha
 npm run ios
 ```
 
+Both platforms also need the two Firebase config files, which are not
+committed. Get them from the Firebase console (Project settings, Your apps)
+and place them at `ios/CheckLister/GoogleService-Info.plist` and
+`android/app/google-services.json`; builds fail without them. CI writes them
+from GitHub secrets (see `docs/VERSIONING.md`).
+
 See `docs/PRODUCT_SPEC.md` for the features and behaviour.
 
 ## Testing

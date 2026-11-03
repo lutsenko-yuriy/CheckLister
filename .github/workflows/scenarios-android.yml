@@ -19,6 +19,7 @@ on:
       - 'metro.config.js'
       - 'package.json'
       - 'package-lock.json'
+      - 'firebase.json'
       - 'scripts/scenarios-android*.sh'
       - '.github/workflows/scenarios-android.yml'
       - 'scripts/ci/scenarios_report.py'
@@ -60,6 +61,11 @@ jobs:
           java-version: '17'
 
       - uses: gradle/actions/setup-gradle@v6
+
+      - name: Write Firebase config from secrets
+        env:
+          GOOGLE_SERVICES_JSON_B64: ${{ secrets.GOOGLE_SERVICES_JSON_B64 }}
+        run: python3 scripts/ci/write_firebase_config.py android
 
       # x86_64 only: the emulator's ABI; halves native build time vs. all four.
       - name: Build Release APK

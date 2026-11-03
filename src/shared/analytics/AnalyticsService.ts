@@ -1,3 +1,6 @@
+import { ConsentGatedAnalyticsService } from './ConsentGatedAnalyticsService';
+import { FirebaseAnalyticsService } from './FirebaseAnalyticsService';
+
 export type AnalyticsProperties = Record<
   string,
   string | number | boolean | null
@@ -9,9 +12,8 @@ export interface AnalyticsService {
 }
 
 /**
- * No-op implementation. Swap for a real SDK-backed AnalyticsService once
- * events are actually needed — see docs/ANALYTICS_EVENTS.md for the catalogue
- * every event/screen view must be documented in before it's added here.
+ * No-op implementation, kept as a test double. Every event/screen view must
+ * be documented in docs/ANALYTICS_EVENTS.md before it's added.
  */
 export class NoopAnalyticsService implements AnalyticsService {
   logEvent(_name: string, _properties?: AnalyticsProperties): void {}
@@ -19,4 +21,9 @@ export class NoopAnalyticsService implements AnalyticsService {
   logScreenView(_screenName: string, _properties?: AnalyticsProperties): void {}
 }
 
-export const analytics: AnalyticsService = new NoopAnalyticsService();
+// Firebase-backed, and silent until the user allows analytics (CheL-126).
+export const analyticsConsentGate = new ConsentGatedAnalyticsService(
+  new FirebaseAnalyticsService(),
+);
+
+export const analytics: AnalyticsService = analyticsConsentGate;
