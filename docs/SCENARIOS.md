@@ -144,9 +144,12 @@ sharded-run failure.
 ## CI (Android, CheL-100)
 
 `.github/workflows/scenarios-android.yml` ("Android scenarios") runs the
-Android-tagged suite on every PR to `main` that touches app-affecting paths
+Android-tagged suite on every push to `main` that touches app-affecting paths
 (`src/`, `.maestro/`, `android/`, JS/Babel/Metro config, `package*.json`,
-`patches/`, the Android runner scripts, the workflow itself), and on demand:
+`patches/`, the Android runner scripts, the workflow itself), and on demand.
+It does **not** run on pull requests (CheL-115): a ~20 min wait per push is
+worse than fixing `main` afterwards. Dispatch it on a branch when a change is
+risky for it:
 
 ```bash
 gh workflow run "Android scenarios" --ref <branch>
@@ -170,11 +173,16 @@ pushes to `main` touching the same paths, to keep the README badge current.
   runner would contend for CPU (CheL-105 saw contention-only failures on a
   faster Mac). Revisit past ~12 Android flows or ~20 min of suite time — via a
   job matrix across separate runners, not more emulators per runner.
-- **Informational.** Not a required check (`main` has no branch protection).
-  FEATURE.md step 10.6 still requires it green, or flagged flaky after three
-  attempts, before a review loop closes. Promoting it to required needs a
-  job-level path filter (like `pr-validation.yml`'s `changes` job) instead of
-  the trigger-level `paths:`, or docs-only PRs would sit on a pending check.
+- **Informational, main-only.** Not a required check (`main` has no branch
+  protection) and not a review-loop gate: FEATURE.md step 10.6 only asks for a
+  dispatch on risky PRs. A red `main` run is handled via `TROUBLESHOOT.md`.
+- **Timings (CheL-115).** Before: build 491–510s, emulator boot ~90s, suite
+  570–690s, ~19–22 min total. The Gradle dependency cache was already warm
+  (`main` pushes write it), so downloads were not the cost; native CMake and
+  Kotlin compilation were. ccache was tried and dropped (0/100 cacheable hits).
+  `--parallel`: build 378s. Plus 4 GB heap and `-x lintVitalRelease`: see below.
+  Not done: splitting the suite across two runners (~4–5 min), caching the APK
+  for `.maestro`-only pushes, caching the AVD snapshot.
 - **Results.** Every run publishes an "Android scenario flows" check listing
   each flow's pass/fail (`dorny/test-reporter`, from Maestro's JUnit report),
   and a per-flow table on the run page (`scripts/ci/scenarios_report.py

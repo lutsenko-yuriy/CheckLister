@@ -30,10 +30,11 @@ class AndroidScenariosWorkflowTests(unittest.TestCase):
     def test_workflow_file_exists(self):
         self.assertTrue(WORKFLOW.is_file(), f'{WORKFLOW} is missing')
 
-    def test_runs_on_pull_requests_and_manual_dispatch(self):
+    def test_runs_on_main_and_manual_dispatch_but_not_on_pull_requests(self):
+        # CheL-115: the ~20 min run is main-only; branches use `gh workflow run` on demand.
         text = read_workflow()
-        self.assertRegex(text, r'(?m)^\s+pull_request:')
-        # FEATURE.md step 10.6 re-dispatches via `gh workflow run`.
+        self.assertNotRegex(text, r'(?m)^\s+pull_request:')
+        self.assertRegex(text, r'(?m)^\s+push:')
         self.assertRegex(text, r'(?m)^\s+workflow_dispatch:')
 
     def test_firebase_config_is_written_before_the_release_build(self):
