@@ -17,6 +17,7 @@ A record of all versioned releases. For planned work and known issues, see @docs
 
 Internal-only changes (CI, tooling, tests, workflow/skill docs) that did not change the app — no version bump, no build, no release.
 
+- [test] (PR #134) CheL-126 WU0: Maestro stubs for the analytics consent dialog flow and its shared helper; catalogued the `analytics_consent_granted` event.
 - [meta] (PR #131) Debrief CheL-128: dialog principles now say to use "newer"/"older" for app versions and to restate ambiguous ordering terms; added the CheL-128 knowledge note.
 - [meta] (PR #129) Glossary terms for the Firebase analytics consent, Settings screen and kill-switch briefs (CheL-126/127/128).
 - [wip] HAB-278 WU23: port YAB onboarding remote/README/CHANGELOG handling and skill_router fixes; session start reads [providers].pm (PR #123)
