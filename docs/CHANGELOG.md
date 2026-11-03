@@ -17,6 +17,7 @@ A record of all versioned releases. For planned work and known issues, see @docs
 
 Internal-only changes (CI, tooling, tests, workflow/skill docs) that did not change the app — no version bump, no build, no release.
 
+- [meta] (PR #129) Glossary terms for the Firebase analytics consent, Settings screen and kill-switch briefs (CheL-126/127/128).
 - [wip] HAB-278 WU23: port YAB onboarding remote/README/CHANGELOG handling and skill_router fixes; session start reads [providers].pm (PR #123)
 - [meta] (PR #122) HAB-278 WU15: README rewritten for CheckLister — Running it, Testing, Architecture and Claude Code onboarding sections replace the template README and its Placeholders table.
 - [meta] (PR #121) HAB-278 WU14: /onboard output — skill_router.toml filled (pm = github, CheL prefix), docs/TECH_STACK.md written, CODE_STYLE Base standard extended to all 8 languages, .mcp.json removed.

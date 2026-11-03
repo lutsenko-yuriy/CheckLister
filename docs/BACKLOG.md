@@ -17,4 +17,9 @@ _(nothing in progress)_
 ## Unscheduled
 
 - [CheL-115: Speed up the Android scenarios CI workflow (~20 min per run)](https://github.com/lutsenko-yuriy/CheckLister/issues/115)
-- [CheL-36: Externally started checklist runs with callback results](https://github.com/lutsenko-yuriy/CheckLister/issues/36)
+- [CheL-124: `build/` gitignore rule hides skills/build/implement](https://github.com/lutsenko-yuriy/CheckLister/issues/124)
+- [CheL-125: Run notes and checkup Python tests in CI](https://github.com/lutsenko-yuriy/CheckLister/issues/125)
+- [CheL-126: Add Firebase Analytics with opt-in consent](https://github.com/lutsenko-yuriy/CheckLister/issues/126)
+- [CheL-127: Add Settings screen with analytics toggle](https://github.com/lutsenko-yuriy/CheckLister/issues/127)
+- [CheL-128: Add remote kill-switches (first: Run history)](https://github.com/lutsenko-yuriy/CheckLister/issues/128)
+- [CheL-130: Split the glossary into several files by term domain](https://github.com/lutsenko-yuriy/CheckLister/issues/130)
