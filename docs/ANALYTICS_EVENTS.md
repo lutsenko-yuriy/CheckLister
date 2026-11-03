@@ -3,9 +3,9 @@
 All events are sent via the analytics service abstraction
 (`src/shared/analytics/AnalyticsService.ts`). Currently backed by
 `NoopAnalyticsService` — no real SDK is wired up, and no events are being
-collected. Swap in an SDK-backed implementation behind the same
-`AnalyticsService` interface if/when analytics is actually needed; the
-catalogue below must be kept up to date as events are added, regardless of
+collected. CheL-126 swaps in a Firebase-backed implementation behind the same
+`AnalyticsService` interface, collecting only after the user allows analytics;
+the catalogue below must be kept up to date as events are added, regardless of
 which implementation is active.
 
 ---
@@ -156,6 +156,14 @@ Fired once per app session when the app resolves its UI language at launch, and 
 | `app_language` | `string` | Language the UI is rendered in: `en`, `de`, `fr`, or `ru` — the first supported language in the OS preferred-locale list, else `en` |
 | `requested_language` | `string` | Bare language code of the *top* OS preferred locale (per-app setting or top device language), e.g. `pt`, `ja`. Differs from `app_language` when the top preference is unsupported and the app used a lower-ranked supported language or fell back to English |
 | `region` | `string` | ISO 3166-1 alpha-2 country code of the device's region setting (e.g. `DE`, `BR`). Omitted when the OS reports no region. Country-level only — never finer-grained location |
+
+<!-- Added for CheL-126: Firebase Analytics with opt-in consent -->
+
+### `analytics_consent_granted`
+
+Fired immediately after the user taps "Allow" on the analytics consent dialog, once the choice is stored and collection is on. It is the first event a consenting user generates. "Don't allow" is deliberately not tracked — nothing is collected from users who decline. `color_scheme_resolved` and `app_language_resolved` fire at launch, before the dialog is answered, so they are dropped for a user who allows mid-session and first appear on the next launch.
+
+No properties.
 
 ---
 
