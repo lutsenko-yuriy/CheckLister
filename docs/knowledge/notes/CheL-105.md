@@ -1,5 +1,5 @@
 ---
-bookmarks: []
+bookmarks: [scenario-suite-timing-flakiness]
 ---
 
 # CheL-105: Implement CheL-102 findings: local suite sharding + drag-reorder swipe-duration reduction

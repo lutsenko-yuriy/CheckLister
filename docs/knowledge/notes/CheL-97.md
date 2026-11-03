@@ -1,5 +1,5 @@
 ---
-bookmarks: []
+bookmarks: [scenario-fixture-isolation, real-device-only-bugs]
 ---
 
 # CheL-97: Isolate Android Maestro scenarios from persistent test data
