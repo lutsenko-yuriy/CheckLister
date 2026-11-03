@@ -67,10 +67,21 @@ jobs:
           GOOGLE_SERVICES_JSON_B64: ${{ secrets.GOOGLE_SERVICES_JSON_B64 }}
         run: python3 scripts/ci/write_firebase_config.py android
 
+      # CheL-115: the native CMake builds (~6 min cold) dominate the APK build;
+      # ccache replays unchanged translation units across runs.
+      - name: Set up ccache
+        uses: hendrikmuhs/ccache-action@v1.2
+        with:
+          key: android-x86_64
+          max-size: 500M
+
       # x86_64 only: the emulator's ABI; halves native build time vs. all four.
       - name: Build Release APK
         working-directory: android
-        run: ./gradlew assembleRelease -PreactNativeArchitectures=x86_64
+        env:
+          CMAKE_C_COMPILER_LAUNCHER: ccache
+          CMAKE_CXX_COMPILER_LAUNCHER: ccache
+        run: ./gradlew assembleRelease -PreactNativeArchitectures=x86_64 --parallel
 
       - name: Enable KVM
         run: |
