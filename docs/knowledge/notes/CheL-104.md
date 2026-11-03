@@ -1,5 +1,5 @@
 ---
-bookmarks: []
+bookmarks: [real-device-only-bugs, scenario-suite-timing-flakiness]
 ---
 
 # CheL-104: Investigate Android equivalents for checklist-persistence-restart and run-gesture flows

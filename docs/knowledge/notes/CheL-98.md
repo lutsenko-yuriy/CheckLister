@@ -1,5 +1,5 @@
 ---
-bookmarks: []
+bookmarks: [scenario-suite-timing-flakiness]
 ---
 
 # CheL-98: Scenario flows fail on first tap right after a text-entry step (run-complete, run-history, drag-reorder)

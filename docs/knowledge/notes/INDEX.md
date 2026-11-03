@@ -6,10 +6,11 @@ Generated from `bookmarks:` frontmatter in `docs/knowledge/notes/*.md`. Run `pyt
 
 ## Top themes
 
+- **scenario-suite-timing-flakiness** (6)
+- **real-device-only-bugs** (4)
+- **scenario-fixture-isolation** (3)
 - **agent-model-calibration** (2)
 - **async-lifecycle-races** (2)
-- **real-device-only-bugs** (2)
-- **scenario-fixture-isolation** (2)
 
 ## By bookmark
 
@@ -22,21 +23,28 @@ Generated from `bookmarks:` frontmatter in `docs/knowledge/notes/*.md`. Run `pyt
 - [CheL-36: Externally started checklist runs with callback results](CheL-36.md)
 
 ### real-device-only-bugs
+- [CheL-104: Investigate Android equivalents for checklist-persistence-restart and run-gesture flows](CheL-104.md)
 - [CheL-26: Scripted scenario automation for the iOS simulator](CheL-26.md)
 - [CheL-4: Checklist runs](CheL-4.md)
+- [CheL-97: Isolate Android Maestro scenarios from persistent test data](CheL-97.md)
 
 ### scenario-fixture-isolation
 - [CheL-26: Scripted scenario automation for the iOS simulator](CheL-26.md)
 - [CheL-5: Checklist run history](CheL-5.md)
+- [CheL-97: Isolate Android Maestro scenarios from persistent test data](CheL-97.md)
 
-## Reviewed — nothing noteworthy
-
-- [CheL-1: Checklists](CheL-1.md)
+### scenario-suite-timing-flakiness
 - [CheL-100: Run Android Maestro scenarios in CI on PR open](CheL-100.md)
 - [CheL-102: Research: speed up the Maestro iOS scenario suite (8.5min full run)](CheL-102.md)
 - [CheL-104: Investigate Android equivalents for checklist-persistence-restart and run-gesture flows](CheL-104.md)
 - [CheL-105: Implement CheL-102 findings: local suite sharding + drag-reorder swipe-duration reduction](CheL-105.md)
 - [CheL-110: Android drag-activation race and cold-launch/relaunch race frequency: investigate root cause](CheL-110.md)
+- [CheL-98: Scenario flows fail on first tap right after a text-entry step (run-complete, run-history, drag-reorder)](CheL-98.md)
+
+## Reviewed — nothing noteworthy
+
+- [CheL-1: Checklists](CheL-1.md)
+- [CheL-128: Add remote kill-switches (first: Run history)](CheL-128.md)
 - [CheL-14: UI polish: consistent color scheme, icons, and drag visual feedback](CheL-14.md)
 - [CheL-15: Clarify: checking items on the checklist template vs. within a run](CheL-15.md)
 - [CheL-2: Checklist items](CheL-2.md)
@@ -62,5 +70,3 @@ Generated from `bookmarks:` frontmatter in `docs/knowledge/notes/*.md`. Run `pyt
 - [CheL-88: Auto-assign Testers group on TestFlight upload](CheL-88.md)
 - [CheL-92: Consolidated: TestFlight changelog fix, draft-release-notes skill, version-bump rule](CheL-92.md)
 - [CheL-93: TestFlight "What to Test" not set — skip_waiting_for_build_processing drops the changelog](CheL-93.md)
-- [CheL-97: Isolate Android Maestro scenarios from persistent test data](CheL-97.md)
-- [CheL-98: Scenario flows fail on first tap right after a text-entry step (run-complete, run-history, drag-reorder)](CheL-98.md)

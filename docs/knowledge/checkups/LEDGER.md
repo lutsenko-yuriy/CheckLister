@@ -9,7 +9,7 @@ Each tier is tracked as "not yet done this period" — a period label, not an ex
 | Tier | Cadence | Last run | Period covered | Next due |
 |---|---|---|---|---|
 | Light | 1st of every calendar month | 2026-11-03 | 2026-11 | 2026-12 |
-| Heavy | 14th of Jan/Apr/Jul/Oct | 2026-09-20 | 2026-Q3 | 2026-Q4 |
+| Heavy | 14th of Jan/Apr/Jul/Oct | 2026-11-03 | 2026-Q4 | 2027-Q1 |
 
 ## Open findings
 
