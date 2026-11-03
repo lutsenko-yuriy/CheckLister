@@ -1,0 +1,8 @@
+appId: ${APP_ID}
+---
+# CheL-126 stub (unused until WU3): launches the app and answers the analytics
+# consent dialog with "Don't allow" if it appears.
+# TODO: launchApp with clearState: false
+# TODO: extendedWaitUntil (timeout 20000, as in CheL-110) visible: "New checklist title|Help improve CheckLister\?"
+# TODO: runFlow when visible "Help improve CheckLister\?": tapOn "Don't allow"
+# TODO: assertVisible "New checklist title"

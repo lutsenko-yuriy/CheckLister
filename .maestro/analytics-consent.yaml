@@ -1,0 +1,18 @@
+appId: ${APP_ID}
+name: Consent dialog is required, cannot be dismissed, and the choice is remembered
+tags:
+  - ios
+  - android
+---
+# CheL-126 stub: WU3 replaces the TODOs with driver code. The launchApp below
+# only keeps the flow valid (Maestro rejects an empty flow) until then.
+- launchApp:
+    clearState: false
+# TODO: launchApp with clearState: true (fresh state, dialog must show)
+# TODO: assert the dialog shows "Help improve CheckLister?", its body text, and both "Don't allow" and "Allow" buttons
+# TODO: tap on the backdrop outside the card; assert the dialog is still visible
+# TODO: Android only (runFlow when platform Android): pressKey back; assert the dialog is still visible
+# TODO: tap "Don't allow"; assert the dialog is gone and "New checklist title" is visible
+# TODO: create a Scenario checklist and delete it, to show the app is fully usable
+# TODO: stopApp, launchApp with clearState: false; assert "New checklist title" is visible and the dialog is not
+# Never tap "Allow": test devices must not send data to the Firebase project.
