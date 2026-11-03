@@ -23,6 +23,7 @@ on:
       - 'scripts/scenarios-android*.sh'
       - '.github/workflows/scenarios-android.yml'
       - 'scripts/ci/scenarios_report.py'
+      - 'scripts/ci/app_paths_changed.py'
   pull_request:
     branches: [main]
     paths: *app-paths
@@ -37,8 +38,26 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  # CheL-115: `paths:` above sees the whole PR diff; this narrows it to the latest push.
+  scope:
+    name: Scope
+    runs-on: ubuntu-latest
+    outputs:
+      run: ${{ steps.scope.outputs.run }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - id: scope
+        env:
+          BEFORE: ${{ github.event.action == 'synchronize' && github.event.before || '' }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: python3 scripts/ci/app_paths_changed.py .github/workflows/scenarios-android.yml "$BEFORE" "$HEAD_SHA"
+
   android-scenarios:
     name: Android Maestro scenarios
+    needs: scope
+    if: needs.scope.outputs.run == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 45
     env:
@@ -67,20 +86,9 @@ jobs:
           GOOGLE_SERVICES_JSON_B64: ${{ secrets.GOOGLE_SERVICES_JSON_B64 }}
         run: python3 scripts/ci/write_firebase_config.py android
 
-      # CheL-115: the native CMake builds (~6 min cold) dominate the APK build;
-      # ccache replays unchanged translation units across runs.
-      - name: Set up ccache
-        uses: hendrikmuhs/ccache-action@v1.2
-        with:
-          key: android-x86_64
-          max-size: 500M
-
       # x86_64 only: the emulator's ABI; halves native build time vs. all four.
       - name: Build Release APK
         working-directory: android
-        env:
-          CMAKE_C_COMPILER_LAUNCHER: ccache
-          CMAKE_CXX_COMPILER_LAUNCHER: ccache
         run: ./gradlew assembleRelease -PreactNativeArchitectures=x86_64 --parallel
 
       - name: Enable KVM
