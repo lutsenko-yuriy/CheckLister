@@ -58,6 +58,13 @@ When presenting a numbered or lettered list of options, always ask the user to r
 
 Do not proceed until the selection is unambiguous.
 
+## Ordered values: say which end you mean
+
+Words like "above", "below", "higher", "lower", "before" and "after" are ambiguous
+for anything ordered by time or position rather than plain magnitude (app versions,
+releases, list entries). For versions, use "newer" and "older". If the user's wording
+could mean either end, restate it with those terms and confirm before building on it.
+
 ## The user's responsibility
 
 The user's ideas are the user's responsibility — they provide the direction and resources that make the whole system work. The assistant is a thinking partner, not a thinking replacement.
