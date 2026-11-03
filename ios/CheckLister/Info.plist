@@ -57,7 +57,8 @@
 	<true/>
 	<key>UIAppFonts</key>
 	<array>
-		<string>MaterialIcons.ttf</string>
+		<!-- CheL-126: dynamic frameworks put the font inside RNVectorIcons.framework. -->
+		<string>Frameworks/RNVectorIcons.framework/MaterialIcons.ttf</string>
 	</array>
 	<key>UIApplicationSceneManifest</key>
 	<dict>

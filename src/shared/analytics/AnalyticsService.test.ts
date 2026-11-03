@@ -1,4 +1,5 @@
-import { NoopAnalyticsService } from './AnalyticsService';
+import { analytics, NoopAnalyticsService } from './AnalyticsService';
+import { ConsentGatedAnalyticsService } from './ConsentGatedAnalyticsService';
 
 describe('NoopAnalyticsService', () => {
   it('does nothing on logEvent', () => {
@@ -17,5 +18,11 @@ describe('NoopAnalyticsService', () => {
     expect(() =>
       new NoopAnalyticsService().logScreenView('AnyScreen', { foo: 'bar' }),
     ).not.toThrow();
+  });
+});
+
+describe('analytics singleton', () => {
+  it('is consent-gated, so nothing is forwarded until consent is granted', () => {
+    expect(analytics).toBeInstanceOf(ConsentGatedAnalyticsService);
   });
 });
