@@ -75,6 +75,11 @@ jobs:
           uuid=$(security cms -D -i "$profile_path" | plutil -extract UUID raw -o - -)
           cp "$profile_path" "$profiles_dir/$uuid.mobileprovision"
 
+      - name: Write Firebase config from secrets
+        env:
+          GOOGLE_SERVICE_INFO_PLIST_B64: ${{ secrets.GOOGLE_SERVICE_INFO_PLIST_B64 }}
+        run: python3 scripts/ci/write_firebase_config.py ios
+
       - name: Build and upload to TestFlight
         env:
           APP_STORE_CONNECT_API_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
