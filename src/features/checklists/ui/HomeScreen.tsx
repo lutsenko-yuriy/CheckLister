@@ -11,6 +11,7 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../../navigation/types';
 import { useChecklists } from '../useChecklists';
 import { Checklist } from '../domain/models';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { IconButton } from '../../../shared/ui/IconButton';
 import { useTheme } from '../../../shared/theme/useTheme';
@@ -25,6 +26,7 @@ export function HomeScreen({ navigation }: Props) {
   const { colors, scheme } = useTheme();
   const styles = useStyles();
   const { t } = useI18n();
+  const insets = useSafeAreaInsets();
   const { checklists, createChecklist } = useChecklists();
   const { history, historyLoading } = useRuns();
   const [newTitle, setNewTitle] = useState('');
@@ -104,7 +106,7 @@ export function HomeScreen({ navigation }: Props) {
 
       {showHistory && (
         <Pressable
-          style={styles.historyRow}
+          style={[styles.historyRow, { marginBottom: insets.bottom }]}
           onPress={() => navigation.navigate('RunHistory', {})}
           accessibilityRole="button"
           accessibilityLabel={t('common.runHistory')}
