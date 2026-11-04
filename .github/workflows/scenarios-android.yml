@@ -3,10 +3,12 @@ name: Android scenarios
 # CheL-100: runs the Android-tagged Maestro suite on a KVM emulator.
 # Informational (not a required check) — see docs/SCENARIOS.md "CI (Android)".
 # Pushes to main update the README badge (and let setup-gradle write its cache).
+# CheL-115: deliberately no pull_request trigger — the ~20 min run happens on main
+# only (or by workflow_dispatch on any branch); PRs get unit tests only.
 on:
   push:
     branches: [main]
-    paths: &app-paths
+    paths:
       - 'src/**'
       - '.maestro/**'
       - 'android/**'
@@ -23,9 +25,7 @@ on:
       - 'scripts/scenarios-android*.sh'
       - '.github/workflows/scenarios-android.yml'
       - 'scripts/ci/scenarios_report.py'
-  pull_request:
-    branches: [main]
-    paths: *app-paths
+      - 'scripts/ci/write_firebase_config.py'
   workflow_dispatch:
 
 permissions:
@@ -70,7 +70,7 @@ jobs:
       # x86_64 only: the emulator's ABI; halves native build time vs. all four.
       - name: Build Release APK
         working-directory: android
-        run: ./gradlew assembleRelease -PreactNativeArchitectures=x86_64
+        run: ./gradlew assembleRelease -PreactNativeArchitectures=x86_64 --parallel -x lintVitalRelease -Dorg.gradle.jvmargs="-Xmx4g -XX:MaxMetaspaceSize=1g"
 
       - name: Enable KVM
         run: |

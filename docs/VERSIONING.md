@@ -33,10 +33,12 @@ app's version name (`CFBundleShortVersionString` on iOS). CI only ever
 
 **PR validation** (`.github/workflows/pr-validation.yml`) runs on every pull
 request: lint, typecheck, unit tests, script contract tests, a workflow-YAML
-lint pass, and an unsigned iOS simulator build. No credentials involved.
+lint pass. No credentials involved. The unsigned iOS simulator build
+(`.github/workflows/ios-build.yml`, ~20 min) runs on pushes to `main` that touch
+iOS/native paths, and by `workflow_dispatch` on any branch — not on PRs (CheL-115).
 
 **Android scenarios** (`.github/workflows/scenarios-android.yml`) runs the
-Android-tagged Maestro suite on a Linux emulator for pull requests and pushes
+Android-tagged Maestro suite on a Linux emulator for pushes
 to `main` that touch app-affecting paths, and via `workflow_dispatch`.
 Informational, not a required check. Its only credential is the optional
 `GIST_TOKEN` secret, used on `main` pushes to update the README badge. See `docs/SCENARIOS.md`'s
@@ -81,11 +83,11 @@ Required GitHub Actions secrets for the release job: `APP_STORE_CONNECT_API_KEY_
 `IOS_PROVISIONING_PROFILE`, `IOS_TEAM_ID`. These are manual, out-of-band
 setup — no agent or workflow can provision them.
 
-The Firebase config files are not committed (CheL-126). Three workflows (PR
-validation's iOS build, Android scenarios, iOS release) recreate them with
+The Firebase config files are not committed (CheL-126). Three workflows (the
+iOS simulator build, Android scenarios, iOS release) recreate them with
 `scripts/ci/write_firebase_config.py` from two base64-encoded secrets,
 `GOOGLE_SERVICE_INFO_PLIST_B64` and `GOOGLE_SERVICES_JSON_B64`, and fail if a
-secret is missing or belongs to another app. Pull requests from forks get no
+secret is missing or belongs to another app. Forks get no
 secrets, so those jobs fail there. To (re)create a secret:
 
 ```
