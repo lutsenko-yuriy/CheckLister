@@ -5,7 +5,12 @@
 import React from 'react';
 import ReactTestRenderer from 'react-test-renderer';
 import App from '../App';
-import { analytics } from '../src/shared/analytics/AnalyticsService';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { logEvent } from '@react-native-firebase/analytics';
+import {
+  analytics,
+  analyticsConsentGate,
+} from '../src/shared/analytics/AnalyticsService';
 import { resetLanguageAnalyticsForTesting } from '@checklister/i18n';
 
 test('renders correctly', async () => {
@@ -32,4 +37,42 @@ test('mounts I18nProvider, which resolves the language once at launch', async ()
     ],
   ]);
   spy.mockRestore();
+});
+
+describe('analytics consent at launch', () => {
+  const firebaseLogEvent = jest.mocked(logEvent);
+
+  async function launch(stored?: string) {
+    await AsyncStorage.clear();
+    if (stored !== undefined) {
+      await AsyncStorage.setItem(
+        'analyticsConsent',
+        JSON.stringify({ choice: stored, decidedAt: '2026-11-04T10:00:00Z' }),
+      );
+    }
+    resetLanguageAnalyticsForTesting();
+    firebaseLogEvent.mockClear();
+    await ReactTestRenderer.act(() => {
+      ReactTestRenderer.create(<App />);
+    });
+    return firebaseLogEvent.mock.calls.map(([, name]) => name);
+  }
+
+  afterEach(() => {
+    analyticsConsentGate.setConsent('unknown');
+  });
+
+  it('forwards nothing to Firebase when no choice is stored', async () => {
+    expect(await launch()).toEqual([]);
+  });
+
+  it('forwards nothing to Firebase when the stored choice is denied', async () => {
+    expect(await launch('denied')).toEqual([]);
+  });
+
+  it('forwards the launch events when the stored choice is granted', async () => {
+    expect(await launch('granted')).toEqual(
+      expect.arrayContaining(['app_language_resolved']),
+    );
+  });
 });

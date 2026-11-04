@@ -21,12 +21,18 @@ import { AsyncStorageRunRepository } from './src/features/runs/data/asyncStorage
 import { RootNavigator } from './src/navigation/RootNavigator';
 import { ExternalLinkCoordinator } from './src/navigation/ExternalLinkCoordinator';
 import { RootStackParamList } from './src/navigation/types';
-import { analytics } from './src/shared/analytics/AnalyticsService';
+import {
+  analytics,
+  analyticsConsentGate,
+} from './src/shared/analytics/AnalyticsService';
+import { AsyncStorageAnalyticsConsentStore } from './src/shared/analytics/analyticsConsentStore';
+import { AnalyticsConsentProvider } from './src/shared/analytics/useAnalyticsConsent';
 import { ThemeProvider, useTheme } from './src/shared/theme/useTheme';
 import { I18nProvider } from '@checklister/i18n';
 
 const checklistRepository = new AsyncStorageChecklistRepository();
 const runRepository = new AsyncStorageRunRepository();
+const analyticsConsentStore = new AsyncStorageAnalyticsConsentStore();
 const navigationRef = createNavigationContainerRef<RootStackParamList>();
 
 function AppContent() {
@@ -84,15 +90,20 @@ function AppContent() {
 
 function App() {
   return (
-    <ThemeProvider>
-      <I18nProvider
-        onLanguageResolved={(event, properties) =>
-          analytics.logEvent(event, properties)
-        }
-      >
-        <AppContent />
-      </I18nProvider>
-    </ThemeProvider>
+    <AnalyticsConsentProvider
+      store={analyticsConsentStore}
+      gate={analyticsConsentGate}
+    >
+      <ThemeProvider>
+        <I18nProvider
+          onLanguageResolved={(event, properties) =>
+            analytics.logEvent(event, properties)
+          }
+        >
+          <AppContent />
+        </I18nProvider>
+      </ThemeProvider>
+    </AnalyticsConsentProvider>
   );
 }
 

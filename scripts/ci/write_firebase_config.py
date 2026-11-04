@@ -58,7 +58,7 @@ def write_config(platform: str, root: Path) -> Path:
     if not encoded.strip():
         raise ConfigError(f'secret {secret} is empty or not set')
     try:
-        data = base64.b64decode(encoded, validate=True)
+        data = base64.b64decode(''.join(encoded.split()), validate=True)
     except binascii.Error as err:
         raise ConfigError(f'{secret} is not valid base64: {err}')
     check(data)

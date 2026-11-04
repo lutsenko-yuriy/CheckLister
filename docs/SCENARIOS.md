@@ -58,6 +58,11 @@ xcrun simctl install <UDID> \
 npm run scenarios:ios -- <UDID>
 ```
 
+The Firebase config files are not committed (CheL-126): put
+`GoogleService-Info.plist` in `ios/CheckLister/` and `google-services.json` in
+`android/app/` before building (both are git-ignored; CI recreates them from
+secrets, see `docs/VERSIONING.md`).
+
 Replace `<UDID>` everywhere with the same simulator identifier. Rebuild and
 reinstall after app changes; the runner checks that the app exists, not that it
 matches your checkout. A Debug app also works if Metro is already serving this
