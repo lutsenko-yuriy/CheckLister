@@ -293,6 +293,14 @@ describe('kill-switch overrides (debug)', () => {
     expect(result.current.on).toBe(true);
   });
 
+  it('fails open when the override store rejects', async () => {
+    const { source } = makeSource({});
+    const store = makeStore();
+    store.load.mockRejectedValue(new Error('io'));
+    const { result } = await renderDebug(source, store);
+    expect(result.current.on).toBe(true);
+  });
+
   it('ignores overrides when no store is passed (release)', async () => {
     const { source } = makeSource({ runHistory: OFF });
     const { result } = await renderDebug(source);

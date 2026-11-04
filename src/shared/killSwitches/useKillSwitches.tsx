@@ -75,12 +75,15 @@ export function KillSwitchProvider({
       return;
     }
     let cancelled = false;
-    overrideStore.load().then(loaded => {
-      if (!cancelled) {
-        currentOverrides.current = loaded;
-        setOverrides(loaded);
-      }
-    });
+    overrideStore
+      .load()
+      .catch((): KillSwitchOverrides => ({}))
+      .then(loaded => {
+        if (!cancelled) {
+          currentOverrides.current = loaded;
+          setOverrides(loaded);
+        }
+      });
     return () => {
       cancelled = true;
     };
