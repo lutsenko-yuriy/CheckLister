@@ -1,5 +1,5 @@
 import React from 'react';
-import { Alert } from 'react-native';
+import { Alert, StyleSheet } from 'react-native';
 import {
   render,
   fireEvent,
@@ -14,6 +14,10 @@ import { RunsProvider } from '../../runs/useRuns';
 import { AsyncStorageRunRepository } from '../../runs/data/asyncStorageRunRepository';
 import { darkPalette } from '../../../shared/theme/palette';
 import { ThemeProvider } from '../../../shared/theme/useTheme';
+
+jest.mock('react-native-safe-area-context', () => ({
+  useSafeAreaInsets: () => ({ top: 0, bottom: 34, left: 0, right: 0 }),
+}));
 
 async function renderHomeScreen(
   navigate: jest.Mock = jest.fn(),
@@ -65,18 +69,14 @@ describe('HomeScreen', () => {
     );
   });
 
-  it('hides the global history action when no completed runs exist', async () => {
-    const { navigation } = await renderHomeScreen();
+  it('hides the run history row when no completed runs exist', async () => {
+    await renderHomeScreen();
 
-    await waitFor(() => expect(navigation.setOptions).toHaveBeenCalled());
-    const calls = navigation.setOptions.mock.calls;
-    const options = calls[calls.length - 1][0];
-    const header = await render(<options.headerRight />);
-    expect(header.queryByLabelText('Run history')).toBeNull();
-    expect(header.getByLabelText('Open settings')).toBeTruthy();
+    await waitFor(() => screen.getByPlaceholderText('New checklist title'));
+    expect(screen.queryByTestId('home-run-history-row')).toBeNull();
   });
 
-  it('shows a global history action and navigates to unfiltered history', async () => {
+  it('shows a pinned run history row and navigates to unfiltered history', async () => {
     const runRepository = new AsyncStorageRunRepository();
     await runRepository.saveAll([
       {
@@ -88,21 +88,49 @@ describe('HomeScreen', () => {
       },
     ]);
     const navigate = jest.fn();
-    const { navigation } = await renderHomeScreen(navigate, runRepository);
+    await renderHomeScreen(navigate, runRepository);
 
-    await waitFor(() => {
-      const calls = navigation.setOptions.mock.calls;
-      expect(calls[calls.length - 1][0].headerRight).toEqual(
-        expect.any(Function),
-      );
-    });
+    fireEvent.press(await screen.findByLabelText('Run history'));
+
+    expect(screen.getByTestId('home-run-history-row')).toBeTruthy();
+    expect(navigate).toHaveBeenCalledWith('RunHistory', {});
+  });
+
+  it('keeps the run history row clear of the home indicator', async () => {
+    const runRepository = new AsyncStorageRunRepository();
+    await runRepository.saveAll([
+      {
+        id: 'run-1',
+        checklistId: 'c1',
+        checklistTitle: 'Packing',
+        itemCount: 2,
+        completedAt: '2026-09-18T12:00:00.000Z',
+      },
+    ]);
+    await renderHomeScreen(jest.fn(), runRepository);
+
+    const row = await screen.findByTestId('home-run-history-row');
+    expect(StyleSheet.flatten(row.props.style).marginBottom).toBe(34);
+  });
+
+  it('keeps only the settings gear in the header, even with completed runs', async () => {
+    const runRepository = new AsyncStorageRunRepository();
+    await runRepository.saveAll([
+      {
+        id: 'run-1',
+        checklistId: 'c1',
+        checklistTitle: 'Packing',
+        itemCount: 2,
+        completedAt: '2026-09-18T12:00:00.000Z',
+      },
+    ]);
+    const { navigation } = await renderHomeScreen(jest.fn(), runRepository);
+    await screen.findByTestId('home-run-history-row');
+
     const calls = navigation.setOptions.mock.calls;
     const options = calls[calls.length - 1][0];
-    const HeaderAction = options.headerRight;
-    const header = await render(<HeaderAction />);
-    fireEvent.press(header.getByLabelText('Run history'));
-
-    expect(navigate).toHaveBeenCalledWith('RunHistory', {});
+    const header = await render(<options.headerRight />);
+    expect(header.queryByLabelText('Run history')).toBeNull();
     expect(header.getByLabelText('Open settings')).toBeTruthy();
   });
 

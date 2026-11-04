@@ -12,7 +12,6 @@ tags:
 - tapOn: Complete the checklist
 - assertVisible: Start run
 - assertVisible: Run history
-# TODO (CheL-127 WU2): assert id: home-run-history-row is visible.
 - tapOn: New item
 - inputText: Scenario third
 - pressKey: Enter
@@ -25,7 +24,8 @@ tags:
 - assertVisible: .*Scenario third.*
 - tapOn: Back
 - assertVisible: New checklist title
-- assertVisible: Run history
+- assertVisible:
+    id: home-run-history-row
 - tapOn: Run history
 - assertVisible: ${output.title}
 - assertVisible: 2 items .* Run on .*

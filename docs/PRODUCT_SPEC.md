@@ -55,8 +55,8 @@ checklist belongs to the person using the device.
 
 ### Feature 5 — Checklist run history
 - From the home screen, the user can open a newest-first history of completed
-  runs across all checklists. This entry point is shown only when at least one
-  completed run exists.
+  runs across all checklists via a "Run history ›" row pinned at the bottom of
+  the screen. The row is shown only when at least one completed run exists.
 - From a checklist screen, the user can open a newest-first history filtered to
   that checklist. This entry point is shown only when that checklist has at
   least one completed run.

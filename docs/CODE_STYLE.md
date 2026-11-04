@@ -174,6 +174,11 @@ necessary, keep it local and document the reason.
 - An `onSubmitEditing` handler reading the `TextInput`'s React state instead of
   `event.nativeEvent.text` — an IME autocorrect on Enter can fire submit before
   (or midway through) the final `onChangeText` updates (CheL-116).
+- UI pinned to a screen's bottom edge (rows, bars, buttons) without adding
+  `useSafeAreaInsets().bottom` to its margin or padding — it can overlap the
+  iPhone home indicator. Jest mocks `react-native-safe-area-context` globally
+  in `jest.setup.js`; a test needing specific insets overrides the mock
+  (CheL-127).
 
 ### State and async smells
 

@@ -1,9 +1,18 @@
 import React, { useLayoutEffect, useState } from 'react';
-import { Alert, FlatList, Text, TextInput, View } from 'react-native';
+import {
+  Alert,
+  FlatList,
+  Pressable,
+  Text,
+  TextInput,
+  View,
+} from 'react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../../navigation/types';
 import { useChecklists } from '../useChecklists';
 import { Checklist } from '../domain/models';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 import { IconButton } from '../../../shared/ui/IconButton';
 import { useTheme } from '../../../shared/theme/useTheme';
 import { createThemedStyles } from '../../../shared/theme/createThemedStyles';
@@ -17,30 +26,21 @@ export function HomeScreen({ navigation }: Props) {
   const { colors, scheme } = useTheme();
   const styles = useStyles();
   const { t } = useI18n();
+  const insets = useSafeAreaInsets();
   const { checklists, createChecklist } = useChecklists();
   const { history, historyLoading } = useRuns();
   const [newTitle, setNewTitle] = useState('');
+  const showHistory = !historyLoading && history.length > 0;
 
   useLayoutEffect(() => {
-    const showHistory = !historyLoading && history.length > 0;
     const headerActions = () => (
-      <View style={styles.headerActions}>
-        {showHistory && (
-          <IconButton
-            icon="history"
-            accessibilityLabel={t('common.runHistory')}
-            onPress={() => navigation.navigate('RunHistory', {})}
-            color={colors.text}
-          />
-        )}
-        <IconButton
-          icon="settings"
-          accessibilityLabel={t('settings.open')}
-          onPress={() => navigation.navigate('Settings')}
-          color={colors.text}
-          testID="open-settings"
-        />
-      </View>
+      <IconButton
+        icon="settings"
+        accessibilityLabel={t('settings.open')}
+        onPress={() => navigation.navigate('Settings')}
+        color={colors.text}
+        testID="open-settings"
+      />
     );
 
     navigation.setOptions({
@@ -53,7 +53,7 @@ export function HomeScreen({ navigation }: Props) {
         },
       ],
     });
-  }, [colors, history.length, historyLoading, navigation, styles, t]);
+  }, [colors, navigation, t]);
 
   // Enter passes the native text: an IME autocorrect on Enter can fire submit
   // before newTitle catches up (CheL-116).
@@ -102,6 +102,19 @@ export function HomeScreen({ navigation }: Props) {
             />
           )}
         />
+      )}
+
+      {showHistory && (
+        <Pressable
+          style={[styles.historyRow, { marginBottom: insets.bottom }]}
+          onPress={() => navigation.navigate('RunHistory', {})}
+          accessibilityRole="button"
+          accessibilityLabel={t('common.runHistory')}
+          testID="home-run-history-row"
+        >
+          <Text style={styles.historyLabel}>{t('common.runHistory')}</Text>
+          <Icon name="chevron-right" size={22} color={colors.textMuted} />
+        </Pressable>
       )}
     </View>
   );
@@ -198,7 +211,17 @@ function ChecklistRow({
 }
 
 const useStyles = createThemedStyles(colors => ({
-  headerActions: { flexDirection: 'row' },
+  historyRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    minHeight: 44,
+    paddingHorizontal: 12,
+    marginTop: 8,
+    backgroundColor: colors.surface,
+    borderRadius: 10,
+  },
+  historyLabel: { color: colors.text, fontSize: 16 },
   container: {
     flex: 1,
     padding: 16,
