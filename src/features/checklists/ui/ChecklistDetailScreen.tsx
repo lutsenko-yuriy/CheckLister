@@ -11,6 +11,7 @@ import { IconButton } from '../../../shared/ui/IconButton';
 import { useTheme } from '../../../shared/theme/useTheme';
 import { createThemedStyles } from '../../../shared/theme/createThemedStyles';
 import { useI18n } from '@checklister/i18n';
+import { useKillSwitch } from '../../../shared/killSwitches/useKillSwitches';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'ChecklistDetail'>;
 
@@ -23,12 +24,14 @@ export function ChecklistDetailScreen({ navigation, route }: Props) {
   const { startRun, history, historyLoading } = useRuns();
   const checklist = checklists.find(c => c.id === route.params.checklistId);
   const [newItemText, setNewItemText] = useState('');
+  const runHistoryEnabled = useKillSwitch('runHistory');
   const hasHistory = history.some(
     entry => entry.checklistId === route.params.checklistId,
   );
 
   useLayoutEffect(() => {
-    const showHistory = Boolean(checklist) && !historyLoading && hasHistory;
+    const showHistory =
+      Boolean(checklist) && runHistoryEnabled && !historyLoading && hasHistory;
     const historyButton = () => (
       <IconButton
         icon="history"
@@ -57,7 +60,15 @@ export function ChecklistDetailScreen({ navigation, route }: Props) {
           ]
         : undefined,
     });
-  }, [checklist, colors, hasHistory, historyLoading, navigation, t]);
+  }, [
+    checklist,
+    colors,
+    hasHistory,
+    historyLoading,
+    navigation,
+    runHistoryEnabled,
+    t,
+  ]);
 
   useLayoutEffect(() => {
     if (checklist) {

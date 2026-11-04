@@ -19,6 +19,7 @@ import { createThemedStyles } from '../../../shared/theme/createThemedStyles';
 import { useRuns } from '../../runs/useRuns';
 import { useI18n } from '@checklister/i18n';
 import { ChecklistSummaryRow } from './components/ChecklistSummaryRow';
+import { useKillSwitch } from '../../../shared/killSwitches/useKillSwitches';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Home'>;
 
@@ -30,7 +31,9 @@ export function HomeScreen({ navigation }: Props) {
   const { checklists, createChecklist } = useChecklists();
   const { history, historyLoading } = useRuns();
   const [newTitle, setNewTitle] = useState('');
-  const showHistory = !historyLoading && history.length > 0;
+  const runHistoryEnabled = useKillSwitch('runHistory');
+  const showHistory =
+    runHistoryEnabled && !historyLoading && history.length > 0;
 
   useLayoutEffect(() => {
     const headerActions = () => (

@@ -30,6 +30,9 @@ import {
   AnalyticsConsentProvider,
   useAnalyticsConsent,
 } from './src/shared/analytics/useAnalyticsConsent';
+import { APP_VERSION } from './src/shared/killSwitches/appVersion';
+import { RemoteConfigKillSwitchSource } from './src/shared/killSwitches/RemoteConfigKillSwitchSource';
+import { KillSwitchProvider } from './src/shared/killSwitches/useKillSwitches';
 import { AnalyticsConsentDialog } from './src/shared/ui/AnalyticsConsentDialog';
 import { ThemeProvider, useTheme } from './src/shared/theme/useTheme';
 import { I18nProvider } from '@checklister/i18n';
@@ -37,6 +40,10 @@ import { I18nProvider } from '@checklister/i18n';
 const checklistRepository = new AsyncStorageChecklistRepository();
 const runRepository = new AsyncStorageRunRepository();
 const analyticsConsentStore = new AsyncStorageAnalyticsConsentStore();
+// Throttles real fetches to once an hour in release; debug builds fetch every time.
+const killSwitchSource = new RemoteConfigKillSwitchSource(
+  __DEV__ ? 0 : 60 * 60 * 1000,
+);
 const navigationRef = createNavigationContainerRef<RootStackParamList>();
 
 function AppContent() {
@@ -110,7 +117,12 @@ function App() {
             analytics.logEvent(event, properties)
           }
         >
-          <AppContent />
+          <KillSwitchProvider
+            source={killSwitchSource}
+            appVersion={APP_VERSION}
+          >
+            <AppContent />
+          </KillSwitchProvider>
         </I18nProvider>
       </ThemeProvider>
     </AnalyticsConsentProvider>
