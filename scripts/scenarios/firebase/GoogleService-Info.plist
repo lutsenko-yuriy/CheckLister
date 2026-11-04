@@ -4,7 +4,7 @@
 <dict>
 	<!-- Dummy Firebase config for scenario builds (CheL-147): not a real project, talks to nothing. -->
 	<key>API_KEY</key>
-	<string>AIzaSyDummyScenarioBuildKey000000000000</string>
+	<string>dummy-scenario-build-api-key</string>
 	<key>GCM_SENDER_ID</key>
 	<string>000000000000</string>
 	<key>BUNDLE_ID</key>
