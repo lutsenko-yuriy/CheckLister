@@ -175,9 +175,7 @@ describe('ExternalLinkCoordinator', () => {
     await renderCoordinator();
 
     await waitFor(() => expect(Linking.addEventListener).toHaveBeenCalled());
-    await act(async () =>
-      emitUrl(runUrl(groceries.id, 'second-app://result')),
-    );
+    await act(async () => emitUrl(runUrl(groceries.id, 'second-app://result')));
 
     await waitFor(() =>
       expect(startExternalRun).toHaveBeenCalledWith(
@@ -397,28 +395,25 @@ describe('ExternalLinkCoordinator', () => {
     ['missing', 'checklister://select'],
     ['unsupported scheme', selectUrl('tel:+4912345')],
     ['self-referencing', selectUrl('checklister://select?callbackUrl=x')],
-  ])(
-    'rejects a select request with a %s callback',
-    async (_caseName, url) => {
-      jest.spyOn(Linking, 'getInitialURL').mockResolvedValue(null);
-      await renderCoordinator();
+  ])('rejects a select request with a %s callback', async (_caseName, url) => {
+    jest.spyOn(Linking, 'getInitialURL').mockResolvedValue(null);
+    await renderCoordinator();
 
-      await waitFor(() => expect(Linking.addEventListener).toHaveBeenCalled());
-      await act(async () => emitUrl(url));
+    await waitFor(() => expect(Linking.addEventListener).toHaveBeenCalled());
+    await act(async () => emitUrl(url));
 
-      await waitFor(() =>
-        expect(Alert.alert).toHaveBeenCalledWith(
-          'We do not know which app to return to.',
-        ),
-      );
-      expect(beginSelection).not.toHaveBeenCalled();
-      expect(navigationRef.navigate).not.toHaveBeenCalled();
-      expect(analytics.logEvent).toHaveBeenCalledWith(
-        'external_select_request_handled',
-        { outcome: 'invalid_callback' },
-      );
-    },
-  );
+    await waitFor(() =>
+      expect(Alert.alert).toHaveBeenCalledWith(
+        'We do not know which app to return to.',
+      ),
+    );
+    expect(beginSelection).not.toHaveBeenCalled();
+    expect(navigationRef.navigate).not.toHaveBeenCalled();
+    expect(analytics.logEvent).toHaveBeenCalledWith(
+      'external_select_request_handled',
+      { outcome: 'invalid_callback' },
+    );
+  });
 
   it('leaves an active run byte-identical and does not navigate away from it for a select request', async () => {
     activeRun = startRun(groceries);

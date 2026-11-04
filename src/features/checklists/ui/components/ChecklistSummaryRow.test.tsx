@@ -9,7 +9,9 @@ describe('ChecklistSummaryRow', () => {
   it('renders the checklist title without an item count when empty', async () => {
     const checklist = createChecklist('Groceries');
 
-    await render(<ChecklistSummaryRow checklist={checklist} onPress={jest.fn()} />);
+    await render(
+      <ChecklistSummaryRow checklist={checklist} onPress={jest.fn()} />,
+    );
 
     expect(screen.getByText('Groceries')).toBeTruthy();
     expect(screen.queryByText(/item/)).toBeNull();
@@ -21,7 +23,9 @@ describe('ChecklistSummaryRow', () => {
       items: [createItem('Milk'), createItem('Eggs')],
     };
 
-    await render(<ChecklistSummaryRow checklist={checklist} onPress={jest.fn()} />);
+    await render(
+      <ChecklistSummaryRow checklist={checklist} onPress={jest.fn()} />,
+    );
 
     expect(screen.getByText('2 items')).toBeTruthy();
   });
@@ -32,7 +36,9 @@ describe('ChecklistSummaryRow', () => {
       items: [createItem('Milk')],
     };
 
-    await render(<ChecklistSummaryRow checklist={checklist} onPress={jest.fn()} />);
+    await render(
+      <ChecklistSummaryRow checklist={checklist} onPress={jest.fn()} />,
+    );
 
     expect(screen.getByText('1 item')).toBeTruthy();
   });
@@ -41,7 +47,9 @@ describe('ChecklistSummaryRow', () => {
     const checklist = createChecklist('Groceries');
     const onPress = jest.fn();
 
-    await render(<ChecklistSummaryRow checklist={checklist} onPress={onPress} />);
+    await render(
+      <ChecklistSummaryRow checklist={checklist} onPress={onPress} />,
+    );
     await fireEvent.press(screen.getByText('Groceries'));
 
     expect(onPress).toHaveBeenCalledTimes(1);
