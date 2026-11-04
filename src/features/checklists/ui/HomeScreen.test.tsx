@@ -14,6 +14,7 @@ import { RunsProvider } from '../../runs/useRuns';
 import { AsyncStorageRunRepository } from '../../runs/data/asyncStorageRunRepository';
 import { darkPalette } from '../../../shared/theme/palette';
 import { ThemeProvider } from '../../../shared/theme/useTheme';
+import * as killSwitches from '../../../shared/killSwitches/useKillSwitches';
 
 jest.mock('react-native-safe-area-context', () => ({
   useSafeAreaInsets: () => ({ top: 0, bottom: 34, left: 0, right: 0 }),
@@ -94,6 +95,24 @@ describe('HomeScreen', () => {
 
     expect(screen.getByTestId('home-run-history-row')).toBeTruthy();
     expect(navigate).toHaveBeenCalledWith('RunHistory', {});
+  });
+
+  it('hides the run history row while the Run history kill-switch is off', async () => {
+    jest.spyOn(killSwitches, 'useKillSwitch').mockReturnValue(false);
+    const runRepository = new AsyncStorageRunRepository();
+    await runRepository.saveAll([
+      {
+        id: 'run-1',
+        checklistId: 'c',
+        checklistTitle: 'Packing',
+        itemCount: 2,
+        completedAt: '2026-09-18T12:00:00.000Z',
+      },
+    ]);
+    await renderHomeScreen(jest.fn(), runRepository);
+
+    await waitFor(() => screen.getByPlaceholderText('New checklist title'));
+    expect(screen.queryByTestId('home-run-history-row')).toBeNull();
   });
 
   it('keeps the run history row clear of the home indicator', async () => {

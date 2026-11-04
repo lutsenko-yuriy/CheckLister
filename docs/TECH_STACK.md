@@ -19,7 +19,7 @@ Agents read this file to know which languages, tools and platforms the project u
 
 - [React Native](https://reactnative.dev/) 0.87.1 with [React](https://react.dev/) 19.2.3
 - [React Navigation](https://reactnavigation.org/) 7 (native stack)
-- [React Native Firebase](https://rnfirebase.io/) (`@react-native-firebase/app` and `/analytics`, pinned together) for opt-in analytics. Collection is off natively via the root `firebase.json` and enabled only after the user allows it. iOS links frameworks dynamically (the library resolves Firebase through Swift Package Manager and rejects static linkage).
+- [React Native Firebase](https://rnfirebase.io/) (`@react-native-firebase/app`, `/analytics` and `/remote-config`, pinned together) for opt-in analytics and remote kill-switches. Collection is off natively via the root `firebase.json` and enabled only after the user allows it. iOS links frameworks dynamically (the library resolves Firebase through Swift Package Manager and rejects static linkage).
 - [AsyncStorage](https://react-native-async-storage.github.io/async-storage/) for local persistence
 - [Reanimated](https://docs.swmansion.com/react-native-reanimated/) 4, [Gesture Handler](https://docs.swmansion.com/react-native-gesture-handler/) 3 and `react-native-reanimated-dnd` for drag reorder
 - [react-native-localize](https://github.com/zoontek/react-native-localize) plus the in-house `packages/i18n` workspace

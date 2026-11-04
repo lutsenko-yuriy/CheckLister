@@ -13,6 +13,7 @@ import { darkPalette, lightPalette } from '../../../shared/theme/palette';
 import { ThemeProvider } from '../../../shared/theme/useTheme';
 import { RunsProvider } from '../../runs/useRuns';
 import { AsyncStorageRunRepository } from '../../runs/data/asyncStorageRunRepository';
+import * as killSwitches from '../../../shared/killSwitches/useKillSwitches';
 import { analytics } from '../../../shared/analytics/AnalyticsService';
 
 function createMockNavigation() {
@@ -43,6 +44,7 @@ async function renderDetailScreen(
 describe('ChecklistDetailScreen', () => {
   afterEach(async () => {
     await AsyncStorage.clear();
+    jest.restoreAllMocks();
   });
 
   it("shows the checklist's title and a placeholder for items", async () => {
@@ -74,6 +76,36 @@ describe('ChecklistDetailScreen', () => {
         id: 'other-run',
         checklistId: 'other',
         checklistTitle: 'Packing',
+        itemCount: 2,
+        completedAt: '2026-09-18T12:00:00.000Z',
+      },
+    ]);
+
+    const { navigation } = await renderDetailScreen(
+      '1',
+      createMockNavigation(),
+      runRepository,
+    );
+
+    await waitFor(() => expect(screen.getByText('Groceries')).toBeTruthy());
+    const calls = navigation.setOptions.mock.calls;
+    const options = calls[calls.length - 1][0];
+    expect(options.headerRight).toBeUndefined();
+    expect(options.unstable_headerRightItems).toBeUndefined();
+  });
+
+  it('hides checklist history while the Run history kill-switch is off', async () => {
+    jest.spyOn(killSwitches, 'useKillSwitch').mockReturnValue(false);
+    const checklistRepository = new AsyncStorageChecklistRepository();
+    await checklistRepository.saveAll([
+      { id: '1', title: 'Groceries', items: [] },
+    ]);
+    const runRepository = new AsyncStorageRunRepository();
+    await runRepository.saveAll([
+      {
+        id: 'run-1',
+        checklistId: '1',
+        checklistTitle: 'Groceries',
         itemCount: 2,
         completedAt: '2026-09-18T12:00:00.000Z',
       },

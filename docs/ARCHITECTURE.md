@@ -76,6 +76,11 @@ src/
     │   ├── useAnalyticsConsent.tsx # AnalyticsConsentProvider (render gate: nothing mounts until the stored choice is read) + useAnalyticsConsent() { status, allow, deny, setChoice }; allow/deny are the dialog's one-shot answer, setChoice is the Settings switch (applies at once, saves in order, last tap wins, save errors swallowed)
     │   ├── ConsentGatedAnalyticsService.ts # Forwards only while consent is `granted`; drops (never buffers) otherwise
     │   └── FirebaseAnalyticsService.ts     # React Native Firebase delegate; booleans sent as strings, null dropped, native errors swallowed
+    ├── killSwitches/               # Remote kill-switches (CheL-128), see "Kill-switches"
+    │   ├── killSwitches.ts         # KILL_SWITCHES registry, parseRemoteSwitch(), compareVersions(), resolveKillSwitch(): pure, no native imports
+    │   ├── appVersion.ts           # APP_VERSION read from package.json (the version source of truth; native versions aren't synced)
+    │   ├── RemoteConfigKillSwitchSource.ts # KillSwitchSource + Firebase Remote Config impl; owns every native call, errors swallowed
+    │   └── useKillSwitches.tsx     # KillSwitchProvider (never gates rendering; owns fetch ordering, AppState refetch, in-flight dedupe) + useKillSwitch(id)
     ├── links/
     │   └── externalLinkUrls.ts     # Verb-agnostic URL primitives + parseExternalLinkKind('run' | 'select' | null)
     ├── storage/
@@ -357,6 +362,54 @@ or sent to analytics.
   `react-i18next`): ~50 strings in 4 languages with no in-app switching don't
   justify two dependencies plus an `Intl.PluralRules` polyfill for Hermes; see
   `packages/i18n/`. Run `pod install` after adding the dependency.
+
+- [`@react-native-firebase/remote-config`](https://rnfirebase.io/remote-config/usage)
+  (27.1.0, pinned to `/app` and `/analytics`) — remote kill-switches (CheL-128).
+  No Podfile change or new CI secret: it resolves Firebase through the same
+  setup as analytics. Jest uses `__mocks__/@react-native-firebase/remote-config.js`.
+  Run `pod install` after adding the dependency.
+
+## Kill-switches (CheL-128)
+
+A kill-switch turns a feature's entry points off from the Firebase console
+without a release. Register it in `KILL_SWITCHES` (`shared/killSwitches/killSwitches.ts`)
+and read it with `useKillSwitch(id)`. The only switch so far is `runHistory`: it
+hides the pinned Home row and the checklist header's history button. History
+data is never touched, so it reappears when the switch turns back on.
+
+**Parameter.** One JSON Remote Config parameter per switch, e.g.
+`kill_switch_run_history = {"enabled": false, "min_version": "0.16.0"}`. The remote
+value applies only to app versions `>= min_version` (numeric per segment, so
+`0.9.0 < 0.10.0`; `min_version` must match `^\d+\.\d+\.\d+$`). A missing parameter,
+bad JSON, a non-boolean `enabled` or a missing/malformed `min_version` means "no
+remote value": the feature stays on. Builds older than the version that introduced
+the switch have no check at all. The app version is `APP_VERSION` from
+`package.json`, identical on both platforms.
+
+**Precedence.** Remote value (when it applies) > default on.
+
+**Cache and freshness.** The cache is the Firebase SDK's own persisted activated
+config, so it works offline; there is no AsyncStorage copy. The app reads it at
+launch, then calls `fetchAndActivate()` on cold start and on every `AppState` →
+`active`. Real fetches are throttled to once an hour in release builds
+(`minimumFetchIntervalMillis`; 0 under `__DEV__`) and concurrent calls share one
+in-flight promise. A fetch that activates new values applies live: entry points
+disappear on their next render, while a user already on `RunHistoryScreen` stays
+there. Real-time `onConfigUpdate` is deliberately not used.
+
+**No render gate.** `useKillSwitch` returns `false` until the local values have
+been read (a few milliseconds, like `historyLoading`), fails open (on) if native
+reads fail, and returns `true` with no provider mounted so unwrapped screen tests
+keep working.
+
+**Independent of analytics consent.** Remote Config runs whatever the user chose
+and logs no events. Fetching creates a Firebase Installation ID.
+
+**Owner runbook.** Console → Remote Config → `kill_switch_run_history` (type
+JSON) → set `enabled: false` and `min_version` to the oldest affected version →
+Publish changes. Affected users pick it up on their next foreground after the
+throttle window. Set `enabled: true` to restore. The Maestro scenarios talk to
+the real project, so leave it `enabled: true` while they run.
 
 ## Local simulator scenarios
 

@@ -17,6 +17,10 @@ import {
   analytics,
   analyticsConsentGate,
 } from '../src/shared/analytics/AnalyticsService';
+import {
+  fetchAndActivate,
+  getValue,
+} from '@react-native-firebase/remote-config';
 import { resetLanguageAnalyticsForTesting } from '@checklister/i18n';
 
 // Without it SafeAreaProvider renders no children, so no screen ever mounts.
@@ -171,5 +175,46 @@ describe('analytics consent at launch', () => {
           .choice,
       ).toBe('granted');
     });
+  });
+});
+
+describe('Run history kill-switch', () => {
+  async function launchWithHistory(remote: string) {
+    await AsyncStorage.clear();
+    await AsyncStorage.setItem(
+      'analyticsConsent',
+      JSON.stringify({ choice: 'denied', decidedAt: '2026-11-04T10:00:00Z' }),
+    );
+    await AsyncStorage.setItem(
+      'runHistory',
+      JSON.stringify([
+        {
+          id: 'run-1',
+          checklistId: 'c',
+          checklistTitle: 'Packing',
+          itemCount: 2,
+          completedAt: '2026-09-18T12:00:00.000Z',
+        },
+      ]),
+    );
+    jest.mocked(getValue).mockReturnValue({ asString: () => remote } as never);
+    await render(<App />);
+    await screen.findByPlaceholderText('New checklist title');
+  }
+
+  afterEach(() => {
+    jest.mocked(getValue).mockReturnValue({ asString: () => '' } as never);
+    jest.mocked(fetchAndActivate).mockClear();
+  });
+
+  it('shows the Home history row by default', async () => {
+    await launchWithHistory('');
+    expect(await screen.findByTestId('home-run-history-row')).toBeTruthy();
+  });
+
+  it('hides the Home history row when remote config switches it off', async () => {
+    await launchWithHistory('{"enabled":false,"min_version":"0.0.1"}');
+    await waitFor(() => expect(fetchAndActivate).toHaveBeenCalled());
+    expect(screen.queryByTestId('home-run-history-row')).toBeNull();
   });
 });

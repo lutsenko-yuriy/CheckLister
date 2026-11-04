@@ -6,6 +6,15 @@ const read = (file: string) => fs.readFileSync(path.join(root, file), 'utf8');
 
 // Collection must stay off natively until the user allows analytics (CheL-126).
 // These guard the native config that no runtime test can see.
+describe('Firebase package versions', () => {
+  it('pins remote-config to the same version as app', () => {
+    const { dependencies } = JSON.parse(read('package.json'));
+    expect(dependencies['@react-native-firebase/remote-config']).toBe(
+      dependencies['@react-native-firebase/app'],
+    );
+  });
+});
+
 describe('Firebase native config', () => {
   const config = JSON.parse(read('firebase.json'))['react-native'];
 
