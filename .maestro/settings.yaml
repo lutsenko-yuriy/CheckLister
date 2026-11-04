@@ -9,6 +9,9 @@ tags:
 - runFlow: helpers/answer-analytics-consent.yaml
 - assertVisible:
     id: open-settings
+# CheL-128: the debug icon exists in debug builds only; this suite installs Release.
+- assertNotVisible:
+    id: open-debug
 - tapOn:
     id: open-settings
 - assertVisible: Settings
