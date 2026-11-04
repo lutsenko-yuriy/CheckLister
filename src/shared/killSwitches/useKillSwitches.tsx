@@ -11,7 +11,6 @@ import type {
   RawSwitchValues,
 } from './RemoteConfigKillSwitchSource';
 import {
-  KILL_SWITCHES,
   KillSwitchId,
   parseRemoteSwitch,
   resolveKillSwitch,
@@ -106,5 +105,3 @@ export function useKillSwitch(id: KillSwitchId): boolean {
     override: null,
   }).enabled;
 }
-
-export { KILL_SWITCHES };
