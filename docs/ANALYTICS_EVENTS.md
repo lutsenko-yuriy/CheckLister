@@ -165,6 +165,8 @@ Fired immediately after the user taps "Allow" on the analytics consent dialog, o
 
 No properties.
 
+<!-- Added for CheL-127: also fired when the user switches analytics on from the Settings screen (off → on), once the choice is stored and collection is on. Switching off is not tracked: the consent gate has already dropped everything by then. -->
+
 ---
 
 ## Screen Views
@@ -187,3 +189,4 @@ No properties.
 | `screen_checklist_run` | When the run screen mounts, with `checklist_id: string`, `item_count: number` |
 | `screen_run_history` | When the run history screen mounts, with `scope: string` (`all` or `checklist`), `entry_count: number`, and `checklist_id: string` when filtered to one checklist |
 | `screen_checklist_select` | When the external "Select checklist" picker mounts, with `checklist_count: number` (CheL-40) |
+| `screen_settings` | When the Settings screen mounts, no properties (CheL-127) |
