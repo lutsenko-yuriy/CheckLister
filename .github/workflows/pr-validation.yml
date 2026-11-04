@@ -39,6 +39,34 @@ jobs:
       - name: Script contract tests
         run: python3 -m unittest discover -s scripts/tests
 
+  scenario-stripping:
+    name: Scenario code is stripped from normal builds
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: package.json
+          cache: npm
+
+      - name: Install JS dependencies
+        run: npm ci
+
+      - name: Bundle a normal build
+        run: npx react-native bundle --platform ios --dev false --entry-file index.js --bundle-output "$RUNNER_TEMP/normal.jsbundle"
+
+      - name: Normal bundle has no scenario code
+        run: python3 scripts/ci/check_scenario_bundle.py "$RUNNER_TEMP/normal.jsbundle" --expect absent
+
+      - name: Bundle a scenario build
+        env:
+          CHECKLISTER_SCENARIO_BUILD: '1'
+        run: npx react-native bundle --platform ios --dev false --entry-file index.js --bundle-output "$RUNNER_TEMP/scenario.jsbundle"
+
+      - name: Scenario bundle has the marker (proves the check can fail)
+        run: python3 scripts/ci/check_scenario_bundle.py "$RUNNER_TEMP/scenario.jsbundle" --expect present
+
   actionlint:
     name: Lint workflow files
     runs-on: ubuntu-latest

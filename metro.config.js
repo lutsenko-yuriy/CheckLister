@@ -1,4 +1,5 @@
 const path = require('path');
+const { readScenarioBuildFlag } = require('./scripts/babel/scenarioBuildFlag');
 const { getDefaultConfig, mergeConfig } = require('@react-native/metro-config');
 
 /**
@@ -8,6 +9,8 @@ const { getDefaultConfig, mergeConfig } = require('@react-native/metro-config');
  * @type {import('@react-native/metro-config').MetroConfig}
  */
 const config = {
+  // The flag is baked in at transform time; keep the two kinds of build out of each other's cache.
+  cacheVersion: readScenarioBuildFlag() ? 'scenario-build' : 'standard',
   // Watch the workspace packages directory directly (not just their
   // node_modules symlinks) so Metro picks up edits to @checklister/i18n.
   watchFolders: [path.resolve(__dirname, 'packages')],

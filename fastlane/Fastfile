@@ -30,6 +30,11 @@ platform :ios do
     UI.user_error!('missing version: option') unless options[:version]
     UI.user_error!('missing build: option') unless options[:build]
 
+    # CheL-147: a scenario build (stubbed Firebase) must never reach TestFlight.
+    unless ['', '0'].include?(ENV.fetch('CHECKLISTER_SCENARIO_BUILD', ''))
+      UI.user_error!('CHECKLISTER_SCENARIO_BUILD is set; refusing to build for TestFlight')
+    end
+
     api_key = app_store_connect_api_key(
       key_id: ENV.fetch('APP_STORE_CONNECT_API_KEY_ID'),
       issuer_id: ENV.fetch('APP_STORE_CONNECT_API_ISSUER_ID'),
@@ -44,6 +49,10 @@ platform :ios do
       export_method: 'app-store',
       xcargs: "MARKETING_VERSION=#{options[:version]} CURRENT_PROJECT_VERSION=#{options[:build]}",
     )
+
+    # Second line of defence: the archive itself must not contain scenario code.
+    sh("python3 -I #{File.expand_path('../scripts/ci/check_scenario_bundle.py', __dir__)} " \
+       "#{lane_context[SharedValues::IPA_OUTPUT_PATH].shellescape} --expect absent")
 
     # Internal testers only - no App Store submission. Promoting a build to
     # public review stays a deliberate, manual action in App Store Connect.

@@ -1,4 +1,8 @@
 module.exports = {
   presets: ['module:@react-native/babel-preset'],
-  plugins: ['react-native-reanimated/plugin'],
+  // The scenario-build flag is replaced first so Metro can fold the guarded code away.
+  plugins: [
+    './scripts/babel/scenarioBuildPlugin',
+    'react-native-reanimated/plugin',
+  ],
 };
