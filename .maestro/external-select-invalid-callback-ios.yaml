@@ -3,6 +3,7 @@ name: Cold select link rejects an invalid callback
 tags:
   - ios
 ---
+- runFlow: helpers/answer-analytics-consent.yaml
 - stopApp
 - openLink: 'checklister://select?callbackUrl=not-a-url'
 - tapOn:

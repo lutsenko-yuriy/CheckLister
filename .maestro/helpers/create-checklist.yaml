@@ -1,13 +1,7 @@
 appId: ${APP_ID}
 ---
 - evalScript: ${output.title = 'Scenario ' + Date.now() + '-' + Math.floor(Math.random() * 1000000)}
-- launchApp:
-    clearState: false
-# CheL-110: Android cold-start latency (up to ~16s tail) exceeds Maestro's
-# 7s assertVisible default; extendedWaitUntil covers it. See docs/knowledge/notes/CheL-110.md.
-- extendedWaitUntil:
-    visible: New checklist title
-    timeout: 20000
+- runFlow: answer-analytics-consent.yaml
 - tapOn: New checklist title
 - inputText: ${output.title}
 - pressKey: Enter
