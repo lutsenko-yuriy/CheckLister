@@ -232,7 +232,7 @@ ticket promotes them).
 | Flow                                         | Assertions                                                                                                                                                                                                                                                                             |
 | -------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `analytics-consent.yaml`                     | A fresh install shows the consent dialog with its title, body and both buttons; tapping the scrim (and, on Android, system back) does not dismiss it; "Don't allow" opens the usable home screen and the choice survives a relaunch. Never taps "Allow".                               |
-| `settings.yaml`                              | (CheL-127) The home gear opens Settings with the "Share anonymous usage data" row; the switch is off after "Don't allow", survives Back and a relaunch. Never switches it on (Jest-only).                                                                              |
+| `settings.yaml`                              | (CheL-127) The home gear opens Settings with the "Share anonymous usage data" row; the switch is off after "Don't allow", survives Back and a relaunch. Never switches it on (Jest-only). Also asserts the debug icon (`open-debug`, CheL-128) is absent: it exists in debug builds only and this suite installs Release. |
 | `run-complete.yaml`                          | Empty checklist cannot start; completion disabled until all items checked; toggle/uncheck; completion returns to unchanged template; fresh run starts unchecked.                                                                                                                       |
 | `run-exit.yaml`                              | Back shows confirmation; Cancel preserves progress; Discard returns to template; new run resets progress.                                                                                                                                                                              |
 | `run-exit-system-back-android.yaml`          | Android system back (hardware/gesture) during an active run shows the same confirmation as the app Back button; Cancel preserves progress and keeps the screen interactive; a second system back Discards and resets on the next run.                                                  |
@@ -254,6 +254,13 @@ run opens confirmation without removing the run. This matches the product spec.
 Older source comments describe the gesture as disabled; the real-target test
 intentionally asserts the observed dialog, Cancel, and continued interactivity.
 Revalidate this behavior when upgrading native navigation dependencies.
+
+**Remote kill-switches (CheL-128).** The suite (local and CI Android) talks to the
+real Firebase project. If the `kill_switch_run_history` Remote Config parameter is
+switched off for builds at or above its `min_version`, the Run history entry points
+disappear and `run-history.yaml` fails. Keep it on (`enabled: true`) while scenarios
+run. Release builds can't reach the debug screen, so switch off-states and overrides
+are covered by Jest only.
 
 **Analytics consent (CheL-126).** Every flow reaches the home screen through
 `helpers/answer-analytics-consent.yaml`, which taps "Don't allow" when the

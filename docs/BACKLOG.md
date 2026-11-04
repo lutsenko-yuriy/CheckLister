@@ -16,7 +16,6 @@ _(nothing in progress)_
 
 ## Unscheduled
 
-- [CheL-115: Speed up the Android scenarios CI workflow (~20 min per run)](https://github.com/lutsenko-yuriy/CheckLister/issues/115)
 - [CheL-124: `build/` gitignore rule hides skills/build/implement](https://github.com/lutsenko-yuriy/CheckLister/issues/124)
 - [CheL-125: Run notes and checkup Python tests in CI](https://github.com/lutsenko-yuriy/CheckLister/issues/125)
 - [CheL-128: Add remote kill-switches (first: Run history)](https://github.com/lutsenko-yuriy/CheckLister/issues/128)

@@ -13,6 +13,12 @@ A record of all versioned releases. For planned work and known issues, see @docs
 - ...
 -->
 
+## [Unreleased]
+
+### Added
+
+- [test] (PR #144) CheL-128 WU0: the settings scenario now asserts the debug icon is absent in Release builds, and `docs/SCENARIOS.md` notes that the scenario suite shares the real Firebase project's kill-switch values.
+
 ## [0.15.0] — 2026-11-04 (PR #143 merged)
 
 ### Added
