@@ -65,6 +65,7 @@ src/
 │       │   ├── RunHistoryScreen.tsx
 │       │   └── components/         # RunItemRow
 │       └── useRuns.tsx             # Context + hook for ephemeral active run + durable completed history
+│   ├── debug/                  # Debug-only DebugScreen (CheL-128), absent from Release bundles
 │   └── settings/
 │       └── ui/
 │           └── SettingsScreen.tsx  # Analytics switch bound to useAnalyticsConsent (route Settings); UI only, no domain/data
@@ -80,7 +81,8 @@ src/
     │   ├── killSwitches.ts         # KILL_SWITCHES registry, parseRemoteSwitch(), compareVersions(), resolveKillSwitch(): pure, no native imports
     │   ├── appVersion.ts           # APP_VERSION read from package.json (the version source of truth; native versions aren't synced)
     │   ├── RemoteConfigKillSwitchSource.ts # KillSwitchSource + Firebase Remote Config impl; owns every native call, errors swallowed
-    │   └── useKillSwitches.tsx     # KillSwitchProvider (never gates rendering; owns fetch ordering, AppState refetch, in-flight dedupe) + useKillSwitch(id)
+    │   ├── killSwitchOverrideStore.ts # Debug-only AsyncStorage overrides (`killSwitchOverrides`); read errors → none
+    │   └── useKillSwitches.tsx     # KillSwitchProvider (never gates rendering; owns fetch ordering, AppState refetch, in-flight dedupe, debug overrides) + useKillSwitch(id) + useKillSwitchDebug()
     ├── links/
     │   └── externalLinkUrls.ts     # Verb-agnostic URL primitives + parseExternalLinkKind('run' | 'select' | null)
     ├── storage/
@@ -386,7 +388,7 @@ remote value": the feature stays on. Builds older than the version that introduc
 the switch have no check at all. The app version is `APP_VERSION` from
 `package.json`, identical on both platforms.
 
-**Precedence.** Remote value (when it applies) > default on.
+**Precedence.** Debug override (debug builds only) > remote value (when it applies) > default on.
 
 **Cache and freshness.** The cache is the Firebase SDK's own persisted activated
 config, so it works offline; there is no AsyncStorage copy. The app reads it at
@@ -410,6 +412,21 @@ JSON) → set `enabled: false` and `min_version` to the oldest affected version 
 Publish changes. Affected users pick it up on their next foreground after the
 throttle window. Set `enabled: true` to restore. The Maestro scenarios talk to
 the real project, so leave it `enabled: true` while they run.
+
+**Debug overrides (debug builds only).** `KillSwitchProvider` takes an optional
+`overrideStore`; `App.tsx` passes an `AsyncStorageKillSwitchOverrideStore`
+(`killSwitchOverrides` key) only under `__DEV__`, so release ignores any stored
+override. Overrides apply at once and save in tap order (errors swallowed). Switches
+stay off until both the overrides and the remote values are read, so there is no
+flash from remote to override. A bug icon (`open-debug`) left of the Home gear opens
+`features/debug/ui/DebugScreen` (`debug-screen`): one `Switch` per registry entry, a
+source caption (`override` / `remote` / `default` / `ignored: min version`), a
+per-row Reset and "Reset all overrides". The `Debug` route and icon are added
+only inside `__DEV__` guards (the screen via `require()`), so Metro drops them from
+Release bundles (checked by grepping a Release bundle for `debug-screen` and
+`open-debug`). The screen uses English literals, not `t()`: it never ships, so it is
+exempt from localisation. Maestro installs Release, so the off state and overrides
+are covered by Jest only.
 
 ## Local simulator scenarios
 
