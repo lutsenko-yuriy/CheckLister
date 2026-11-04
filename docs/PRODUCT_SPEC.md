@@ -136,6 +136,24 @@ checklist belongs to the person using the device.
   never translated. Item counts and history dates use the plural rules and
   date/time conventions of the active language.
 
+### Feature 10 — Analytics consent
+- CheckLister collects anonymous usage analytics through Firebase Analytics,
+  and only for users who have explicitly allowed it. Nothing is collected
+  before the user taps "Allow".
+- A user who has not yet chosen — a fresh install or an existing user
+  updating the app — sees a centered dialog over the home screen titled
+  "Help improve CheckLister?", with two equal-weight buttons: "Don't allow"
+  and "Allow".
+- The dialog cannot be dismissed without choosing: tapping outside it or
+  using the Android back button leaves it open.
+- The choice is remembered on the device and the dialog is not shown again.
+  "Don't allow" leaves the app fully usable, with no data collected.
+- The dialog text is translated like the rest of the app (Feature 9) and
+  follows the active light/dark palette (Feature 8).
+- There is no way to change the choice after it is made yet; a Settings
+  screen for that is a separate follow-up and must ship before the app is
+  promoted publicly.
+
 ## Out of scope for v1
 
 - User accounts, login, or any backend — all data is local to the device.
