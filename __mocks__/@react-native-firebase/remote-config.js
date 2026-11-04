@@ -4,8 +4,6 @@ const remoteConfigInstance = {};
 
 module.exports = {
   getRemoteConfig: jest.fn(() => remoteConfigInstance),
-  setDefaults: jest.fn(() => Promise.resolve()),
-  setConfigSettings: jest.fn(() => Promise.resolve()),
   ensureInitialized: jest.fn(() => Promise.resolve()),
   getValue: jest.fn(() => ({ asString: () => '' })),
   fetchAndActivate: jest.fn(() => Promise.resolve(false)),
