@@ -37,13 +37,24 @@ export function HomeScreen({ navigation }: Props) {
 
   useLayoutEffect(() => {
     const headerActions = () => (
-      <IconButton
-        icon="settings"
-        accessibilityLabel={t('settings.open')}
-        onPress={() => navigation.navigate('Settings')}
-        color={colors.text}
-        testID="open-settings"
-      />
+      <View style={styles.headerActions}>
+        {__DEV__ && (
+          <IconButton
+            icon="bug-report"
+            accessibilityLabel="Open debug"
+            onPress={() => navigation.navigate('Debug')}
+            color={colors.text}
+            testID="open-debug"
+          />
+        )}
+        <IconButton
+          icon="settings"
+          accessibilityLabel={t('settings.open')}
+          onPress={() => navigation.navigate('Settings')}
+          color={colors.text}
+          testID="open-settings"
+        />
+      </View>
     );
 
     navigation.setOptions({
@@ -56,7 +67,7 @@ export function HomeScreen({ navigation }: Props) {
         },
       ],
     });
-  }, [colors, navigation, t]);
+  }, [colors, navigation, styles, t]);
 
   // Enter passes the native text: an IME autocorrect on Enter can fire submit
   // before newTitle catches up (CheL-116).
@@ -214,6 +225,10 @@ function ChecklistRow({
 }
 
 const useStyles = createThemedStyles(colors => ({
+  headerActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
   historyRow: {
     flexDirection: 'row',
     alignItems: 'center',

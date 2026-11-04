@@ -7,4 +7,6 @@ export type RootStackParamList = {
   // navigation state (ephemeral, unpersisted) — see useExternalSelection.
   ChecklistSelect: undefined;
   Settings: undefined;
+  // Registered under __DEV__ only (CheL-128).
+  Debug: undefined;
 };

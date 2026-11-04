@@ -32,6 +32,7 @@ import {
 } from './src/shared/analytics/useAnalyticsConsent';
 import { APP_VERSION } from './src/shared/killSwitches/appVersion';
 import { RemoteConfigKillSwitchSource } from './src/shared/killSwitches/RemoteConfigKillSwitchSource';
+import { AsyncStorageKillSwitchOverrideStore } from './src/shared/killSwitches/killSwitchOverrideStore';
 import { KillSwitchProvider } from './src/shared/killSwitches/useKillSwitches';
 import { AnalyticsConsentDialog } from './src/shared/ui/AnalyticsConsentDialog';
 import { ThemeProvider, useTheme } from './src/shared/theme/useTheme';
@@ -44,6 +45,10 @@ const analyticsConsentStore = new AsyncStorageAnalyticsConsentStore();
 const killSwitchSource = new RemoteConfigKillSwitchSource(
   __DEV__ ? 0 : 60 * 60 * 1000,
 );
+// Overrides exist in debug builds only; release never constructs the store.
+const killSwitchOverrideStore = __DEV__
+  ? new AsyncStorageKillSwitchOverrideStore()
+  : undefined;
 const navigationRef = createNavigationContainerRef<RootStackParamList>();
 
 function AppContent() {
@@ -119,6 +124,7 @@ function App() {
         >
           <KillSwitchProvider
             source={killSwitchSource}
+            overrideStore={killSwitchOverrideStore}
             appVersion={APP_VERSION}
           >
             <AppContent />
