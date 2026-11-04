@@ -180,7 +180,8 @@ pushes to `main` touching the same paths, to keep the README badge current.
   570–690s, ~19–22 min total. The Gradle dependency cache was already warm
   (`main` pushes write it), so downloads were not the cost; native CMake and
   Kotlin compilation were. ccache was tried and dropped (0/100 cacheable hits).
-  `--parallel`: build 378s. Plus 4 GB heap and `-x lintVitalRelease`: see below.
+  `--parallel`: build 378s; plus 4 GB heap and `-x lintVitalRelease`: 361s
+  (~30% off). The suite (570–720s) is now the largest phase.
   Not done: splitting the suite across two runners (~4–5 min), caching the APK
   for `.maestro`-only pushes, caching the AVD snapshot.
 - **Results.** Every run publishes an "Android scenario flows" check listing
