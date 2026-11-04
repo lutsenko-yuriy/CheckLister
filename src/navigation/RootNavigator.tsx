@@ -101,6 +101,14 @@ export function RootNavigator() {
           ...flatBackButtonOptions,
         }}
       />
+      {__DEV__ && (
+        // require() inside the guard lets Metro drop the screen from Release.
+        <Stack.Screen
+          name="Debug"
+          component={require('../features/debug/ui/DebugScreen').DebugScreen}
+          options={{ title: 'Debug', ...flatBackButtonOptions }}
+        />
+      )}
       <Stack.Screen
         name="ChecklistSelect"
         component={ChecklistSelectScreen}

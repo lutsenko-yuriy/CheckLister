@@ -13,10 +13,11 @@ A record of all versioned releases. For planned work and known issues, see @docs
 - ...
 -->
 
-## [Unreleased]
+## [0.16.0] — 2026-11-04 (PR #146 merged)
 
 ### Added
 
+- [app] CheL-128: Run history can be switched off remotely from the Firebase console (`kill_switch_run_history`), with no release needed; debug builds get a Debug screen to override switches locally.
 - [test] (PR #144) CheL-128 WU0: the settings scenario now asserts the debug icon is absent in Release builds, and `docs/SCENARIOS.md` notes that the scenario suite shares the real Firebase project's kill-switch values.
 - [wip] (PR #145) CheL-128 WU1: Run history can now be switched off remotely. The Home row and the checklist header's history button follow the Firebase Remote Config parameter `kill_switch_run_history` (`{"enabled", "min_version"}`); a missing or malformed value leaves it on. The debug override screen follows in WU2.
 

@@ -70,6 +70,43 @@ describe('HomeScreen', () => {
     );
   });
 
+  describe('debug icon (CheL-128)', () => {
+    const globalWithDev = globalThis as { __DEV__?: boolean };
+    const original = globalWithDev.__DEV__;
+    afterEach(() => {
+      globalWithDev.__DEV__ = original;
+    });
+
+    async function headerOf(navigate: jest.Mock) {
+      const { navigation } = await renderHomeScreen(navigate);
+      await waitFor(() => expect(navigation.setOptions).toHaveBeenCalled());
+      const calls = navigation.setOptions.mock.calls;
+      return calls[calls.length - 1][0];
+    }
+
+    it('opens the Debug screen from a bug icon left of the gear in dev', async () => {
+      globalWithDev.__DEV__ = true;
+      const navigate = jest.fn();
+      const options = await headerOf(navigate);
+
+      const header = await render(<options.headerRight />);
+      fireEvent.press(header.getByTestId('open-debug'));
+      expect(navigate).toHaveBeenCalledWith('Debug');
+      expect(header.getByLabelText('Open settings')).toBeTruthy();
+      const ids = header.getAllByRole('button').map(b => b.props.testID);
+      expect(ids).toEqual(['open-debug', 'open-settings']);
+    });
+
+    it('has no debug icon outside dev', async () => {
+      globalWithDev.__DEV__ = false;
+      const options = await headerOf(jest.fn());
+
+      const header = await render(<options.headerRight />);
+      expect(header.queryByTestId('open-debug')).toBeNull();
+      expect(header.getByTestId('open-settings')).toBeTruthy();
+    });
+  });
+
   it('hides the run history row when no completed runs exist', async () => {
     await renderHomeScreen();
 

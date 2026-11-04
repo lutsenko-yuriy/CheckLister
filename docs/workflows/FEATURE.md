@@ -53,6 +53,7 @@ behaviour beyond a literal value, it is not trivial — use the full workflow in
 
       If the user asks to skip straight to implementation but the ticket meets this gate's criteria (multiple files, new domain entities, new dependencies, or architectural shifts), confirm once whether to skip planning anyway before proceeding — don't skip it silently just because implementation was requested directly.
    4. **Feature toggle.** For features introducing new user-facing behaviour: consider a remote-config-style kill-switch (default on) so the feature can be disabled without a release if a critical regression surfaces after shipping. If added, document it before writing any code.
+      If the toggle lives in an external service (Remote Config, etc.), check whether a CLI or API the agent already has access to can read and write it (e.g. `firebase remoteconfig:get`, `firebase deploy --only remoteconfig`) before asking the user to edit a console by hand. Propose each live change and apply it once the user says yes; after every verification, restore the value and read it back (CheL-128).
    5. **Create the feature branch** from the latest default branch, before writing any code. Always include the ticket number after `feature/`:
       ```
       git fetch origin
