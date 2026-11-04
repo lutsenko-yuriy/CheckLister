@@ -33,7 +33,7 @@ packages/
 
 src/
 ├── navigation/
-│   ├── RootNavigator.tsx      # Native-stack routes: Home, ChecklistDetail, Run, RunHistory, ChecklistSelect
+│   ├── RootNavigator.tsx      # Native-stack routes: Home, ChecklistDetail, Run, RunHistory, ChecklistSelect, Settings
 │   ├── ExternalLinkCoordinator.tsx # Incoming external-link URLs → dispatch by verb (run, select)
 │   ├── useExternalLinkQueue.ts     # Shared URL queue/bootstrap: Linking listener, getInitialURL, native drain, dedupe
 │   └── externalLinkNativeHandoff.ts # Native pending-URL handoff (module name: ExternalRunLinking, predates `select`)
@@ -53,7 +53,7 @@ src/
 │   │   ├── useChecklists.ts        # Context + hook exposing checklist state to UI
 │   │   ├── useExternalSelection.tsx        # Ephemeral, in-memory pending-callback-URL session for the picker
 │   │   └── externalSelectCallbackDelivery.ts # Opens the caller's callback URL / alerts on failure
-│   └── runs/
+│   ├── runs/
 │       ├── domain/
 │       │   ├── models.ts           # ChecklistRun, RunOrigin, RunHistoryEntry, RunItem + pure helpers
 │       │   ├── externalRunLinks.ts # Run-specific request/result types, built on shared/links primitives
@@ -65,12 +65,15 @@ src/
 │       │   ├── RunHistoryScreen.tsx
 │       │   └── components/         # RunItemRow
 │       └── useRuns.tsx             # Context + hook for ephemeral active run + durable completed history
+│   └── settings/
+│       └── ui/
+│           └── SettingsScreen.tsx  # Analytics switch bound to useAnalyticsConsent (route Settings); UI only, no domain/data
 └── shared/
     ├── analytics/
     │   ├── AnalyticsService.ts     # AnalyticsService interface, NoopAnalyticsService (test double), `analytics` singleton (consent-gated, Firebase-backed)
     │   ├── analyticsConsent.ts     # AnalyticsConsentChoice + parseStoredConsent(): malformed/missing → `unknown`
     │   ├── analyticsConsentStore.ts # AnalyticsConsentStore + AsyncStorage impl (`analyticsConsent` key, choice + decidedAt); a read error → `unknown`
-    │   ├── useAnalyticsConsent.tsx # AnalyticsConsentProvider (render gate: nothing mounts until the stored choice is read) + useAnalyticsConsent() { status, allow, deny }
+    │   ├── useAnalyticsConsent.tsx # AnalyticsConsentProvider (render gate: nothing mounts until the stored choice is read) + useAnalyticsConsent() { status, allow, deny, setChoice }; allow/deny are the dialog's one-shot answer, setChoice is the Settings switch (applies at once, saves in order, last tap wins, save errors swallowed)
     │   ├── ConsentGatedAnalyticsService.ts # Forwards only while consent is `granted`; drops (never buffers) otherwise
     │   └── FirebaseAnalyticsService.ts     # React Native Firebase delegate; booleans sent as strings, null dropped, native errors swallowed
     ├── links/

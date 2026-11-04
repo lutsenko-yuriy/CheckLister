@@ -150,9 +150,14 @@ checklist belongs to the person using the device.
   "Don't allow" leaves the app fully usable, with no data collected.
 - The dialog text is translated like the rest of the app (Feature 9) and
   follows the active light/dark palette (Feature 8).
-- There is no way to change the choice after it is made yet; a Settings
-  screen for that is a separate follow-up and must ship before the app is
-  promoted publicly.
+- A gear icon, always visible in the top-right of the home screen, opens a
+  Settings screen with a back button and one row, "Share anonymous usage
+  data", with an on/off switch. The switch shows the current choice (off
+  until the user has allowed it) and flipping it takes effect immediately and
+  is remembered on the device. Switching on is counted like tapping "Allow"
+  in the dialog.
+- The Settings screen is translated (Feature 9) and follows the light/dark
+  palette (Feature 8).
 
 ## Out of scope for v1
 
