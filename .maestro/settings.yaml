@@ -4,17 +4,29 @@ tags:
   - ios
   - android
 ---
-# CheL-127 WU0 stub. Never switches analytics on: test devices must not send
-# data to Firebase. Toggling, persistence and events are covered in Jest only.
+# CheL-127. Never switches analytics on: test devices must not send data to
+# Firebase. Toggling, persistence and events are covered in Jest only.
 - runFlow: helpers/answer-analytics-consent.yaml
-# TODO: assert the gear (id: open-settings) is visible on the home screen, with
-# no checklist created.
-# TODO: tap the gear.
-# TODO: assert the "Settings" title and the "Share anonymous usage data" row
-# are visible.
-# TODO: assert the switch (id: analytics-consent-switch) is not checked.
-# TODO: tap Back and assert "New checklist title" is visible.
-# TODO: stopApp, then launchApp with clearState: false and wait for
-# "New checklist title".
-# TODO: tap the gear again and assert the switch is still not checked.
-# TODO: tap Back.
+- assertVisible:
+    id: open-settings
+- tapOn:
+    id: open-settings
+- assertVisible: Settings
+- assertVisible: Share anonymous usage data
+- assertVisible:
+    id: analytics-consent-switch
+    checked: false
+- tapOn: Back
+- assertVisible: New checklist title
+- stopApp
+- launchApp:
+    clearState: false
+- extendedWaitUntil:
+    visible: New checklist title
+    timeout: 20000
+- tapOn:
+    id: open-settings
+- assertVisible:
+    id: analytics-consent-switch
+    checked: false
+- tapOn: Back

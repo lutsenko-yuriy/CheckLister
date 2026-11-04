@@ -9,6 +9,7 @@ import { HomeScreen } from '../features/checklists/ui/HomeScreen';
 import { ChecklistDetailScreen } from '../features/checklists/ui/ChecklistDetailScreen';
 import { RunScreen } from '../features/runs/ui/RunScreen';
 import { RunHistoryScreen } from '../features/runs/ui/RunHistoryScreen';
+import { SettingsScreen } from '../features/settings/ui/SettingsScreen';
 import { ChecklistSelectScreen } from '../features/checklists/ui/ChecklistSelectScreen';
 import { IconButton } from '../shared/ui/IconButton';
 import { useTheme } from '../shared/theme/useTheme';
@@ -29,6 +30,20 @@ function FlatBackButton(_props?: NativeStackHeaderLeftProps) {
     />
   );
 }
+
+// iOS 26 gives header bar buttons a "Liquid Glass" pill background by
+// default; hidesSharedBackground turns that off so the back button stays flat
+// as CheL-14 requires. `headerLeft` alone handles Android and pre-26 iOS.
+const flatBackButtonOptions = {
+  headerLeft: FlatBackButton,
+  unstable_headerLeftItems: () => [
+    {
+      type: 'custom' as const,
+      element: <FlatBackButton />,
+      hidesSharedBackground: true,
+    },
+  ],
+};
 
 export function RootNavigator() {
   const { colors } = useTheme();
@@ -53,18 +68,7 @@ export function RootNavigator() {
         name="ChecklistDetail"
         component={ChecklistDetailScreen}
         options={{
-          headerLeft: FlatBackButton,
-          // iOS 26 gives header bar buttons a "Liquid Glass" pill background
-          // by default; hidesSharedBackground turns that off so the back
-          // button stays flat as CheL-14 requires. `headerLeft` alone
-          // handles Android and pre-26 iOS, where no such background exists.
-          unstable_headerLeftItems: () => [
-            {
-              type: 'custom',
-              element: <FlatBackButton />,
-              hidesSharedBackground: true,
-            },
-          ],
+          ...flatBackButtonOptions,
         }}
       />
       <Stack.Screen
@@ -78,14 +82,7 @@ export function RootNavigator() {
           // only block JS-dispatched actions and would desync from a native
           // swipe gesture already in progress). Same flat back button as
           // ChecklistDetail otherwise.
-          headerLeft: FlatBackButton,
-          unstable_headerLeftItems: () => [
-            {
-              type: 'custom',
-              element: <FlatBackButton />,
-              hidesSharedBackground: true,
-            },
-          ],
+          ...flatBackButtonOptions,
         }}
       />
       <Stack.Screen
@@ -93,14 +90,15 @@ export function RootNavigator() {
         component={RunHistoryScreen}
         options={{
           title: t('common.runHistory'),
-          headerLeft: FlatBackButton,
-          unstable_headerLeftItems: () => [
-            {
-              type: 'custom',
-              element: <FlatBackButton />,
-              hidesSharedBackground: true,
-            },
-          ],
+          ...flatBackButtonOptions,
+        }}
+      />
+      <Stack.Screen
+        name="Settings"
+        component={SettingsScreen}
+        options={{
+          title: t('settings.title'),
+          ...flatBackButtonOptions,
         }}
       />
       <Stack.Screen

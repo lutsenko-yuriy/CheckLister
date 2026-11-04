@@ -46,14 +46,34 @@ describe('HomeScreen', () => {
     );
   });
 
+  it('always shows the settings gear in the header and opens Settings', async () => {
+    const navigate = jest.fn();
+    const { navigation } = await renderHomeScreen(navigate);
+
+    await waitFor(() => expect(navigation.setOptions).toHaveBeenCalled());
+    const calls = navigation.setOptions.mock.calls;
+    const options = calls[calls.length - 1][0];
+    const header = await render(<options.headerRight />);
+    fireEvent.press(header.getByLabelText('Open settings'));
+
+    expect(navigate).toHaveBeenCalledWith('Settings');
+    expect(options.unstable_headerRightItems()[0]).toEqual(
+      expect.objectContaining({
+        type: 'custom',
+        hidesSharedBackground: true,
+      }),
+    );
+  });
+
   it('hides the global history action when no completed runs exist', async () => {
     const { navigation } = await renderHomeScreen();
 
     await waitFor(() => expect(navigation.setOptions).toHaveBeenCalled());
     const calls = navigation.setOptions.mock.calls;
     const options = calls[calls.length - 1][0];
-    expect(options.headerRight).toBeUndefined();
-    expect(options.unstable_headerRightItems).toBeUndefined();
+    const header = await render(<options.headerRight />);
+    expect(header.queryByLabelText('Run history')).toBeNull();
+    expect(header.getByLabelText('Open settings')).toBeTruthy();
   });
 
   it('shows a global history action and navigates to unfiltered history', async () => {
@@ -83,12 +103,7 @@ describe('HomeScreen', () => {
     fireEvent.press(header.getByLabelText('Run history'));
 
     expect(navigate).toHaveBeenCalledWith('RunHistory', {});
-    expect(options.unstable_headerRightItems()[0]).toEqual(
-      expect.objectContaining({
-        type: 'custom',
-        hidesSharedBackground: true,
-      }),
-    );
+    expect(header.getByLabelText('Open settings')).toBeTruthy();
   });
 
   it('creates a checklist from the title input and clears it afterwards', async () => {

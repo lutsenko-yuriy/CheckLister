@@ -6,4 +6,5 @@ export type RootStackParamList = {
   // No params: the pending callback URL is deliberately kept out of
   // navigation state (ephemeral, unpersisted) — see useExternalSelection.
   ChecklistSelect: undefined;
+  Settings: undefined;
 };

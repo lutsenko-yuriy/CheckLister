@@ -428,7 +428,9 @@ describe('RunScreen', () => {
   it('renders the Back button text in a color that meets WCAG AA contrast', async () => {
     await renderRunWithoutStarting();
 
-    await waitFor(() => expect(screen.getByText(/no active run/i)).toBeTruthy());
+    await waitFor(() =>
+      expect(screen.getByText(/no active run/i)).toBeTruthy(),
+    );
 
     const backText = screen.getByText('Back');
     const flatStyle = [backText.props.style].flat();

@@ -23,28 +23,37 @@ export function HomeScreen({ navigation }: Props) {
 
   useLayoutEffect(() => {
     const showHistory = !historyLoading && history.length > 0;
-    const historyButton = () => (
-      <IconButton
-        icon="history"
-        accessibilityLabel={t('common.runHistory')}
-        onPress={() => navigation.navigate('RunHistory', {})}
-        color={colors.text}
-      />
+    const headerActions = () => (
+      <View style={styles.headerActions}>
+        {showHistory && (
+          <IconButton
+            icon="history"
+            accessibilityLabel={t('common.runHistory')}
+            onPress={() => navigation.navigate('RunHistory', {})}
+            color={colors.text}
+          />
+        )}
+        <IconButton
+          icon="settings"
+          accessibilityLabel={t('settings.open')}
+          onPress={() => navigation.navigate('Settings')}
+          color={colors.text}
+          testID="open-settings"
+        />
+      </View>
     );
 
     navigation.setOptions({
-      headerRight: showHistory ? historyButton : undefined,
-      unstable_headerRightItems: showHistory
-        ? () => [
-            {
-              type: 'custom',
-              element: historyButton(),
-              hidesSharedBackground: true,
-            },
-          ]
-        : undefined,
+      headerRight: headerActions,
+      unstable_headerRightItems: () => [
+        {
+          type: 'custom',
+          element: headerActions(),
+          hidesSharedBackground: true,
+        },
+      ],
     });
-  }, [colors, history.length, historyLoading, navigation, t]);
+  }, [colors, history.length, historyLoading, navigation, styles, t]);
 
   // Enter passes the native text: an IME autocorrect on Enter can fire submit
   // before newTitle catches up (CheL-116).
@@ -189,6 +198,7 @@ function ChecklistRow({
 }
 
 const useStyles = createThemedStyles(colors => ({
+  headerActions: { flexDirection: 'row' },
   container: {
     flex: 1,
     padding: 16,

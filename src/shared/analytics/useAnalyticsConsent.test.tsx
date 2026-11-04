@@ -167,4 +167,111 @@ describe('AnalyticsConsentProvider', () => {
     expect(s.gate.logEvent).toHaveBeenCalledWith('analytics_consent_granted');
     expect(current.status).toBe('granted');
   });
+
+  describe('setChoice (CheL-127)', () => {
+    it('switching on applies at once, then saves, then logs the consent event', async () => {
+      const s = setup('denied');
+      await render(s);
+
+      await ReactTestRenderer.act(async () => current.setChoice('granted'));
+
+      expect(s.calls).toEqual([
+        'gate:denied',
+        'gate:granted',
+        'save:granted',
+        'event:analytics_consent_granted',
+      ]);
+      expect(current.status).toBe('granted');
+    });
+
+    it('switching off closes the gate and saves without logging anything', async () => {
+      const s = setup('granted');
+      await render(s);
+
+      await ReactTestRenderer.act(async () => current.setChoice('denied'));
+
+      expect(s.calls).toEqual(['gate:granted', 'gate:denied', 'save:denied']);
+      expect(s.gate.logEvent).not.toHaveBeenCalled();
+      expect(current.status).toBe('denied');
+    });
+
+    it('updates status and the gate before the save settles', async () => {
+      let release!: () => void;
+      const s = setup('granted', {
+        save: jest.fn(() => new Promise<void>(resolve => (release = resolve))),
+      });
+      await render(s);
+
+      await ReactTestRenderer.act(async () => {
+        current.setChoice('denied');
+      });
+
+      expect(current.status).toBe('denied');
+      expect(s.gate.setConsent).toHaveBeenLastCalledWith('denied');
+      await ReactTestRenderer.act(async () => release());
+    });
+
+    it('does nothing when the choice equals the current status', async () => {
+      const s = setup('granted');
+      await render(s);
+
+      await ReactTestRenderer.act(async () => current.setChoice('granted'));
+
+      expect(s.store.save).not.toHaveBeenCalled();
+      expect(s.gate.logEvent).not.toHaveBeenCalled();
+      expect(s.gate.setConsent).toHaveBeenCalledTimes(1);
+    });
+
+    it('lets the last tap win: saves run in order, one at a time', async () => {
+      const releases: (() => void)[] = [];
+      const started: string[] = [];
+      const s = setup('denied', {
+        save: jest.fn(choice => {
+          started.push(choice);
+          return new Promise<void>(resolve => releases.push(resolve));
+        }),
+      });
+      await render(s);
+
+      await ReactTestRenderer.act(async () => {
+        current.setChoice('granted');
+        current.setChoice('denied');
+        current.setChoice('granted');
+      });
+      expect(started).toEqual(['granted']);
+
+      for (let i = 0; i < 3; i++) {
+        await ReactTestRenderer.act(async () => releases[i]?.());
+      }
+
+      expect(started).toEqual(['granted', 'denied', 'granted']);
+      expect(current.status).toBe('granted');
+      expect(s.gate.setConsent).toHaveBeenLastCalledWith('granted');
+    });
+
+    it('keeps the choice for the session when saving fails', async () => {
+      const s = setup('denied', {
+        save: jest.fn(async () => {
+          throw new Error('disk full');
+        }),
+      });
+      await render(s);
+
+      await ReactTestRenderer.act(async () => current.setChoice('granted'));
+
+      expect(current.status).toBe('granted');
+      expect(s.gate.setConsent).toHaveBeenLastCalledWith('granted');
+      expect(s.gate.logEvent).toHaveBeenCalledWith('analytics_consent_granted');
+    });
+
+    it('does not undo allow() and deny() being one-shot for the dialog', async () => {
+      const s = setup('unknown');
+      await render(s);
+
+      await ReactTestRenderer.act(async () => current.deny());
+      await ReactTestRenderer.act(async () => current.allow());
+
+      expect(current.status).toBe('denied');
+    });
+  });
 });

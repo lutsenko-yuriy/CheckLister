@@ -4,7 +4,12 @@
 
 import React from 'react';
 import ReactTestRenderer from 'react-test-renderer';
-import { fireEvent, render, screen } from '@testing-library/react-native';
+import {
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from '@testing-library/react-native';
 import App from '../App';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { logEvent } from '@react-native-firebase/analytics';
@@ -13,6 +18,12 @@ import {
   analyticsConsentGate,
 } from '../src/shared/analytics/AnalyticsService';
 import { resetLanguageAnalyticsForTesting } from '@checklister/i18n';
+
+// Without it SafeAreaProvider renders no children, so no screen ever mounts.
+jest.mock(
+  'react-native-safe-area-context',
+  () => require('react-native-safe-area-context/jest/mock').default,
+);
 
 test('renders correctly', async () => {
   await ReactTestRenderer.act(() => {
@@ -131,6 +142,34 @@ describe('analytics consent at launch', () => {
       await open('denied');
       expect(screen.queryByTestId('analytics-consent-dialog')).toBeNull();
       expect(sentToFirebase()).toEqual([]);
+    });
+  });
+
+  describe('settings (CheL-127)', () => {
+    it('opens from the gear, and switching on forwards events and is remembered', async () => {
+      await AsyncStorage.clear();
+      await AsyncStorage.setItem(
+        'analyticsConsent',
+        JSON.stringify({ choice: 'denied', decidedAt: '2026-11-04T10:00:00Z' }),
+      );
+      resetLanguageAnalyticsForTesting();
+      firebaseLogEvent.mockClear();
+      await render(<App />);
+
+      await fireEvent.press(await screen.findByLabelText('Open settings'));
+      const toggle = await screen.findByTestId('analytics-consent-switch');
+      expect(toggle.props.value).toBe(false);
+      await fireEvent(toggle, 'valueChange', true);
+
+      await waitFor(() =>
+        expect(firebaseLogEvent.mock.calls.map(([, name]) => name)).toContain(
+          'analytics_consent_granted',
+        ),
+      );
+      expect(
+        JSON.parse((await AsyncStorage.getItem('analyticsConsent')) ?? '{}')
+          .choice,
+      ).toBe('granted');
     });
   });
 });

@@ -39,6 +39,11 @@ const enStrings = {
     allow: 'Allow',
     deny: "Don't allow",
   },
+  settings: {
+    title: 'Settings',
+    open: 'Open settings',
+    analyticsToggle: 'Share anonymous usage data',
+  },
   nav: {
     selectChecklistTitle: 'Select checklist',
   },

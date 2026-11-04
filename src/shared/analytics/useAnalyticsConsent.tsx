@@ -21,6 +21,8 @@ interface AnalyticsConsentContextValue {
   status: AnalyticsConsentStatus;
   allow(): Promise<void>;
   deny(): Promise<void>;
+  // Settings toggle (CheL-127): applies at once, saves in the background.
+  setChoice(choice: AnalyticsConsentChoice): void;
 }
 
 const AnalyticsConsentContext =
@@ -43,6 +45,9 @@ export function AnalyticsConsentProvider({
 }: ProviderProps) {
   const [status, setStatus] = useState<AnalyticsConsentStatus | null>(null);
   const deciding = useRef(false);
+  // Read by setChoice so back-to-back taps see each other before a re-render.
+  const current = useRef<AnalyticsConsentStatus | null>(null);
+  const saves = useRef<Promise<void>>(Promise.resolve());
 
   useEffect(() => {
     let cancelled = false;
@@ -52,6 +57,7 @@ export function AnalyticsConsentProvider({
       .then(loaded => {
         if (!cancelled) {
           gate.setConsent(loaded);
+          current.current = loaded;
           setStatus(loaded);
         }
       });
@@ -75,9 +81,33 @@ export function AnalyticsConsentProvider({
       if (choice === 'granted') {
         gate.logEvent('analytics_consent_granted');
       }
+      current.current = choice;
       setStatus(choice);
     },
     [store, gate, status],
+  );
+
+  const setChoice = useCallback(
+    (choice: AnalyticsConsentChoice) => {
+      const previous = current.current;
+      if (previous === null || previous === choice) {
+        return;
+      }
+      current.current = choice;
+      gate.setConsent(choice);
+      setStatus(choice);
+      // Chained so the last tap is the last write; a failed save leaves the
+      // choice in force for this session only.
+      saves.current = saves.current
+        .then(() => store.save(choice))
+        .catch(() => {})
+        .then(() => {
+          if (choice === 'granted') {
+            gate.logEvent('analytics_consent_granted');
+          }
+        });
+    },
+    [store, gate],
   );
 
   const value = useMemo<AnalyticsConsentContextValue>(
@@ -85,8 +115,9 @@ export function AnalyticsConsentProvider({
       status: status ?? 'unknown',
       allow: () => decide('granted'),
       deny: () => decide('denied'),
+      setChoice,
     }),
-    [status, decide],
+    [status, decide, setChoice],
   );
 
   if (status === null) {
