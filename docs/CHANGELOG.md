@@ -13,6 +13,12 @@ A record of all versioned releases. For planned work and known issues, see @docs
 - ...
 -->
 
+## [Unreleased]
+
+### Added
+
+- [wip] (PR #142) CheL-127 WU1: a gear icon on the home screen opens a Settings screen with a "Share anonymous usage data" switch. Flipping it takes effect immediately and is remembered; switching on logs `analytics_consent_granted`, and the screen logs `screen_settings`. Run history still sits in the header until WU2.
+
 ## [0.14.0] — 2026-11-04 (PR #139 merged)
 
 ### Added
