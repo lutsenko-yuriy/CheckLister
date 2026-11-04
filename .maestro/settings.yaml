@@ -1,0 +1,20 @@
+appId: ${APP_ID}
+name: Settings opens from the home gear, shows analytics off, and the choice survives a relaunch
+tags:
+  - ios
+  - android
+---
+# CheL-127 WU0 stub. Never switches analytics on: test devices must not send
+# data to Firebase. Toggling, persistence and events are covered in Jest only.
+- runFlow: helpers/answer-analytics-consent.yaml
+# TODO: assert the gear (id: open-settings) is visible on the home screen, with
+# no checklist created.
+# TODO: tap the gear.
+# TODO: assert the "Settings" title and the "Share anonymous usage data" row
+# are visible.
+# TODO: assert the switch (id: analytics-consent-switch) is not checked.
+# TODO: tap Back and assert "New checklist title" is visible.
+# TODO: stopApp, then launchApp with clearState: false and wait for
+# "New checklist title".
+# TODO: tap the gear again and assert the switch is still not checked.
+# TODO: tap Back.
