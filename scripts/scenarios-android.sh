@@ -14,6 +14,7 @@ scenarios_parse_devices "$1"
 
 for scenarios_serial in "${scenarios_devices[@]}"; do
   scenarios_validate_device_and_app "$scenarios_serial"
+  scenarios_require_scenario_build "$scenarios_serial"
 done
 
 scenarios_artifacts="${SCENARIOS_ARTIFACTS_DIR:-$scenarios_root/artifacts/scenarios-android}"

@@ -68,6 +68,24 @@ scenarios_validate_device_and_app() {
   fi
 }
 
+# CheL-147: a suite run against a normal build would hit the real Firebase
+# project (no stubs), so the runner only accepts an install that carries the
+# scenario-build marker. Not applied to the snapshot scripts.
+scenarios_require_scenario_build() {
+  local serial="$1" apk_path tmp
+  apk_path="$("$scenarios_adb" -s "$serial" shell pm path "$scenarios_app" | head -n1 | tr -d '\r\n')"
+  apk_path="${apk_path#package:}"
+  tmp="$(mktemp -d)"
+  if [[ -z "$apk_path" ]] \
+      || ! "$scenarios_adb" -s "$serial" pull "$apk_path" "$tmp/base.apk" >/dev/null 2>&1 \
+      || ! python3 -I "$scenarios_root/scripts/ci/check_scenario_bundle.py" "$tmp/base.apk" --expect present >/dev/null 2>&1; then
+    rm -rf "$tmp"
+    echo 'The installed CheckLister is not a scenario build. Build it with: npm run scenarios:build:android' >&2
+    exit 1
+  fi
+  rm -rf "$tmp"
+}
+
 # app-private storage (/data/data/<app>) is not readable by the `shell`
 # user and CheckLister's Release build is never `run-as`-debuggable (CheL-97:
 # `run-as` fails with "package not debuggable" against a Release APK, same

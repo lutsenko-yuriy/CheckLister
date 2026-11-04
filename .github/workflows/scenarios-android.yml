@@ -25,7 +25,9 @@ on:
       - 'scripts/scenarios-android*.sh'
       - '.github/workflows/scenarios-android.yml'
       - 'scripts/ci/scenarios_report.py'
-      - 'scripts/ci/write_firebase_config.py'
+      - 'scripts/ci/check_scenario_bundle.py'
+      - 'scripts/scenarios-build-*.sh'
+      - 'scripts/scenarios/**'
   workflow_dispatch:
 
 permissions:
@@ -62,15 +64,11 @@ jobs:
 
       - uses: gradle/actions/setup-gradle@v6
 
-      - name: Write Firebase config from secrets
-        env:
-          GOOGLE_SERVICES_JSON_B64: ${{ secrets.GOOGLE_SERVICES_JSON_B64 }}
-        run: python3 scripts/ci/write_firebase_config.py android
-
+      # CheL-147: scenario build — stubs instead of Firebase and a committed dummy
+      # google-services.json, so this job needs no production secret.
       # x86_64 only: the emulator's ABI; halves native build time vs. all four.
-      - name: Build Release APK
-        working-directory: android
-        run: ./gradlew assembleRelease -PreactNativeArchitectures=x86_64 --parallel -x lintVitalRelease -Dorg.gradle.jvmargs="-Xmx4g -XX:MaxMetaspaceSize=1g"
+      - name: Build scenario Release APK
+        run: bash scripts/scenarios-build-android.sh -PreactNativeArchitectures=x86_64 --parallel -x lintVitalRelease -Dorg.gradle.jvmargs="-Xmx4g -XX:MaxMetaspaceSize=1g"
 
       - name: Enable KVM
         run: |

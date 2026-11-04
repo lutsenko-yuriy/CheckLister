@@ -37,13 +37,13 @@ class AndroidScenariosWorkflowTests(unittest.TestCase):
         self.assertRegex(text, r'(?m)^\s+push:')
         self.assertRegex(text, r'(?m)^\s+workflow_dispatch:')
 
-    def test_firebase_config_is_written_before_the_release_build(self):
-        # google-services.json is not committed (CheL-126); the Gradle plugin
-        # fails the build without it.
+    def test_builds_the_scenario_apk_without_any_firebase_secret(self):
+        # CheL-147: stubs replace Firebase, so no production config or secret is involved.
         text = read_workflow()
-        write = text.index('scripts/ci/write_firebase_config.py android')
-        build = text.index('./gradlew assembleRelease')
-        self.assertLess(write, build)
+        self.assertIn('bash scripts/scenarios-build-android.sh', text)
+        self.assertNotIn('GOOGLE_SERVICES_JSON_B64', text)
+        self.assertNotIn('write_firebase_config', text)
+        self.assertNotIn('./gradlew assembleRelease', text)
 
     def test_emulator_uses_google_apis_image_never_play_store(self):
         # docs/CONSTRAINTS.md: snapshot isolation needs adb root, which Play images refuse.

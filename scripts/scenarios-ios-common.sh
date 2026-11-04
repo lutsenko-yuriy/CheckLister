@@ -57,6 +57,18 @@ scenarios_validate_device_and_app() {
   fi
 }
 
+# CheL-147: a suite run against a normal build would hit the real Firebase
+# project (no stubs), so the runner only accepts an install that carries the
+# scenario-build marker. Not applied to the snapshot scripts.
+scenarios_require_scenario_build() {
+  local device="$1" app_dir
+  app_dir="$(xcrun simctl get_app_container "$device" "$scenarios_app" app)"
+  if ! python3 -I "$scenarios_root/scripts/ci/check_scenario_bundle.py" "$app_dir/main.jsbundle" --expect present >/dev/null 2>&1; then
+    echo 'The installed CheckLister is not a scenario build. Build it with: npm run scenarios:build:ios -- <UDID>' >&2
+    exit 1
+  fi
+}
+
 # CheL-105: extracted from scenarios-ios.sh so a sharded run can restore
 # each device's own snapshot before Maestro starts on any of them. Requires
 # `scenarios_artifacts` to already be set by the caller.

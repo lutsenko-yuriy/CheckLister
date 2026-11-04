@@ -46,26 +46,27 @@ xcrun simctl boot <UDID>
 xcrun simctl bootstatus <UDID> -b
 ```
 
-Build the current checkout in Release mode so the test has a bundled JS file and
-needs no Metro server. Run from the repository root:
+Build and install the **scenario build** (CheL-147) of the current checkout. It is a
+Release build (bundled JS, no Metro) compiled with `CHECKLISTER_SCENARIO_BUILD=1`, so
+scenario-only code is bundled, and it swaps in the dummy Firebase config from
+`scripts/scenarios/firebase/` for the duration of the build. Your real
+`GoogleService-Info.plist` is moved aside and restored on exit (also on failure or
+Ctrl-C). If a hard kill leaves `GoogleService-Info.plist.scenarios-backup` behind, the
+next scenario build refuses to start until you restore it over the plist. Run from the
+repository root:
 
 ```bash
-xcodebuild -workspace ios/CheckLister.xcworkspace -scheme CheckLister \
-  -configuration Release -sdk iphonesimulator -destination 'id=<UDID>' \
-  -derivedDataPath /tmp/checklister-scenarios-build CODE_SIGNING_ALLOWED=NO build
-xcrun simctl install <UDID> \
-  /tmp/checklister-scenarios-build/Build/Products/Release-iphonesimulator/CheckLister.app
+npm run scenarios:build:ios -- <UDID>
 npm run scenarios:ios -- <UDID>
 ```
 
-The Firebase config files are not committed (CheL-126): put
-`GoogleService-Info.plist` in `ios/CheckLister/` and `google-services.json` in
-`android/app/` before building (both are git-ignored; CI recreates them from
-secrets, see `docs/VERSIONING.md`).
+The runner refuses an install that is not a scenario build (it looks for the
+scenario-build marker in the app's JS bundle), because a normal build would talk to
+the real Firebase project.
 
 Replace `<UDID>` everywhere with the same simulator identifier. Rebuild and
-reinstall after app changes; the runner checks that the app exists, not that it
-matches your checkout. A Debug app also works if Metro is already serving this
+reinstall after app changes; the runner checks that the app is a scenario build, not
+that it matches your checkout. A Debug app also works if Metro is already serving this
 checkout, but Release is the reproducible default. Simulator/driver operations
 need permission outside an agent's filesystem sandbox; they do not use macOS
 System Events UI scripting.
@@ -106,7 +107,7 @@ release build signs with the debug keystore
 and install with `-r` to preserve existing app data:
 
 ```bash
-cd android && ./gradlew assembleRelease && cd ..
+npm run scenarios:build:android   # scenario build: flag on, dummy google-services.json swapped in and restored
 adb -s <serial> install -r android/app/build/outputs/apk/release/app-release.apk
 npm run scenarios:snapshot:android -- <serial>  # optional: seed a baseline first — see "Isolating persistent test data" below
 npm run scenarios:android -- <serial>
@@ -160,7 +161,8 @@ risky for it:
 gh workflow run "Android scenarios" --ref <branch>
 ```
 
-It builds the Release APK for `x86_64` only, boots an API 36 `google_apis` /
+It builds the scenario Release APK (CheL-147: `scripts/scenarios-build-android.sh`, dummy
+Firebase config, no production secret) for `x86_64` only, boots an API 36 `google_apis` /
 `pixel_5` emulator on a KVM-accelerated `ubuntu-latest` runner via
 `reactivecircus/android-emulator-runner`, installs the APK, and runs the same
 `npm run scenarios:android -- emulator-5554` as locally. It also runs on
