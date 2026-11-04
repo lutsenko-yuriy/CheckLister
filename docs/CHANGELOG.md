@@ -13,11 +13,16 @@ A record of all versioned releases. For planned work and known issues, see @docs
 - ...
 -->
 
-## [Unreleased]
+## [0.15.0] — 2026-11-04 (PR #143 merged)
 
 ### Added
 
+- [user] CheL-127: A new gear icon at the top right of the home screen opens Settings, where you can switch "Share anonymous usage data" on or off at any time. The change applies right away and is remembered on your device.
 - [wip] (PR #142) CheL-127 WU1: a gear icon on the home screen opens a Settings screen with a "Share anonymous usage data" switch. Flipping it takes effect immediately and is remembered; switching on logs `analytics_consent_granted`, and the screen logs `screen_settings`. Run history still sits in the header until WU2.
+
+### Changed
+
+- [user] CheL-127: "Run history" has moved from the top of the home screen to a row at the bottom. It still appears only once you've completed a run.
 
 ## [0.14.0] — 2026-11-04 (PR #139 merged)
 
