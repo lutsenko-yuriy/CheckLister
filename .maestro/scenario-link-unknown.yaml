@@ -1,0 +1,14 @@
+appId: ${APP_ID}
+name: Malformed scenario links show an alert and change nothing
+tags:
+  - ios
+  - android
+---
+# CheL-147 WU0 stub: needs a scenario build (checklister://scenarios/... links).
+- runFlow: helpers/answer-analytics-consent.yaml
+# TODO: create a checklist and complete one run (helpers/create-checklist.yaml); home-run-history-row is visible
+# TODO: go back to Home; open checklister://scenarios/kill-switch?id=nope&enabled=false; the unknown scenario command alert shows
+# TODO: dismiss the alert; home-run-history-row is still visible
+# TODO: open checklister://scenarios/kill-switch?id=runHistory&enabled=maybe; the alert shows again; dismiss it
+# TODO: home-run-history-row is still visible (no switch changed)
+# TODO: delete the checklist (helpers/delete-checklist.yaml)

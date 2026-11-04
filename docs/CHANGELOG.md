@@ -13,6 +13,12 @@ A record of all versioned releases. For planned work and known issues, see @docs
 - ...
 -->
 
+## [Unreleased]
+
+### Added
+
+- [test] (PR #149) CheL-147 WU0: scenario stubs for the upcoming scenario build (Run history kill-switch off, malformed scenario links, recorded analytics events); they only answer the consent dialog until later work units fill them in.
+
 ## [0.16.0] — 2026-11-04 (PR #146 merged)
 
 ### Added
