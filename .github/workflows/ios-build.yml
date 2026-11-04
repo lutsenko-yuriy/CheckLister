@@ -1,0 +1,71 @@
+name: iOS simulator build
+
+# CheL-115: the ~20 min unsigned compile check runs on main only (or by
+# workflow_dispatch on any branch), not on pull requests.
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'ios/**'
+      - 'android/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'firebase.json'
+      - 'App.tsx'
+      - 'index.js'
+      - 'patches/**'
+      - 'scripts/ci/write_firebase_config.py'
+      - '.github/workflows/ios-build.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ios-build-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ios-build:
+    name: iOS simulator build
+    runs-on: macos-26
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: package.json
+          cache: npm
+
+      - name: Install JS dependencies
+        run: npm ci
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.4'
+          bundler-cache: true
+
+      - name: Cache CocoaPods
+        uses: actions/cache@v6
+        with:
+          path: |
+            ios/Pods
+            ~/.cocoapods/repos
+          key: pods-${{ runner.os }}-${{ hashFiles('ios/Podfile.lock') }}
+          restore-keys: |
+            pods-${{ runner.os }}-
+
+      - name: Install CocoaPods dependencies
+        working-directory: ios
+        run: bundle exec pod install
+
+      - name: Write Firebase config from secrets
+        env:
+          GOOGLE_SERVICE_INFO_PLIST_B64: ${{ secrets.GOOGLE_SERVICE_INFO_PLIST_B64 }}
+        run: python3 scripts/ci/write_firebase_config.py ios
+
+      - name: Build for iOS Simulator (unsigned, compile-check only)
+        run: |
+          xcodebuild -workspace ios/CheckLister.xcworkspace -scheme CheckLister \
+            -configuration Debug -sdk iphonesimulator \
+            CODE_SIGNING_ALLOWED=NO build
