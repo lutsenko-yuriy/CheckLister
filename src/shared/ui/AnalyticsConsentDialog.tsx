@@ -1,5 +1,12 @@
 import React from 'react';
-import { Modal, Pressable, Text, View } from 'react-native';
+import {
+  Modal,
+  Pressable,
+  ScrollView,
+  Text,
+  useWindowDimensions,
+  View,
+} from 'react-native';
 import { useI18n } from '@checklister/i18n';
 import { createThemedStyles } from '../theme/createThemedStyles';
 
@@ -17,25 +24,29 @@ export function AnalyticsConsentDialog({
 }) {
   const styles = useStyles();
   const { t } = useI18n();
+  const { height } = useWindowDimensions();
   return (
     <Modal
       visible={visible}
       transparent
       animationType="fade"
       statusBarTranslucent
+      supportedOrientations={['portrait', 'landscape']}
       onRequestClose={noop}
       testID="analytics-consent-modal"
     >
       <View style={styles.backdrop} testID="analytics-consent-backdrop">
         <View
-          style={styles.card}
+          style={[styles.card, { maxHeight: height * CARD_MAX_HEIGHT_RATIO }]}
           accessibilityViewIsModal
           testID="analytics-consent-dialog"
         >
-          <Text style={styles.title} accessibilityRole="header">
-            {t('analyticsConsent.title')}
-          </Text>
-          <Text style={styles.body}>{t('analyticsConsent.body')}</Text>
+          <ScrollView style={styles.scroll} testID="analytics-consent-scroll">
+            <Text style={styles.title} accessibilityRole="header">
+              {t('analyticsConsent.title')}
+            </Text>
+            <Text style={styles.body}>{t('analyticsConsent.body')}</Text>
+          </ScrollView>
           <View style={styles.buttons}>
             <Pressable
               style={styles.button}
@@ -64,6 +75,10 @@ export function AnalyticsConsentDialog({
   );
 }
 
+// Large text or landscape can make the text taller than the screen; the text
+// scrolls and the buttons stay reachable, since the dialog cannot be dismissed.
+const CARD_MAX_HEIGHT_RATIO = 0.9;
+
 function noop() {}
 
 const useStyles = createThemedStyles(colors => ({
@@ -82,6 +97,9 @@ const useStyles = createThemedStyles(colors => ({
     borderWidth: 1,
     borderColor: colors.border,
     backgroundColor: colors.surface,
+  },
+  scroll: {
+    flexGrow: 0,
   },
   title: {
     fontSize: 18,

@@ -260,7 +260,7 @@ consent dialog shows and does nothing otherwise, so a device with or without a
 stored choice works. Scenarios never tap "Allow": test devices must not send
 data to the Firebase project. `analytics-consent.yaml` launches with
 `clearState: true`, which wipes the app's data; the snapshot restore after the
-run brings back a captured baseline, so capture one first. A snapshot taken
+run brings back a captured baseline, so capture one first (with no snapshot, local checklists on the device are lost). A snapshot taken
 before the first "Don't allow" restores the unanswered state and the dialog
 shows (and is answered) again, so re-capture each device's snapshot once after
 answering it to save that tap.

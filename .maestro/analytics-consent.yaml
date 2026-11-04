@@ -35,5 +35,7 @@ tags:
 - extendedWaitUntil:
     visible: New checklist title
     timeout: 20000
-- assertNotVisible: Help improve CheckLister\?
+- extendedWaitUntil:
+    notVisible: Help improve CheckLister\?
+    timeout: 3000
 # Never tap "Allow": test devices must not send data to the Firebase project.

@@ -9,6 +9,12 @@ appId: ${APP_ID}
 - extendedWaitUntil:
     visible: 'New checklist title|Help improve CheckLister\?'
     timeout: 20000
+# On Android the home text can be reported from under the dialog's window, so
+# give the dialog a moment to be seen before deciding it is absent.
+- extendedWaitUntil:
+    visible: 'Help improve CheckLister\?'
+    timeout: 3000
+    optional: true
 - runFlow:
     when:
       visible: 'Help improve CheckLister\?'

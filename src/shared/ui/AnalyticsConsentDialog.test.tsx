@@ -56,12 +56,23 @@ describe('AnalyticsConsentDialog', () => {
     expect(onDeny).not.toHaveBeenCalled();
   });
 
-  it('cannot be dismissed: the backdrop has no press handler', async () => {
+  it('cannot be dismissed: pressing the backdrop or the card chooses nothing', async () => {
     const { onAllow, onDeny } = await renderDialog();
-    const backdrop = screen.getByTestId('analytics-consent-backdrop');
-    expect(backdrop.props.onPress).toBeUndefined();
+    await fireEvent.press(screen.getByTestId('analytics-consent-backdrop'));
+    await fireEvent.press(screen.getByTestId('analytics-consent-dialog'));
     expect(onAllow).not.toHaveBeenCalled();
     expect(onDeny).not.toHaveBeenCalled();
+    expect(screen.getByTestId('analytics-consent-dialog')).toBeTruthy();
+  });
+
+  it('keeps the text scrollable and the card within the window height', async () => {
+    await renderDialog();
+    expect(screen.getByTestId('analytics-consent-scroll')).toBeTruthy();
+    const style = Object.assign(
+      {},
+      ...[screen.getByTestId('analytics-consent-dialog').props.style].flat(),
+    );
+    expect(style.maxHeight).toBeGreaterThan(0);
   });
 
   it('marks the title as a header and traps accessibility focus', async () => {
