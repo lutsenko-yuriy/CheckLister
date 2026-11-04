@@ -1,3 +1,4 @@
+/* eslint-env jest */
 require('react-native-gesture-handler/jestSetup');
 
 // useSafeAreaInsets throws without a SafeAreaProvider; screens render bare in tests.
