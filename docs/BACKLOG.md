@@ -18,5 +18,5 @@ _(nothing in progress)_
 
 - [CheL-124: `build/` gitignore rule hides skills/build/implement](https://github.com/lutsenko-yuriy/CheckLister/issues/124)
 - [CheL-125: Run notes and checkup Python tests in CI](https://github.com/lutsenko-yuriy/CheckLister/issues/125)
-- [CheL-128: Add remote kill-switches (first: Run history)](https://github.com/lutsenko-yuriy/CheckLister/issues/128)
 - [CheL-130: Split the glossary into several files by term domain](https://github.com/lutsenko-yuriy/CheckLister/issues/130)
+- [CheL-147: Run scenarios against a test Firebase environment, not production](https://github.com/lutsenko-yuriy/CheckLister/issues/147)
