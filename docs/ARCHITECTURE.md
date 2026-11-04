@@ -68,6 +68,9 @@ src/
 └── shared/
     ├── analytics/
     │   ├── AnalyticsService.ts     # AnalyticsService interface, NoopAnalyticsService (test double), `analytics` singleton (consent-gated, Firebase-backed)
+    │   ├── analyticsConsent.ts     # AnalyticsConsentChoice + parseStoredConsent(): malformed/missing → `unknown`
+    │   ├── analyticsConsentStore.ts # AnalyticsConsentStore + AsyncStorage impl (`analyticsConsent` key, choice + decidedAt); a read error → `unknown`
+    │   ├── useAnalyticsConsent.tsx # AnalyticsConsentProvider (render gate: nothing mounts until the stored choice is read) + useAnalyticsConsent() { status, allow, deny }
     │   ├── ConsentGatedAnalyticsService.ts # Forwards only while consent is `granted`; drops (never buffers) otherwise
     │   └── FirebaseAnalyticsService.ts     # React Native Firebase delegate; booleans sent as strings, null dropped, native errors swallowed
     ├── links/
