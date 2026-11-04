@@ -1,6 +1,7 @@
 module.exports = {
   root: true,
   extends: '@react-native',
+  globals: { __SCENARIO_BUILD__: 'readonly' },
   ignorePatterns: ['vendor/', 'ios/Pods/', 'ios/build/', 'android/build/'],
   rules: {
     'no-implicit-coercion': [
