@@ -4,6 +4,7 @@
 
 import React from 'react';
 import ReactTestRenderer from 'react-test-renderer';
+import { fireEvent, render, screen } from '@testing-library/react-native';
 import App from '../App';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { logEvent } from '@react-native-firebase/analytics';
@@ -74,5 +75,62 @@ describe('analytics consent at launch', () => {
     expect(await launch('granted')).toEqual(
       expect.arrayContaining(['app_language_resolved']),
     );
+  });
+
+  describe('consent dialog', () => {
+    async function open(stored?: 'granted' | 'denied') {
+      await AsyncStorage.clear();
+      if (stored) {
+        await AsyncStorage.setItem(
+          'analyticsConsent',
+          JSON.stringify({ choice: stored, decidedAt: '2026-11-04T10:00:00Z' }),
+        );
+      }
+      resetLanguageAnalyticsForTesting();
+      firebaseLogEvent.mockClear();
+      await render(<App />);
+    }
+    const sentToFirebase = () =>
+      firebaseLogEvent.mock.calls.map(([, name]) => name);
+
+    it('asks when no choice is stored', async () => {
+      await open();
+      expect(
+        await screen.findByTestId('analytics-consent-dialog'),
+      ).toBeTruthy();
+      expect(sentToFirebase()).toEqual([]);
+    });
+
+    it('Allow closes the dialog and forwards the consent event', async () => {
+      await open();
+      await fireEvent.press(
+        await screen.findByTestId('analytics-consent-allow'),
+      );
+      expect(screen.queryByTestId('analytics-consent-dialog')).toBeNull();
+      expect(sentToFirebase()).toEqual(['analytics_consent_granted']);
+    });
+
+    it("Don't allow closes the dialog and forwards nothing", async () => {
+      await open();
+      await fireEvent.press(
+        await screen.findByTestId('analytics-consent-deny'),
+      );
+      expect(screen.queryByTestId('analytics-consent-dialog')).toBeNull();
+      expect(sentToFirebase()).toEqual([]);
+    });
+
+    it('does not ask when the stored choice is granted', async () => {
+      await open('granted');
+      expect(screen.queryByTestId('analytics-consent-dialog')).toBeNull();
+      expect(sentToFirebase()).toEqual(
+        expect.arrayContaining(['app_language_resolved']),
+      );
+    });
+
+    it('does not ask when the stored choice is denied', async () => {
+      await open('denied');
+      expect(screen.queryByTestId('analytics-consent-dialog')).toBeNull();
+      expect(sentToFirebase()).toEqual([]);
+    });
   });
 });

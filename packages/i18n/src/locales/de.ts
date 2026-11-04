@@ -21,6 +21,12 @@ export const de: Translations = {
     callbackDeliveryFailed:
       'Das Ergebnis konnte nicht an die aufrufende App übermittelt werden.',
   },
+  analyticsConsent: {
+    title: 'CheckLister verbessern helfen?',
+    body: 'Teile anonyme Nutzungsdaten mit unserem Analyse-Anbieter, damit wir die App korrigieren und verbessern können. Du kannst dies später in den Einstellungen ändern.',
+    allow: 'Erlauben',
+    deny: 'Nicht erlauben',
+  },
   nav: {
     selectChecklistTitle: 'Checkliste auswählen',
   },

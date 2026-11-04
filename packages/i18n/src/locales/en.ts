@@ -33,6 +33,12 @@ const enStrings = {
     invalidCallback: 'We do not know which app to return to.',
     callbackDeliveryFailed: 'Could not return the result to the calling app.',
   },
+  analyticsConsent: {
+    title: 'Help improve CheckLister?',
+    body: 'Share anonymous usage data with our analytics provider so we can fix and improve the app. You can change this later in Settings.',
+    allow: 'Allow',
+    deny: "Don't allow",
+  },
   nav: {
     selectChecklistTitle: 'Select checklist',
   },

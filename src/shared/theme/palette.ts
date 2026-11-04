@@ -15,6 +15,8 @@ export interface Palette {
   textMuted: string;
   danger: string;
   onPrimary: string;
+  // Dims the screen behind a modal; translucent, so it is not a contrast pair.
+  scrim: string;
 }
 
 export const lightPalette: Palette = {
@@ -28,6 +30,7 @@ export const lightPalette: Palette = {
   textMuted: '#55698A',
   danger: '#D64545',
   onPrimary: '#FFFFFF',
+  scrim: 'rgba(0, 0, 0, 0.4)',
 };
 
 export const darkPalette: Palette = {
@@ -47,4 +50,5 @@ export const darkPalette: Palette = {
   textMuted: '#9FB4CE',
   danger: '#FF6B6B',
   onPrimary: '#0B1220',
+  scrim: 'rgba(0, 0, 0, 0.6)',
 };
