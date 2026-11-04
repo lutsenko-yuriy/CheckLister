@@ -1,0 +1,19 @@
+appId: ${APP_ID}
+name: Analytics events are recorded only while consent is granted
+tags:
+  - ios
+  - android
+---
+# CheL-147 WU0 stub: needs a scenario build (recording analytics stub + events screen).
+# TODO: launchApp with clearState: true and tap "Don't allow" on the consent dialog
+- runFlow: helpers/answer-analytics-consent.yaml
+# TODO: open checklister://scenarios/analytics/clear
+# TODO: create a checklist and add an item (item_added would fire if collection were on)
+# TODO: open checklister://scenarios/analytics; "0 recorded" is visible (the consent gate dropped everything); go back
+# TODO: open Settings and turn the analytics switch on; analytics-consent-switch is checked
+# TODO: open the events screen; analytics_consent_granted is listed
+# TODO: clear the records; open the checklist and add another item
+# TODO: open the events screen; screen_checklist_detail (item_count) and item_added (checklist_id, item_count) are listed
+# TODO: turn the Settings switch off; clear the records; add an item; the events screen shows "0 recorded"
+# TODO: stopApp and launchApp with clearState: false; the events screen shows "0 recorded" (stub is in memory only)
+# TODO: delete the checklist (helpers/delete-checklist.yaml)

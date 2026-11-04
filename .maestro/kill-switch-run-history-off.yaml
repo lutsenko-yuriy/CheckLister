@@ -1,0 +1,16 @@
+appId: ${APP_ID}
+name: Run history entry points follow the scenario kill-switch
+tags:
+  - ios
+  - android
+---
+# CheL-147 WU0 stub: needs a scenario build (checklister://scenarios/... links).
+- runFlow: helpers/answer-analytics-consent.yaml
+# TODO: create a checklist and complete one run (helpers/create-checklist.yaml) so history has an entry
+# TODO: go back to Home; open checklister://scenarios/kill-switch?id=runHistory&enabled=false
+# TODO: extendedWaitUntil home-run-history-row is not visible (default-on state can show briefly)
+# TODO: open the checklist; the header Run history button is not visible
+# TODO: open checklister://scenarios/kill-switch?id=runHistory&enabled=true; the header button is visible again
+# TODO: go back to Home; home-run-history-row is visible
+# TODO: open Run history; the completed run is still listed
+# TODO: open checklister://scenarios/kill-switch/reset and delete the checklist (helpers/delete-checklist.yaml)
