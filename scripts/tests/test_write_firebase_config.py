@@ -60,6 +60,15 @@ class WriteFirebaseConfigTests(unittest.TestCase):
         self.assertEqual(proc.returncode, 0, proc.stderr)
         self.assertEqual(written, {ANDROID_PATH: data})
 
+    def test_line_wrapped_secret_is_decoded(self):
+        # `base64` on Linux wraps at 76 columns; a pasted secret may hold newlines.
+        data = plist_bytes()
+        wrapped = b64(data)
+        wrapped = '\n'.join(wrapped[i:i + 20] for i in range(0, len(wrapped), 20)) + '\n'
+        proc, written = run('ios', 'GOOGLE_SERVICE_INFO_PLIST_B64', wrapped)
+        self.assertEqual(proc.returncode, 0, proc.stderr)
+        self.assertEqual(written, {IOS_PATH: data})
+
     def test_missing_secret_fails_naming_the_secret(self):
         for platform, name in (
             ('ios', 'GOOGLE_SERVICE_INFO_PLIST_B64'),
