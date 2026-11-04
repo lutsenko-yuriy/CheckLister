@@ -15,6 +15,7 @@ checklist belongs to the person using the device.
 ## Features
 
 ### Feature 1 — Checklists
+
 - The user must be able to create a new checklist by giving it a title.
 - The user must be able to see a home screen listing all of their checklists.
 - The user must be able to open a checklist to view and manage its items.
@@ -26,6 +27,7 @@ checklist belongs to the person using the device.
   items are in each checklist (e.g. "7 items").
 
 ### Feature 2 — Checklist items
+
 - The user must be able to add an item to a checklist by typing its text.
 - The user must be able to edit the text of an existing item.
 - The user must be able to delete an item.
@@ -34,10 +36,12 @@ checklist belongs to the person using the device.
   see Feature 4 for why.
 
 ### Feature 3 — Reordering
+
 - The user must be able to reorder items within a checklist by dragging them
   into a new position.
 
 ### Feature 4 — Checklist runs
+
 - From a checklist, the user must be able to start a new run: this creates a
   fresh, independent snapshot of the checklist's current items, all
   unchecked. Checking items off in a run never affects the source
@@ -54,6 +58,7 @@ checklist belongs to the person using the device.
   actively worked on or it is completed.
 
 ### Feature 5 — Checklist run history
+
 - From the home screen, the user can open a newest-first history of completed
   runs across all checklists. This entry point is shown only when at least one
   completed run exists.
@@ -69,6 +74,7 @@ checklist belongs to the person using the device.
   abandoned, and discarded runs never appear.
 
 ### Feature 6 — Externally started runs
+
 - Another mobile app can start a fresh run for a known checklist ID through a
   `checklister://run` link and provide a callback URL for the result.
 - A valid external request replaces any active run without returning a result
@@ -83,6 +89,7 @@ checklist belongs to the person using the device.
   in analytics.
 
 ### Feature 7 — Externally requested checklist selection
+
 - Another mobile app can ask the user to pick one of their checklists through
   a `checklister://select` link and provide a callback URL for the result.
 - CheckLister shows a read-only "Select checklist" picker listing every
@@ -106,6 +113,7 @@ checklist belongs to the person using the device.
   memory only and are never persisted or included in analytics.
 
 ### Feature 8 — Night mode (dark theme)
+
 - CheckLister follows the OS-level light/dark appearance setting on both
   iOS and Android — there is no in-app toggle. Switching the OS setting
   live-updates every screen without restarting the app.
@@ -121,6 +129,7 @@ checklist belongs to the person using the device.
   per app session and again whenever it changes.
 
 ### Feature 9 — Localization
+
 - CheckLister is available in English, German, French, and Russian.
 - There is no in-app language picker. The app follows the OS-level per-app
   language setting (iOS Settings → CheckLister → Language; Android 13+
@@ -137,6 +146,7 @@ checklist belongs to the person using the device.
   date/time conventions of the active language.
 
 ### Feature 10 — Analytics consent
+
 - CheckLister collects anonymous usage analytics through Firebase Analytics,
   and only for users who have explicitly allowed it. Nothing is collected
   before the user taps "Allow".
