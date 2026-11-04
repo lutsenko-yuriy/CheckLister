@@ -17,6 +17,7 @@ A record of all versioned releases. For planned work and known issues, see @docs
 
 Internal-only changes (CI, tooling, tests, workflow/skill docs) that did not change the app — no version bump, no build, no release.
 
+- [ci] (PR #136) CheL-115: Android scenarios and the iOS simulator build now run on pushes to `main` (or by manual dispatch) instead of on every PR; the Release build uses parallel Gradle, a 4 GB heap and skips `lintVitalRelease` (build ~510s → ~360s). ccache was tried and dropped.
 - [wip] (PR #135) CheL-126 WU1: Firebase Analytics SDK behind a consent gate that drops every event until consent is granted (nothing grants it yet, so nothing is collected). Collection, ad IDs and screen reporting are off natively; the Firebase config files come from GitHub secrets in CI.
 - [test] (PR #134) CheL-126 WU0: Maestro stubs for the analytics consent dialog flow and its shared helper; catalogued the `analytics_consent_granted` event.
 - [meta] (PR #131) Debrief CheL-128: dialog principles now say to use "newer"/"older" for app versions and to restate ambiguous ordering terms; added the CheL-128 knowledge note.
