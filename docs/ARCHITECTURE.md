@@ -412,6 +412,7 @@ JSON) → set `enabled: false` and `min_version` to the oldest affected version 
 Publish changes. Affected users pick it up on their next foreground after the
 throttle window. Set `enabled: true` to restore. The Maestro scenarios talk to
 the real project, so leave it `enabled: true` while they run.
+To read the published value without the console: `firebase remoteconfig:get --project <project id>` (the id is in `GoogleService-Info.plist`).
 
 **Debug overrides (debug builds only).** `KillSwitchProvider` takes an optional
 `overrideStore`; `App.tsx` passes an `AsyncStorageKillSwitchOverrideStore`
