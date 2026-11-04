@@ -4,15 +4,38 @@ tags:
   - ios
   - android
 ---
-# CheL-126 stub: WU3 replaces the TODOs with driver code. The launchApp below
-# only keeps the flow valid (Maestro rejects an empty flow) until then.
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible: Help improve CheckLister\?
+    timeout: 20000
+- assertVisible: Share anonymous usage data.*
+- assertVisible: Don't allow
+- assertVisible: Allow
+# A tap on the scrim, outside the card, must not close the dialog.
+- tapOn:
+    point: 50%,4%
+- assertVisible: Help improve CheckLister\?
+- runFlow:
+    when:
+      platform: Android
+    commands:
+      - pressKey: back
+      - assertVisible: Help improve CheckLister\?
+- tapOn: Don't allow
+- assertNotVisible: Help improve CheckLister\?
+- assertVisible: New checklist title
+# "Don't allow" leaves the app fully usable.
+- runFlow: helpers/create-checklist.yaml
+- runFlow: helpers/delete-checklist.yaml
+# The choice is remembered across a relaunch.
+- stopApp
 - launchApp:
     clearState: false
-# TODO: launchApp with clearState: true (fresh state, dialog must show)
-# TODO: assert the dialog shows "Help improve CheckLister?", its body text, and both "Don't allow" and "Allow" buttons
-# TODO: tap on the backdrop outside the card; assert the dialog is still visible
-# TODO: Android only (runFlow when platform Android): pressKey back; assert the dialog is still visible
-# TODO: tap "Don't allow"; assert the dialog is gone and "New checklist title" is visible
-# TODO: create a Scenario checklist and delete it, to show the app is fully usable
-# TODO: stopApp, launchApp with clearState: false; assert "New checklist title" is visible and the dialog is not
+- extendedWaitUntil:
+    visible: New checklist title
+    timeout: 20000
+- extendedWaitUntil:
+    notVisible: Help improve CheckLister\?
+    timeout: 3000
 # Never tap "Allow": test devices must not send data to the Firebase project.

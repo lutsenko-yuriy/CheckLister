@@ -20,6 +20,12 @@ export const fr: Translations = {
     callbackDeliveryFailed:
       "Impossible de renvoyer le résultat à l'application appelante.",
   },
+  analyticsConsent: {
+    title: 'Aider à améliorer CheckLister ?',
+    body: "Partagez des données d'utilisation anonymes avec notre fournisseur d'analyses afin que nous puissions corriger et améliorer l'application. Vous pourrez modifier ce choix plus tard dans les Réglages.",
+    allow: 'Autoriser',
+    deny: 'Ne pas autoriser',
+  },
   nav: {
     selectChecklistTitle: 'Choisir une checklist',
   },

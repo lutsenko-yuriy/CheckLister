@@ -26,7 +26,11 @@ import {
   analyticsConsentGate,
 } from './src/shared/analytics/AnalyticsService';
 import { AsyncStorageAnalyticsConsentStore } from './src/shared/analytics/analyticsConsentStore';
-import { AnalyticsConsentProvider } from './src/shared/analytics/useAnalyticsConsent';
+import {
+  AnalyticsConsentProvider,
+  useAnalyticsConsent,
+} from './src/shared/analytics/useAnalyticsConsent';
+import { AnalyticsConsentDialog } from './src/shared/ui/AnalyticsConsentDialog';
 import { ThemeProvider, useTheme } from './src/shared/theme/useTheme';
 import { I18nProvider } from '@checklister/i18n';
 
@@ -37,6 +41,7 @@ const navigationRef = createNavigationContainerRef<RootStackParamList>();
 
 function AppContent() {
   const { scheme, colors } = useTheme();
+  const consent = useAnalyticsConsent();
   const [navigationReady, setNavigationReady] = useState(false);
   const handleNavigationReady = useCallback(() => {
     setNavigationReady(true);
@@ -84,6 +89,11 @@ function AppContent() {
           </RunsProvider>
         </ChecklistsProvider>
       </SafeAreaProvider>
+      <AnalyticsConsentDialog
+        visible={consent.status === 'unknown'}
+        onAllow={consent.allow}
+        onDeny={consent.deny}
+      />
     </GestureHandlerRootView>
   );
 }

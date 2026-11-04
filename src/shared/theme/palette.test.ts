@@ -75,4 +75,12 @@ describe.each<[string, Palette]>([
       contrastRatio(palette.danger, palette.background),
     ).toBeGreaterThanOrEqual(3);
   });
+
+  it('scrim is a translucent dark overlay', () => {
+    const match = /^rgba\(0, 0, 0, (0?\.\d+)\)$/.exec(palette.scrim);
+    expect(match).not.toBeNull();
+    const alpha = Number(match![1]);
+    expect(alpha).toBeGreaterThanOrEqual(0.3);
+    expect(alpha).toBeLessThanOrEqual(0.7);
+  });
 });

@@ -83,7 +83,8 @@ src/
     │   ├── createThemedStyles.ts   # useStyles() factory: builds a screen's StyleSheet from the active palette, cached per palette (CheL-70)
     │   └── useColorSchemeAnalytics.ts # Emits color_scheme_resolved once per resolved/changed scheme (CheL-70)
     └── ui/                         # Cross-feature presentational components
-        └── IconButton.tsx          # Shared icon-only action button (Pressable + vector icon glyph)
+        ├── IconButton.tsx          # Shared icon-only action button (Pressable + vector icon glyph)
+        └── AnalyticsConsentDialog.tsx  # Presentational, non-dismissable consent modal (title, body, Allow / Don't allow)
 
 __tests__/
 └── App.test.tsx                    # Composition-root smoke test; all other tests sit beside their source as *.test.ts(x)

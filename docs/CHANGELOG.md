@@ -13,9 +13,13 @@ A record of all versioned releases. For planned work and known issues, see @docs
 - ...
 -->
 
-## [Unreleased]
+## [0.14.0] — 2026-11-04 (PR #139 merged)
 
-Internal-only changes (CI, tooling, tests, workflow/skill docs) that did not change the app — no version bump, no build, no release.
+### Added
+
+- [user] CheckLister now asks the first time you open it whether it may collect anonymous usage data. If you say no, nothing is collected.
+
+### Changed
 
 - [wip] (PR #138) CheL-126 WU2: the analytics consent choice is stored on the device and read before the app renders; allowing logs one `analytics_consent_granted` event. There is no dialog yet, so nothing asks and nothing is collected. Also: the CI Firebase secret decoder accepts line-wrapped base64.
 - [meta] CheL-115 debrief: re-brief long-stale tickets before planning, and for "CI is slow" tickets start from the slowest check across all workflows.

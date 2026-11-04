@@ -231,6 +231,7 @@ ticket promotes them).
 
 | Flow                                         | Assertions                                                                                                                                                                                                                                                                             |
 | -------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `analytics-consent.yaml`                     | A fresh install shows the consent dialog with its title, body and both buttons; tapping the scrim (and, on Android, system back) does not dismiss it; "Don't allow" opens the usable home screen and the choice survives a relaunch. Never taps "Allow".                               |
 | `run-complete.yaml`                          | Empty checklist cannot start; completion disabled until all items checked; toggle/uncheck; completion returns to unchanged template; fresh run starts unchecked.                                                                                                                       |
 | `run-exit.yaml`                              | Back shows confirmation; Cancel preserves progress; Discard returns to template; new run resets progress.                                                                                                                                                                              |
 | `run-exit-system-back-android.yaml`          | Android system back (hardware/gesture) during an active run shows the same confirmation as the app Back button; Cancel preserves progress and keeps the screen interactive; a second system back Discards and resets on the next run.                                                  |
@@ -252,6 +253,17 @@ run opens confirmation without removing the run. This matches the product spec.
 Older source comments describe the gesture as disabled; the real-target test
 intentionally asserts the observed dialog, Cancel, and continued interactivity.
 Revalidate this behavior when upgrading native navigation dependencies.
+
+**Analytics consent (CheL-126).** Every flow reaches the home screen through
+`helpers/answer-analytics-consent.yaml`, which taps "Don't allow" when the
+consent dialog shows and does nothing otherwise, so a device with or without a
+stored choice works. Scenarios never tap "Allow": test devices must not send
+data to the Firebase project. `analytics-consent.yaml` launches with
+`clearState: true`, which wipes the app's data; the snapshot restore after the
+run brings back a captured baseline, so capture one first (with no snapshot, local checklists on the device are lost). A snapshot taken
+before the first "Don't allow" restores the unanswered state and the dialog
+shows (and is answered) again, so re-capture each device's snapshot once after
+answering it to save that tap.
 
 Each flow cold-launches without clearing storage, creates a uniquely named
 `Scenario <timestamp>-<random>` checklist via the UI, and deletes only that checklist
