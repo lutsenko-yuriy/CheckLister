@@ -159,6 +159,20 @@ checklist belongs to the person using the device.
 - The Settings screen is translated (Feature 9) and follows the light/dark
   palette (Feature 8).
 
+### Feature 11 — Remote kill-switches
+- The app owner can switch a feature off for users without a release, from the
+  Firebase console. The first switchable feature is Run history.
+- With Run history switched off, the "Run history" row on the home screen and
+  the history button in a checklist's header are not shown. Nothing else
+  changes, and past runs are kept: they reappear when the switch is turned back
+  on.
+- A switch can apply to a minimum app version and newer, so a fixed release can
+  be left unaffected by an older problem. If the setting is missing or
+  unreadable, the feature stays on.
+- A switch-off takes effect the next time the app comes to the foreground
+  (within about an hour). It works without a network once the app has fetched it.
+- Switches do not depend on the analytics choice (Feature 10).
+
 ## Out of scope for v1
 
 - User accounts, login, or any backend — all data is local to the device.
