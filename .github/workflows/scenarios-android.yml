@@ -4,7 +4,7 @@ name: Android scenarios
 # Informational (not a required check) — see docs/SCENARIOS.md "CI (Android)".
 # Pushes to main update the README badge (and let setup-gradle write its cache).
 # CheL-115: deliberately no pull_request trigger — the ~20 min run happens on main
-# only (or by workflow_dispatch on any branch); PRs get unit tests and the iOS build.
+# only (or by workflow_dispatch on any branch); PRs get unit tests only.
 on:
   push:
     branches: [main]
@@ -25,6 +25,7 @@ on:
       - 'scripts/scenarios-android*.sh'
       - '.github/workflows/scenarios-android.yml'
       - 'scripts/ci/scenarios_report.py'
+      - 'scripts/ci/write_firebase_config.py'
   workflow_dispatch:
 
 permissions:
