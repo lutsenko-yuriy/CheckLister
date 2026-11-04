@@ -50,7 +50,7 @@ const killSwitchOverrideStore = __DEV__
   ? new AsyncStorageKillSwitchOverrideStore()
   : undefined;
 // Scenario builds only (CheL-147); folded away, require() included, everywhere else.
-if (__SCENARIO_BUILD__) {
+if (true) {
   require('./src/scenarios/scenarioBuildMarker');
 }
 const navigationRef = createNavigationContainerRef<RootStackParamList>();
