@@ -32,6 +32,11 @@ export const ru: Translations = {
     allow: 'Разрешить',
     deny: 'Не разрешать',
   },
+  settings: {
+    title: 'Настройки',
+    open: 'Открыть настройки',
+    analyticsToggle: 'Делиться анонимными данными об использовании',
+  },
   nav: {
     selectChecklistTitle: 'Выбор чек-листа',
   },

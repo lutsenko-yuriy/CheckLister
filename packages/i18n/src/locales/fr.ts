@@ -26,6 +26,11 @@ export const fr: Translations = {
     allow: 'Autoriser',
     deny: 'Ne pas autoriser',
   },
+  settings: {
+    title: 'Réglages',
+    open: 'Ouvrir les réglages',
+    analyticsToggle: "Partager des données d'utilisation anonymes",
+  },
   nav: {
     selectChecklistTitle: 'Choisir une checklist',
   },
