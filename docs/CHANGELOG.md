@@ -17,6 +17,7 @@ A record of all versioned releases. For planned work and known issues, see @docs
 
 ### Added
 
+- [meta] (PR #160) CheL-158 WU2: demo mode now renders links for the agent session: `demo.py render` prints issue, issue-comment and PR URLs bare on their own line and adds a QR code under the first one per work unit (needs the optional `qrencode`). The counted links are the `[demo].links` patterns in `skill_router.toml`, and the rules are in `skills/shared/demo-mode.md`. The app is unchanged.
 - [wip] (PR #159) CheL-158 WU1: demo mode switch for agent sessions (`scripts/demo/demo.py on | off | status`), stored in the git common dir and re-announced by a `SessionStart` hook after startup, resume, clear and compaction; CI runs its tests on Python 3.9 and 3.12. Link rendering and QR codes follow in WU2; the app is unchanged.
 - [meta] (PR #156) CheL-124: `.gitignore` no longer hides `skills/build/`; the `implement` skill is now tracked, with its `N/A-XX` placeholders, invalid `gh` command and missing git-safety include fixed.
 - [ci] (PR #155) CheL-125: the notes and checkup Python tests now run in CI (`tests.yml`) on Python 3.9 and 3.12, like the onboard and skill_router suites.
