@@ -52,7 +52,10 @@ scenario-only code is bundled, and it swaps in the dummy Firebase config from
 `scripts/scenarios/firebase/` for the duration of the build. Your real
 `GoogleService-Info.plist` is moved aside and restored on exit (also on failure or
 Ctrl-C). If a hard kill leaves `GoogleService-Info.plist.scenarios-backup` behind, the
-next scenario build refuses to start until you restore it over the plist. Run from the
+next scenario build refuses to start until you restore it over the plist. The dummy API
+key must be 39 characters, start with `A`, use only base64url characters and not start
+with `AIza`: Firebase aborts the launch otherwise, and GitHub secret scanning flags the
+`AIza` form (`test_scenarios_build.py` pins this). Run from the
 repository root:
 
 ```bash
