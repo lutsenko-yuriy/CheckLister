@@ -102,7 +102,7 @@ Skip this step if the new CHANGELOG entry (added in step 2) contains only `[meta
 2. Re-read the ticket description (already fetched in step 1).
 3. Determine what changed or was added:
    - **Product spec** (`docs/PRODUCT_SPEC.md`) — identify any new or modified user-facing behaviour. Propose a minimal, precise addition or edit to the relevant section (append a new bullet or update an existing one; never rewrite unrelated content).
-   - **Glossary** (`docs/GLOSSARY.md`) — identify any new canonical domain terms introduced by the feature. For each, propose a new entry with a definition.
+   - **Glossary** (`docs/glossary/<domain>.md`, indexed by `docs/GLOSSARY.md`) — identify any new canonical domain terms introduced by the feature. For each, propose a new entry with a definition and name the domain file it goes in.
 4. Present the proposed changes to the user **before writing anything**. Show the exact text to be added or replaced. Wait for explicit approval or revision instructions.
 5. Apply only the approved changes.
 
@@ -115,7 +115,7 @@ Stage only the files changed above and commit onto the feature branch:
 ```bash
 git add docs/CHANGELOG.md docs/BACKLOG.md <version-file>
 # add only if modified in step 5:
-git add docs/PRODUCT_SPEC.md docs/GLOSSARY.md
+git add docs/PRODUCT_SPEC.md docs/GLOSSARY.md docs/glossary/
 git commit -m "chore: release CheL-XX, bump version to X.Y.Z"
 git push
 ```

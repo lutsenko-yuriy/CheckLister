@@ -18,4 +18,3 @@ _(nothing in progress)_
 
 - [CheL-124: `build/` gitignore rule hides skills/build/implement](https://github.com/lutsenko-yuriy/CheckLister/issues/124)
 - [CheL-125: Run notes and checkup Python tests in CI](https://github.com/lutsenko-yuriy/CheckLister/issues/125)
-- [CheL-130: Split the glossary into several files by term domain](https://github.com/lutsenko-yuriy/CheckLister/issues/130)

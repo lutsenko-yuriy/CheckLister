@@ -1,43 +1,29 @@
 # Glossary
 
 Canonical domain terms for this project. Skills and documentation use these names consistently.
-When a new term is introduced during a `brief` session, add it here before creating the ticket.
+Terms live in one file per domain under `docs/glossary/`; this file is the entry point and holds
+the aliases table.
 
-<!-- Format: one table per domain area. Example:
+When a new term is introduced during a `brief` session, add it to the domain file it belongs to
+(create a new `docs/glossary/<domain>.md` and link it below if no domain fits) before creating
+the ticket. Every domain file uses the same table: `| Term | Definition | Code symbol |`.
 
-## Core concepts
+## Domains
 
-| Term | Definition | Code symbol |
-|---|---|---|
-| Pact | A user's commitment to show up for a habit N times | `Pact` |
-| Showup | A single instance of fulfilling a pact | `Showup` |
+| File | Terms |
+|---|---|
+| [`checklists.md`](glossary/checklists.md) | Checklist, Item |
+| [`runs.md`](glossary/runs.md) | Run, Run item, Run history entry |
+| [`external-links.md`](glossary/external-links.md) | Deep link, Callback URL, Checklist selection request, Externally started run |
+| [`analytics.md`](glossary/analytics.md) | Analytics consent, Analytics consent dialog |
+| [`settings.md`](glossary/settings.md) | Settings screen |
+| [`kill-switches.md`](glossary/kill-switches.md) | Kill-switch, Minimum app version, Debug screen |
+| [`scenarios.md`](glossary/scenarios.md) | Scenario build |
 
 ## Known aliases to avoid
 
+Words that name a defined term but must not be used for it. Keep this table here, not in the
+domain files: an alias points across domains, and one table is the single place to check.
+
 | Avoid | Use instead |
 |---|---|
-| session | showup |
-| commitment | pact |
-
--->
-
-## Core concepts
-
-| Term | Definition | Code symbol |
-|---|---|---|
-| Analytics consent | The user's explicit opt-in (or refusal) to usage analytics collection, asked once through the analytics consent dialog; nothing is collected until the user allows it | — |
-| Analytics consent dialog | The modal shown over the home screen to users who have not yet chosen, with equal-weight "Allow" and "Don't allow" buttons; it stays open until the user chooses | — |
-| Callback URL | An app-specific URL supplied by another mobile app so CheckLister can return the outcome of an externally started run or checklist selection request | — |
-| Checklist | A named list of items the user creates and manages (e.g. "Groceries") | `Checklist` |
-| Checklist selection request | A request from another mobile app, via a deep link, asking the user to pick one of their checklists, with the choice (or a cancellation) returned through a callback URL | `ExternalSelectRequest` |
-| Debug screen | A screen available only in debug builds where a dev can override kill-switch values; overrides persist across restarts until reset | — |
-| Deep link | A URL that opens CheckLister at a specific action or destination, such as starting a run or a checklist selection for another app | — |
-| Externally started run | A fresh checklist run started by a deep link from another mobile app, with its outcome returned through a callback URL | `ExternalRunRequest` |
-| Item | A single line entry within a checklist template. Has no checked/unchecked state itself — checking off happens on the item's copy within a run | `Item` |
-| Kill-switch | A named on/off value, read from remote config and cached locally, that lets the owner disable a feature without a release; on by default when the feature ships | — |
-| Minimum app version | The first app version whose code checks a given kill-switch; older builds ignore the switch's remote value | — |
-| Run | A snapshot copy of a checklist's items, created when the user starts working through it. Checking items off happens on this copy — never on the source checklist | `ChecklistRun` |
-| Run item | An item's copy within a run, carrying the checked/unchecked state the template item lacks | `RunItem` |
-| Run history entry | An immutable summary of one completed run, preserving its checklist identifier and title, item count, and completion time independently of later checklist changes or deletion | `RunHistoryEntry` |
-| Scenario build | A Release build made only for the Maestro scenario suite, in which Firebase Remote Config and analytics are replaced by stubs the scenarios can control; never shipped to testers or users | — |
-| Settings screen | The screen opened from the gear icon in the home header, where the user manages app-level preferences; for now it holds only the analytics consent switch | — |
