@@ -8,6 +8,8 @@ description: Implement a work unit from an approved plan. Given a PM issue ID, f
 
 The project management tool is **GitHub Issues**. The Git host is **GitHub**. The issue identifier prefix is **CheL**.
 
+@skills/shared/git-cli-safety.md
+
 ---
 
 ## Setup (do this first, every time)
@@ -27,12 +29,12 @@ Retrieve the issue details and find the implementation plan comment left by the 
 | ------------- | ------------------------------------------------------------------------ |
 | Linear        | `mcp__linear__get_issue`, then `mcp__linear__list_comments` on the issue |
 | Jira          | `GET /rest/api/3/issue/{key}` and `GET /rest/api/3/issue/{key}/comment`  |
-| GitHub Issues | `gh issue view {number}` and `gh issue comment list {number}`            |
+| GitHub Issues | `gh issue view {number}` and `gh issue view {number} --comments`            |
 | GitLab        | `glab issue view {number}` and `glab issue note list {number}`           |
 
 **If no approved plan comment exists — stop.** Report back:
 
-> "No approved plan found on N/A-XX. Invoke the `plan` skill to produce and approve a plan before implementation can begin."
+> "No approved plan found on CheL-XX. Invoke the `plan` skill to produce and approve a plan before implementation can begin."
 
 ### 2. Move issue to In Progress
 
@@ -47,10 +49,10 @@ Update the issue status to **In Progress** in the PM tool.
 
 ### 3. Create or switch to the feature branch
 
-Branch naming: `feature/N/A-XX-<short-description>` (2–4 words, kebab-case).
+Branch naming: `feature/CheL-XX-<short-description>` (2–4 words, kebab-case).
 
 - If already on the correct branch, continue.
-- Otherwise: `git checkout -b feature/N/A-XX-<short-description>`
+- Otherwise: `git checkout -b feature/CheL-XX-<short-description>`
 
 ### 4. TDD cycle
 
@@ -102,7 +104,7 @@ Apply the project's formatter in a **separate, formatting-only commit before the
 # run formatter (see CLAUDE.md for the command)
 # if any files changed:
 git add <only changed files>
-git commit -m "style: apply formatter (N/A-XX)"
+git commit -m "style: apply formatter (CheL-XX)"
 ```
 
 If no files changed, skip this step. Never mix formatting and functional changes in the same commit.
@@ -117,7 +119,7 @@ git commit -m "$(cat <<'EOF'
 
 <optional body explaining why this change was needed>
 
-Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>
+Co-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>
 EOF
 )"
 ```
