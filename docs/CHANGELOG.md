@@ -17,6 +17,7 @@ A record of all versioned releases. For planned work and known issues, see @docs
 
 ### Added
 
+- [ci] (PR #155) CheL-125: the notes and checkup Python tests now run in CI (`tests.yml`) on Python 3.9 and 3.12, like the onboard and skill_router suites.
 - [meta] (PR #154) CheL-130: the glossary is split into one file per domain under `docs/glossary/` (checklists, runs, external links, analytics, settings, kill-switches, scenarios); `docs/GLOSSARY.md` stays as the index and holds the aliases table. Every term and definition is unchanged. `brief`, `ship`, `checkup`, `onboard` and the shared project config point at the new layout.
 - [test] (PR #153) CheL-147 WU4: scenario builds record analytics events in an in-memory stub instead of sending them to Firebase, readable on a scenario-only events screen (`checklister://scenarios/analytics`, `analytics/clear`); the analytics flow now asserts that nothing is recorded without consent and that events are recorded after it. Together with WU1–WU3 the scenario suite no longer touches the production Firebase project; the shipped app is unchanged.
 - [wip] (PR #152) CheL-147 WU3: scenario builds read kill-switch values from an in-memory stub, set by flows through `checklister://scenarios/kill-switch...` links (off included, with reset and an alert for malformed links); normal builds treat these links as unknown and ship none of the code. The Run history off-state and malformed-link flows now run on iOS and Android.
