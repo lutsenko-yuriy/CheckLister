@@ -8,7 +8,7 @@ The `## In Progress` section at the top is the one exception — it is maintaine
 
 ## In Progress
 
-_(nothing in progress)_
+- [CheL-158: Demo mode: clickable links and QR codes in the session](https://github.com/lutsenko-yuriy/CheckLister/issues/158)
 
 ---
 
