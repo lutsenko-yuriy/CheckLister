@@ -519,3 +519,13 @@ resources kept in sync by hand, not generated:
   `values-night/colors.xml`). Below API 31 there is no system splash screen
   to customize, so those devices see the platform's own default blank
   launch, same as before this ticket.
+
+## Agent tooling: demo mode (CheL-158)
+
+Session tooling for showing work to people; the app is untouched. `scripts/demo/demo.py`
+keeps one switch in `<git-common-dir>/yab/demo.json` (`{"on", "links", "shown"}`), shared by all
+worktrees and never committed. `demo.py on` copies the `[demo].links` regexes from
+`skill_router.toml`; `render` prints each link bare on its own line and adds a `qrencode` QR block
+under the first counted link per WU (key from the branch, e.g. `CheL-158/WU2`), recording it in
+`shown`. A `SessionStart` hook row in `.claude/settings.json` (`demo.py session-start`) re-announces
+demo mode after a restart, resume, clear or compaction. Agent rules: `skills/shared/demo-mode.md`.

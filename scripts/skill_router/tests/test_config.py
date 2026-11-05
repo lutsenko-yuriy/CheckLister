@@ -36,6 +36,13 @@ class ProjectIdTests(unittest.TestCase):
         self.assertNotIn("linear", config_from('[providers]\npm = "linear"\n').provider_settings)
 
 
+@unittest.skipIf(tomllib is None, "tomllib needs Python 3.11+")
+class DemoTableTests(unittest.TestCase):
+    def test_demo_table_is_not_a_provider(self):
+        cfg = config_from('[demo]\nlinks = ["^https://a$"]\n')
+        self.assertNotIn("demo", cfg.provider_settings)
+
+
 class MissingTomllibTests(unittest.TestCase):
     def test_warns_when_config_exists_but_cannot_be_read(self):
         stderr = io.StringIO()

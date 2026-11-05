@@ -9,6 +9,7 @@ State table (state file <git-common-dir>/yab/demo.json):
 import io
 import json
 import os
+import shutil
 import subprocess
 import tempfile
 import unittest
@@ -144,6 +145,18 @@ class SwitchTests(DemoTestCase):
             self.assertEqual(0, run(["off"], self.root)[0])
             self.assertEqual(0, run(["status"], self.root)[0])
 
+    def test_on_rejects_an_invalid_regex_and_stays_off(self):
+        class Bad:
+            @staticmethod
+            def load(_f):
+                return {"demo": {"links": ["^ok$", "("]}}
+        with mock.patch.object(demo, "tomllib", Bad):
+            self.write_config("")
+            code, _, err = run(["on"], self.root, {"YAB_QRENCODE": "true"})
+        self.assertEqual(2, code)
+        self.assertIn("regex", err)
+        self.assertFalse(self.state.exists())
+
     def test_off_keeps_shown(self):
         self.state.parent.mkdir(parents=True)
         self.state.write_text(json.dumps({"on": True, "links": [], "shown": {"CheL-1/WU1": ["u"]}}))
@@ -187,6 +200,163 @@ class SessionStartTests(DemoTestCase):
         run_on(self.root)
         out = run(["session-start"], self.root)[1]
         self.assertEqual(1, len(out.splitlines()))
+
+
+ISSUE = "https://github.com/lutsenko-yuriy/CheckLister/issues/158"
+COMMENT = ISSUE + "#issuecomment-4242"
+PR = "https://github.com/lutsenko-yuriy/CheckLister/pull/159"
+LINKS = [
+    r"^https://github\.com/lutsenko-yuriy/CheckLister/issues/\d+$",
+    r"^https://github\.com/lutsenko-yuriy/CheckLister/issues/\d+#issuecomment-\d+$",
+    r"^https://github\.com/lutsenko-yuriy/CheckLister/pull/\d+$",
+]
+
+
+class WuKeyTests(unittest.TestCase):
+    def test_branch_to_key_table(self):
+        table = [
+            ("feature/CheL-158-WU1-demo-switch", "CheL-158/WU1"),
+            ("feature/CheL-158-demo-mode", "CheL-158"),
+            ("feature/CheL-3-WU0-scenarios", "CheL-3/WU0"),
+            ("feature/HAB-278-wu12-onboard-port", "HAB-278/wu12"),
+            ("feature/CheL-12-debrief", "CheL-12"),
+            ("chore/checkup-light-2026", "branch:chore/checkup-light-2026"),
+            ("main", "branch:main"),
+            ("", "detached"),
+        ]
+        for branch, key in table:
+            with self.subTest(branch=branch):
+                self.assertEqual(key, demo.wu_key(branch))
+
+
+def fake_qrencode(directory, body):
+    path = Path(directory) / "qrencode"
+    path.write_text("#!/bin/sh\n" + body + "\n", encoding="utf-8")
+    path.chmod(0o755)
+    return str(path)
+
+
+class RenderTestCase(DemoTestCase):
+    def setUp(self):
+        super().setUp()
+        self.qr = fake_qrencode(self.root, 'for last; do :; done; echo "QR:$last"')
+        self.env = {"YAB_QRENCODE": self.qr}
+
+    def turn_on(self, **extra):
+        state = {"on": True, "links": LINKS, "shown": {}}
+        state.update(extra)
+        self.state.parent.mkdir(parents=True, exist_ok=True)
+        self.state.write_text(json.dumps(state), encoding="utf-8")
+
+    def shown(self):
+        return json.loads(self.state.read_text())["shown"]
+
+    def render(self, *urls, wu="CheL-1/WU1"):
+        return run(["render", "--wu", wu] + list(urls), self.root, self.env)
+
+
+class RenderTests(RenderTestCase):
+    def test_first_mention_prints_url_then_fenced_qr(self):
+        self.turn_on()
+        code, out, _ = self.render(PR)
+        self.assertEqual(0, code)
+        self.assertEqual("%s\n```text\nQR:%s\n```\n" % (PR, PR), out)
+        self.assertEqual({"CheL-1/WU1": [PR]}, self.shown())
+
+    def test_repeat_in_same_wu_prints_url_only(self):
+        self.turn_on(shown={"CheL-1/WU1": [PR]})
+        self.assertEqual((0, PR + "\n"), self.render(PR)[:2])
+        self.assertEqual({"CheL-1/WU1": [PR]}, self.shown())
+
+    def test_same_url_under_next_wu_gets_a_qr_again(self):
+        self.turn_on(shown={"CheL-1/WU1": [PR]})
+        out = self.render(PR, wu="CheL-1/WU2")[1]
+        self.assertIn("QR:" + PR, out)
+        self.assertEqual({"CheL-1/WU1": [PR], "CheL-1/WU2": [PR]}, self.shown())
+
+    def test_link_not_in_the_counted_list_is_url_only(self):
+        self.turn_on()
+        other = PR + "/files"
+        self.assertEqual((0, other + "\n"), self.render(other)[:2])
+        self.assertEqual({}, self.shown())
+
+    def test_several_urls_each_get_their_own_block(self):
+        self.turn_on()
+        out = self.render(ISSUE, COMMENT)[1]
+        self.assertEqual(2, out.count("```text"))
+        self.assertLess(out.index(ISSUE), out.index(COMMENT))
+        self.assertEqual({"CheL-1/WU1": [ISSUE, COMMENT]}, self.shown())
+
+    def test_same_url_twice_in_one_call_gets_one_qr(self):
+        self.turn_on()
+        self.assertEqual(1, self.render(PR, PR)[1].count("```text"))
+
+    def test_url_is_trimmed_of_whitespace_and_angle_brackets(self):
+        self.turn_on()
+        out = self.render("  <%s> " % PR)[1]
+        self.assertTrue(out.startswith(PR + "\n"))
+        self.assertIn("QR:" + PR, out)
+
+    def test_missing_qrencode_prints_url_only_and_records_nothing(self):
+        self.turn_on()
+        self.env = {"YAB_QRENCODE": "/nonexistent/qrencode"}
+        self.assertEqual((0, PR + "\n"), self.render(PR)[:2])
+        self.assertEqual({}, self.shown())
+
+    def test_failing_qrencode_prints_url_only_and_records_nothing(self):
+        self.turn_on()
+        self.env = {"YAB_QRENCODE": fake_qrencode(self.root, "exit 1")}
+        self.assertEqual((0, PR + "\n"), self.render(PR)[:2])
+        self.assertEqual({}, self.shown())
+
+    def test_off_prints_urls_unchanged_and_writes_nothing(self):
+        self.turn_on(on=False)
+        before = self.state.read_text()
+        self.assertEqual((0, PR + "\n"), self.render(PR)[:2])
+        self.assertEqual(before, self.state.read_text())
+
+    def test_absent_state_prints_urls_unchanged_and_creates_nothing(self):
+        self.assertEqual((0, PR + "\n"), self.render(PR)[:2])
+        self.assertFalse(self.state.exists())
+
+    def test_key_defaults_to_the_current_branch(self):
+        self.turn_on()
+        subprocess.run(["git", "-C", str(self.root), "symbolic-ref", "HEAD",
+                        "refs/heads/feature/CheL-158-WU2-demo-links"], check=True)
+        run(["render", PR], self.root, self.env)
+        self.assertEqual({"CheL-158/WU2": [PR]}, self.shown())
+
+    def test_detached_head_uses_the_detached_key(self):
+        self.turn_on()
+        (self.root / ".git" / "HEAD").write_text("0" * 40 + "\n")
+        run(["render", PR], self.root, self.env)
+        self.assertEqual({"detached": [PR]}, self.shown())
+
+    def test_hand_edited_state_of_the_wrong_shape_does_not_crash(self):
+        for extra in ({"shown": 5, "links": []}, {"shown": {"CheL-1/WU1": 7}, "links": []},
+                      {"links": "abc"}):
+            with self.subTest(extra=extra):
+                self.turn_on(**extra)
+                code, out, _ = self.render(PR)
+                self.assertEqual(0, code)
+                self.assertEqual(PR + "\n", out)
+
+    def test_render_needs_at_least_one_url(self):
+        self.turn_on()
+        self.assertEqual(2, run(["render"], self.root, self.env)[0])
+
+    def test_render_outside_a_git_repo_exits_2(self):
+        with tempfile.TemporaryDirectory() as bare:
+            self.assertEqual(2, run(["render", PR], Path(bare), self.env)[0])
+
+    @unittest.skipUnless(shutil.which("qrencode"), "qrencode not installed")
+    def test_real_qrencode_block_is_a_utf8_qr(self):
+        self.turn_on()
+        out = run(["render", "--wu", "CheL-1/WU1", COMMENT], self.root, {})[1]
+        block = out.split("```text\n")[1].split("```")[0].splitlines()
+        self.assertGreater(len(block), 15)
+        self.assertEqual(1, len({len(line) for line in block}))
+        self.assertTrue(all(set(line) <= set(" \u2580\u2584\u2588") for line in block))
 
 
 class CliTests(DemoTestCase):

@@ -2,7 +2,8 @@
 
 Read this file to resolve all project-specific constants referenced in skill instructions.
 Project identity (name, issue prefix, git host, PM tool, test/version settings) lives in `skill_router.toml`
-(`[project]`, `[providers]`). Skills stay unchanged.
+(`[project]`, `[providers]`). Skills stay unchanged. `[demo].links` lists the link patterns demo mode
+gives a QR code (`skills/shared/demo-mode.md`).
 
 ## Tech stack
 
