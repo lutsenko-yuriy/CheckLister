@@ -1,7 +1,9 @@
 import { Alert } from 'react-native';
 import { handleScenarioLink } from './handleScenarioLink';
+import { recordingAnalyticsService } from './RecordingAnalyticsService';
 import { scenarioKillSwitchSource } from './ScenarioKillSwitchSource';
 
+const handle = (url: string) => handleScenarioLink(url, jest.fn());
 const OFF = '{"enabled":false,"min_version":"0.0.0"}';
 
 describe('handleScenarioLink', () => {
@@ -12,15 +14,13 @@ describe('handleScenarioLink', () => {
   afterEach(() => jest.restoreAllMocks());
 
   it('ignores links that are not scenario links', async () => {
-    expect(handleScenarioLink('checklister://run?x=1')).toBe(false);
+    expect(handleScenarioLink('checklister://run?x=1', jest.fn())).toBe(false);
     expect(Alert.alert).not.toHaveBeenCalled();
   });
 
   it('sets the stub from a kill-switch link', async () => {
     expect(
-      handleScenarioLink(
-        'checklister://scenarios/kill-switch?id=runHistory&enabled=false',
-      ),
+      handle('checklister://scenarios/kill-switch?id=runHistory&enabled=false'),
     ).toBe(true);
     expect(await scenarioKillSwitchSource.loadActivated()).toEqual({
       runHistory: OFF,
@@ -30,28 +30,47 @@ describe('handleScenarioLink', () => {
   it('is idempotent when the same link arrives twice', async () => {
     const url =
       'checklister://scenarios/kill-switch?id=runHistory&enabled=false';
-    handleScenarioLink(url);
-    handleScenarioLink(url);
+    handle(url);
+    handle(url);
     expect(await scenarioKillSwitchSource.loadActivated()).toEqual({
       runHistory: OFF,
     });
   });
 
   it('clears the stub on reset', async () => {
-    handleScenarioLink(
-      'checklister://scenarios/kill-switch?id=runHistory&enabled=false',
-    );
-    handleScenarioLink('checklister://scenarios/kill-switch/reset');
+    handle('checklister://scenarios/kill-switch?id=runHistory&enabled=false');
+    handle('checklister://scenarios/kill-switch/reset');
     expect(await scenarioKillSwitchSource.loadActivated()).toEqual({});
   });
 
   it('alerts on an unknown command and changes nothing', async () => {
     expect(
-      handleScenarioLink(
-        'checklister://scenarios/kill-switch?id=nope&enabled=false',
-      ),
+      handle('checklister://scenarios/kill-switch?id=nope&enabled=false'),
     ).toBe(true);
     expect(Alert.alert).toHaveBeenCalledWith('Unknown scenario command');
     expect(await scenarioKillSwitchSource.loadActivated()).toEqual({});
+  });
+
+  it('opens the events screen on an analytics link, however often it arrives', () => {
+    const openEvents = jest.fn();
+    const url = 'checklister://scenarios/analytics';
+
+    expect(handleScenarioLink(url, openEvents)).toBe(true);
+    handleScenarioLink(url, openEvents);
+
+    expect(openEvents).toHaveBeenCalledTimes(2);
+  });
+
+  it('clears the recorded events on analytics/clear without opening anything', () => {
+    const openEvents = jest.fn();
+    recordingAnalyticsService.clear();
+    recordingAnalyticsService.logEvent('item_added');
+
+    expect(
+      handleScenarioLink('checklister://scenarios/analytics/clear', openEvents),
+    ).toBe(true);
+
+    expect(recordingAnalyticsService.getRecords()).toEqual([]);
+    expect(openEvents).not.toHaveBeenCalled();
   });
 });
