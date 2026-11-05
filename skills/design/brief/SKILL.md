@@ -19,7 +19,7 @@ This skill produces a ticket, not code.
 If the user invokes this skill with an existing issue ID (e.g. `/brief CheL-XX`):
 
 1. Fetch the issue (PM mapping: **Fetch issue**).
-2. Read `docs/PRODUCT_SPEC.md` and `docs/GLOSSARY.md`.
+2. Read `docs/PRODUCT_SPEC.md`, `docs/GLOSSARY.md` and the domain files it links under `docs/glossary/`.
 3. Compare the ticket description against the current product context and both repos' actual state (read relevant files if needed).
 4. Present a one-paragraph assessment: is the description still accurate, partially stale, or significantly out of date?
 5. Ask: *"Does this description still reflect what you want to build, or should we revise it?"*
@@ -33,7 +33,7 @@ If the user invokes this skill with an existing issue ID (e.g. `/brief CheL-XX`)
 Read the following files in full before asking the user anything:
 
 - **Product spec** (`docs/PRODUCT_SPEC.md`) — what the product currently does
-- **Glossary** (`docs/GLOSSARY.md`) — canonical domain terms and known aliases
+- **Glossary** (`docs/GLOSSARY.md`, the index and the aliases table, plus every domain file it links under `docs/glossary/`) — canonical domain terms and known aliases
 
 This context is the reference against which the user's idea will be validated.
 
@@ -61,7 +61,7 @@ After each user response, do exactly one of the following:
 
 - **Ask one clarifying question** — if anything is ambiguous, undefined, or contradicts the spec or glossary. Do not ask multiple questions at once.
 - **Flag a contradiction** — if the idea conflicts with existing product behaviour, name the conflict and ask how the user wants to resolve it.
-- **Flag an undefined term** — if the user introduces a term not in `docs/GLOSSARY.md`, ask them to define it before continuing.
+- **Flag an undefined term** — if the user introduces a term not in the glossary (`docs/GLOSSARY.md` and `docs/glossary/*.md`), ask them to define it before continuing.
 - **Proceed to step 4** — if the idea is clear, coherent, and non-contradictory.
 
 The dialog is **product-level only**: no architecture, no implementation details, no data models. The goal is clarity on *what* and *why*, not *how*.
@@ -111,9 +111,9 @@ Fill every section. "Out of scope" must always be present — even if short — 
 
 ### 5. Update the glossary (if new terms were introduced)
 
-If the dialog produced any new domain terms not already in `docs/GLOSSARY.md`, add them now.
+If the dialog produced any new domain terms not already in the glossary, add them now.
 
-Open the glossary file, locate the correct alphabetical position, and insert entries following the existing format. Do not remove or reorder existing entries.
+Open the domain file under `docs/glossary/` the term belongs to (if none fits, create `docs/glossary/<domain>.md` and add a row for it to the index in `docs/GLOSSARY.md`), then insert each entry following the table format, keeping the file's terms in alphabetical order. An alias to avoid goes in the aliases table in `docs/GLOSSARY.md`, not in a domain file. Do not remove or reorder existing entries.
 
 ### 6. Report back
 

@@ -17,7 +17,7 @@ Languages, frameworks, platforms and tooling: `docs/TECH_STACK.md`.
 | Document | Path |
 |---|---|
 | Product spec | `docs/PRODUCT_SPEC.md` |
-| Glossary | `docs/GLOSSARY.md` |
+| Glossary | `docs/GLOSSARY.md` (index and aliases); terms in `docs/glossary/*.md` |
 | Backlog | `docs/BACKLOG.md` |
 | Changelog | `docs/CHANGELOG.md` |
 | Architecture | `docs/ARCHITECTURE.md` |

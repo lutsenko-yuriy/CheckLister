@@ -16,7 +16,7 @@ Review the project's integration/end-to-end test suite: do scenarios still map t
 
 ## 3. Glossary/naming drift
 
-If the project maintains a canonical-terms glossary (e.g. `docs/GLOSSARY.md`), diff its terms and known aliases against current code identifiers and UI strings; flag code terms absent from the glossary and aliases that crept back in. Skip this dimension if the project has no such glossary.
+If the project maintains a canonical-terms glossary (e.g. `docs/GLOSSARY.md` and the domain files under `docs/glossary/`), diff its terms and known aliases against current code identifiers and UI strings; flag code terms absent from the glossary and aliases that crept back in. Skip this dimension if the project has no such glossary.
 
 *Grounding: DDD ubiquitous-language drift is expected as implementation solidifies — the glossary needs periodic review, not a one-time write ([Fowler: Ubiquitous Language](https://martinfowler.com/bliki/UbiquitousLanguage.html)).*
 
