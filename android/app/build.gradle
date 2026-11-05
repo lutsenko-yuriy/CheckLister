@@ -73,6 +73,20 @@ def enableProguardInReleaseBuilds = false
  */
 def jscFlavor = 'io.github.react-native-community:jsc-android:2026004.+'
 
+// CheL-147: same contract as scripts/babel/scenarioBuildFlag.js — 1 on, unset/empty/0 off, else fail.
+def scenarioBuildEnv = System.getenv("CHECKLISTER_SCENARIO_BUILD") ?: ""
+if (!["", "0", "1"].contains(scenarioBuildEnv)) {
+    throw new GradleException("CHECKLISTER_SCENARIO_BUILD must be 1, 0 or unset (got \"${scenarioBuildEnv}\")")
+}
+def scenarioBuild = scenarioBuildEnv == "1"
+
+// The JS bundle depends on the flag, so flipping it must re-run the bundle task.
+tasks.configureEach { task ->
+    if (task.name.startsWith("createBundle") && task.name.endsWith("JsAndAssets")) {
+        task.inputs.property("checklisterScenarioBuild", scenarioBuild)
+    }
+}
+
 android {
     ndkVersion rootProject.ext.ndkVersion
     buildToolsVersion rootProject.ext.buildToolsVersion
@@ -92,6 +106,7 @@ android {
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
         versionName "1.0"
+        buildConfigField "boolean", "SCENARIO_BUILD", "${scenarioBuild}"
     }
     signingConfigs {
         debug {

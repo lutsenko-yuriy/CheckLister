@@ -5,9 +5,11 @@ from pathlib import Path
 import subprocess
 import tempfile
 import unittest
+import zipfile
 
 ROOT = Path(__file__).resolve().parents[2]
 RUNNER = ROOT / 'scripts/scenarios-android.sh'
+MARKER = b'checklister-scenario-build-marker'
 
 CONTAINER_PREFIX = '/data/data/com.checklister'
 STAGING_PREFIX = '/data/local/tmp'
@@ -35,7 +37,7 @@ case "$1" in
   shell)
     shift
     case "$1" in
-      pm) exit "${APP_RESULT:-0}" ;;
+      pm) [ "${APP_RESULT:-0}" = 0 ] && echo 'package:/data/app/base.apk'; exit "${APP_RESULT:-0}" ;;
       id) printf '%s' "${UID_RESULT:-0}" ;;
       am) exit 0 ;;
       rm)
@@ -60,6 +62,7 @@ case "$1" in
       printf '%s\nOK\n' "${!avd_var:-$AVD_NAME}"
     fi
     ;;
+  pull) cp "$APK_FIXTURE" "$3" ;;
   push)
     echo push >> "$SEQUENCE_LOG"
     mkdir -p "$STAGING_ROOT/$scenarios_serial"
@@ -95,8 +98,15 @@ class ScenarioRunnerTests(unittest.TestCase):
         self.write_tool('adb', ADB_STUB)
         self.env['DEVICES'] = 'List of devices attached\nemulator-5554\tdevice\n\n'
         self.env['AVD_NAME'] = 'Pixel_5_API36'
+        self.apk = self.path / 'base.apk'
+        self.write_apk(MARKER)
+        self.env['APK_FIXTURE'] = str(self.apk)
         self.env['CONTAINER_ROOT'] = str(self.path / 'containers')
         self.env['STAGING_ROOT'] = str(self.path / 'staging')
+
+    def write_apk(self, payload):
+        with zipfile.ZipFile(self.apk, 'w') as archive:
+            archive.writestr('assets/index.android.bundle', b'\x00hermes ' + payload)
 
     def devices_str(self, *serials):
         lines = ['List of devices attached'] + [f'{s}\tdevice' for s in serials] + ['', '']
@@ -143,6 +153,15 @@ class ScenarioRunnerTests(unittest.TestCase):
         result = self.run_script('emulator-5554')
         self.assertNotEqual(result.returncode, 0)
         self.assertIn('Install CheckLister', result.stderr)
+        self.assertFalse((self.path / 'calls').exists())
+
+    def test_normal_build_is_refused_before_maestro(self):
+        # CheL-147: a suite run against a build without the stubs would hit production Firebase.
+        self.write_apk(b'no marker here')
+        result = self.run_script('emulator-5554')
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn('not a scenario build', result.stderr)
+        self.assertIn('scenarios:build:android', result.stderr)
         self.assertFalse((self.path / 'calls').exists())
 
     def test_falls_back_to_android_home_platform_tools_when_adb_missing(self):

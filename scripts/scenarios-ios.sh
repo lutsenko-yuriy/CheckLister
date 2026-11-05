@@ -14,6 +14,7 @@ scenarios_parse_devices "$1"
 
 for scenarios_device in "${scenarios_devices[@]}"; do
   scenarios_validate_device_and_app "$scenarios_device"
+  scenarios_require_scenario_build "$scenarios_device"
 done
 
 # Scenario assertions are written in English. Pin each simulator's preferred

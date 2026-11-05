@@ -8,6 +8,7 @@ import unittest
 
 ROOT = Path(__file__).resolve().parents[2]
 RUNNER = ROOT / 'scripts/scenarios-ios.sh'
+MARKER = b'checklister-scenario-build-marker'
 
 
 class ScenarioRunnerTests(unittest.TestCase):
@@ -25,12 +26,19 @@ class ScenarioRunnerTests(unittest.TestCase):
         self.write_tool('xcrun', f'''case "$2" in
   list) printf '%s' "$DEVICES" ;;
   get_app_container)
-    if [ "$5" = app ]; then exit "${{APP_RESULT:-0}}"; fi
+    if [ "$5" = app ]; then
+      [ "${{APP_RESULT:-0}}" = 0 ] && printf '%s' "$APP_DIR"
+      exit "${{APP_RESULT:-0}}"
+    fi
     if [ "$5" = data ]; then mkdir -p "$CONTAINER_ROOT/$3"; printf '%s' "$CONTAINER_ROOT/$3"; fi
     ;;
   terminate) exit 0 ;;
   spawn) exit 0 ;;
 esac''')
+        self.app_dir = self.path / 'CheckLister.app'
+        self.app_dir.mkdir()
+        (self.app_dir / 'main.jsbundle').write_bytes(b'\x00hermes ' + MARKER + b'\x00')
+        self.env['APP_DIR'] = str(self.app_dir)
         self.env['DEVICES'] = json.dumps({'devices': {'com.apple.CoreSimulator.SimRuntime.iOS-26-5': [
             {'udid': 'test-device', 'state': 'Booted', 'isAvailable': True}]}})
 
@@ -73,6 +81,15 @@ esac''')
         result = self.run_script('test-device')
         self.assertNotEqual(result.returncode, 0)
         self.assertIn('Install CheckLister', result.stderr)
+        self.assertFalse((self.path / 'calls').exists())
+
+    def test_normal_build_is_refused_before_maestro(self):
+        # CheL-147: a suite run against a build without the stubs would hit production Firebase.
+        (self.app_dir / 'main.jsbundle').write_bytes(b'\x00hermes bytecode, no marker\x00')
+        result = self.run_script('test-device')
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn('not a scenario build', result.stderr)
+        self.assertIn('scenarios:build:ios', result.stderr)
         self.assertFalse((self.path / 'calls').exists())
 
     def test_preserves_failure_and_selects_device_and_artifacts(self):

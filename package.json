@@ -13,6 +13,8 @@
     "postinstall": "patch-package",
     "test": "jest",
     "typecheck": "tsc --noEmit",
+    "scenarios:build:ios": "bash scripts/scenarios-build-ios.sh",
+    "scenarios:build:android": "bash scripts/scenarios-build-android.sh",
     "scenarios:ios": "bash scripts/scenarios-ios.sh",
     "scenarios:snapshot:ios": "bash scripts/scenarios-snapshot-ios.sh",
     "scenarios:android": "bash scripts/scenarios-android.sh",
