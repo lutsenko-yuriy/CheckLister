@@ -4,16 +4,113 @@ tags:
   - ios
   - android
 ---
-# CheL-147 WU0 stub: needs a scenario build (recording analytics stub + events screen).
-# TODO: launchApp with clearState: true and tap "Don't allow" on the consent dialog
+# CheL-147: needs a scenario build (recording analytics stub + events screen).
+# Nothing is sent to Firebase: the stub records what the consent gate lets through.
+- launchApp:
+    clearState: true
 - runFlow: helpers/answer-analytics-consent.yaml
-# TODO: open checklister://scenarios/analytics/clear
-# TODO: create a checklist and add an item (item_added would fire if collection were on)
-# TODO: open checklister://scenarios/analytics; "0 recorded" is visible (the consent gate dropped everything); go back
-# TODO: open Settings and turn the analytics switch on; analytics-consent-switch is checked
-# TODO: open the events screen; analytics_consent_granted is listed
-# TODO: clear the records; open the checklist and add another item
-# TODO: open the events screen; screen_checklist_detail (item_count) and item_added (checklist_id, item_count) are listed
-# TODO: turn the Settings switch off; clear the records; add an item; the events screen shows "0 recorded"
-# TODO: stopApp and launchApp with clearState: false; the events screen shows "0 recorded" (stub is in memory only)
-# TODO: delete the checklist (helpers/delete-checklist.yaml)
+- openLink: 'checklister://scenarios/analytics/clear'
+- tapOn:
+    text: Open
+    optional: true
+# Consent was declined, so the gate drops everything this creates (item_added, screen views).
+- runFlow: helpers/create-checklist.yaml
+- openLink: 'checklister://scenarios/analytics'
+- tapOn:
+    text: Open
+    optional: true
+- extendedWaitUntil:
+    visible: 0 recorded
+    timeout: 10000
+- tapOn: Back
+# Switching analytics on from Settings records the consent event.
+- tapOn: Back
+- tapOn:
+    id: open-settings
+- tapOn:
+    id: analytics-consent-switch
+- assertVisible:
+    id: analytics-consent-switch
+    checked: true
+- openLink: 'checklister://scenarios/analytics'
+- tapOn:
+    text: Open
+    optional: true
+- extendedWaitUntil:
+    visible: analytics_consent_granted
+    timeout: 10000
+- tapOn: Back
+# With consent granted, opening the checklist and adding an item is recorded.
+- tapOn: Back
+- openLink: 'checklister://scenarios/analytics/clear'
+- tapOn:
+    text: Open
+    optional: true
+- scrollUntilVisible:
+    element:
+      text: ${output.title}.*
+    direction: DOWN
+- tapOn: ${output.title}.*
+- tapOn: New item
+- inputText: Scenario third
+- pressKey: Enter
+- openLink: 'checklister://scenarios/analytics'
+- tapOn:
+    text: Open
+    optional: true
+- extendedWaitUntil:
+    visible: 'screen_checklist_detail \(item_count: 2\)'
+    timeout: 10000
+- assertVisible: 'item_added \(checklist_id: .*, item_count: 3\)'
+- tapOn: Back
+# Switching it off drops everything again.
+- tapOn: Back
+- tapOn:
+    id: open-settings
+- tapOn:
+    id: analytics-consent-switch
+- assertVisible:
+    id: analytics-consent-switch
+    checked: false
+- openLink: 'checklister://scenarios/analytics/clear'
+- tapOn:
+    text: Open
+    optional: true
+- tapOn: Back
+- scrollUntilVisible:
+    element:
+      text: ${output.title}.*
+    direction: DOWN
+- tapOn: ${output.title}.*
+- tapOn: New item
+- inputText: Scenario fourth
+- pressKey: Enter
+- openLink: 'checklister://scenarios/analytics'
+- tapOn:
+    text: Open
+    optional: true
+- extendedWaitUntil:
+    visible: 0 recorded
+    timeout: 10000
+- tapOn: Back
+# The stub lives in memory only: a relaunch starts from zero records.
+- stopApp
+- launchApp:
+    clearState: false
+- extendedWaitUntil:
+    visible: New checklist title
+    timeout: 20000
+- openLink: 'checklister://scenarios/analytics'
+- tapOn:
+    text: Open
+    optional: true
+- extendedWaitUntil:
+    visible: 0 recorded
+    timeout: 10000
+- tapOn: Back
+- scrollUntilVisible:
+    element:
+      text: ${output.title}.*
+    direction: DOWN
+- tapOn: ${output.title}.*
+- runFlow: helpers/delete-checklist.yaml

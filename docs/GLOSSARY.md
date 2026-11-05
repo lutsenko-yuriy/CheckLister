@@ -39,4 +39,5 @@ When a new term is introduced during a `brief` session, add it here before creat
 | Run | A snapshot copy of a checklist's items, created when the user starts working through it. Checking items off happens on this copy — never on the source checklist | `ChecklistRun` |
 | Run item | An item's copy within a run, carrying the checked/unchecked state the template item lacks | `RunItem` |
 | Run history entry | An immutable summary of one completed run, preserving its checklist identifier and title, item count, and completion time independently of later checklist changes or deletion | `RunHistoryEntry` |
+| Scenario build | A Release build made only for the Maestro scenario suite, in which Firebase Remote Config and analytics are replaced by stubs the scenarios can control; never shipped to testers or users | — |
 | Settings screen | The screen opened from the gear icon in the home header, where the user manages app-level preferences; for now it holds only the analytics consent switch | — |

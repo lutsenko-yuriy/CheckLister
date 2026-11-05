@@ -234,7 +234,10 @@ ticket promotes them).
 | Flow                                         | Assertions                                                                                                                                                                                                                                                                             |
 | -------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `analytics-consent.yaml`                     | A fresh install shows the consent dialog with its title, body and both buttons; tapping the scrim (and, on Android, system back) does not dismiss it; "Don't allow" opens the usable home screen and the choice survives a relaunch. Never taps "Allow".                               |
-| `settings.yaml`                              | (CheL-127) The home gear opens Settings with the "Share anonymous usage data" row; the switch is off after "Don't allow", survives Back and a relaunch. Never switches it on (Jest-only). Also asserts the debug icon (`open-debug`, CheL-128) is absent: it exists in debug builds only and this suite installs Release. |
+| `analytics-events.yaml`                      | (CheL-147) With consent declined the recorder shows `0 recorded` after a checklist is created; switching analytics on in Settings records `analytics_consent_granted`; opening a checklist and adding an item records `screen_checklist_detail` and `item_added` with their properties; switching off drops events again; a relaunch starts from zero records. Needs a scenario build.        |
+| `kill-switch-run-history-off.yaml`           | (CheL-147) The scenario link turns the Run history kill-switch off, hiding both entry points while the run stays reachable, then on again; the reset link restores the default. Needs a scenario build.                                                                              |
+| `scenario-link-unknown.yaml`                 | (CheL-147) A scenario link with an unknown switch id or a bad `enabled` value shows "Unknown scenario command" and changes nothing. Needs a scenario build.                                                                                                                         |
+| `settings.yaml`                              | (CheL-127) The home gear opens Settings with the "Share anonymous usage data" row; the switch is off after "Don't allow", survives Back and a relaunch. Never switches it on (see `analytics-events.yaml`). Also asserts the debug icon (`open-debug`, CheL-128) is absent: it exists in debug builds only and this suite installs Release. |
 | `run-complete.yaml`                          | Empty checklist cannot start; completion disabled until all items checked; toggle/uncheck; completion returns to unchanged template; fresh run starts unchecked.                                                                                                                       |
 | `run-exit.yaml`                              | Back shows confirmation; Cancel preserves progress; Discard returns to template; new run resets progress.                                                                                                                                                                              |
 | `run-exit-system-back-android.yaml`          | Android system back (hardware/gesture) during an active run shows the same confirmation as the app Back button; Cancel preserves progress and keeps the screen interactive; a second system back Discards and resets on the next run.                                                  |
@@ -266,11 +269,20 @@ command" alert and changes nothing. Values live in memory only, so each launch s
 every switch on. On Android the `scenarios` link host exists in scenario builds only; a
 normal build treats these links as unknown routes. See `kill-switch-run-history-off.yaml`.
 
+**Analytics (CheL-147).** A scenario build also replaces Firebase Analytics with a recording
+stub behind the consent gate: it records exactly what the gate lets through (events,
+screen views, and collection on/off), in memory only. `checklister://scenarios/analytics`
+opens a `ScenarioEvents` screen that shows `N recorded` and one row per record, updating
+live; `checklister://scenarios/analytics/clear` empties it. Assert on it with
+`assertVisible` and escape the parentheses (`'item_added \(checklist_id: .*\)'`). See
+`analytics-events.yaml`.
+
 **Analytics consent (CheL-126).** Every flow reaches the home screen through
 `helpers/answer-analytics-consent.yaml`, which taps "Don't allow" when the
 consent dialog shows and does nothing otherwise, so a device with or without a
-stored choice works. Scenarios never tap "Allow": test devices must not send
-data to the Firebase project. `analytics-consent.yaml` launches with
+stored choice works. Most scenarios still tap "Don't allow"; only
+`analytics-events.yaml` switches analytics on, which is safe because a scenario build
+records instead of sending (CheL-147). `analytics-consent.yaml` launches with
 `clearState: true`, which wipes the app's data; the snapshot restore after the
 run brings back a captured baseline, so capture one first (with no snapshot, local checklists on the device are lost). A snapshot taken
 before the first "Don't allow" restores the unanswered state and the dialog

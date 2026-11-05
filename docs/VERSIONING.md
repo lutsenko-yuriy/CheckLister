@@ -84,6 +84,16 @@ Required GitHub Actions secrets for the release job: `APP_STORE_CONNECT_API_KEY_
 `IOS_PROVISIONING_PROFILE`, `IOS_TEAM_ID`. These are manual, out-of-band
 setup — no agent or workflow can provision them.
 
+**Scenario build guard (CheL-147).** The Maestro suite runs against a scenario build
+(`CHECKLISTER_SCENARIO_BUILD=1`, stubbed Firebase) and never ships. Three checks keep it
+out of a release: the `scenario-stripping` job in PR validation bundles a normal build and
+fails if the `checklister-scenario-build-marker` string is present (and bundles a scenario
+build to prove the check can fail); the Fastlane `beta` lane refuses to build while
+`CHECKLISTER_SCENARIO_BUILD` is set; and it runs
+`scripts/ci/check_scenario_bundle.py --expect absent` on the archive after `gym`. The
+scenario workflows use dummy Firebase configs (`scripts/scenarios/firebase/`), so they read
+no Firebase secret.
+
 The Firebase config files are not committed (CheL-126). Two workflows (the
 iOS simulator build, iOS release) recreate them with
 `scripts/ci/write_firebase_config.py` from two base64-encoded secrets,
