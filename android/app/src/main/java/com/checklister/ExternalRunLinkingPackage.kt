@@ -15,7 +15,10 @@ import com.facebook.react.module.model.ReactModuleInfoProvider
 internal fun Intent.isExternalLinkIntent(): Boolean =
   action == Intent.ACTION_VIEW &&
     data?.scheme == "checklister" &&
-    (data?.host == "run" || data?.host == "select")
+    (data?.host == "run" ||
+      data?.host == "select" ||
+      // Scenario builds only (CheL-147); the manifest registers this host there too.
+      (BuildConfig.SCENARIO_BUILD && data?.host == "scenarios"))
 
 @ReactModule(name = ExternalRunLinkingModule.NAME)
 class ExternalRunLinkingModule(

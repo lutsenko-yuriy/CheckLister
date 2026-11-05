@@ -4,6 +4,17 @@ export const KILL_SWITCHES = {
 
 export type KillSwitchId = keyof typeof KILL_SWITCHES;
 
+export type RawSwitchValues = Partial<Record<KillSwitchId, string>>;
+
+export interface KillSwitchSource {
+  /** Reads the locally activated values; never rejects. */
+  loadActivated(): Promise<RawSwitchValues>;
+  /** Resolves true when new values were activated; never rejects. */
+  fetchAndActivate(): Promise<boolean>;
+  /** Sources that push new values (scenario builds); returns the unsubscribe. */
+  subscribe?(listener: () => void): () => void;
+}
+
 export interface RemoteSwitch {
   enabled: boolean;
   minVersion: string;

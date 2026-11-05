@@ -31,6 +31,12 @@ jest.mock('./externalLinkNativeHandoff', () => ({
   deactivateExternalLinkHandoff: () => mockDeactivateExternalLinkHandoff(),
 }));
 
+const mockScenarioModuleLoaded = jest.fn();
+jest.mock('../scenarios/handleScenarioLink', () => {
+  mockScenarioModuleLoaded();
+  return { handleScenarioLink: () => true };
+});
+
 const groceries: Checklist = {
   id: 'groceries-id',
   title: 'Groceries',
@@ -283,6 +289,29 @@ describe('ExternalLinkCoordinator', () => {
       'external_run_request_handled',
       { outcome: 'invalid_callback', replaced_active_run: false },
     );
+  });
+
+  it('treats a scenario link as an unknown URL and never loads the scenario code in a normal build', async () => {
+    jest.spyOn(Linking, 'getInitialURL').mockResolvedValue(null);
+    await renderCoordinator();
+
+    await waitFor(() => expect(Linking.addEventListener).toHaveBeenCalled());
+    await act(async () =>
+      emitUrl(
+        'checklister://scenarios/kill-switch?id=runHistory&enabled=false',
+      ),
+    );
+
+    await waitFor(() =>
+      expect(Alert.alert).toHaveBeenCalledWith(
+        'We do not know which app to return to.',
+      ),
+    );
+    expect(analytics.logEvent).toHaveBeenCalledWith(
+      'external_run_request_handled',
+      { outcome: 'invalid_callback', replaced_active_run: false },
+    );
+    expect(mockScenarioModuleLoaded).not.toHaveBeenCalled();
   });
 
   it('shows a dismiss-only message if an error callback cannot be delivered', async () => {

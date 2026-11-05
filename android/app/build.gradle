@@ -107,6 +107,8 @@ android {
         versionCode 1
         versionName "1.0"
         buildConfigField "boolean", "SCENARIO_BUILD", "${scenarioBuild}"
+        // Third deep-link host, only in scenario builds; "run" repeats an existing one.
+        manifestPlaceholders = [scenarioLinkHost: scenarioBuild ? "scenarios" : "run"]
     }
     signingConfigs {
         debug {

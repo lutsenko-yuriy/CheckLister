@@ -37,6 +37,10 @@
             <data
               android:scheme="checklister"
               android:host="select" />
+            <!-- CheL-147: "scenarios" in scenario builds, a repeat of "run" elsewhere. -->
+            <data
+              android:scheme="checklister"
+              android:host="${scenarioLinkHost}" />
         </intent-filter>
       </activity>
     </application>

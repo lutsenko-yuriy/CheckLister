@@ -4,16 +4,12 @@ import {
   getRemoteConfig,
   getValue,
 } from '@react-native-firebase/remote-config';
-import { KILL_SWITCHES, KillSwitchId } from './killSwitches';
-
-export type RawSwitchValues = Partial<Record<KillSwitchId, string>>;
-
-export interface KillSwitchSource {
-  /** Reads the locally activated values; never rejects. */
-  loadActivated(): Promise<RawSwitchValues>;
-  /** Resolves true when new values were activated; never rejects. */
-  fetchAndActivate(): Promise<boolean>;
-}
+import {
+  KILL_SWITCHES,
+  KillSwitchId,
+  KillSwitchSource,
+  RawSwitchValues,
+} from './killSwitches';
 
 const ids = Object.keys(KILL_SWITCHES) as KillSwitchId[];
 
