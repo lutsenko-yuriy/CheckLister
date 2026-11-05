@@ -120,6 +120,16 @@ export function KillSwitchProvider({
   useEffect(() => {
     let cancelled = false;
     let inFlight: Promise<void> | null = null;
+    // Only the newest read may write: a slower, older one is dropped.
+    let generation = 0;
+
+    const read = async () => {
+      const mine = ++generation;
+      const loaded = await source.loadActivated();
+      if (!cancelled && mine === generation) {
+        setValues(loaded);
+      }
+    };
 
     const refresh = () => {
       if (inFlight === null) {
@@ -127,10 +137,7 @@ export function KillSwitchProvider({
           .fetchAndActivate()
           .then(async activated => {
             if (activated) {
-              const loaded = await source.loadActivated();
-              if (!cancelled) {
-                setValues(loaded);
-              }
+              await read();
             }
           })
           .catch(() => {})
@@ -140,12 +147,10 @@ export function KillSwitchProvider({
       }
     };
 
-    source.loadActivated().then(loaded => {
-      if (!cancelled) {
-        setValues(loaded);
-      }
-      refresh();
+    const unsubscribe = source.subscribe?.(() => {
+      read().catch(() => {});
     });
+    read().then(refresh, refresh);
     const subscription = AppState.addEventListener('change', state => {
       if (state === 'active') {
         refresh();
@@ -153,6 +158,7 @@ export function KillSwitchProvider({
     });
     return () => {
       cancelled = true;
+      unsubscribe?.();
       subscription.remove();
     };
   }, [source]);

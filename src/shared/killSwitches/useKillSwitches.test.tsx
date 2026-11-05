@@ -109,6 +109,90 @@ describe('useKillSwitch', () => {
     expect(source.loadActivated).toHaveBeenCalledTimes(1);
   });
 
+  describe('with a pushing source (scenario builds)', () => {
+    function makePushSource(initial: RawSwitchValues = {}) {
+      const state = { activated: initial };
+      let push: () => void = () => {};
+      const unsubscribe = jest.fn();
+      const { source } = makeSource(initial);
+      source.loadActivated.mockImplementation(() =>
+        Promise.resolve(state.activated),
+      );
+      const pushing = {
+        ...source,
+        subscribe: jest.fn((listener: () => void) => {
+          push = listener;
+          return unsubscribe;
+        }),
+      };
+      return { source: pushing, state, unsubscribe, push: () => push() };
+    }
+
+    it('applies a pushed value live', async () => {
+      const { source, state, push } = makePushSource();
+      const { result } = await render(source);
+      await flush();
+      expect(result.current).toBe(true);
+      state.activated = { runHistory: OFF };
+      await act(async () => push());
+      expect(result.current).toBe(false);
+    });
+
+    it('lets the last of two overlapping pushes win', async () => {
+      const { source, state, push } = makePushSource();
+      const { result } = await render(source);
+      await flush();
+      const releases: ((v: RawSwitchValues) => void)[] = [];
+      source.loadActivated.mockImplementation(
+        () => new Promise<RawSwitchValues>(r => releases.push(r)),
+      );
+      state.activated = { runHistory: OFF };
+      await act(async () => {
+        push();
+        push();
+      });
+      await act(async () => {
+        releases[1]({});
+        releases[0]({ runHistory: OFF });
+      });
+      expect(result.current).toBe(true);
+    });
+
+    it('lets a push beat a slower initial read', async () => {
+      const { source, push } = makePushSource();
+      const releases: ((v: RawSwitchValues) => void)[] = [];
+      source.loadActivated.mockImplementation(
+        () => new Promise<RawSwitchValues>(r => releases.push(r)),
+      );
+      const { result } = await render(source);
+      await act(async () => push());
+      await act(async () => {
+        releases[1]({ runHistory: OFF });
+        releases[0]({});
+      });
+      expect(result.current).toBe(false);
+    });
+
+    it('unsubscribes on unmount', async () => {
+      const { source, unsubscribe } = makePushSource();
+      const { unmount } = await render(source);
+      await flush();
+      await unmount();
+      expect(unsubscribe).toHaveBeenCalledTimes(1);
+    });
+
+    it('keeps the pushed value when the app becomes active', async () => {
+      const { source, state, push } = makePushSource();
+      const { result } = await render(source);
+      await flush();
+      state.activated = { runHistory: OFF };
+      await act(async () => push());
+      await act(async () => appStateHandler('active'));
+      await flush();
+      expect(result.current).toBe(false);
+    });
+  });
+
   it('fetches again when the app becomes active', async () => {
     const { source } = makeSource({});
     await render(source);

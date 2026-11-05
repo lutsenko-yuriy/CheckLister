@@ -13,6 +13,8 @@ export interface KillSwitchSource {
   loadActivated(): Promise<RawSwitchValues>;
   /** Resolves true when new values were activated; never rejects. */
   fetchAndActivate(): Promise<boolean>;
+  /** Sources that push new values (scenario builds); returns the unsubscribe. */
+  subscribe?(listener: () => void): () => void;
 }
 
 const ids = Object.keys(KILL_SWITCHES) as KillSwitchId[];
