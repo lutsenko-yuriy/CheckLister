@@ -136,6 +136,20 @@ exit {result}'''
         module.check_ios((firebase / 'GoogleService-Info.plist').read_bytes())
         module.check_android((firebase / 'google-services.json').read_bytes())
 
+    def test_dummy_api_key_is_valid_for_firebase_but_not_for_secret_scanning(self):
+        # Firebase aborts the launch unless the key is 39 chars of base64url starting with
+        # "A" (FIRInstallations validateAPIKey); GitHub flags any "AIza" + 35 chars.
+        import plistlib
+        import re
+        firebase = ROOT / 'scripts/scenarios/firebase'
+        plist = plistlib.loads((firebase / 'GoogleService-Info.plist').read_bytes())
+        keys = [plist['API_KEY']]
+        keys += re.findall(r'"current_key":\s*"([^"]+)"', (firebase / 'google-services.json').read_text())
+        self.assertEqual(len(keys), 2)
+        for key in keys:
+            self.assertRegex(key, r'^A[A-Za-z0-9_-]{38}$')
+            self.assertFalse(key.startswith('AIza'))
+
 
 if __name__ == '__main__':
     unittest.main()
