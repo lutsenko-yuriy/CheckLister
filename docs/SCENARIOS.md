@@ -257,12 +257,14 @@ Older source comments describe the gesture as disabled; the real-target test
 intentionally asserts the observed dialog, Cancel, and continued interactivity.
 Revalidate this behavior when upgrading native navigation dependencies.
 
-**Remote kill-switches (CheL-128).** The suite (local and CI Android) talks to the
-real Firebase project. If the `kill_switch_run_history` Remote Config parameter is
-switched off for builds at or above its `min_version`, the Run history entry points
-disappear and `run-history.yaml` fails. Keep it on (`enabled: true`) while scenarios
-run. Release builds can't reach the debug screen, so switch off-states and overrides
-are covered by Jest only.
+**Kill-switches (CheL-128, CheL-147).** A scenario build replaces Remote Config with an
+in-memory stub, so the suite never reads the production Firebase project. Flows set a
+switch with `checklister://scenarios/kill-switch?id=runHistory&enabled=false`
+(optional `&min_version=x.y.z`) and clear every value with
+`checklister://scenarios/kill-switch/reset`; a malformed link shows an "Unknown scenario
+command" alert and changes nothing. Values live in memory only, so each launch starts with
+every switch on. On Android the `scenarios` link host exists in scenario builds only; a
+normal build treats these links as unknown routes. See `kill-switch-run-history-off.yaml`.
 
 **Analytics consent (CheL-126).** Every flow reaches the home screen through
 `helpers/answer-analytics-consent.yaml`, which taps "Don't allow" when the

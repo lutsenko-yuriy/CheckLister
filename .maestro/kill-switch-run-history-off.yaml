@@ -4,13 +4,53 @@ tags:
   - ios
   - android
 ---
-# CheL-147 WU0 stub: needs a scenario build (checklister://scenarios/... links).
-- runFlow: helpers/answer-analytics-consent.yaml
-# TODO: create a checklist and complete one run (helpers/create-checklist.yaml) so history has an entry
-# TODO: go back to Home; open checklister://scenarios/kill-switch?id=runHistory&enabled=false
-# TODO: extendedWaitUntil home-run-history-row is not visible (default-on state can show briefly)
-# TODO: open the checklist; the header Run history button is not visible
-# TODO: open checklister://scenarios/kill-switch?id=runHistory&enabled=true; the header button is visible again
-# TODO: go back to Home; home-run-history-row is visible
-# TODO: open Run history; the completed run is still listed
-# TODO: open checklister://scenarios/kill-switch/reset and delete the checklist (helpers/delete-checklist.yaml)
+# CheL-147: needs a scenario build (checklister://scenarios/... links).
+- runFlow: helpers/create-checklist.yaml
+- tapOn: Start run
+- tapOn: .*Scenario first.*
+- tapOn: .*Scenario second.*
+- tapOn: Complete the checklist
+- assertVisible: Run history
+- tapOn: Back
+- assertVisible:
+    id: home-run-history-row
+- openLink: 'checklister://scenarios/kill-switch?id=runHistory&enabled=false'
+- tapOn:
+    text: Open
+    optional: true
+# The default-on state can show for a moment before the pushed value lands.
+- extendedWaitUntil:
+    notVisible:
+      id: home-run-history-row
+    timeout: 10000
+- scrollUntilVisible:
+    element:
+      text: ${output.title}.*
+    direction: DOWN
+- tapOn: ${output.title}.*
+- assertVisible: Start run
+- assertNotVisible: Run history
+- openLink: 'checklister://scenarios/kill-switch?id=runHistory&enabled=true'
+- tapOn:
+    text: Open
+    optional: true
+- extendedWaitUntil:
+    visible: Run history
+    timeout: 10000
+- tapOn: Back
+- assertVisible:
+    id: home-run-history-row
+- tapOn: Run history
+- assertVisible: ${output.title}
+- tapOn: Back
+- scrollUntilVisible:
+    element:
+      text: ${output.title}.*
+    direction: DOWN
+- tapOn: ${output.title}.*
+- openLink: 'checklister://scenarios/kill-switch/reset'
+- tapOn:
+    text: Open
+    optional: true
+- assertVisible: Run history
+- runFlow: helpers/delete-checklist.yaml
