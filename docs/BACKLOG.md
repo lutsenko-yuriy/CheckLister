@@ -17,4 +17,3 @@ _(nothing in progress)_
 ## Unscheduled
 
 - [CheL-124: `build/` gitignore rule hides skills/build/implement](https://github.com/lutsenko-yuriy/CheckLister/issues/124)
-- [CheL-125: Run notes and checkup Python tests in CI](https://github.com/lutsenko-yuriy/CheckLister/issues/125)
