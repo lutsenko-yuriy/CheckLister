@@ -14,6 +14,11 @@ import { useI18n } from '@checklister/i18n';
 import { useExternalLinkQueue } from './useExternalLinkQueue';
 import { RootStackParamList } from './types';
 
+// Scenario builds only (CheL-147); folded away, require() included, everywhere else.
+const handleScenarioLink: ((url: string) => boolean) | null = __SCENARIO_BUILD__
+  ? require('../scenarios/handleScenarioLink').handleScenarioLink
+  : null;
+
 function waitForNextFrame(): Promise<void> {
   return new Promise(resolve => requestAnimationFrame(() => resolve()));
 }
@@ -156,6 +161,12 @@ export function ExternalLinkCoordinator({
 
   const handleUrl = useCallback(
     async (url: string) => {
+      // Before the run/select path: a scenario link never touches a run or a
+      // pending selection, and logs no analytics event.
+      if (handleScenarioLink?.(url)) {
+        return;
+      }
+
       const kind = parseExternalLinkKind(url);
 
       if (kind === 'run') {
