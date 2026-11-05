@@ -33,6 +33,8 @@ except ImportError:  # Python < 3.11
     tomllib = None
 
 ROOT = Path(__file__).resolve().parents[2]
+REMINDER = ("Demo mode is ON: follow skills/shared/demo-mode.md when you mention an issue, "
+            "comment or PR link.")
 COMMANDS = ("on", "off", "status", "session-start")
 
 
@@ -110,6 +112,16 @@ def cmd_off(path: Path, out) -> int:
     return 0
 
 
+def cmd_session_start(path: Path, out) -> int:
+    if is_on(load_state(path)):
+        json.dump({
+            "systemMessage": "Demo mode is on (`demo.py off` to stop).",
+            "hookSpecificOutput": {"hookEventName": "SessionStart", "additionalContext": REMINDER},
+        }, out)
+        out.write("\n")
+    return 0
+
+
 def main(argv=None, root: Path = ROOT, out=None, err=None) -> int:
     argv = sys.argv[1:] if argv is None else argv
     out = out or sys.stdout
@@ -117,9 +129,9 @@ def main(argv=None, root: Path = ROOT, out=None, err=None) -> int:
     if len(argv) != 1 or argv[0] not in COMMANDS:
         err.write("usage: demo.py %s\n" % " | ".join(COMMANDS))
         return 2
+    command = argv[0]
     try:
         path = state_path(root)
-        command = argv[0]
         if command == "on":
             return cmd_on(path, root, out, err)
         if command == "off":
@@ -127,8 +139,10 @@ def main(argv=None, root: Path = ROOT, out=None, err=None) -> int:
         if command == "status":
             out.write("demo: %s\n" % ("on" if is_on(load_state(path)) else "off"))
             return 0
-        return 0  # session-start: added in the next cycle
+        return cmd_session_start(path, out)
     except SetupError as e:
+        if command == "session-start":
+            return 0  # a hook must never fail the session
         err.write("error: %s\n" % e)
         return 2
 

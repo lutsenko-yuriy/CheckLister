@@ -131,6 +131,37 @@ class SwitchTests(DemoTestCase):
         self.assertEqual(["demo.json"], os.listdir(self.state.parent))
 
 
+class SessionStartTests(DemoTestCase):
+    def test_silent_when_off_or_absent(self):
+        self.assertEqual((0, "", ""), run(["session-start"], self.root))
+        run(["off"], self.root)
+        self.assertEqual((0, "", ""), run(["session-start"], self.root))
+
+    def test_silent_when_state_malformed(self):
+        self.state.parent.mkdir(parents=True)
+        self.state.write_text("{not json", encoding="utf-8")
+        self.assertEqual((0, "", ""), run(["session-start"], self.root))
+
+    def test_silent_and_exit_0_outside_a_git_repo(self):
+        with tempfile.TemporaryDirectory() as plain:
+            self.assertEqual((0, "", ""), run(["session-start"], Path(plain)))
+
+    def test_on_emits_hook_json_for_user_and_model(self):
+        run_on(self.root)
+        code, out, err = run(["session-start"], self.root)
+        self.assertEqual((0, ""), (code, err))
+        payload = json.loads(out)
+        self.assertIn("Demo mode", payload["systemMessage"])
+        hook = payload["hookSpecificOutput"]
+        self.assertEqual("SessionStart", hook["hookEventName"])
+        self.assertIn("skills/shared/demo-mode.md", hook["additionalContext"])
+
+    def test_output_is_a_single_json_document(self):
+        run_on(self.root)
+        out = run(["session-start"], self.root)[1]
+        self.assertEqual(1, len(out.splitlines()))
+
+
 class CliTests(DemoTestCase):
     def test_unknown_command_exits_2(self):
         self.assertEqual(2, run(["bogus"], self.root)[0])
