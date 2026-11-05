@@ -27,7 +27,10 @@ EVENTS = ("SessionStart", "UserPromptExpansion", "PreToolUse")
 COMMAND_RE = re.compile(r'^"\$\{CLAUDE_PROJECT_DIR\}/scripts/onboard/gate\.sh" (\w+)$')
 
 
-def gate_rows():
+DEMO_COMMAND = '"${CLAUDE_PROJECT_DIR}/scripts/demo/demo.py" session-start'
+
+
+def all_rows():
     hooks = json.loads(SETTINGS.read_text(encoding="utf-8"))["hooks"]
     rows = []
     for event, groups in hooks.items():
@@ -35,6 +38,10 @@ def gate_rows():
             for hook in group["hooks"]:
                 rows.append((event, group, hook))
     return rows
+
+
+def gate_rows():
+    return [r for r in all_rows() if "scripts/onboard/gate.sh" in r[2]["command"]]
 
 
 class SettingsWiringTests(unittest.TestCase):
@@ -61,6 +68,15 @@ class SettingsWiringTests(unittest.TestCase):
                 self.assertEqual("startup", group.get("matcher"))
             else:
                 self.assertIn(group.get("matcher", ""), ("", "*"), event)
+
+    def test_non_gate_rows_are_only_the_demo_session_start_hook(self):
+        others = [r for r in all_rows() if r not in gate_rows()]
+        self.assertEqual(1, len(others))
+        event, group, hook = others[0]
+        self.assertEqual("SessionStart", event)
+        self.assertEqual("startup|resume|clear|compact", group.get("matcher"))
+        self.assertEqual("python3 " + DEMO_COMMAND, hook["command"])
+        self.assertGreaterEqual(hook["timeout"], 4)
 
     def test_gate_sh_is_tracked_executable(self):
         out = subprocess.run(["git", "-C", str(ROOT), "ls-files", "-s", "scripts/onboard/gate.sh"],
