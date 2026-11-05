@@ -33,6 +33,7 @@ Agents read this file to know which languages, tools and platforms the project u
 ## Tooling
 
 - **Build / package manager:** npm (workspaces); Gradle 9.4.1 for Android; CocoaPods via Bundler for iOS; fastlane for TestFlight releases
+- **Demo mode QR codes (optional):** `qrencode` (`brew install qrencode` / `apt-get install qrencode`); without it demo mode prints links but no QR codes
 - **Test runner:** Jest with `@testing-library/react-native`; Maestro for scenarios; `unittest` for Python tooling
 - **Linter / formatter:** ESLint (`@react-native/eslint-config`) and Prettier; `tsc --noEmit` for typechecking; actionlint for workflows
 - **CI:** GitHub Actions (`pr-validation.yml`, `ios-build.yml`, `tests.yml`, `scenarios-android.yml`, `release-ios.yml`)

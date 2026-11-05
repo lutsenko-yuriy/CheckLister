@@ -43,3 +43,12 @@ lmstudio_base = "http://localhost:1234/v1"
 
 [core]
 model_tiers_path = "docs/MODEL_TIERS.md"
+
+[demo]
+# Full-match regexes for the links demo mode counts: issue descriptions, issue comments and PRs of this repo.
+# `demo.py on` copies them into the state file; PR review comments, /files and other repositories do not count.
+links = [
+  '^https://github\.com/lutsenko-yuriy/CheckLister/issues/\d+$',
+  '^https://github\.com/lutsenko-yuriy/CheckLister/issues/\d+#issuecomment-\d+$',
+  '^https://github\.com/lutsenko-yuriy/CheckLister/pull/\d+$',
+]
