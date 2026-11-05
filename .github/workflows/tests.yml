@@ -83,6 +83,6 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
       - name: Install qrencode
-        run: sudo apt-get install -y qrencode
+        run: sudo apt-get update && sudo apt-get install -y qrencode
       - name: Run demo tests
         run: python -W error -m unittest discover -s scripts/demo/tests -t .

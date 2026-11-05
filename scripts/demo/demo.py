@@ -43,8 +43,11 @@ class SetupError(Exception):
 
 
 def state_path(root: Path) -> Path:
-    proc = subprocess.run(["git", "-C", str(root), "rev-parse", "--git-common-dir"],
-                          capture_output=True, text=True)
+    try:
+        proc = subprocess.run(["git", "-C", str(root), "rev-parse", "--git-common-dir"],
+                              capture_output=True, text=True)
+    except OSError as e:
+        raise SetupError("cannot run git: %s" % e)
     if proc.returncode != 0:
         raise SetupError("demo mode needs a git repository (git rev-parse failed in %s)" % root)
     return (root / proc.stdout.strip()).resolve() / "yab" / "demo.json"
@@ -84,6 +87,10 @@ def configured_links(root: Path) -> list:
             links = tomllib.load(f).get("demo", {}).get("links", [])
     except OSError:
         return []
+    except ValueError as e:
+        raise SetupError("skill_router.toml is not valid TOML: %s" % e)
+    if not isinstance(links, list):
+        raise SetupError("[demo].links in skill_router.toml must be a list of regexes")
     return [str(x) for x in links]
 
 

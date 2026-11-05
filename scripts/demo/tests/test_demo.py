@@ -115,6 +115,30 @@ class SwitchTests(DemoTestCase):
         self.assertIn("3.11", err)
         self.assertEqual("demo: off\n", run(["status"], self.root)[1])
 
+    def _on_with_toml(self, fake):
+        with mock.patch.object(demo, "tomllib", fake):
+            (self.root / "skill_router.toml").write_text("x", encoding="utf-8")
+            return run(["on"], self.root, {"YAB_QRENCODE": "true"})
+
+    def test_on_with_malformed_toml_exits_2_and_stays_off(self):
+        class Broken:
+            @staticmethod
+            def load(_f):
+                raise ValueError("bad toml")
+        code, _, err = self._on_with_toml(Broken)
+        self.assertEqual(2, code)
+        self.assertIn("skill_router.toml", err)
+        self.assertEqual("demo: off\n", run(["status"], self.root)[1])
+
+    def test_on_rejects_links_that_are_not_a_list(self):
+        class Str:
+            @staticmethod
+            def load(_f):
+                return {"demo": {"links": "abc"}}
+        code, _, err = self._on_with_toml(Str)
+        self.assertEqual(2, code)
+        self.assertIn("links", err)
+
     def test_off_and_status_never_need_tomllib(self):
         with mock.patch.object(demo, "tomllib", None):
             self.assertEqual(0, run(["off"], self.root)[0])
@@ -145,6 +169,9 @@ class SessionStartTests(DemoTestCase):
     def test_silent_and_exit_0_outside_a_git_repo(self):
         with tempfile.TemporaryDirectory() as plain:
             self.assertEqual((0, "", ""), run(["session-start"], Path(plain)))
+
+    def test_silent_and_exit_0_when_git_is_missing(self):
+        self.assertEqual((0, "", ""), run(["session-start"], self.root, {"PATH": "/nonexistent"}))
 
     def test_on_emits_hook_json_for_user_and_model(self):
         run_on(self.root)
