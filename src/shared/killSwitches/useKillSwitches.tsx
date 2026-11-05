@@ -9,18 +9,16 @@ import React, {
 } from 'react';
 import { AppState } from 'react-native';
 import type {
-  KillSwitchSource,
-  RawSwitchValues,
-} from './RemoteConfigKillSwitchSource';
-import type {
   KillSwitchOverrides,
   KillSwitchOverrideStore,
 } from './killSwitchOverrideStore';
 import {
   KILL_SWITCHES,
   KillSwitchId,
+  KillSwitchSource,
   KillSwitchSourceKind,
   parseRemoteSwitch,
+  RawSwitchValues,
   resolveKillSwitch,
 } from './killSwitches';
 

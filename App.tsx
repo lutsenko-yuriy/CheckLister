@@ -31,10 +31,8 @@ import {
   useAnalyticsConsent,
 } from './src/shared/analytics/useAnalyticsConsent';
 import { APP_VERSION } from './src/shared/killSwitches/appVersion';
-import {
-  KillSwitchSource,
-  RemoteConfigKillSwitchSource,
-} from './src/shared/killSwitches/RemoteConfigKillSwitchSource';
+import { KillSwitchSource } from './src/shared/killSwitches/killSwitches';
+import { RemoteConfigKillSwitchSource } from './src/shared/killSwitches/RemoteConfigKillSwitchSource';
 import { AsyncStorageKillSwitchOverrideStore } from './src/shared/killSwitches/killSwitchOverrideStore';
 import { KillSwitchProvider } from './src/shared/killSwitches/useKillSwitches';
 import { AnalyticsConsentDialog } from './src/shared/ui/AnalyticsConsentDialog';

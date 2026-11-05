@@ -1,8 +1,8 @@
 import type {
+  KillSwitchId,
   KillSwitchSource,
   RawSwitchValues,
-} from '../shared/killSwitches/RemoteConfigKillSwitchSource';
-import type { KillSwitchId } from '../shared/killSwitches/killSwitches';
+} from '../shared/killSwitches/killSwitches';
 
 type Listener = () => void;
 

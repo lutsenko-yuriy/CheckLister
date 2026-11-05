@@ -1,10 +1,7 @@
 import React from 'react';
 import { AppState } from 'react-native';
 import { act, renderHook } from '@testing-library/react-native';
-import {
-  KillSwitchSource,
-  RawSwitchValues,
-} from './RemoteConfigKillSwitchSource';
+import { KillSwitchSource, RawSwitchValues } from './killSwitches';
 import {
   KillSwitchProvider,
   useKillSwitch,
