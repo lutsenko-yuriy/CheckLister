@@ -17,6 +17,7 @@ A record of all versioned releases. For planned work and known issues, see @docs
 
 ### Added
 
+- [test] (PR #153) CheL-147 WU4: scenario builds record analytics events in an in-memory stub instead of sending them to Firebase, readable on a scenario-only events screen (`checklister://scenarios/analytics`, `analytics/clear`); the analytics flow now asserts that nothing is recorded without consent and that events are recorded after it. Together with WU1–WU3 the scenario suite no longer touches the production Firebase project; the shipped app is unchanged.
 - [wip] (PR #152) CheL-147 WU3: scenario builds read kill-switch values from an in-memory stub, set by flows through `checklister://scenarios/kill-switch...` links (off included, with reset and an alert for malformed links); normal builds treat these links as unknown and ship none of the code. The Run history off-state and malformed-link flows now run on iOS and Android.
 - [wip] (PR #151) CheL-147 WU2: scenario build plumbing — `npm run scenarios:build:{ios,android}` build with the scenario flag and a committed dummy Firebase config (real one restored on exit), `BuildConfig.SCENARIO_BUILD`, runners refuse a non-scenario install, and the Android scenarios workflow no longer needs `GOOGLE_SERVICES_JSON_B64`.
 - [wip] (PR #150) CheL-147 WU1: build-time scenario flag (`CHECKLISTER_SCENARIO_BUILD`) with a bundle marker, plus guards: the TestFlight lane refuses the flag and checks the archive, and PR validation proves normal bundles are free of scenario code.
