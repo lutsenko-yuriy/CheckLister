@@ -140,7 +140,8 @@ def qr(url: str):
 
 
 def counts(state: dict, url: str) -> bool:
-    for pattern in state.get("links") or []:
+    links = state.get("links")
+    for pattern in links if isinstance(links, list) else []:
         try:
             if re.search(pattern, url):
                 return True
@@ -151,7 +152,8 @@ def counts(state: dict, url: str) -> bool:
 
 def render(urls, state: dict, key: str):
     """Markdown for urls, plus the state with newly QR-coded links recorded under key."""
-    shown = {k: list(v) for k, v in (state.get("shown") or {}).items()}
+    old = state.get("shown")
+    shown = {k: list(v) for k, v in old.items() if isinstance(v, list)} if isinstance(old, dict) else {}
     parts = []
     for url in urls:
         parts.append(url + "\n")

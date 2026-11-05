@@ -332,6 +332,15 @@ class RenderTests(RenderTestCase):
         run(["render", PR], self.root, self.env)
         self.assertEqual({"detached": [PR]}, self.shown())
 
+    def test_hand_edited_state_of_the_wrong_shape_does_not_crash(self):
+        for extra in ({"shown": 5, "links": []}, {"shown": {"CheL-1/WU1": 7}, "links": []},
+                      {"links": "abc"}):
+            with self.subTest(extra=extra):
+                self.turn_on(**extra)
+                code, out, _ = self.render(PR)
+                self.assertEqual(0, code)
+                self.assertEqual(PR + "\n", out)
+
     def test_render_needs_at_least_one_url(self):
         self.turn_on()
         self.assertEqual(2, run(["render"], self.root, self.env)[0])
