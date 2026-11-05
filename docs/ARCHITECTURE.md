@@ -69,9 +69,11 @@ src/
 │   └── settings/
 │       └── ui/
 │           └── SettingsScreen.tsx  # Analytics switch bound to useAnalyticsConsent (route Settings); UI only, no domain/data
+├── scenarios/                      # Scenario-build-only (CheL-147): kill-switch + analytics stubs, `checklister://scenarios/...` links, ScenarioEvents screen; absent from normal bundles
+├── types/                          # Ambient declarations: the `__SCENARIO_BUILD__` build flag (CheL-147)
 └── shared/
     ├── analytics/
-    │   ├── AnalyticsService.ts     # AnalyticsService interface, NoopAnalyticsService (test double), `analytics` singleton (consent-gated, Firebase-backed)
+    │   ├── AnalyticsService.ts     # AnalyticsService interface, NoopAnalyticsService (test double), `analytics` singleton (consent-gated; Firebase-backed, or the recording stub in scenario builds)
     │   ├── analyticsConsent.ts     # AnalyticsConsentChoice + parseStoredConsent(): malformed/missing → `unknown`
     │   ├── analyticsConsentStore.ts # AnalyticsConsentStore + AsyncStorage impl (`analyticsConsent` key, choice + decidedAt); a read error → `unknown`
     │   ├── useAnalyticsConsent.tsx # AnalyticsConsentProvider (render gate: nothing mounts until the stored choice is read) + useAnalyticsConsent() { status, allow, deny, setChoice }; allow/deny are the dialog's one-shot answer, setChoice is the Settings switch (applies at once, saves in order, last tap wins, save errors swallowed)
@@ -428,6 +430,37 @@ Release bundles (checked by grepping a Release bundle for `debug-screen` and
 `open-debug`). The screen uses English literals, not `t()`: it never ships, so it is
 exempt from localisation. Maestro installs Release, so the off state and overrides
 are covered by Jest only.
+
+## Scenario build (CheL-147)
+
+The Maestro scenarios run against a **scenario build**: a Release build whose
+Remote Config (kill-switches) and Firebase Analytics are stubs, so no run touches
+the production Firebase project. A build-time flag `__SCENARIO_BUILD__` (env
+`CHECKLISTER_SCENARIO_BUILD=1`, replaced by a Babel plugin so Metro strips every
+guarded branch) selects `src/scenarios/*` in place of the real sources; the same
+mechanism already keeps `Debug` out of Release. Scenarios drive the stubs through
+`checklister://scenarios/...` links and read recorded analytics events on a
+scenario-only `ScenarioEvents` screen. Three layers keep this out of shipped
+builds: the stripped flag, the existing unknown-link handling in normal builds,
+and a Fastlane/CI guard that fails if the flag or the `scenarios` marker reaches
+the release bundle.
+
+Seams, each one `__SCENARIO_BUILD__ ? require(stub) : real`:
+
+- `App.tsx` picks the `KillSwitchSource`: `ScenarioKillSwitchSource` (in memory,
+  pushed to through `subscribe`) instead of `RemoteConfigKillSwitchSource`.
+- `AnalyticsService.ts` picks the delegate behind `ConsentGatedAnalyticsService`:
+  `RecordingAnalyticsService` instead of `FirebaseAnalyticsService`. The gate is
+  unchanged, so consent behaves exactly as in production.
+- `ExternalLinkCoordinator` hands `checklister://scenarios/...` links to
+  `handleScenarioLink` before the run/select path, so a scenario link never touches
+  a run or a pending selection and logs no event. Commands: `kill-switch`,
+  `kill-switch/reset`, `analytics`, `analytics/clear`.
+- `RootNavigator` registers the `ScenarioEvents` route.
+
+`src/types/scenarioBuild.d.ts` declares the flag; `src/scenarios/` holds everything
+else. Build plumbing (dummy Firebase configs, `scripts/scenarios-build-*.sh`) is in
+`docs/SCENARIOS.md`; the release guard is in `docs/VERSIONING.md`.
 
 ## Local simulator scenarios
 

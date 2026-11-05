@@ -4,8 +4,8 @@ tags:
   - ios
   - android
 ---
-# CheL-127. Never switches analytics on: test devices must not send data to
-# Firebase. Toggling, persistence and events are covered in Jest only.
+# CheL-127. Never switches analytics on; toggling it and the events it records are
+# covered by analytics-events.yaml (scenario build) and Jest.
 - runFlow: helpers/answer-analytics-consent.yaml
 - assertVisible:
     id: open-settings

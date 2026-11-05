@@ -8,6 +8,8 @@ import {
 export type ScenarioCommand =
   | { type: 'kill-switch'; id: KillSwitchId; raw: string }
   | { type: 'reset' }
+  | { type: 'analytics' }
+  | { type: 'analytics-clear' }
   | { type: 'unknown' };
 
 const UNKNOWN: ScenarioCommand = { type: 'unknown' };
@@ -26,6 +28,12 @@ export function parseScenarioLink(url: string): ScenarioCommand | null {
   const path = parsed.pathname.replace(/^\/|\/$/g, '');
   if (path === 'kill-switch/reset') {
     return { type: 'reset' };
+  }
+  if (path === 'analytics') {
+    return { type: 'analytics' };
+  }
+  if (path === 'analytics/clear') {
+    return { type: 'analytics-clear' };
   }
   if (path !== 'kill-switch') {
     return UNKNOWN;

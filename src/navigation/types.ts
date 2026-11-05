@@ -9,4 +9,6 @@ export type RootStackParamList = {
   Settings: undefined;
   // Registered under __DEV__ only (CheL-128).
   Debug: undefined;
+  // Registered in scenario builds only (CheL-147).
+  ScenarioEvents: undefined;
 };

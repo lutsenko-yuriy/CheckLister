@@ -55,4 +55,22 @@ describe('parseScenarioLink', () => {
   ])('maps %s to an unknown command', url => {
     expect(parseScenarioLink(url)).toEqual({ type: 'unknown' });
   });
+
+  it('parses the analytics commands', () => {
+    expect(parseScenarioLink('checklister://scenarios/analytics')).toEqual({
+      type: 'analytics',
+    });
+    expect(parseScenarioLink('checklister://scenarios/analytics/')).toEqual({
+      type: 'analytics',
+    });
+    expect(
+      parseScenarioLink('checklister://scenarios/analytics/clear'),
+    ).toEqual({ type: 'analytics-clear' });
+  });
+
+  it('maps an unknown analytics sub-path to an unknown command', () => {
+    expect(
+      parseScenarioLink('checklister://scenarios/analytics/other'),
+    ).toEqual({ type: 'unknown' });
+  });
 });

@@ -6,7 +6,8 @@ All events are sent via the analytics service abstraction
 collected. CheL-126 swaps in a Firebase-backed implementation behind the same
 `AnalyticsService` interface, collecting only after the user allows analytics;
 the catalogue below must be kept up to date as events are added, regardless of
-which implementation is active.
+which implementation is active. Scenario builds (CheL-147) record events through
+a stub instead of Firebase, so any event listed here can be asserted in a scenario.
 
 ---
 

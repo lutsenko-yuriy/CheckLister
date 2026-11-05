@@ -15,7 +15,9 @@ import { useExternalLinkQueue } from './useExternalLinkQueue';
 import { RootStackParamList } from './types';
 
 // Scenario builds only (CheL-147); folded away, require() included, everywhere else.
-const handleScenarioLink: ((url: string) => boolean) | null = __SCENARIO_BUILD__
+const handleScenarioLink:
+  | ((url: string, openEvents: () => void) => boolean)
+  | null = __SCENARIO_BUILD__
   ? require('../scenarios/handleScenarioLink').handleScenarioLink
   : null;
 
@@ -163,7 +165,11 @@ export function ExternalLinkCoordinator({
     async (url: string) => {
       // Before the run/select path: a scenario link never touches a run or a
       // pending selection, and logs no analytics event.
-      if (handleScenarioLink?.(url)) {
+      if (
+        handleScenarioLink?.(url, () =>
+          navigationRef.navigate('ScenarioEvents'),
+        )
+      ) {
         return;
       }
 
@@ -187,7 +193,7 @@ export function ExternalLinkCoordinator({
       });
       Alert.alert(invalidCallbackMessage);
     },
-    [handleRunUrl, handleSelectUrl, invalidCallbackMessage],
+    [handleRunUrl, handleSelectUrl, invalidCallbackMessage, navigationRef],
   );
 
   useEffect(() => {

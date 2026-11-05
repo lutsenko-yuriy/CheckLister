@@ -109,6 +109,15 @@ export function RootNavigator() {
           options={{ title: 'Debug', ...flatBackButtonOptions }}
         />
       )}
+      {__SCENARIO_BUILD__ && (
+        <Stack.Screen
+          name="ScenarioEvents"
+          component={
+            require('../scenarios/ScenarioEventsScreen').ScenarioEventsScreen
+          }
+          options={{ title: 'Scenario events', ...flatBackButtonOptions }}
+        />
+      )}
       <Stack.Screen
         name="ChecklistSelect"
         component={ChecklistSelectScreen}
