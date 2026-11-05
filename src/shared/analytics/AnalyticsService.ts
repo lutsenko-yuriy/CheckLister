@@ -1,4 +1,7 @@
-import { ConsentGatedAnalyticsService } from './ConsentGatedAnalyticsService';
+import {
+  CollectionAnalyticsService,
+  ConsentGatedAnalyticsService,
+} from './ConsentGatedAnalyticsService';
 import { FirebaseAnalyticsService } from './FirebaseAnalyticsService';
 
 export type AnalyticsProperties = Record<
@@ -21,9 +24,14 @@ export class NoopAnalyticsService implements AnalyticsService {
   logScreenView(_screenName: string, _properties?: AnalyticsProperties): void {}
 }
 
+// Scenario builds record instead of sending (CheL-147); folded away, require() included,
+// everywhere else.
+const delegate: CollectionAnalyticsService = __SCENARIO_BUILD__
+  ? require('../../scenarios/RecordingAnalyticsService')
+      .recordingAnalyticsService
+  : new FirebaseAnalyticsService();
+
 // Firebase-backed, and silent until the user allows analytics (CheL-126).
-export const analyticsConsentGate = new ConsentGatedAnalyticsService(
-  new FirebaseAnalyticsService(),
-);
+export const analyticsConsentGate = new ConsentGatedAnalyticsService(delegate);
 
 export const analytics: AnalyticsService = analyticsConsentGate;
