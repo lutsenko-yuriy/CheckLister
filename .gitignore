@@ -44,6 +44,8 @@ DerivedData
 # Android/IntelliJ
 #
 build/
+# skills/build/ is source, not build output (CheL-124)
+!/skills/build/
 .idea
 .gradle
 local.properties
