@@ -70,3 +70,19 @@ jobs:
       # The tests import `checkup.due`, so the top level must be scripts/ (`-t .` fails).
       - name: Run checkup tests
         run: python -W error -m unittest discover -s scripts/checkup/tests -t scripts
+
+  demo:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.9", "3.12"]
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install qrencode
+        run: sudo apt-get update && sudo apt-get install -y qrencode
+      - name: Run demo tests
+        run: python -W error -m unittest discover -s scripts/demo/tests -t .

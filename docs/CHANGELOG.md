@@ -17,6 +17,7 @@ A record of all versioned releases. For planned work and known issues, see @docs
 
 ### Added
 
+- [wip] (PR #159) CheL-158 WU1: demo mode switch for agent sessions (`scripts/demo/demo.py on | off | status`), stored in the git common dir and re-announced by a `SessionStart` hook after startup, resume, clear and compaction; CI runs its tests on Python 3.9 and 3.12. Link rendering and QR codes follow in WU2; the app is unchanged.
 - [meta] (PR #156) CheL-124: `.gitignore` no longer hides `skills/build/`; the `implement` skill is now tracked, with its `N/A-XX` placeholders, invalid `gh` command and missing git-safety include fixed.
 - [ci] (PR #155) CheL-125: the notes and checkup Python tests now run in CI (`tests.yml`) on Python 3.9 and 3.12, like the onboard and skill_router suites.
 - [meta] (PR #154) CheL-130: the glossary is split into one file per domain under `docs/glossary/` (checklists, runs, external links, analytics, settings, kill-switches, scenarios); `docs/GLOSSARY.md` stays as the index and holds the aliases table. Every term and definition is unchanged. `brief`, `ship`, `checkup`, `onboard` and the shared project config point at the new layout.

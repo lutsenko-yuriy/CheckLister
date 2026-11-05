@@ -19,6 +19,7 @@ the ticket. Every domain file uses the same table: `| Term | Definition | Code s
 | [`settings.md`](glossary/settings.md) | Settings screen |
 | [`kill-switches.md`](glossary/kill-switches.md) | Kill-switch, Minimum app version, Debug screen |
 | [`scenarios.md`](glossary/scenarios.md) | Scenario build |
+| [`demo-mode.md`](glossary/demo-mode.md) | Demo mode |
 
 ## Known aliases to avoid
 

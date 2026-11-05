@@ -31,6 +31,7 @@ Full product specifications: docs/PRODUCT_SPEC.md
 | docs/workflows/POSTMORTEM.md | Post-fix root-cause investigation workflow — reconstructing when/why a shipped bug was introduced, after `TROUBLESHOOT.md` produced the fix |
 | docs/workflows/MULTI_WU.md | Multi-WU ticket appendix to `FEATURE.md` — WU-splitting guidelines, pre-implementation WU types, branch/PR-per-WU rules, WU cycle |
 | CLAUDE.local.md | Local machine settings (binary paths, MCP auth, model tier mappings) — not committed |
+| skills/shared/demo-mode.md | Demo mode rules: when it is on, how the agent shows links and QR codes in the session |
 | skills/configure/onboard/SKILL.md | First-session onboarding: project config, tech stack, code style and constraints, first model mapping, then the onboarded marker; orientation for later clones |
 | skills/configure/calibrate/SKILL.md | Re-map models to tiers when the available models change (the first mapping happens in `/onboard`) |
 | skills/configure/migrate-provider/SKILL.md | Switch a tool role (pm, vcs) to a different provider without changing skill files |
@@ -97,10 +98,15 @@ At the beginning of every new session, before doing anything else:
 1. Verify every file flagged as a "required project-bootstrap artifact" in this document exists (currently: `docs/CODE_STYLE.md`, `docs/CONSTRAINTS.md`). If any is missing, flag it to the user before continuing rather than silently working around the gap.
 2. Read `[providers].pm` in `skill_router.toml`: it is the only PM tool for this repo. With `github`, ticket `CheL-N` is GitHub issue #N (use `gh`); ignore any other PM MCP tools (e.g. Linear) in the session. With an MCP-backed PM tool, ensure it is authenticated; if its tools are unavailable, run `/mcp` to trigger the OAuth flow — see `CLAUDE.local.md` for setup notes.
 3. Check `CLAUDE.local.md` for an `## Active communication style` section and silently load that style (see `styles/`). If absent, each skill will use its own `output_style` — no global default.
+3a. Run `python3 scripts/demo/demo.py status`. If it prints `demo: on`, tell the user demo mode is still on and follow `skills/shared/demo-mode.md`.
 4. Invoke the `summarize` skill to present the current backlog.
 5. Run `scripts/checkup/due.py --format=session`. If it reports a tier as due, recommend running `/checkup` before picking up a new ticket, alongside the backlog summary.
 6. The skill will summarise what has been done and what is remaining, then ask *"What goes into the next release? Pick an existing ticket or describe something new."*
 7. Wait for the user's answer before proceeding. If the user wants to describe something new, invoke the `brief` skill before any planning begins.
+
+## Demo mode
+
+When the user says "demo on" or "demo off", run `python3 scripts/demo/demo.py on` / `off`. The switch persists across sessions until the user flips it, and a `SessionStart` hook re-announces it after a restart, resume, clear or compaction. Rules: `skills/shared/demo-mode.md`.
 
 ## Workflow
 
