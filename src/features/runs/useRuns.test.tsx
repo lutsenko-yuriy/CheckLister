@@ -623,6 +623,21 @@ describe('useRuns photos', () => {
     });
   });
 
+  describe('photoUri', () => {
+    it('resolves an attachment through the store', async () => {
+      const { result } = await setup();
+
+      expect(
+        result.current.photoUri({
+          id: 'a',
+          kind: 'photo',
+          path: 'attachments/r/a.jpg',
+          addedAt: '2026-11-07T10:00:00.000Z',
+        }),
+      ).toBe('file:///attachments/r/a.jpg');
+    });
+  });
+
   describe('removePhoto', () => {
     it('removes an item photo from the run and the store', async () => {
       const { result, store } = await setup();

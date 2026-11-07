@@ -116,6 +116,8 @@ interface RunsContextValue extends State {
     source: PhotoSource,
   ): Promise<AttachPhotoResult>;
   removePhoto(attachmentId: string): Promise<void>;
+  /** The displayable file URI of a stored photo. */
+  photoUri(attachment: Attachment): string;
   startRun(checklist: Checklist): void;
   startExternalRun(checklist: Checklist, callbackUrl: string): void;
   toggleItem(runItemId: string): void;
@@ -332,12 +334,18 @@ export function RunsProvider({
     }
   }, []);
 
+  const photoUri = useCallback(
+    (attachment: Attachment) => storeRef.current.uriFor(attachment),
+    [],
+  );
+
   const value = useMemo(
     () => ({
       ...state,
       attachingPhoto,
       attachPhoto,
       removePhoto,
+      photoUri,
       startRun,
       startExternalRun,
       toggleItem,
@@ -349,6 +357,7 @@ export function RunsProvider({
       attachingPhoto,
       attachPhoto,
       removePhoto,
+      photoUri,
       startRun,
       startExternalRun,
       toggleItem,
