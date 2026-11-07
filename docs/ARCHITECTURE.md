@@ -488,6 +488,16 @@ denied, unavailable or failed; it never rejects. Scenario builds swap in
 run photo row and the viewer everywhere, including past runs. Unlike Run history,
 a viewer that is already open closes. Files stay on disk and in history.
 
+**Active-run UI.** `RunScreen` passes `RunItemRow` a photo control (the "+" or the
+item's thumbnail, beside the checkbox `Pressable` so it never toggles the item) and
+renders `RunPhotoRow` as the list footer, both only while `useKillSwitch('photos')`
+is on. `useAddPhoto` shows the Take photo / Choose from library sheet, calls
+`attachPhoto`, and turns `denied`, `unavailable` and `failed` into alerts (denied
+offers Open Settings) and the `photo_*` analytics events. Complete and every "+" are
+disabled while `attachingPhoto`. `PhotoViewerScreen` looks the photo up in the active
+run, asks "Remove photo?" before `removePhoto`, and leaves once (a `closingRef`
+guard) when the photo, the run or the switch goes away.
+
 **Routes.** `RunDetail { runId }` and `PhotoViewer { context, runId, attachmentId }`
 (`fullScreenModal`); params carry ids only.
 

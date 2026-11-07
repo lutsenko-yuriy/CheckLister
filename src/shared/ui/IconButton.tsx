@@ -15,6 +15,7 @@ export function IconButton({
   size = 22,
   style,
   testID,
+  disabled = false,
 }: {
   icon: string;
   onPress: () => void;
@@ -23,16 +24,19 @@ export function IconButton({
   size?: number;
   style?: StyleProp<ViewStyle>;
   testID?: string;
+  disabled?: boolean;
 }) {
   const { colors } = useTheme();
   const resolvedColor = color ?? colors.primary;
   return (
     <Pressable
       onPress={onPress}
+      disabled={disabled}
+      accessibilityState={{ disabled }}
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel}
       hitSlop={8}
-      style={[styles.touchTarget, style]}
+      style={[styles.touchTarget, disabled && styles.disabled, style]}
       testID={testID}
     >
       <Icon name={icon} size={size} color={resolvedColor} />
@@ -46,5 +50,8 @@ const styles = StyleSheet.create({
     minHeight: MIN_TOUCH_TARGET,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  disabled: {
+    opacity: 0.4,
   },
 });

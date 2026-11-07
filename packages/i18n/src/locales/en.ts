@@ -75,6 +75,29 @@ const enStrings = {
     completeFailedTitle: 'Could not complete run',
     completeFailedBody: 'This run has not been saved. Please try again.',
   },
+  photos: {
+    addTitle: 'Add photo',
+    takePhoto: 'Take photo',
+    chooseFromLibrary: 'Choose from library',
+    addToItem: 'Add photo to {{item}}',
+    addToRun: 'Add photo to this run',
+    runTitle: 'Photos',
+    open: 'Open photo',
+    close: 'Close',
+    remove: 'Remove',
+    removeTitle: 'Remove photo?',
+    removeBody: 'This cannot be undone.',
+    deniedTitle: 'Photo access is off',
+    deniedBody:
+      'CheckLister needs access to the camera to take photos. You can turn it on in Settings.',
+    openSettings: 'Open Settings',
+    unavailableTitle: 'Camera not available',
+    unavailableBody:
+      'This device has no camera CheckLister can use. You can choose a photo from the library instead.',
+    failedTitle: 'Could not add photo',
+    failedBody:
+      'Something went wrong while saving the photo. Please try again.',
+  },
   runHistory: {
     checklistTitle: '{{title}} history',
     emptyState: 'No completed runs yet.',

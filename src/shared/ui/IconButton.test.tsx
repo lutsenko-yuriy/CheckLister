@@ -53,4 +53,23 @@ describe('IconButton', () => {
     expect(merged.marginLeft).toBe(12);
     expect(merged.minWidth).toBeGreaterThanOrEqual(44);
   });
+
+  it('ignores presses and reports itself disabled when disabled', async () => {
+    const onPress = jest.fn();
+    await render(
+      <IconButton
+        icon="add"
+        accessibilityLabel="Add"
+        onPress={onPress}
+        disabled
+      />,
+    );
+
+    fireEvent.press(screen.getByLabelText('Add'));
+
+    expect(onPress).not.toHaveBeenCalled();
+    expect(screen.getByLabelText('Add').props.accessibilityState).toEqual(
+      expect.objectContaining({ disabled: true }),
+    );
+  });
 });
