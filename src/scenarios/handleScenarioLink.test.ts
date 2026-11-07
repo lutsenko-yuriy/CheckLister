@@ -2,6 +2,7 @@ import { Alert } from 'react-native';
 import { handleScenarioLink } from './handleScenarioLink';
 import { recordingAnalyticsService } from './RecordingAnalyticsService';
 import { scenarioKillSwitchSource } from './ScenarioKillSwitchSource';
+import { scenarioPhotoPicker } from './ScenarioPhotoPicker';
 
 const handle = (url: string) => handleScenarioLink(url, jest.fn());
 const OFF = '{"enabled":false,"min_version":"0.0.0"}';
@@ -72,5 +73,17 @@ describe('handleScenarioLink', () => {
 
     expect(recordingAnalyticsService.getRecords()).toEqual([]);
     expect(openEvents).not.toHaveBeenCalled();
+  });
+
+  it('sets the photo picker outcome from a photo-picker link', async () => {
+    expect(handle('checklister://scenarios/photo-picker?result=denied')).toBe(
+      true,
+    );
+    expect(await scenarioPhotoPicker.pick('camera')).toEqual({
+      type: 'denied',
+    });
+
+    handle('checklister://scenarios/photo-picker?result=picked');
+    expect((await scenarioPhotoPicker.pick('camera')).type).toBe('picked');
   });
 });

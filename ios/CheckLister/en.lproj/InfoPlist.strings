@@ -1,1 +1,3 @@
 "CFBundleDisplayName" = "CheckLister";
+"NSCameraUsageDescription" = "CheckLister uses the camera to attach photos to your checklist runs.";
+"NSPhotoLibraryUsageDescription" = "CheckLister lets you choose photos to attach to your checklist runs.";

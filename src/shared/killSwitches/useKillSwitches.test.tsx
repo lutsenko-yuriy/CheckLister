@@ -282,6 +282,13 @@ describe('kill-switch overrides (debug)', () => {
         source: 'remote',
         override: null,
       },
+      {
+        id: 'photos',
+        label: 'Photos',
+        enabled: true,
+        source: 'default',
+        override: null,
+      },
     ]);
   });
 

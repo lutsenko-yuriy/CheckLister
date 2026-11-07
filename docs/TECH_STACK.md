@@ -23,6 +23,7 @@ Agents read this file to know which languages, tools and platforms the project u
 - [AsyncStorage](https://react-native-async-storage.github.io/async-storage/) for local persistence
 - [Reanimated](https://docs.swmansion.com/react-native-reanimated/) 4, [Gesture Handler](https://docs.swmansion.com/react-native-gesture-handler/) 3 and `react-native-reanimated-dnd` for drag reorder
 - [react-native-localize](https://github.com/zoontek/react-native-localize) plus the in-house `packages/i18n` workspace
+- [react-native-image-picker](https://github.com/react-native-image-picker/react-native-image-picker) and [react-native-file-access](https://github.com/alpha0010/react-native-file-access) (both MIT) for run photos: pick from the camera or library and store them in app-private files
 - [Maestro](https://maestro.mobile.dev/) for installed-app scenarios (`.maestro/`)
 
 ## Platforms

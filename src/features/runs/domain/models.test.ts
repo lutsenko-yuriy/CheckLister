@@ -6,7 +6,28 @@ import {
   completeRun,
   checkedCount,
   toRunHistoryEntry,
+  Attachment,
+  attachItemPhoto,
+  removeItemPhoto,
+  addRunPhoto,
+  removeRunPhoto,
+  photoCount,
+  runPhotoCount,
+  findAttachment,
 } from './models';
+
+const photo = (id: string): Attachment => ({
+  id,
+  kind: 'photo',
+  path: `run-1/${id}.jpg`,
+  addedAt: '2026-11-07T10:00:00.000Z',
+});
+
+const runWithTwoItems = () =>
+  startRun({
+    ...createChecklist('Groceries'),
+    items: [createItem('Milk'), createItem('Eggs')],
+  });
 
 describe('startRun', () => {
   it('copies item text and order from the checklist', () => {
@@ -212,7 +233,29 @@ describe('completeRun', () => {
       checklistTitle: 'Groceries',
       itemCount: 2,
       completedAt: '2026-09-18T12:00:00.000Z',
+      items: completed.items.map(i => ({
+        id: i.id,
+        text: i.text,
+        checked: i.checked,
+        photo: null,
+      })),
+      photos: [],
     });
+  });
+
+  it('snapshots items, checked states and photos', () => {
+    let run = runWithTwoItems();
+    run = toggleRunItem(run, run.items[0].id);
+    run = attachItemPhoto(run, run.items[1].id, photo('a'));
+    run = addRunPhoto(run, photo('b'));
+
+    const entry = toRunHistoryEntry(completeRun(run, new Date()));
+
+    expect(entry.items?.map(i => [i.text, i.checked, i.photo?.id])).toEqual([
+      ['Milk', true, undefined],
+      ['Eggs', false, 'a'],
+    ]);
+    expect(entry.photos?.map(p => p.id)).toEqual(['b']);
   });
 
   it('does not copy external origin data into run history', () => {
@@ -259,5 +302,107 @@ describe('checkedCount', () => {
     const withOneChecked = toggleRunItem(run, run.items[0].id);
 
     expect(checkedCount(withOneChecked)).toBe(1);
+  });
+});
+
+describe('run photos', () => {
+  it('starts every run with no photos', () => {
+    const run = runWithTwoItems();
+
+    expect(run.items.every(i => i.photo === null)).toBe(true);
+    expect(run.photos).toEqual([]);
+  });
+
+  it('attaches a photo to an item', () => {
+    const run = runWithTwoItems();
+
+    const updated = attachItemPhoto(run, run.items[0].id, photo('a'));
+
+    expect(updated.items[0].photo?.id).toBe('a');
+    expect(updated.items[1].photo).toBeNull();
+  });
+
+  it('keeps only one photo per item', () => {
+    const run = runWithTwoItems();
+    const once = attachItemPhoto(run, run.items[0].id, photo('a'));
+
+    expect(attachItemPhoto(once, run.items[0].id, photo('b'))).toBe(once);
+  });
+
+  it('ignores an unknown item', () => {
+    const run = runWithTwoItems();
+
+    expect(attachItemPhoto(run, 'nope', photo('a'))).toBe(run);
+  });
+
+  it('does not change a completed run', () => {
+    const run = completeRun(runWithTwoItems(), new Date());
+
+    expect(attachItemPhoto(run, run.items[0].id, photo('a'))).toBe(run);
+    expect(addRunPhoto(run, photo('a'))).toBe(run);
+    expect(removeItemPhoto(run, 'a')).toBe(run);
+    expect(removeRunPhoto(run, 'a')).toBe(run);
+  });
+
+  it('adds several run photos in order', () => {
+    const run = addRunPhoto(
+      addRunPhoto(runWithTwoItems(), photo('a')),
+      photo('b'),
+    );
+
+    expect(run.photos.map(p => p.id)).toEqual(['a', 'b']);
+  });
+
+  it('removes an item photo by attachment id', () => {
+    const base = runWithTwoItems();
+    const run = attachItemPhoto(base, base.items[0].id, photo('a'));
+
+    expect(removeItemPhoto(run, 'a').items[0].photo).toBeNull();
+  });
+
+  it('removes a run photo by attachment id', () => {
+    const run = addRunPhoto(
+      addRunPhoto(runWithTwoItems(), photo('a')),
+      photo('b'),
+    );
+
+    expect(removeRunPhoto(run, 'a').photos.map(p => p.id)).toEqual(['b']);
+  });
+
+  it('counts item photos plus run photos', () => {
+    const base = runWithTwoItems();
+    let run = attachItemPhoto(base, base.items[0].id, photo('a'));
+    run = attachItemPhoto(run, base.items[1].id, photo('b'));
+    run = addRunPhoto(run, photo('c'));
+
+    expect(photoCount(run)).toBe(3);
+    expect(runPhotoCount(run)).toBe(1);
+  });
+
+  it('counts photos of a history entry', () => {
+    const base = runWithTwoItems();
+    const run = addRunPhoto(
+      attachItemPhoto(base, base.items[0].id, photo('a')),
+      photo('b'),
+    );
+    const entry = toRunHistoryEntry(completeRun(run, new Date()));
+
+    expect(photoCount(entry)).toBe(2);
+    expect(photoCount({ ...entry, items: undefined, photos: undefined })).toBe(
+      0,
+    );
+  });
+
+  it('finds an attachment and its target', () => {
+    const base = runWithTwoItems();
+    const run = addRunPhoto(
+      attachItemPhoto(base, base.items[0].id, photo('a')),
+      photo('b'),
+    );
+
+    expect(findAttachment(run, 'a')?.target).toBe('item');
+    expect(findAttachment(run, 'b')?.target).toBe('run');
+    expect(findAttachment(run, 'b')?.attachment.id).toBe('b');
+    expect(findAttachment(run, 'zzz')).toBeNull();
   });
 });

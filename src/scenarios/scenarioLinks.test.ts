@@ -73,4 +73,22 @@ describe('parseScenarioLink', () => {
       parseScenarioLink('checklister://scenarios/analytics/other'),
     ).toEqual({ type: 'unknown' });
   });
+
+  it.each(['picked', 'denied', 'cancelled'] as const)(
+    'parses a photo-picker link with result=%s',
+    result => {
+      expect(
+        parseScenarioLink(
+          `checklister://scenarios/photo-picker?result=${result}`,
+        ),
+      ).toEqual({ type: 'photo-picker', result });
+    },
+  );
+
+  it.each([
+    'checklister://scenarios/photo-picker',
+    'checklister://scenarios/photo-picker?result=other',
+  ])('maps a bad photo-picker link %s to an unknown command', url => {
+    expect(parseScenarioLink(url)).toEqual({ type: 'unknown' });
+  });
 });

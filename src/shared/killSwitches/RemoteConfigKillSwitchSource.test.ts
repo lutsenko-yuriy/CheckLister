@@ -29,10 +29,17 @@ describe('RemoteConfigKillSwitchSource', () => {
   it('reads every registry key from the activated values', async () => {
     mocked(getValue).mockReturnValue({ asString: () => '{"x":1}' });
     const source = new RemoteConfigKillSwitchSource(0);
-    expect(await source.loadActivated()).toEqual({ runHistory: '{"x":1}' });
+    expect(await source.loadActivated()).toEqual({
+      runHistory: '{"x":1}',
+      photos: '{"x":1}',
+    });
     expect(getValue).toHaveBeenCalledWith(
       expect.anything(),
       'kill_switch_run_history',
+    );
+    expect(getValue).toHaveBeenCalledWith(
+      expect.anything(),
+      'kill_switch_photos',
     );
   });
 

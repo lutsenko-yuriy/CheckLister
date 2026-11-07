@@ -15,6 +15,10 @@ use_frameworks! :linkage => linkage.to_sym
 # CheL-126: never link AdSupport/IDFA.
 $RNFirebaseAnalyticsWithoutAdIdSupport = true
 
+# CheL-161: react-native-file-access ships disk-space and file-timestamp calls we never
+# use; compile them out so the app needs no privacy-manifest reasons for them.
+$RNFANoPrivacyAPI = true
+
 target 'CheckLister' do
   config = use_native_modules!
 
@@ -31,5 +35,16 @@ target 'CheckLister' do
       :mac_catalyst_enabled => false,
       # :ccache_enabled => true
     )
+
+    # CheL-161: react-native-image-picker uses UTType* and kUTType* constants but its
+    # podspec links neither framework; dynamic frameworks fail to link without them.
+    installer.pods_project.targets.each do |target|
+      next unless target.name == 'react-native-image-picker'
+      target.build_configurations.each do |build_config|
+        flags = build_config.build_settings['OTHER_LDFLAGS'] || ['$(inherited)']
+        flags = flags.split(' ') if flags.is_a?(String)
+        build_config.build_settings['OTHER_LDFLAGS'] = flags + ['-framework', 'MobileCoreServices', '-framework', 'UniformTypeIdentifiers']
+      end
+    end
   end
 end

@@ -331,8 +331,10 @@ or sent to analytics.
   camera capture and the system photo picker (PHPicker on iOS, the Android Photo Picker)
   for run photos (CheL-161). The library picker needs no permission on either platform;
   Android's camera uses the system camera app and needs none as long as the app declares
-  no `CAMERA` permission; only the iOS camera prompts. Needs `pod install`.
-- [`@dr.pogodin/react-native-fs`](https://github.com/birdofpreyru/react-native-fs) —
+  no `CAMERA` permission; only the iOS camera prompts. Needs `pod install`. The pod does
+  not link `MobileCoreServices` / `UniformTypeIdentifiers`, so the Podfile adds them to its
+  target (dynamic frameworks fail to link otherwise).
+- [`react-native-file-access`](https://github.com/alpha0010/react-native-file-access) —
   moves a picked photo into app storage, deletes photos and run folders, and lists
   folders for the launch cleanup (CheL-161). Needs `pod install`.
 - [`@react-native-async-storage/async-storage`](https://react-native-async-storage.github.io/async-storage/) —
