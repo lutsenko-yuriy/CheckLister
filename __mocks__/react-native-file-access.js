@@ -1,36 +1,35 @@
-// Manual Jest mock for @dr.pogodin/react-native-fs: an in-memory file tree
-// (the real module needs the native file system). Tests seed it with
-// __seedFile() and read it back with __files() / __dirs().
+// Manual Jest mock for react-native-file-access: an in-memory file tree (the
+// real module needs the native file system). Tests seed it with __seedFile()
+// and read it back with __files() / __dirs().
 const files = new Set();
 const dirs = new Set();
 
 const parentOf = path => path.slice(0, path.lastIndexOf('/'));
 const isUnder = (path, root) => path === root || path.startsWith(`${root}/`);
 
-module.exports = {
-  DocumentDirectoryPath: '/docs',
-  LibraryDirectoryPath: '/library',
-  CachesDirectoryPath: '/caches',
+const FileSystem = {
   exists: jest.fn(async path => files.has(path) || dirs.has(path)),
+  isDir: jest.fn(async path => dirs.has(path)),
   mkdir: jest.fn(async path => {
     let current = path;
     while (current) {
       dirs.add(current);
       current = parentOf(current);
     }
+    return path;
   }),
   writeFile: jest.fn(async path => {
     files.add(path);
     dirs.add(parentOf(path));
   }),
-  moveFile: jest.fn(async (from, into) => {
+  mv: jest.fn(async (from, into) => {
     if (!files.has(from)) {
       throw new Error(`ENOENT: ${from}`);
     }
     files.delete(from);
     files.add(into);
   }),
-  copyFile: jest.fn(async (from, into) => {
+  cp: jest.fn(async (from, into) => {
     if (!files.has(from)) {
       throw new Error(`ENOENT: ${from}`);
     }
@@ -43,28 +42,28 @@ module.exports = {
     [...files].filter(f => isUnder(f, path)).forEach(f => files.delete(f));
     [...dirs].filter(d => isUnder(d, path)).forEach(d => dirs.delete(d));
   }),
-  readDir: jest.fn(async path => {
+  ls: jest.fn(async path => {
     if (!dirs.has(path)) {
       throw new Error(`ENOENT: ${path}`);
     }
-    const names = new Map();
-    files.forEach(f => {
-      if (parentOf(f) === path) {
-        names.set(f, false);
+    const names = new Set();
+    [...files, ...dirs].forEach(entry => {
+      if (parentOf(entry) === path) {
+        names.add(entry.slice(path.length + 1));
       }
     });
-    dirs.forEach(d => {
-      if (parentOf(d) === path) {
-        names.set(d, true);
-      }
-    });
-    return [...names].map(([full, isDir]) => ({
-      name: full.slice(path.length + 1),
-      path: full,
-      isDirectory: () => isDir,
-      isFile: () => !isDir,
-    }));
+    return [...names];
   }),
+};
+
+module.exports = {
+  FileSystem,
+  Dirs: {
+    CacheDir: '/caches',
+    DocumentDir: '/docs',
+    LibraryDir: '/library',
+    MainBundleDir: '/bundle',
+  },
   __seedFile: path => {
     files.add(path);
     dirs.add(parentOf(path));

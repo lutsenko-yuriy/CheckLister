@@ -1,5 +1,5 @@
 import { Platform } from 'react-native';
-import * as RNFS from '@dr.pogodin/react-native-fs';
+import { Dirs, FileSystem } from 'react-native-file-access';
 import { generateId } from '../../../shared/ids';
 import { AttachmentStore } from '../domain/attachmentStore';
 import { Attachment } from '../domain/models';
@@ -9,8 +9,8 @@ const FOLDER = 'attachments';
 /** App-private storage that device backups include; not visible in the Files app. */
 function attachmentsRoot(): string {
   return Platform.OS === 'ios'
-    ? `${RNFS.LibraryDirectoryPath}/Application Support/${FOLDER}`
-    : `${RNFS.DocumentDirectoryPath}/${FOLDER}`;
+    ? `${Dirs.LibraryDir}/Application Support/${FOLDER}`
+    : `${Dirs.DocumentDir}/${FOLDER}`;
 }
 
 function toFilePath(uri: string): string {
@@ -24,13 +24,13 @@ export class FileSystemAttachmentStore implements AttachmentStore {
     const source = toFilePath(sourceUri);
     const target = `${attachmentsRoot()}/${path}`;
 
-    await RNFS.mkdir(`${attachmentsRoot()}/${runId}`);
+    await FileSystem.mkdir(`${attachmentsRoot()}/${runId}`);
     try {
-      await RNFS.moveFile(source, target);
+      await FileSystem.mv(source, target);
     } catch {
       // The picker's cache can sit on another volume; copy, then drop the original.
-      await RNFS.copyFile(source, target);
-      await RNFS.unlink(source).catch(() => undefined);
+      await FileSystem.cp(source, target);
+      await FileSystem.unlink(source).catch(() => undefined);
     }
 
     return { id, kind: 'photo', path, addedAt: new Date().toISOString() };
@@ -46,11 +46,14 @@ export class FileSystemAttachmentStore implements AttachmentStore {
 
   async listRunIds(): Promise<string[]> {
     const root = attachmentsRoot();
-    if (!(await RNFS.exists(root))) {
+    if (!(await FileSystem.exists(root))) {
       return [];
     }
-    const entries = await RNFS.readDir(root);
-    return entries.filter(e => e.isDirectory()).map(e => e.name);
+    const names = await FileSystem.ls(root);
+    const isFolder = await Promise.all(
+      names.map(name => FileSystem.isDir(`${root}/${name}`)),
+    );
+    return names.filter((_, i) => isFolder[i]);
   }
 
   uriFor(attachment: Attachment): string {
@@ -58,8 +61,8 @@ export class FileSystemAttachmentStore implements AttachmentStore {
   }
 
   private async unlinkIfPresent(path: string): Promise<void> {
-    if (await RNFS.exists(path)) {
-      await RNFS.unlink(path);
+    if (await FileSystem.exists(path)) {
+      await FileSystem.unlink(path);
     }
   }
 }

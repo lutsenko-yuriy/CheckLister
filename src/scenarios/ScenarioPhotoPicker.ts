@@ -1,4 +1,4 @@
-import * as RNFS from '@dr.pogodin/react-native-fs';
+import { Dirs, FileSystem } from 'react-native-file-access';
 import { generateId } from '../shared/ids';
 import {
   PhotoPicker,
@@ -25,9 +25,9 @@ export class ScenarioPhotoPicker implements PhotoPicker {
     if (this.result !== 'picked') {
       return { type: this.result };
     }
-    const path = `${RNFS.CachesDirectoryPath}/scenario-${generateId()}.jpg`;
+    const path = `${Dirs.CacheDir}/scenario-${generateId()}.jpg`;
     try {
-      await RNFS.writeFile(path, FIXTURE_JPEG_BASE64, 'base64');
+      await FileSystem.writeFile(path, FIXTURE_JPEG_BASE64, 'base64');
     } catch {
       return { type: 'failed' };
     }

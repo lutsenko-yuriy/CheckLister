@@ -1,7 +1,8 @@
-import * as RNFS from '@dr.pogodin/react-native-fs';
+import { FileSystem } from 'react-native-file-access';
+import * as RNFA from 'react-native-file-access';
 import { ScenarioPhotoPicker } from './ScenarioPhotoPicker';
 
-const fs = RNFS as unknown as { __files(): string[]; __reset(): void };
+const fs = RNFA as unknown as { __files(): string[]; __reset(): void };
 
 describe('ScenarioPhotoPicker', () => {
   beforeEach(() => fs.__reset());
@@ -44,7 +45,7 @@ describe('ScenarioPhotoPicker', () => {
   });
 
   it('reports a failed write as failed instead of rejecting', async () => {
-    jest.mocked(RNFS.writeFile).mockRejectedValueOnce(new Error('disk'));
+    jest.mocked(FileSystem.writeFile).mockRejectedValueOnce(new Error('disk'));
 
     expect(await new ScenarioPhotoPicker().pick('library')).toEqual({
       type: 'failed',

@@ -1,8 +1,9 @@
 import { Platform } from 'react-native';
-import * as RNFS from '@dr.pogodin/react-native-fs';
+import { FileSystem } from 'react-native-file-access';
+import * as RNFA from 'react-native-file-access';
 import { FileSystemAttachmentStore } from './fileSystemAttachmentStore';
 
-const fs = RNFS as unknown as {
+const fs = RNFA as unknown as {
   __seedFile(path: string): void;
   __files(): string[];
   __dirs(): string[];
@@ -35,7 +36,7 @@ describe('FileSystemAttachmentStore', () => {
 
   it('falls back to copying when moving fails, leaving no temp file behind', async () => {
     fs.__seedFile('/caches/pick.jpg');
-    jest.mocked(RNFS.moveFile).mockRejectedValueOnce(new Error('cross-device'));
+    jest.mocked(FileSystem.mv).mockRejectedValueOnce(new Error('cross-device'));
     const store = new FileSystemAttachmentStore();
 
     const attachment = await store.importPhoto('run-1', '/caches/pick.jpg');
