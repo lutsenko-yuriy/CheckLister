@@ -6,10 +6,28 @@ import { AsyncStorageRunRepository } from './data/asyncStorageRunRepository';
 import { RunHistoryEntry } from './domain/models';
 import { RunRepository } from './domain/runRepository';
 import { RunsProvider, useRuns } from './useRuns';
+import {
+  FakeAttachmentStore,
+  FakePhotoPicker,
+  makeFakeAttachmentStore,
+  makeFakePhotoPicker,
+} from './testing/photoFakes';
 
-function makeWrapper(repository: RunRepository) {
+function makeWrapper(
+  repository: RunRepository,
+  store: FakeAttachmentStore = makeFakeAttachmentStore(),
+  picker: FakePhotoPicker = makeFakePhotoPicker(),
+) {
   return function Wrapper({ children }: { children: React.ReactNode }) {
-    return <RunsProvider repository={repository}>{children}</RunsProvider>;
+    return (
+      <RunsProvider
+        repository={repository}
+        attachmentStore={store}
+        photoPicker={picker}
+      >
+        {children}
+      </RunsProvider>
+    );
   };
 }
 
@@ -363,5 +381,488 @@ describe('useRuns', () => {
     await expect(renderHook(() => useRuns())).rejects.toThrow(
       'useRuns must be used within a RunsProvider',
     );
+  });
+});
+
+describe('useRuns photos', () => {
+  const checklist = {
+    ...createChecklist('Groceries'),
+    items: [createItem('Milk'), createItem('Eggs')],
+  };
+
+  async function setup(
+    options: {
+      store?: FakeAttachmentStore;
+      picker?: FakePhotoPicker;
+      repository?: RunRepository;
+    } = {},
+  ) {
+    const store = options.store ?? makeFakeAttachmentStore();
+    const picker = options.picker ?? makeFakePhotoPicker();
+    const repository = options.repository ?? new AsyncStorageRunRepository();
+    const hook = await renderHook(() => useRuns(), {
+      wrapper: makeWrapper(repository, store, picker),
+    });
+    await waitFor(() => expect(hook.result.current.historyLoading).toBe(false));
+    return { ...hook, store, picker, repository };
+  }
+
+  afterEach(async () => {
+    await AsyncStorage.clear();
+  });
+
+  describe('attachPhoto', () => {
+    it('stores the picked photo on the item and reports attached', async () => {
+      const { result, store, picker } = await setup();
+      await act(async () => result.current.startRun(checklist));
+      const run = result.current.activeRun!;
+
+      let outcome;
+      await act(async () => {
+        outcome = await result.current.attachPhoto(
+          { type: 'item', runItemId: run.items[0].id },
+          'camera',
+        );
+      });
+
+      expect(outcome).toEqual({ type: 'attached', target: 'item' });
+      expect(picker.pick).toHaveBeenCalledWith('camera');
+      expect(store.importPhoto).toHaveBeenCalledWith(
+        run.id,
+        'file:///cache/pick.jpg',
+      );
+      expect(result.current.activeRun?.items[0].photo?.id).toBe('att-1');
+      expect(result.current.attachingPhoto).toBe(false);
+    });
+
+    it('adds a run-level photo', async () => {
+      const { result } = await setup();
+      await act(async () => result.current.startRun(checklist));
+
+      let outcome;
+      await act(async () => {
+        outcome = await result.current.attachPhoto({ type: 'run' }, 'library');
+      });
+
+      expect(outcome).toEqual({ type: 'attached', target: 'run' });
+      expect(result.current.activeRun?.photos).toHaveLength(1);
+    });
+
+    it.each(['cancelled', 'denied', 'unavailable', 'failed'] as const)(
+      'relays a %s pick without touching storage or the run',
+      async type => {
+        const { result, store } = await setup({
+          picker: makeFakePhotoPicker({ type }),
+        });
+        await act(async () => result.current.startRun(checklist));
+
+        let outcome;
+        await act(async () => {
+          outcome = await result.current.attachPhoto(
+            { type: 'run' },
+            'library',
+          );
+        });
+
+        expect(outcome).toEqual({ type });
+        expect(store.importPhoto).not.toHaveBeenCalled();
+        expect(result.current.activeRun?.photos).toEqual([]);
+      },
+    );
+
+    it('reports failed when the store rejects', async () => {
+      const store = makeFakeAttachmentStore();
+      store.importPhoto.mockRejectedValueOnce(new Error('disk full'));
+      const { result } = await setup({ store });
+      await act(async () => result.current.startRun(checklist));
+
+      let outcome;
+      await act(async () => {
+        outcome = await result.current.attachPhoto({ type: 'run' }, 'library');
+      });
+
+      expect(outcome).toEqual({ type: 'failed' });
+      expect(result.current.activeRun?.photos).toEqual([]);
+      expect(result.current.attachingPhoto).toBe(false);
+    });
+
+    it('reports stale without picking when there is no active run', async () => {
+      const { result, picker } = await setup();
+
+      let outcome;
+      await act(async () => {
+        outcome = await result.current.attachPhoto({ type: 'run' }, 'library');
+      });
+
+      expect(outcome).toEqual({ type: 'stale' });
+      expect(picker.pick).not.toHaveBeenCalled();
+    });
+
+    it('reports stale for an item that already has a photo', async () => {
+      const { result, store } = await setup();
+      await act(async () => result.current.startRun(checklist));
+      const itemId = result.current.activeRun!.items[0].id;
+      await act(async () => {
+        await result.current.attachPhoto(
+          { type: 'item', runItemId: itemId },
+          'library',
+        );
+      });
+      store.importPhoto.mockClear();
+
+      let outcome;
+      await act(async () => {
+        outcome = await result.current.attachPhoto(
+          { type: 'item', runItemId: itemId },
+          'library',
+        );
+      });
+
+      expect(outcome).toEqual({ type: 'stale' });
+      expect(store.importPhoto).not.toHaveBeenCalled();
+    });
+
+    it('turns a second call into stale while one is in flight', async () => {
+      let release: (r: { type: 'picked'; uri: string }) => void = () => {};
+      const picker = makeFakePhotoPicker();
+      picker.pick.mockImplementationOnce(
+        () => new Promise(resolve => (release = resolve)),
+      );
+      const { result } = await setup({ picker });
+      await act(async () => result.current.startRun(checklist));
+
+      let first!: Promise<unknown>;
+      await act(async () => {
+        first = result.current.attachPhoto({ type: 'run' }, 'library');
+      });
+      expect(result.current.attachingPhoto).toBe(true);
+
+      let second;
+      await act(async () => {
+        second = await result.current.attachPhoto({ type: 'run' }, 'camera');
+      });
+      expect(second).toEqual({ type: 'stale' });
+
+      await act(async () => {
+        release({ type: 'picked', uri: 'file:///cache/a.jpg' });
+        await first;
+      });
+      expect(result.current.activeRun?.photos).toHaveLength(1);
+      expect(result.current.attachingPhoto).toBe(false);
+    });
+
+    it('drops the imported photo when the run was replaced during the pick', async () => {
+      let release: (r: { type: 'picked'; uri: string }) => void = () => {};
+      const picker = makeFakePhotoPicker();
+      picker.pick.mockImplementationOnce(
+        () => new Promise(resolve => (release = resolve)),
+      );
+      const { result, store } = await setup({ picker });
+      await act(async () => result.current.startRun(checklist));
+      const oldRunId = result.current.activeRun!.id;
+
+      let pending!: Promise<unknown>;
+      await act(async () => {
+        pending = result.current.attachPhoto({ type: 'run' }, 'library');
+      });
+      await act(async () => result.current.startRun(checklist));
+      const newRunId = result.current.activeRun!.id;
+
+      let outcome;
+      await act(async () => {
+        release({ type: 'picked', uri: 'file:///cache/a.jpg' });
+        outcome = await pending;
+      });
+
+      expect(newRunId).not.toBe(oldRunId);
+      expect(outcome).toEqual({ type: 'stale' });
+      expect(result.current.activeRun?.photos).toEqual([]);
+      expect(store.folders.has(newRunId)).toBe(false);
+    });
+
+    it('removes the imported file when the run is completed before the import lands', async () => {
+      const store = makeFakeAttachmentStore();
+      let land: () => void = () => {};
+      store.importPhoto.mockImplementationOnce(
+        runId =>
+          new Promise(resolve => {
+            land = () =>
+              resolve({
+                id: 'late',
+                kind: 'photo',
+                path: `attachments/${runId}/late.jpg`,
+                addedAt: '2026-11-07T10:00:00.000Z',
+              });
+          }),
+      );
+      const { result } = await setup({ store });
+      await act(async () => result.current.startRun(checklist));
+
+      let pending!: Promise<unknown>;
+      await act(async () => {
+        pending = result.current.attachPhoto({ type: 'run' }, 'library');
+      });
+      await act(async () => {
+        result.current.activeRun!.items.forEach(i =>
+          result.current.toggleItem(i.id),
+        );
+      });
+      await act(async () => result.current.completeRun());
+
+      let outcome;
+      await act(async () => {
+        land();
+        outcome = await pending;
+      });
+
+      expect(outcome).toEqual({ type: 'stale' });
+      expect(store.remove).toHaveBeenCalledWith(
+        expect.objectContaining({ id: 'late' }),
+      );
+      expect(result.current.history[0].photos).toEqual([]);
+    });
+  });
+
+  describe('removePhoto', () => {
+    it('removes an item photo from the run and the store', async () => {
+      const { result, store } = await setup();
+      await act(async () => result.current.startRun(checklist));
+      const itemId = result.current.activeRun!.items[0].id;
+      await act(async () => {
+        await result.current.attachPhoto(
+          { type: 'item', runItemId: itemId },
+          'library',
+        );
+      });
+      const attachment = result.current.activeRun!.items[0].photo!;
+
+      await act(async () => result.current.removePhoto(attachment.id));
+
+      expect(result.current.activeRun?.items[0].photo).toBeNull();
+      expect(store.remove).toHaveBeenCalledWith(attachment);
+    });
+
+    it('removes a run photo', async () => {
+      const { result, store } = await setup();
+      await act(async () => result.current.startRun(checklist));
+      await act(async () => {
+        await result.current.attachPhoto({ type: 'run' }, 'library');
+      });
+      const attachment = result.current.activeRun!.photos[0];
+
+      await act(async () => result.current.removePhoto(attachment.id));
+
+      expect(result.current.activeRun?.photos).toEqual([]);
+      expect(store.remove).toHaveBeenCalledWith(attachment);
+    });
+
+    it('ignores an unknown id', async () => {
+      const { result, store } = await setup();
+      await act(async () => result.current.startRun(checklist));
+
+      await act(async () => result.current.removePhoto('nope'));
+
+      expect(store.remove).not.toHaveBeenCalled();
+    });
+
+    it('still updates the run when the file cannot be deleted', async () => {
+      const errorSpy = jest.spyOn(console, 'error').mockImplementation();
+      const store = makeFakeAttachmentStore();
+      store.remove.mockRejectedValueOnce(new Error('busy'));
+      const { result } = await setup({ store });
+      await act(async () => result.current.startRun(checklist));
+      await act(async () => {
+        await result.current.attachPhoto({ type: 'run' }, 'library');
+      });
+      const id = result.current.activeRun!.photos[0].id;
+
+      await act(async () => result.current.removePhoto(id));
+
+      expect(result.current.activeRun?.photos).toEqual([]);
+      errorSpy.mockRestore();
+    });
+  });
+
+  describe('discarding and replacing runs', () => {
+    it('clearRun removes the folder of an uncompleted run', async () => {
+      const { result, store } = await setup();
+      await act(async () => result.current.startRun(checklist));
+      const runId = result.current.activeRun!.id;
+
+      await act(async () => result.current.clearRun());
+
+      expect(store.removeRun).toHaveBeenCalledWith(runId);
+      expect(result.current.activeRun).toBeNull();
+    });
+
+    it('clearRun keeps the folder of a completed run', async () => {
+      const { result, store } = await setup();
+      await act(async () => result.current.startRun(checklist));
+      await act(async () => {
+        result.current.activeRun!.items.forEach(i =>
+          result.current.toggleItem(i.id),
+        );
+      });
+      await act(async () => result.current.completeRun());
+
+      await act(async () => result.current.clearRun());
+
+      expect(store.removeRun).not.toHaveBeenCalled();
+    });
+
+    it('clearRun without an active run does nothing', async () => {
+      const { result, store } = await setup();
+
+      await act(async () => result.current.clearRun());
+
+      expect(store.removeRun).not.toHaveBeenCalled();
+    });
+
+    it('starting a run over an uncompleted one removes the old folder', async () => {
+      const { result, store } = await setup();
+      await act(async () => result.current.startRun(checklist));
+      const oldId = result.current.activeRun!.id;
+
+      await act(async () => result.current.startRun(checklist));
+
+      expect(store.removeRun).toHaveBeenCalledWith(oldId);
+    });
+
+    it('starting an external run over an uncompleted one removes the old folder', async () => {
+      const { result, store } = await setup();
+      await act(async () => result.current.startRun(checklist));
+      const oldId = result.current.activeRun!.id;
+
+      await act(async () =>
+        result.current.startExternalRun(checklist, 'other://done'),
+      );
+
+      expect(store.removeRun).toHaveBeenCalledWith(oldId);
+    });
+
+    it('starting a run over a completed one keeps its folder', async () => {
+      const { result, store } = await setup();
+      await act(async () => result.current.startRun(checklist));
+      await act(async () => {
+        result.current.activeRun!.items.forEach(i =>
+          result.current.toggleItem(i.id),
+        );
+      });
+      await act(async () => result.current.completeRun());
+
+      await act(async () => result.current.startRun(checklist));
+
+      expect(store.removeRun).not.toHaveBeenCalled();
+    });
+
+    it('still discards the run when the folder cannot be deleted', async () => {
+      const errorSpy = jest.spyOn(console, 'error').mockImplementation();
+      const store = makeFakeAttachmentStore();
+      store.removeRun.mockRejectedValueOnce(new Error('busy'));
+      const { result } = await setup({ store });
+      await act(async () => result.current.startRun(checklist));
+
+      await act(async () => result.current.clearRun());
+
+      expect(result.current.activeRun).toBeNull();
+      errorSpy.mockRestore();
+    });
+  });
+
+  describe('launch sweep', () => {
+    const entry = (id: string): RunHistoryEntry => ({
+      id,
+      checklistId: '1',
+      checklistTitle: 'Groceries',
+      itemCount: 1,
+      completedAt: '2026-09-17T08:00:00.000Z',
+    });
+
+    it('removes folders that belong to no history entry', async () => {
+      const store = makeFakeAttachmentStore();
+      store.folders.add('kept');
+      store.folders.add('orphan');
+      const repository = new AsyncStorageRunRepository();
+      await repository.saveAll([entry('kept')]);
+
+      await setup({ store, repository });
+
+      await waitFor(() =>
+        expect(store.removeRun).toHaveBeenCalledWith('orphan'),
+      );
+      expect(store.removeRun).not.toHaveBeenCalledWith('kept');
+    });
+
+    it('does not sweep when history failed to load', async () => {
+      const errorSpy = jest.spyOn(console, 'error').mockImplementation();
+      const store = makeFakeAttachmentStore();
+      store.folders.add('precious');
+      const repository: RunRepository = {
+        getAll: jest.fn().mockRejectedValue(new Error('corrupt')),
+        saveAll: jest.fn(),
+      };
+
+      await setup({ store, repository });
+
+      expect(store.listRunIds).not.toHaveBeenCalled();
+      expect(store.removeRun).not.toHaveBeenCalled();
+      errorSpy.mockRestore();
+    });
+
+    it('skips the run that became active while the sweep was listing', async () => {
+      const store = makeFakeAttachmentStore();
+      let listed: (ids: string[]) => void = () => {};
+      store.listRunIds.mockImplementationOnce(
+        () => new Promise(resolve => (listed = resolve)),
+      );
+      const { result } = await setup({ store });
+      await act(async () => result.current.startRun(checklist));
+      const activeId = result.current.activeRun!.id;
+
+      await act(async () => {
+        listed([activeId, 'orphan']);
+      });
+
+      await waitFor(() =>
+        expect(store.removeRun).toHaveBeenCalledWith('orphan'),
+      );
+      expect(store.removeRun).not.toHaveBeenCalledWith(activeId);
+    });
+
+    it('survives a listing failure', async () => {
+      const errorSpy = jest.spyOn(console, 'error').mockImplementation();
+      const store = makeFakeAttachmentStore();
+      store.listRunIds.mockRejectedValueOnce(new Error('io'));
+
+      const { result } = await setup({ store });
+
+      await waitFor(() => expect(errorSpy).toHaveBeenCalled());
+      expect(result.current.historyLoading).toBe(false);
+      errorSpy.mockRestore();
+    });
+  });
+
+  it('snapshots items and photos into the history entry on completion', async () => {
+    const { result } = await setup();
+    await act(async () => result.current.startRun(checklist));
+    const itemId = result.current.activeRun!.items[0].id;
+    await act(async () => {
+      await result.current.attachPhoto(
+        { type: 'item', runItemId: itemId },
+        'library',
+      );
+      await result.current.attachPhoto({ type: 'run' }, 'camera');
+    });
+    await act(async () => {
+      result.current.activeRun!.items.forEach(i =>
+        result.current.toggleItem(i.id),
+      );
+    });
+
+    await act(async () => result.current.completeRun());
+
+    const saved = result.current.history[0];
+    expect(saved.items?.[0].photo?.id).toBe('att-1');
+    expect(saved.photos).toHaveLength(1);
   });
 });

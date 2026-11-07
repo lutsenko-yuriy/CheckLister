@@ -40,4 +40,45 @@ describe('AsyncStorageRunRepository', () => {
 
     expect(await new AsyncStorageRunRepository().getAll()).toEqual([older]);
   });
+
+  it('round-trips an entry with its items and photos', async () => {
+    const photo = {
+      id: 'att-1',
+      kind: 'photo' as const,
+      path: 'attachments/run-3/att-1.jpg',
+      addedAt: '2026-09-19T08:00:00.000Z',
+    };
+    const withPhotos: RunHistoryEntry = {
+      id: 'run-3',
+      checklistId: 'checklist-1',
+      checklistTitle: 'Groceries',
+      itemCount: 1,
+      completedAt: '2026-09-19T08:00:00.000Z',
+      items: [{ id: 'i1', text: 'Milk', checked: true, photo }],
+      photos: [photo],
+    };
+    const repository = new AsyncStorageRunRepository();
+
+    await repository.saveAll([withPhotos]);
+
+    expect(await repository.getAll()).toEqual([withPhotos]);
+  });
+
+  it('loads legacy entries without items or photos alongside new ones', async () => {
+    const withPhotos: RunHistoryEntry = {
+      ...newer,
+      id: 'run-4',
+      completedAt: '2026-09-20T08:00:00.000Z',
+      items: [],
+      photos: [],
+    };
+    const repository = new AsyncStorageRunRepository();
+
+    await repository.saveAll([older, withPhotos]);
+
+    const loaded = await repository.getAll();
+    expect(loaded.map(entry => entry.id)).toEqual(['run-4', 'run-1']);
+    expect(loaded[1].items).toBeUndefined();
+    expect(loaded[1].photos).toBeUndefined();
+  });
 });

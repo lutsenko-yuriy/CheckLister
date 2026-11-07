@@ -13,6 +13,7 @@ import { ChecklistsProvider } from '../useChecklists';
 import { AsyncStorageChecklistRepository } from '../data/asyncStorageChecklistRepository';
 import { HomeScreen } from './HomeScreen';
 import { RunsProvider } from '../../runs/useRuns';
+import { photoDeps } from '../../runs/testing/photoFakes';
 import { AsyncStorageRunRepository } from '../../runs/data/asyncStorageRunRepository';
 import { ThemeProvider } from '../../../shared/theme/useTheme';
 import { I18nProvider } from '@checklister/i18n';
@@ -44,7 +45,7 @@ function homeScreenTree(
     <I18nProvider>
       <ThemeProvider>
         <ChecklistsProvider repository={repository}>
-          <RunsProvider repository={new AsyncStorageRunRepository()}>
+          <RunsProvider repository={new AsyncStorageRunRepository()} {...photoDeps()}>
             <HomeScreen
               navigation={{ navigate: jest.fn(), setOptions: jest.fn() } as any}
               route={{} as any}

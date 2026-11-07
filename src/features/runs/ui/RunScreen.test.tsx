@@ -14,6 +14,7 @@ import {
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { RunsProvider, useRuns } from '../useRuns';
+import { photoDeps } from '../testing/photoFakes';
 import { RunScreen } from './RunScreen';
 import { analytics } from '../../../shared/analytics/AnalyticsService';
 import { createChecklist, createItem } from '../../checklists/domain/models';
@@ -75,7 +76,7 @@ async function renderRun(
 
   const utils = await render(
     <ThemeProvider>
-      <RunsProvider repository={repository}>
+      <RunsProvider repository={repository} {...photoDeps()}>
         <NavigationContainer
           ref={navigationRef}
           initialState={{
@@ -112,7 +113,7 @@ async function renderRunWithoutStarting(scheme?: 'light' | 'dark') {
 
   const utils = await render(
     <ThemeProvider scheme={scheme}>
-      <RunsProvider repository={runRepository}>
+      <RunsProvider repository={runRepository} {...photoDeps()}>
         <NavigationContainer
           ref={navigationRef}
           initialState={{
@@ -308,7 +309,7 @@ describe('RunScreen', () => {
     };
     const navigationRef = createNavigationContainerRef<TestParamList>();
     await render(
-      <RunsProvider repository={runRepository}>
+      <RunsProvider repository={runRepository} {...photoDeps()}>
         <NavigationContainer
           ref={navigationRef}
           initialState={{
@@ -351,6 +352,7 @@ describe('RunScreen', () => {
     expect(logEventSpy).toHaveBeenCalledWith('run_completed', {
       checklist_id: '1',
       item_count: 2,
+      photo_count: 0,
     });
   });
 
@@ -370,7 +372,7 @@ describe('RunScreen', () => {
     const checklist = (await repo.getAll())[0];
     const navigationRef = createNavigationContainerRef<TestParamList>();
     await render(
-      <RunsProvider repository={runRepository}>
+      <RunsProvider repository={runRepository} {...photoDeps()}>
         <NavigationContainer
           ref={navigationRef}
           initialState={{

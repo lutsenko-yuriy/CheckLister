@@ -11,6 +11,7 @@ import { AsyncStorageChecklistRepository } from '../data/asyncStorageChecklistRe
 import { HomeScreen } from './HomeScreen';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { RunsProvider } from '../../runs/useRuns';
+import { photoDeps } from '../../runs/testing/photoFakes';
 import { AsyncStorageRunRepository } from '../../runs/data/asyncStorageRunRepository';
 import { darkPalette } from '../../../shared/theme/palette';
 import { ThemeProvider } from '../../../shared/theme/useTheme';
@@ -29,7 +30,7 @@ async function renderHomeScreen(
   const utils = await render(
     <ThemeProvider scheme={scheme}>
       <ChecklistsProvider repository={new AsyncStorageChecklistRepository()}>
-        <RunsProvider repository={runRepository}>
+        <RunsProvider repository={runRepository} {...photoDeps()}>
           <HomeScreen navigation={navigation as any} route={{} as any} />
         </RunsProvider>
       </ChecklistsProvider>

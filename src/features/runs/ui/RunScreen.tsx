@@ -7,6 +7,7 @@ import { useRuns } from '../useRuns';
 import {
   checkedCount,
   isRunComplete,
+  photoCount,
   type ChecklistRun,
 } from '../domain/models';
 import type { ExternalRunResult } from '../domain/externalRunLinks';
@@ -190,6 +191,7 @@ export function RunScreen({ navigation }: Props) {
       analytics.logEvent('run_completed', {
         checklist_id: activeRun.checklistId,
         item_count: activeRun.items.length,
+        photo_count: photoCount(activeRun),
       });
       setJustCompleted(true);
     } catch {
