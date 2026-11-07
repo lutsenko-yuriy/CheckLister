@@ -34,6 +34,17 @@ describe('FileSystemAttachmentStore', () => {
     expect(fs.__files()).toEqual([`${IOS_ROOT}/${attachment.path}`]);
   });
 
+  it('stores a second photo in the same run folder', async () => {
+    fs.__seedFile('/caches/a.jpg');
+    fs.__seedFile('/caches/b.jpg');
+    const store = new FileSystemAttachmentStore();
+
+    await store.importPhoto('run-1', 'file:///caches/a.jpg');
+    await store.importPhoto('run-1', 'file:///caches/b.jpg');
+
+    expect(fs.__files()).toHaveLength(2);
+  });
+
   it('falls back to copying when moving fails, leaving no temp file behind', async () => {
     fs.__seedFile('/caches/pick.jpg');
     jest.mocked(FileSystem.mv).mockRejectedValueOnce(new Error('cross-device'));

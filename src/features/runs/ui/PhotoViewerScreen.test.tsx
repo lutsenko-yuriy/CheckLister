@@ -17,6 +17,7 @@ import { RunsProvider, useRuns } from '../useRuns';
 import {
   makeFakeAttachmentStore,
   makeFakePhotoPicker,
+  photoDeps,
 } from '../testing/photoFakes';
 import { PhotoViewerScreen } from './PhotoViewerScreen';
 import { analytics } from '../../../shared/analytics/AnalyticsService';
@@ -27,7 +28,11 @@ import * as killSwitches from '../../../shared/killSwitches/useKillSwitches';
 
 type TestParamList = {
   Run: undefined;
-  PhotoViewer: { context: 'active_run'; runId: string; attachmentId: string };
+  PhotoViewer: {
+    context: 'active_run' | 'past_run';
+    runId: string;
+    attachmentId: string;
+  };
 };
 const Stack = createNativeStackNavigator<TestParamList>();
 
@@ -230,5 +235,83 @@ describe('PhotoViewerScreen', () => {
     await waitFor(() =>
       expect(navigationRef.getCurrentRoute()?.name).toBe('Run'),
     );
+  });
+
+  describe('past run', () => {
+    async function renderPastViewer(attachmentId: string) {
+      const repository = new AsyncStorageRunRepository();
+      await repository.saveAll([
+        {
+          id: 'old',
+          checklistId: 'c',
+          checklistTitle: 'Groceries',
+          itemCount: 1,
+          completedAt: '2026-09-18T18:42:00.000Z',
+          items: [
+            {
+              id: 'i',
+              text: 'Milk',
+              checked: true,
+              photo: {
+                id: 'att-9',
+                kind: 'photo',
+                path: 'attachments/old/att-9.jpg',
+                addedAt: '2026-09-18T18:00:00.000Z',
+              },
+            },
+          ],
+          photos: [],
+        },
+      ]);
+      const navigationRef = createNavigationContainerRef<TestParamList>();
+      await render(
+        <ThemeProvider>
+          <RunsProvider repository={repository} {...photoDeps()}>
+            <NavigationContainer ref={navigationRef}>
+              <Stack.Navigator screenOptions={{ headerShown: false }}>
+                <Stack.Screen name="Run" component={RunStub} />
+                <Stack.Screen
+                  name="PhotoViewer"
+                  component={PhotoViewerScreen}
+                />
+              </Stack.Navigator>
+            </NavigationContainer>
+          </RunsProvider>
+        </ThemeProvider>,
+      );
+      await waitFor(() => expect(navigationRef.isReady()).toBe(true));
+      await act(async () => {
+        navigationRef.navigate('PhotoViewer', {
+          context: 'past_run',
+          runId: 'old',
+          attachmentId,
+        });
+      });
+      return { navigationRef };
+    }
+
+    it('shows the photo with Close but no Remove, and logs the context', async () => {
+      await renderPastViewer('att-9');
+
+      await waitFor(() =>
+        expect(screen.getByTestId('photo-viewer-image').props.source).toEqual({
+          uri: expect.stringContaining('att-9.jpg'),
+        }),
+      );
+      expect(screen.getByLabelText('Close')).toBeTruthy();
+      expect(screen.queryByLabelText('Remove')).toBeNull();
+      expect(analytics.logScreenView).toHaveBeenCalledWith(
+        'screen_photo_viewer',
+        { context: 'past_run', target: 'item' },
+      );
+    });
+
+    it('closes when the photo is not in that run', async () => {
+      const { navigationRef } = await renderPastViewer('missing');
+
+      await waitFor(() =>
+        expect(navigationRef.getCurrentRoute()?.name).toBe('Run'),
+      );
+    });
   });
 });

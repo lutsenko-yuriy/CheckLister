@@ -42,9 +42,14 @@ production WU:
   files in one WU as a soft review checkpoint.
 - When the checkpoint is exceeded, try to propose cohesive WUs of roughly
   250–350 changed lines and 10 or fewer substantive files.
+- A WU estimated over 1,000 changed lines (production code plus tests/scenarios; not docs, locale files or lockfiles) is split at planning time, or the plan asks the user for an explicit OK to keep it whole. The plan states every WU's estimate (CheL-161: #163 and #165 went over without that decision).
 - These are guidelines, not hard limits. A larger cohesive slice may remain one
   WU when splitting would make it harder to implement or understand, but the
   plan must state that rationale explicitly.
+
+### 3-deps. Vet every new dependency
+
+For each new third-party dependency, before the plan is approved: check its licence and any other legal aspects (not only technical fit), check its supported React Native version range, and run a throwaway install plus a build on both platforms (CheL-161: a file-system library failed the Android build only in the first implementation WU).
 
 ### 3a. Model asynchronous event ordering
 

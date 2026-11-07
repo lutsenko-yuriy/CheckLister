@@ -13,10 +13,14 @@ A record of all versioned releases. For planned work and known issues, see @docs
 - ...
 -->
 
-## [Unreleased]
+## [0.17.0] — 2026-11-07 (PR #166 merged)
 
 ### Added
 
+- [user] CheL-161: You can now attach photos to a checklist run. During a run, each item has a button to add a photo (take one or choose one from your library), and the run has its own Photos row for photos about the run as a whole. Tap a photo to see it full screen; during the run you can remove it.
+- [user] CheL-161: Run history entries now open. A past run shows every item and whether it was checked, along with its photos. Runs finished before this version open with their name, date and item count, and a note that details weren't recorded.
+- [wip] (PR #166) CheL-161 WU4: past runs (tappable history rows, a read-only run detail screen, the photo viewer without Remove, kill-switch gating). Fixes a run's second photo failing to save on Android and anchors the run-screen scenario taps; the Android and iOS photo flows are filled in.
+- [meta] (PR #166) CheL-161 debrief: scenarios and tests run on CI rather than locally, a 1,000-line cap per work unit, dependency vetting before plan approval, QR blocks pasted in the reply, Maestro selector rules and a strict-mock code smell.
 - [wip] (PR #165) CheL-161 WU3: photos on an active run. Each item has a button to add a photo (Take photo or Choose from library) that turns into a thumbnail once added, and a Photos row under the items holds run photos. A thumbnail opens a full-screen photo with Remove, which asks first. Denied camera access explains why and offers Open Settings; a missing camera or a failed save shows a message. Complete is disabled while a photo is being added. Everything follows the `photos` kill-switch and is translated to German, French and Russian. Past runs follow in WU4.
 - [wip] (PR #164) CheL-161 WU2: photo lifecycle for runs: attaching a photo to an item or the run (one at a time; a result for a run that is already gone is discarded), removing it, deleting a run's photos when an unfinished run is discarded or replaced, a launch-time cleanup of leftover photo folders, and `photo_count` on `run_completed`. The picker and store are wired into the app; no screen shows photos yet, so the app looks the same.
 - [wip] (PR #163) CheL-161 WU1: storage groundwork for photo attachments on runs: photo fields on runs and history entries, an app-private photo store, a camera/library picker with a scenario-build stand-in, the `photos` remote kill-switch, translated iOS camera and photo-library usage texts, and the `react-native-image-picker` and `react-native-file-access` libraries (both MIT). Nothing is wired into the screens yet; the app looks the same.

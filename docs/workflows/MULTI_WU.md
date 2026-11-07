@@ -6,6 +6,8 @@ to the standard workflow's steps 2–12, which each WU repeats in full.
 
 ## WU-splitting guidelines
 
+**Size cap (CheL-161).** A WU over 1,000 changed lines (production code plus tests/scenarios; not docs, locale files or lockfiles) is split at planning time, or the plan carries an explicit user OK to keep it whole. See `skills/design/plan/SKILL.md` step 3.
+
 SHOULD-level guidelines for dividing a ticket into work units during planning, and for handling
 a WU0 scenario-stub commit.
 

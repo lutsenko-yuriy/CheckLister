@@ -90,6 +90,10 @@ export const ru: Translations = {
     failedTitle: 'Не удалось добавить фото',
     failedBody: 'При сохранении фото что-то пошло не так. Попробуйте ещё раз.',
   },
+  runDetail: {
+    title: 'Детали выполнения',
+    notRecorded: 'Подробности этого выполнения не сохранены.',
+  },
   runHistory: {
     checklistTitle: 'История: {{title}}',
     emptyState: 'Завершённых выполнений пока нет.',

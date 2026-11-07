@@ -1,10 +1,11 @@
 import React, { useEffect, useLayoutEffect, useMemo, useRef } from 'react';
-import { FlatList, StyleSheet, Text, View } from 'react-native';
+import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../../navigation/types';
 import { analytics } from '../../../shared/analytics/AnalyticsService';
+import { useKillSwitch } from '../../../shared/killSwitches/useKillSwitches';
 import { createThemedStyles } from '../../../shared/theme/createThemedStyles';
-import { RunHistoryEntry } from '../domain/models';
+import { RunHistoryEntry, photoCount } from '../domain/models';
 import { useRuns } from '../useRuns';
 import { useI18n } from '@checklister/i18n';
 
@@ -14,6 +15,7 @@ export function RunHistoryScreen({ navigation, route }: Props) {
   const styles = useStyles();
   const { t } = useI18n();
   const { history, historyLoading } = useRuns();
+  const photosEnabled = useKillSwitch('photos');
   const { checklistId, checklistTitle } = route.params;
   const hasLoggedView = useRef(false);
   const visibleEntries = useMemo(
@@ -53,18 +55,40 @@ export function RunHistoryScreen({ navigation, route }: Props) {
         <FlatList
           data={visibleEntries}
           keyExtractor={entry => entry.id}
-          renderItem={({ item }) => <RunHistoryRow entry={item} />}
+          renderItem={({ item }) => (
+            <RunHistoryRow
+              entry={item}
+              onPress={() => {
+                analytics.logEvent('run_history_entry_opened', {
+                  checklist_id: item.checklistId,
+                  has_photos: photosEnabled && photoCount(item) > 0,
+                });
+                navigation.navigate('RunDetail', { runId: item.id });
+              }}
+            />
+          )}
         />
       )}
     </View>
   );
 }
 
-function RunHistoryRow({ entry }: { entry: RunHistoryEntry }) {
+function RunHistoryRow({
+  entry,
+  onPress,
+}: {
+  entry: RunHistoryEntry;
+  onPress: () => void;
+}) {
   const styles = useStyles();
   const { t, formatDateTime } = useI18n();
   return (
-    <View style={styles.row} testID={`run-history-entry-${entry.id}`}>
+    <Pressable
+      onPress={onPress}
+      accessibilityRole="button"
+      style={styles.row}
+      testID={`run-history-entry-${entry.id}`}
+    >
       <Text style={styles.rowTitle}>{entry.checklistTitle}</Text>
       <Text style={styles.rowSubtitle}>
         {t('runHistory.row', {
@@ -72,7 +96,7 @@ function RunHistoryRow({ entry }: { entry: RunHistoryEntry }) {
           date: formatDateTime(entry.completedAt),
         })}
       </Text>
-    </View>
+    </Pressable>
   );
 }
 

@@ -9,3 +9,22 @@
 - 2026-11-07: PR size. WU1 (#163, +1,013) and WU3 (#165, +1,387 across 26 files, ~550 lines of production code) went over 1,000 changed lines; the plan had flagged WU3 as over the estimate on purpose. The user approved merging #165 as is and asked that this be raised at the debrief: decide what to do about PRs over 1,000 lines (split at planning time? count tests/docs or not? a process rule in MULTI_WU.md and the plan skill?). Not decided yet.
 
 ## Debrief summary
+### 2026-11-07
+
+**What went well**
+- Running the iOS scenarios before shipping.
+- Running the Android scenarios on CI.
+- The Android run found a real bug (Android's `mkdir` rejects an existing folder, so a run's second photo failed to save) that the unit tests and the iOS run missed.
+
+**What was hard or surprising**
+- The scenario runs were demanding, mostly in time: two native builds per WU and long flow lists.
+- Flows broke on things unrelated to the feature: the new "Add photo to <item>" label matched loose `.*Item.*` taps, and the events list is longer on Android. An exact-text fix then broke iOS, where the checkbox label has extra words.
+- Demo-mode QR blocks were missed at #163 and again at #166.
+
+**What to change**
+- Run tests and scenarios on CI, not locally (`FEATURE.md` step 10.0); iOS stays a local run before the final ship until CI has an iOS job.
+- Cap a WU at 1,000 changed lines or get an explicit OK at plan time (`MULTI_WU.md`, `plan` skill).
+- Vet every new dependency's licence, React Native range and both-platform build before plan approval (`plan` skill).
+- Paste the `render` output in the reply text (`demo-mode.md`).
+- Selector rules in `SCENARIOS.md`; the strict-mock code smell in `CODE_STYLE.md`; run Android in any WU that adds native file or permission code.
+- Follow-ups to ticket: an iOS scenario job in CI; a notification mechanism for when the user is away, modelled on Mordovorot and Habit Loop.

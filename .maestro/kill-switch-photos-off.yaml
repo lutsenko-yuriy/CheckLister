@@ -4,14 +4,91 @@ tags:
   - ios
   - android
 ---
-# CheL-161 WU0 stub: needs a scenario build (checklister://scenarios/... links).
-# Only answers the consent dialog until later work units fill in the steps below.
+# CheL-161: needs a scenario build (checklister://scenarios/... links).
 - launchApp:
     clearState: true
 - runFlow: helpers/answer-analytics-consent.yaml
-# TODO: complete a run that has an item photo and a run photo; start a second run and attach an item photo
-# TODO: open a photo so the viewer is showing
-# TODO: turn the switch off (checklister://scenarios/kill-switch?id=photos&enabled=false) — the viewer closes; all + controls, thumbnails and the run photo row disappear
-# TODO: open the past run from Run history — items and checked states show, no photos
-# TODO: turn the switch back on — photos reappear on both screens
-# TODO: reset the switch (checklister://scenarios/kill-switch/reset), discard the run, delete the checklist
+- runFlow: helpers/create-checklist.yaml
+- tapOn: Start run
+- openLink: 'checklister://scenarios/photo-picker?result=picked'
+- tapOn:
+    text: Open
+    optional: true
+- tapOn: Add photo to Scenario first
+- tapOn: Choose from library
+- extendedWaitUntil:
+    visible: Open photo
+    timeout: 10000
+- tapOn: Add photo to this run
+- tapOn: Take photo
+- extendedWaitUntil:
+    visible:
+      id: photo-thumbnail-.*
+      index: 1
+    timeout: 10000
+- tapOn: '(.+, )?Scenario first'
+- tapOn: '(.+, )?Scenario second'
+- tapOn: Complete the checklist
+- assertVisible: Start run
+# A second run with an item photo, open in the viewer.
+- tapOn: Start run
+- tapOn: Add photo to Scenario first
+- tapOn: Choose from library
+- extendedWaitUntil:
+    visible: Open photo
+    timeout: 10000
+- tapOn: Open photo
+- assertVisible: Close
+# Switching off closes the viewer and hides every photo control.
+- openLink: 'checklister://scenarios/kill-switch?id=photos&enabled=false'
+- tapOn:
+    text: Open
+    optional: true
+- extendedWaitUntil:
+    notVisible: Close
+    timeout: 10000
+- assertNotVisible: Open photo
+- assertNotVisible: Add photo to Scenario first
+- assertNotVisible: Add photo to this run
+- assertNotVisible: Photos
+- assertVisible: 0 of 2 checked
+# Switching back on brings them back.
+- openLink: 'checklister://scenarios/kill-switch?id=photos&enabled=true'
+- tapOn:
+    text: Open
+    optional: true
+- extendedWaitUntil:
+    visible: Open photo
+    timeout: 10000
+- assertVisible: Add photo to this run
+- openLink: 'checklister://scenarios/kill-switch?id=photos&enabled=false'
+- tapOn:
+    text: Open
+    optional: true
+- extendedWaitUntil:
+    notVisible: Open photo
+    timeout: 10000
+- runFlow: helpers/discard-run.yaml
+# The first run, opened from Run history: items show, photos do not.
+- tapOn: Run history
+- tapOn:
+    id: run-history-entry-.*
+- assertVisible: .*Scenario first.*
+- assertVisible: .*Scenario second.*
+- assertNotVisible: Open photo
+- assertNotVisible: Photos
+- openLink: 'checklister://scenarios/kill-switch?id=photos&enabled=true'
+- tapOn:
+    text: Open
+    optional: true
+- extendedWaitUntil:
+    visible: Photos
+    timeout: 10000
+- assertVisible: Open photo
+- tapOn: Back
+- tapOn: Back
+- openLink: 'checklister://scenarios/kill-switch/reset'
+- tapOn:
+    text: Open
+    optional: true
+- runFlow: helpers/delete-checklist.yaml
