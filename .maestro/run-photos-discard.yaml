@@ -4,14 +4,34 @@ tags:
   - ios
   - android
 ---
-# CheL-161 WU0 stub: needs a scenario build (checklister://scenarios/... links).
-# Only answers the consent dialog until later work units fill in the steps below.
+# CheL-161: needs a scenario build (checklister://scenarios/... links).
 - launchApp:
     clearState: true
 - runFlow: helpers/answer-analytics-consent.yaml
-# TODO: create a checklist, start a run, set the photo picker to 'picked'
-# TODO: attach an item photo and a run photo
-# TODO: press back and confirm discarding — the checklist screen shows
-# TODO: start a new run — no thumbnails and no run photos
-# TODO: open Run history — no entry for the discarded run
-# TODO: delete the checklist (helpers/delete-checklist.yaml)
+- runFlow: helpers/create-checklist.yaml
+- tapOn: Start run
+- openLink: 'checklister://scenarios/photo-picker?result=picked'
+- tapOn:
+    text: Open
+    optional: true
+- tapOn: Add photo to Scenario first
+- tapOn: Choose from library
+- extendedWaitUntil:
+    visible: Open photo
+    timeout: 10000
+- tapOn: Add photo to this run
+- tapOn: Take photo
+- extendedWaitUntil:
+    visible:
+      id: photo-thumbnail-.*
+      index: 1
+    timeout: 10000
+- runFlow: helpers/discard-run.yaml
+- tapOn: Start run
+- assertVisible: 0 of 2 checked
+- assertNotVisible: Open photo
+- assertVisible: Add photo to Scenario first
+- runFlow: helpers/discard-run.yaml
+# The discarded run left no history entry.
+- assertNotVisible: Run history
+- runFlow: helpers/delete-checklist.yaml

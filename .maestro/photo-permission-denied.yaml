@@ -4,14 +4,47 @@ tags:
   - ios
   - android
 ---
-# CheL-161 WU0 stub: needs a scenario build (checklister://scenarios/... links).
-# Only answers the consent dialog until later work units fill in the steps below.
+# CheL-161: needs a scenario build (checklister://scenarios/... links).
 - launchApp:
     clearState: true
 - runFlow: helpers/answer-analytics-consent.yaml
-# TODO: create a checklist and start a run
-# TODO: set the photo picker to 'denied'; tap an item's + and choose Take photo
-# TODO: an explanation alert shows with Open Settings and Cancel; tap Cancel — the item still shows +
-# TODO: set the photo picker to 'cancelled' and try again — no alert, no change
-# TODO: open the analytics events screen — photo_permission_denied is recorded
-# TODO: discard the run and delete the checklist (helpers/discard-run.yaml, helpers/delete-checklist.yaml)
+# Photo analytics only reach the events screen while consent is granted.
+- tapOn:
+    id: open-settings
+- tapOn:
+    id: analytics-consent-switch
+- assertVisible:
+    id: analytics-consent-switch
+    checked: true
+- tapOn: Back
+- runFlow: helpers/create-checklist.yaml
+- tapOn: Start run
+- openLink: 'checklister://scenarios/photo-picker?result=denied'
+- tapOn:
+    text: Open
+    optional: true
+- tapOn: Add photo to Scenario first
+- assertVisible: Add photo
+- tapOn: Take photo
+- assertVisible: Photo access is off
+- assertVisible: Open Settings
+- tapOn: Cancel
+- assertVisible: Add photo to Scenario first
+- openLink: 'checklister://scenarios/photo-picker?result=cancelled'
+- tapOn:
+    text: Open
+    optional: true
+- tapOn: Add photo to Scenario first
+- tapOn: Take photo
+- assertNotVisible: Photo access is off
+- assertVisible: Add photo to Scenario first
+- openLink: 'checklister://scenarios/analytics'
+- tapOn:
+    text: Open
+    optional: true
+- extendedWaitUntil:
+    visible: 'photo_permission_denied \(source: camera\)'
+    timeout: 10000
+- tapOn: Back
+- runFlow: helpers/discard-run.yaml
+- runFlow: helpers/delete-checklist.yaml
