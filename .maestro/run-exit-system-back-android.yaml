@@ -5,13 +5,13 @@ tags:
 ---
 - runFlow: helpers/create-checklist.yaml
 - tapOn: Start run
-- tapOn: Scenario first.*
+- tapOn: '(.+, )?Scenario first'
 - assertVisible: 1 of 2 checked
 - back
 - assertVisible: Are you sure\?
 - tapOn: Cancel
 - assertVisible: 1 of 2 checked
-- tapOn: Scenario second.*
+- tapOn: '(.+, )?Scenario second'
 - assertVisible: 2 of 2 checked
 - back
 - assertVisible: Are you sure\?

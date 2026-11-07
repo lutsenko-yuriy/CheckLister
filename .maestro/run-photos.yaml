@@ -60,8 +60,8 @@ tags:
         text: Cancel
 - assertNotVisible: Close
 - assertVisible: Add photo to Scenario first
-- tapOn: Scenario first.*
-- tapOn: Scenario second.*
+- tapOn: '(.+, )?Scenario first'
+- tapOn: '(.+, )?Scenario second'
 - tapOn: Complete the checklist
 - assertVisible: Start run
 # The completed run keeps its details: items, checked states and run photos.
