@@ -7,8 +7,8 @@ tags:
 # CheL-147: needs a scenario build (checklister://scenarios/... links).
 - runFlow: helpers/create-checklist.yaml
 - tapOn: Start run
-- tapOn: Scenario first
-- tapOn: Scenario second
+- tapOn: Scenario first.*
+- tapOn: Scenario second.*
 - tapOn: Complete the checklist
 - assertVisible: Run history
 - tapOn: Back

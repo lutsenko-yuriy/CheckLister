@@ -26,8 +26,8 @@ tags:
       id: photo-thumbnail-.*
       index: 1
     timeout: 10000
-- tapOn: Scenario first
-- tapOn: Scenario second
+- tapOn: Scenario first.*
+- tapOn: Scenario second.*
 - tapOn: Complete the checklist
 - assertVisible: Start run
 # A second run with an item photo, open in the viewer.

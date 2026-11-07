@@ -10,15 +10,15 @@ tags:
 - assertVisible:
     text: Complete the checklist
     enabled: false
-- tapOn: Scenario first
+- tapOn: Scenario first.*
 - assertVisible: 1 of 2 checked
 - assertVisible:
     text: Complete the checklist
     enabled: false
-- tapOn: Scenario first
+- tapOn: Scenario first.*
 - assertVisible: 0 of 2 checked
-- tapOn: Scenario first
-- tapOn: Scenario second
+- tapOn: Scenario first.*
+- tapOn: Scenario second.*
 - assertVisible: 2 of 2 checked
 - assertVisible:
     text: Complete the checklist
