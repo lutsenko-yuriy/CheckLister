@@ -209,3 +209,4 @@ necessary, keep it local and document the reason.
 - Mocks that cannot reproduce the failure or timing behavior of the real
   boundary.
 - A regression fix without a test demonstrating the previous failure.
+- A file-system mock more lenient than the strictest platform: Android's `mkdir` rejects an existing folder, which a permissive mock hid until the Android run (CheL-161).

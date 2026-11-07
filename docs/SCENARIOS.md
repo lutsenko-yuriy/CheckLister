@@ -284,6 +284,8 @@ live; `checklister://scenarios/analytics/clear` empties it. Assert on it with
 `assertVisible` and escape the parentheses (`'item_added \(checklist_id: .*\)'`). See
 `analytics-events.yaml`.
 
+**Selector rules (CheL-161).** Do not tap an item with a loose `.*Item.*` pattern when another control's label contains the item text (the "Add photo to Item" button would match): use a prefix match, `Item.*`. The scenario events list is longer on Android; `scrollUntilVisible` before asserting on a late record.
+
 **Analytics consent (CheL-126).** Every flow reaches the home screen through
 `helpers/answer-analytics-consent.yaml`, which taps "Don't allow" when the
 consent dialog shows and does nothing otherwise, so a device with or without a
