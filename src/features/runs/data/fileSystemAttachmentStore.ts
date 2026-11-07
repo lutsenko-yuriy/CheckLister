@@ -14,7 +14,12 @@ function attachmentsRoot(): string {
 }
 
 function toFilePath(uri: string): string {
-  return decodeURI(uri.replace(/^file:\/\//, ''));
+  const path = uri.replace(/^file:\/\//, '');
+  try {
+    return decodeURI(path);
+  } catch {
+    return path; // a stray '%' is not an escape: use the path as given
+  }
 }
 
 export class FileSystemAttachmentStore implements AttachmentStore {
@@ -61,8 +66,16 @@ export class FileSystemAttachmentStore implements AttachmentStore {
   }
 
   private async unlinkIfPresent(path: string): Promise<void> {
-    if (await FileSystem.exists(path)) {
+    if (!(await FileSystem.exists(path))) {
+      return;
+    }
+    try {
       await FileSystem.unlink(path);
+    } catch (error) {
+      // An overlapping removal may have won the race.
+      if (await FileSystem.exists(path)) {
+        throw error;
+      }
     }
   }
 }

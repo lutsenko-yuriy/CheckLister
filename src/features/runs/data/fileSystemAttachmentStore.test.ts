@@ -137,4 +137,27 @@ describe('FileSystemAttachmentStore', () => {
 
     expect(await store.listRunIds()).toEqual(['run-1']);
   });
+
+  it('imports a path containing a stray percent sign', async () => {
+    fs.__seedFile('/caches/100%.jpg');
+
+    const attachment = await new FileSystemAttachmentStore().importPhoto(
+      'run-1',
+      'file:///caches/100%.jpg',
+    );
+
+    expect(fs.__files()).toEqual([`${IOS_ROOT}/${attachment.path}`]);
+  });
+
+  it('does not fail when an overlapping removal deletes the folder first', async () => {
+    fs.__seedFile('/caches/1.jpg');
+    const store = new FileSystemAttachmentStore();
+    await store.importPhoto('run-1', '/caches/1.jpg');
+    jest.mocked(FileSystem.unlink).mockImplementationOnce(async path => {
+      fs.__reset();
+      throw new Error(`ENOENT: ${path}`);
+    });
+
+    await expect(store.removeRun('run-1')).resolves.toBeUndefined();
+  });
 });

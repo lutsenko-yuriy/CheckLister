@@ -30,12 +30,7 @@ export interface ChecklistRun {
   origin: RunOrigin;
 }
 
-export interface RunHistoryItem {
-  id: string;
-  text: string;
-  checked: boolean;
-  photo: Attachment | null;
-}
+export type RunHistoryItem = RunItem;
 
 export interface RunHistoryEntry {
   id: string;
