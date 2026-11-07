@@ -8,7 +8,7 @@ describe('RunItemRow', () => {
   it('renders the item text', async () => {
     await render(
       <RunItemRow
-        item={{ id: 'a', text: 'Milk', checked: false }}
+        item={{ id: 'a', text: 'Milk', checked: false, photo: null }}
         onToggle={jest.fn()}
       />,
     );
@@ -19,7 +19,7 @@ describe('RunItemRow', () => {
   it('reflects checked state through accessibilityState', async () => {
     await render(
       <RunItemRow
-        item={{ id: 'a', text: 'Milk', checked: true }}
+        item={{ id: 'a', text: 'Milk', checked: true, photo: null }}
         onToggle={jest.fn()}
       />,
     );
@@ -34,7 +34,7 @@ describe('RunItemRow', () => {
     const onToggle = jest.fn();
     await render(
       <RunItemRow
-        item={{ id: 'a', text: 'Milk', checked: false }}
+        item={{ id: 'a', text: 'Milk', checked: false, photo: null }}
         onToggle={onToggle}
       />,
     );
@@ -48,7 +48,7 @@ describe('RunItemRow', () => {
     await render(
       <ThemeProvider scheme="dark">
         <RunItemRow
-          item={{ id: 'a', text: 'Milk', checked: false }}
+          item={{ id: 'a', text: 'Milk', checked: false, photo: null }}
           onToggle={jest.fn()}
         />
       </ThemeProvider>,
