@@ -1,0 +1,23 @@
+appId: ${APP_ID}
+name: Photos can be attached, viewed, removed and kept after completion
+tags:
+  - ios
+  - android
+---
+# CheL-161 WU0 stub: needs a scenario build (checklister://scenarios/... links).
+# Only answers the consent dialog until later work units fill in the steps below.
+- launchApp:
+    clearState: true
+- runFlow: helpers/answer-analytics-consent.yaml
+# TODO: create a checklist with two items and start a run
+# TODO: set the scenario photo picker to 'picked' (checklister://scenarios/photo-picker?result=picked)
+# TODO: tap the first item's + — the Take photo / Choose from library sheet appears; choose Choose from library
+# TODO: a thumbnail replaces that item's +, and the item is not toggled
+# TODO: add two run photos with the run-level + — two thumbnails show and the + stays at the end
+# TODO: open an item thumbnail — the full-screen viewer shows with a Remove action
+# TODO: tap Remove — a 'Remove photo?' confirmation appears; confirm — the viewer closes and the item shows + again
+# TODO: check both items and tap Complete the checklist
+# TODO: open Run history, then the entry — both items shown as checked, the run photos shown
+# TODO: open a photo here — the viewer has no Remove
+# TODO: open the analytics events screen — photo_attached and photo_removed are recorded, and run_completed carries photo_count: 2
+# TODO: delete the checklist (helpers/delete-checklist.yaml)
