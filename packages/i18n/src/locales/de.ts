@@ -64,6 +64,29 @@ export const de: Translations = {
     completeFailedBody:
       'Dieser Durchlauf wurde nicht gespeichert. Bitte versuche es erneut.',
   },
+  photos: {
+    addTitle: 'Foto hinzufügen',
+    takePhoto: 'Foto aufnehmen',
+    chooseFromLibrary: 'Aus der Mediathek wählen',
+    addToItem: 'Foto zu {{item}} hinzufügen',
+    addToRun: 'Foto zu diesem Durchlauf hinzufügen',
+    runTitle: 'Fotos',
+    open: 'Foto öffnen',
+    close: 'Schließen',
+    remove: 'Entfernen',
+    removeTitle: 'Foto entfernen?',
+    removeBody: 'Das lässt sich nicht rückgängig machen.',
+    deniedTitle: 'Fotozugriff ist ausgeschaltet',
+    deniedBody:
+      'CheckLister braucht Zugriff auf die Kamera, um Fotos aufzunehmen. Du kannst ihn in den Einstellungen einschalten.',
+    openSettings: 'Einstellungen öffnen',
+    unavailableTitle: 'Kamera nicht verfügbar',
+    unavailableBody:
+      'Dieses Gerät hat keine Kamera, die CheckLister verwenden kann. Du kannst stattdessen ein Foto aus der Mediathek wählen.',
+    failedTitle: 'Foto konnte nicht hinzugefügt werden',
+    failedBody:
+      'Beim Speichern des Fotos ist etwas schiefgelaufen. Bitte versuche es erneut.',
+  },
   runHistory: {
     checklistTitle: 'Verlauf: {{title}}',
     emptyState: 'Noch keine abgeschlossenen Durchläufe.',

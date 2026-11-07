@@ -68,6 +68,28 @@ export const ru: Translations = {
     completeFailedTitle: 'Не удалось завершить выполнение',
     completeFailedBody: 'Это выполнение не было сохранено. Попробуйте ещё раз.',
   },
+  photos: {
+    addTitle: 'Добавить фото',
+    takePhoto: 'Сделать фото',
+    chooseFromLibrary: 'Выбрать из галереи',
+    addToItem: 'Добавить фото к пункту {{item}}',
+    addToRun: 'Добавить фото к этому выполнению',
+    runTitle: 'Фото',
+    open: 'Открыть фото',
+    close: 'Закрыть',
+    remove: 'Удалить',
+    removeTitle: 'Удалить фото?',
+    removeBody: 'Это действие нельзя отменить.',
+    deniedTitle: 'Доступ к фото выключен',
+    deniedBody:
+      'CheckLister нужен доступ к камере, чтобы делать фото. Его можно включить в настройках.',
+    openSettings: 'Открыть настройки',
+    unavailableTitle: 'Камера недоступна',
+    unavailableBody:
+      'На этом устройстве нет камеры, которую может использовать CheckLister. Вместо этого можно выбрать фото из галереи.',
+    failedTitle: 'Не удалось добавить фото',
+    failedBody: 'При сохранении фото что-то пошло не так. Попробуйте ещё раз.',
+  },
   runHistory: {
     checklistTitle: 'История: {{title}}',
     emptyState: 'Завершённых выполнений пока нет.',

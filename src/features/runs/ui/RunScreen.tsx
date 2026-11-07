@@ -13,6 +13,9 @@ import {
 import type { ExternalRunResult } from '../domain/externalRunLinks';
 import { analytics } from '../../../shared/analytics/AnalyticsService';
 import { RunItemRow } from './components/RunItemRow';
+import { RunPhotoRow } from './components/RunPhotoRow';
+import { useAddPhoto } from './useAddPhoto';
+import { useKillSwitch } from '../../../shared/killSwitches/useKillSwitches';
 import { createThemedStyles } from '../../../shared/theme/createThemedStyles';
 import { deliverExternalRunResult } from '../externalRunCallbackDelivery';
 import { useI18n } from '@checklister/i18n';
@@ -35,7 +38,16 @@ async function returnExternalResult(
 export function RunScreen({ navigation }: Props) {
   const styles = useStyles();
   const { t } = useI18n();
-  const { activeRun, toggleItem, completeRun, clearRun } = useRuns();
+  const {
+    activeRun,
+    toggleItem,
+    completeRun,
+    clearRun,
+    attachingPhoto,
+    photoUri,
+  } = useRuns();
+  const photosEnabled = useKillSwitch('photos');
+  const addPhoto = useAddPhoto();
   // State (not a ref): usePreventRemove needs a value it can react to across
   // renders — it disables native-stack's swipe-back gesture at the native
   // level while true, not just the JS-side beforeRemove event, avoiding a
@@ -204,6 +216,14 @@ export function RunScreen({ navigation }: Props) {
   };
 
   const complete = isRunComplete(activeRun);
+  const completeDisabled = !complete || isCompleting || attachingPhoto;
+  const addDisabled = attachingPhoto || isCompleting;
+  const openViewer = (attachmentId: string) =>
+    navigation.navigate('PhotoViewer', {
+      context: 'active_run',
+      runId: activeRun.id,
+      attachmentId,
+    });
 
   return (
     <View style={styles.container} testID="run-screen">
@@ -220,8 +240,29 @@ export function RunScreen({ navigation }: Props) {
           <RunItemRow
             item={item}
             onToggle={() => handleToggle(item.id, item.checked)}
+            photo={
+              photosEnabled
+                ? {
+                    uri: item.photo ? photoUri(item.photo) : null,
+                    onAdd: () => addPhoto({ type: 'item', runItemId: item.id }),
+                    onOpen: () => item.photo && openViewer(item.photo.id),
+                    addDisabled,
+                  }
+                : undefined
+            }
           />
         )}
+        ListFooterComponent={
+          photosEnabled ? (
+            <RunPhotoRow
+              photos={activeRun.photos}
+              uriFor={photoUri}
+              onOpen={photo => openViewer(photo.id)}
+              onAdd={() => addPhoto({ type: 'run' })}
+              addDisabled={addDisabled}
+            />
+          ) : undefined
+        }
       />
       {activeRun.origin.type === 'external' ? (
         <Text style={styles.externalRunWarning}>
@@ -230,15 +271,15 @@ export function RunScreen({ navigation }: Props) {
       ) : null}
       <Pressable
         onPress={handleComplete}
-        disabled={!complete || isCompleting}
+        disabled={completeDisabled}
         accessibilityRole="button"
         accessibilityLabel={t('run.completeButton')}
-        accessibilityState={{ disabled: !complete || isCompleting }}
+        accessibilityState={{ disabled: completeDisabled }}
         style={[
           styles.completeButton,
           activeRun.origin.type === 'external' &&
             styles.completeButtonAfterWarning,
-          (!complete || isCompleting) && styles.completeButtonDisabled,
+          completeDisabled && styles.completeButtonDisabled,
         ]}
       >
         <Text style={styles.completeButtonText}>{t('run.completeButton')}</Text>

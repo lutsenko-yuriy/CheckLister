@@ -6,7 +6,7 @@ import { fr } from './fr';
 import { ru } from './ru';
 
 // English-identical values that are expected, not a missed translation.
-const ALLOWLIST = new Set(['common.appName']);
+const ALLOWLIST = new Set(['common.appName', 'photos.runTitle']);
 
 const LOCALES: Readonly<Record<AppLanguage, unknown>> = { en, de, fr, ru };
 

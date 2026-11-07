@@ -54,9 +54,76 @@ describe('RunItemRow', () => {
       </ThemeProvider>,
     );
 
-    const flatStyle = [screen.getByRole('checkbox').props.style].flat();
+    const flatStyle = [screen.getByTestId('run-item-row-a').props.style].flat();
     expect(flatStyle).toContainEqual(
       expect.objectContaining({ backgroundColor: darkPalette.surface }),
     );
+  });
+
+  describe('photo slot', () => {
+    const photo = {
+      id: 'att-1',
+      kind: 'photo' as const,
+      path: 'attachments/r/att-1.jpg',
+      addedAt: '2026-11-07T10:00:00.000Z',
+    };
+
+    it('shows no photo control when the parent passes none', async () => {
+      await render(
+        <RunItemRow
+          item={{ id: 'a', text: 'Milk', checked: false, photo: null }}
+          onToggle={jest.fn()}
+        />,
+      );
+
+      expect(screen.queryByTestId('add-item-photo-a')).toBeNull();
+    });
+
+    it('shows a + that adds without toggling', async () => {
+      const onToggle = jest.fn();
+      const onAdd = jest.fn();
+      await render(
+        <RunItemRow
+          item={{ id: 'a', text: 'Milk', checked: false, photo: null }}
+          onToggle={onToggle}
+          photo={{ uri: null, onAdd, onOpen: jest.fn() }}
+        />,
+      );
+
+      await fireEvent.press(screen.getByTestId('add-item-photo-a'));
+
+      expect(onAdd).toHaveBeenCalledTimes(1);
+      expect(onToggle).not.toHaveBeenCalled();
+    });
+
+    it('shows the thumbnail instead of the + and opens it', async () => {
+      const onOpen = jest.fn();
+      await render(
+        <RunItemRow
+          item={{ id: 'a', text: 'Milk', checked: false, photo }}
+          onToggle={jest.fn()}
+          photo={{ uri: 'file:///x.jpg', onAdd: jest.fn(), onOpen }}
+        />,
+      );
+
+      expect(screen.queryByTestId('add-item-photo-a')).toBeNull();
+      await fireEvent.press(screen.getByTestId('photo-thumbnail-att-1'));
+      expect(onOpen).toHaveBeenCalledTimes(1);
+    });
+
+    it('disables the +', async () => {
+      const onAdd = jest.fn();
+      await render(
+        <RunItemRow
+          item={{ id: 'a', text: 'Milk', checked: false, photo: null }}
+          onToggle={jest.fn()}
+          photo={{ uri: null, onAdd, onOpen: jest.fn(), addDisabled: true }}
+        />,
+      );
+
+      await fireEvent.press(screen.getByTestId('add-item-photo-a'));
+
+      expect(onAdd).not.toHaveBeenCalled();
+    });
   });
 });

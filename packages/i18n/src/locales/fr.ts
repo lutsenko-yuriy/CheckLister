@@ -63,6 +63,29 @@ export const fr: Translations = {
     completeFailedBody:
       "Cette session n'a pas été enregistrée. Veuillez réessayer.",
   },
+  photos: {
+    addTitle: 'Ajouter une photo',
+    takePhoto: 'Prendre une photo',
+    chooseFromLibrary: 'Choisir dans la photothèque',
+    addToItem: 'Ajouter une photo à {{item}}',
+    addToRun: 'Ajouter une photo à cette session',
+    runTitle: 'Photos',
+    open: 'Ouvrir la photo',
+    close: 'Fermer',
+    remove: 'Supprimer',
+    removeTitle: 'Supprimer la photo ?',
+    removeBody: 'Cette action est irréversible.',
+    deniedTitle: "L'accès aux photos est désactivé",
+    deniedBody:
+      "CheckLister a besoin d'accéder à l'appareil photo pour prendre des photos. Vous pouvez l'activer dans les Réglages.",
+    openSettings: 'Ouvrir les Réglages',
+    unavailableTitle: 'Appareil photo indisponible',
+    unavailableBody:
+      "Cet appareil n'a pas d'appareil photo utilisable par CheckLister. Vous pouvez choisir une photo dans la photothèque à la place.",
+    failedTitle: "Impossible d'ajouter la photo",
+    failedBody:
+      "Une erreur s'est produite lors de l'enregistrement de la photo. Veuillez réessayer.",
+  },
   runHistory: {
     checklistTitle: 'Historique : {{title}}',
     emptyState: 'Aucune session terminée pour le moment.',
