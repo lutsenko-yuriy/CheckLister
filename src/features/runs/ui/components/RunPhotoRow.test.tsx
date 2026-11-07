@@ -62,4 +62,17 @@ describe('RunPhotoRow', () => {
 
     expect(onAdd).not.toHaveBeenCalled();
   });
+
+  it('shows no + when read-only', async () => {
+    await render(
+      <RunPhotoRow
+        photos={[photo('a')]}
+        uriFor={p => `file:///${p.path}`}
+        onOpen={jest.fn()}
+      />,
+    );
+
+    expect(screen.getByTestId('photo-thumbnail-a')).toBeTruthy();
+    expect(screen.queryByTestId('add-run-photo')).toBeNull();
+  });
 });

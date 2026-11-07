@@ -498,6 +498,15 @@ disabled while `attachingPhoto`. `PhotoViewerScreen` looks the photo up in the a
 run, asks "Remove photo?" before `removePhoto`, and leaves once (a `closingRef`
 guard) when the photo, the run or the switch goes away.
 
+**Past-run UI.** `RunHistoryScreen` rows are pressable: they log
+`run_history_entry_opened` and open `RunDetailScreen` (`{ runId }`), which reads the
+entry from `useRuns().history` and renders its `items` and `photos` read-only
+(`RunPhotoRow` without `onAdd`). Entries saved before photos existed have no `items`;
+the screen then shows the title, date, item count and a "not recorded" note. Photos open in
+`PhotoViewerScreen` with `context: 'past_run'`, which looks the photo up in the history
+entry and hides Remove. Thumbnails, the Photos row and the viewer follow
+`useKillSwitch('photos')`.
+
 **Routes.** `RunDetail { runId }` and `PhotoViewer { context, runId, attachmentId }`
 (`fullScreenModal`); params carry ids only.
 

@@ -9,6 +9,7 @@ import { HomeScreen } from '../features/checklists/ui/HomeScreen';
 import { ChecklistDetailScreen } from '../features/checklists/ui/ChecklistDetailScreen';
 import { RunScreen } from '../features/runs/ui/RunScreen';
 import { PhotoViewerScreen } from '../features/runs/ui/PhotoViewerScreen';
+import { RunDetailScreen } from '../features/runs/ui/RunDetailScreen';
 import { RunHistoryScreen } from '../features/runs/ui/RunHistoryScreen';
 import { SettingsScreen } from '../features/settings/ui/SettingsScreen';
 import { ChecklistSelectScreen } from '../features/checklists/ui/ChecklistSelectScreen';
@@ -90,6 +91,14 @@ export function RootNavigator() {
         name="PhotoViewer"
         component={PhotoViewerScreen}
         options={{ presentation: 'fullScreenModal', headerShown: false }}
+      />
+      <Stack.Screen
+        name="RunDetail"
+        component={RunDetailScreen}
+        options={{
+          title: t('runDetail.title'),
+          ...flatBackButtonOptions,
+        }}
       />
       <Stack.Screen
         name="RunHistory"

@@ -86,6 +86,10 @@ export const fr: Translations = {
     failedBody:
       "Une erreur s'est produite lors de l'enregistrement de la photo. Veuillez réessayer.",
   },
+  runDetail: {
+    title: 'Détails de la session',
+    notRecorded: "Les détails n'ont pas été enregistrés pour cette session.",
+  },
   runHistory: {
     checklistTitle: 'Historique : {{title}}',
     emptyState: 'Aucune session terminée pour le moment.',

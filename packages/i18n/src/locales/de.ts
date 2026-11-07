@@ -87,6 +87,10 @@ export const de: Translations = {
     failedBody:
       'Beim Speichern des Fotos ist etwas schiefgelaufen. Bitte versuche es erneut.',
   },
+  runDetail: {
+    title: 'Details zum Durchlauf',
+    notRecorded: 'Für diesen Durchlauf wurden keine Details aufgezeichnet.',
+  },
   runHistory: {
     checklistTitle: 'Verlauf: {{title}}',
     emptyState: 'Noch keine abgeschlossenen Durchläufe.',

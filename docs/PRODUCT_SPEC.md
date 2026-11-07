@@ -67,6 +67,11 @@ checklist belongs to the person using the device.
   or deleted.
 - Only runs finished by pressing "Complete the checklist" are saved. Partial,
   abandoned, and discarded runs never appear.
+- Tapping an entry opens a read-only view of that run: the checklist name, the
+  completion date, every item as it was (checked or not) and the run's photos
+  (Feature 12). A run completed before photos existed has no recorded item
+  list; it opens with its name, date and item count and the note "Details
+  weren't recorded for this run."
 
 ### Feature 6 — Externally started runs
 - Another mobile app can start a fresh run for a known checklist ID through a
@@ -172,6 +177,27 @@ checklist belongs to the person using the device.
 - A switch-off takes effect the next time the app comes to the foreground
   (within about an hour). It works without a network once the app has fetched it.
 - Switches do not depend on the analytics choice (Feature 10).
+- Photos (Feature 12) can be switched off the same way. With the switch off,
+  every "+" button, thumbnail and the Photos row are hidden on the run screen
+  and in past runs, and an open photo closes. The photos stay stored and
+  reappear when the switch is turned back on.
+
+### Feature 12 — Photos on runs
+- During a run, each item has an "add photo" button, and the run has a Photos
+  row with a "+" button. Both offer "Take photo" and "Choose from library".
+  An item holds one photo; a run holds any number.
+- An added photo shows as a small thumbnail (an item's button becomes its
+  thumbnail). Tapping a thumbnail opens the photo full screen. During the run
+  it offers Remove, which asks for confirmation first.
+- Adding a photo does not check the item. "Complete the checklist" is disabled
+  while a photo is being added.
+- If camera access is denied, the app explains why and offers Open Settings. A
+  missing camera or a failed save shows a message and changes nothing.
+- Photos are stored privately on the device with the run. Discarding a run
+  deletes its photos; completing it keeps them with the history entry.
+- In a past run (Feature 5) photos can be opened but not removed.
+- The photo buttons are translated (Feature 9) and follow the light/dark
+  palette (Feature 8). The feature can be switched off remotely (Feature 11).
 
 ## Out of scope for v1
 
@@ -182,6 +208,5 @@ checklist belongs to the person using the device.
 - Reminders or notifications for checklists or items.
 - Pausing a checklist run and resuming it later.
 - Editing or deleting entries from the checklist run history.
-- Viewing item-level detail (which specific items were checked, and when)
-  within a past run — history only records the checklist and completion
-  time.
+- Per-item check times within a past run — a past run shows which items were
+  checked, not when.

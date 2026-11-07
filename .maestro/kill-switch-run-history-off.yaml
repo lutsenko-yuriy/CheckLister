@@ -41,7 +41,7 @@ tags:
 - assertVisible:
     id: home-run-history-row
 - tapOn: Run history
-- assertVisible: ${output.title}
+- assertVisible: ${output.title}.*
 - tapOn: Back
 - scrollUntilVisible:
     element:

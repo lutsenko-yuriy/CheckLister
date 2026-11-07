@@ -1,5 +1,11 @@
 import React from 'react';
-import { render, screen, waitFor, within } from '@testing-library/react-native';
+import {
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from '@testing-library/react-native';
 import { analytics } from '../../../shared/analytics/AnalyticsService';
 import { AsyncStorageRunRepository } from '../data/asyncStorageRunRepository';
 import { RunHistoryEntry } from '../domain/models';
@@ -8,6 +14,7 @@ import { photoDeps } from '../testing/photoFakes';
 import { RunHistoryScreen } from './RunHistoryScreen';
 import { darkPalette } from '../../../shared/theme/palette';
 import { ThemeProvider } from '../../../shared/theme/useTheme';
+import * as killSwitches from '../../../shared/killSwitches/useKillSwitches';
 import { formatDateTime } from '@checklister/i18n';
 
 const packing: RunHistoryEntry = {
@@ -35,7 +42,7 @@ async function renderHistory(
 ) {
   const repository = new AsyncStorageRunRepository();
   await repository.saveAll([groceries, packing]);
-  const navigation = { setOptions: jest.fn() };
+  const navigation = { setOptions: jest.fn(), navigate: jest.fn() };
 
   const utils = await render(
     <ThemeProvider scheme={scheme}>
@@ -108,5 +115,67 @@ describe('RunHistoryScreen', () => {
     expect(screen.getByTestId('run-history-screen').props.style).toEqual(
       expect.objectContaining({ backgroundColor: darkPalette.background }),
     );
+  });
+  describe('opening an entry', () => {
+    beforeEach(() => {
+      jest.spyOn(killSwitches, 'useKillSwitch').mockReturnValue(true);
+      jest.spyOn(analytics, 'logEvent');
+    });
+
+    afterEach(() => {
+      jest.restoreAllMocks();
+    });
+
+    it('opens the run detail and logs run_history_entry_opened', async () => {
+      const { navigation } = await renderHistory({});
+
+      await waitFor(() => expect(screen.getByText('Packing')).toBeTruthy());
+      await fireEvent.press(screen.getByTestId('run-history-entry-newer'));
+
+      expect(navigation.navigate).toHaveBeenCalledWith('RunDetail', {
+        runId: 'newer',
+      });
+      expect(analytics.logEvent).toHaveBeenCalledWith(
+        'run_history_entry_opened',
+        { checklist_id: 'packing', has_photos: false },
+      );
+    });
+
+    it('reports has_photos false while the photos switch is off', async () => {
+      jest.spyOn(killSwitches, 'useKillSwitch').mockReturnValue(false);
+      const repository = new AsyncStorageRunRepository();
+      await repository.saveAll([
+        {
+          ...packing,
+          photos: [
+            {
+              id: 'a',
+              kind: 'photo',
+              path: 'attachments/newer/a.jpg',
+              addedAt: packing.completedAt,
+            },
+          ],
+        },
+      ]);
+      const navigation = { setOptions: jest.fn(), navigate: jest.fn() };
+      await render(
+        <ThemeProvider>
+          <RunsProvider repository={repository} {...photoDeps()}>
+            <RunHistoryScreen
+              navigation={navigation as any}
+              route={{ params: {} } as any}
+            />
+          </RunsProvider>
+        </ThemeProvider>,
+      );
+
+      await waitFor(() => expect(screen.getByText('Packing')).toBeTruthy());
+      await fireEvent.press(screen.getByTestId('run-history-entry-newer'));
+
+      expect(analytics.logEvent).toHaveBeenCalledWith(
+        'run_history_entry_opened',
+        { checklist_id: 'packing', has_photos: false },
+      );
+    });
   });
 });

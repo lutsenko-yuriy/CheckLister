@@ -18,13 +18,15 @@ export function PhotoViewerScreen({ navigation, route }: Props) {
   const styles = useStyles();
   const { t } = useI18n();
   const insets = useSafeAreaInsets();
-  const { activeRun, removePhoto, photoUri } = useRuns();
+  const { activeRun, history, removePhoto, photoUri } = useRuns();
+  const isActive = context === 'active_run';
   const photosEnabled = useKillSwitch('photos');
   const closingRef = useRef(false);
+  const source = isActive
+    ? activeRun
+    : history.find(entry => entry.id === runId);
   const found =
-    activeRun && activeRun.id === runId
-      ? findAttachment(activeRun, attachmentId)
-      : null;
+    source && source.id === runId ? findAttachment(source, attachmentId) : null;
   const visible = photosEnabled && found !== null;
 
   const close = () => {
@@ -51,11 +53,14 @@ export function PhotoViewerScreen({ navigation, route }: Props) {
     }
   }, [context, target]);
 
-  if (!found || !activeRun) {
+  if (!found || !source) {
     return <View style={styles.container} />;
   }
 
   const confirmRemove = () => {
+    if (!activeRun) {
+      return;
+    }
     Alert.alert(t('photos.removeTitle'), t('photos.removeBody'), [
       { text: t('common.cancel'), style: 'cancel' },
       {
@@ -93,16 +98,18 @@ export function PhotoViewerScreen({ navigation, route }: Props) {
           color="#fff"
         />
       </View>
-      <View style={[styles.actions, { paddingBottom: insets.bottom + 16 }]}>
-        <Pressable
-          onPress={confirmRemove}
-          accessibilityRole="button"
-          accessibilityLabel={t('photos.remove')}
-          style={styles.removeButton}
-        >
-          <Text style={styles.removeText}>{t('photos.remove')}</Text>
-        </Pressable>
-      </View>
+      {isActive ? (
+        <View style={[styles.actions, { paddingBottom: insets.bottom + 16 }]}>
+          <Pressable
+            onPress={confirmRemove}
+            accessibilityRole="button"
+            accessibilityLabel={t('photos.remove')}
+            style={styles.removeButton}
+          >
+            <Text style={styles.removeText}>{t('photos.remove')}</Text>
+          </Pressable>
+        </View>
+      ) : null}
     </View>
   );
 }

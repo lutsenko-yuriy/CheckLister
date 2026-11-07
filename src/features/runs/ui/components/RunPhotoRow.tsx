@@ -16,7 +16,8 @@ export function RunPhotoRow({
   photos: readonly Attachment[];
   uriFor: (photo: Attachment) => string;
   onOpen: (photo: Attachment) => void;
-  onAdd: () => void;
+  /** Omitted on read-only screens: no + is shown. */
+  onAdd?: () => void;
   addDisabled?: boolean;
 }) {
   const styles = useStyles();
@@ -35,13 +36,15 @@ export function RunPhotoRow({
             />
           </View>
         ))}
-        <IconButton
-          icon="add"
-          accessibilityLabel={t('photos.addToRun')}
-          onPress={onAdd}
-          disabled={addDisabled}
-          testID="add-run-photo"
-        />
+        {onAdd ? (
+          <IconButton
+            icon="add"
+            accessibilityLabel={t('photos.addToRun')}
+            onPress={onAdd}
+            disabled={addDisabled}
+            testID="add-run-photo"
+          />
+        ) : null}
       </View>
     </View>
   );

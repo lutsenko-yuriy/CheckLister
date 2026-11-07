@@ -60,11 +60,26 @@ tags:
         text: Cancel
 - assertNotVisible: Close
 - assertVisible: Add photo to Scenario first
-# TODO(WU4): after completing, open Run history, then the entry — both items checked, the run photos shown
-# TODO(WU4): open a photo there — the viewer has no Remove
 - tapOn: .*Scenario first.*
 - tapOn: .*Scenario second.*
 - tapOn: Complete the checklist
+- assertVisible: Start run
+# The completed run keeps its details: items, checked states and run photos.
+- tapOn: Run history
+- tapOn:
+    id: run-history-entry-.*
+- assertVisible: .*Scenario first.*
+- assertVisible: .*Scenario second.*
+- assertVisible: Photos
+- tapOn:
+    text: Open photo
+    index: 0
+- assertVisible: Close
+- assertNotVisible: Remove
+- tapOn: Close
+- assertVisible: Photos
+- tapOn: Back
+- tapOn: Back
 - assertVisible: Start run
 - openLink: 'checklister://scenarios/analytics'
 - tapOn:

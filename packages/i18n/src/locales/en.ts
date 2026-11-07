@@ -98,6 +98,10 @@ const enStrings = {
     failedBody:
       'Something went wrong while saving the photo. Please try again.',
   },
+  runDetail: {
+    title: 'Run details',
+    notRecorded: "Details weren't recorded for this run.",
+  },
   runHistory: {
     checklistTitle: '{{title}} history',
     emptyState: 'No completed runs yet.',

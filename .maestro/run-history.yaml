@@ -18,8 +18,8 @@ tags:
 - assertVisible: .*Scenario third.*
 - tapOn: Run history
 - assertVisible: ${output.title} history
-- assertVisible: ${output.title}
-- assertVisible: 2 items .* Run on .*
+- assertVisible: ${output.title}.*
+- assertVisible: .*2 items.*Run on.*
 - tapOn: Back
 - assertVisible: .*Scenario third.*
 - tapOn: Back
@@ -27,8 +27,8 @@ tags:
 - assertVisible:
     id: home-run-history-row
 - tapOn: Run history
-- assertVisible: ${output.title}
-- assertVisible: 2 items .* Run on .*
+- assertVisible: ${output.title}.*
+- assertVisible: .*2 items.*Run on.*
 - tapOn: Back
 - scrollUntilVisible:
     element:
@@ -45,5 +45,5 @@ tags:
 - assertNotVisible: ${output.title}.*
 - assertVisible: Run history
 - tapOn: Run history
-- assertVisible: ${output.title}
-- assertVisible: 2 items .* Run on .*
+- assertVisible: ${output.title}.*
+- assertVisible: .*2 items.*Run on.*
