@@ -19,6 +19,10 @@ module.exports = {
       current = parentOf(current);
     }
   }),
+  writeFile: jest.fn(async path => {
+    files.add(path);
+    dirs.add(parentOf(path));
+  }),
   moveFile: jest.fn(async (from, into) => {
     if (!files.has(from)) {
       throw new Error(`ENOENT: ${from}`);

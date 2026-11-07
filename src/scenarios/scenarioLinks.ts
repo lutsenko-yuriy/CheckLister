@@ -1,3 +1,4 @@
+import type { ScenarioPhotoResult } from './ScenarioPhotoPicker';
 import { parseAbsoluteUrl } from '../shared/links/externalLinkUrls';
 import {
   KILL_SWITCHES,
@@ -10,7 +11,14 @@ export type ScenarioCommand =
   | { type: 'reset' }
   | { type: 'analytics' }
   | { type: 'analytics-clear' }
+  | { type: 'photo-picker'; result: ScenarioPhotoResult }
   | { type: 'unknown' };
+
+const PHOTO_PICKER_RESULTS: readonly string[] = [
+  'picked',
+  'denied',
+  'cancelled',
+];
 
 const UNKNOWN: ScenarioCommand = { type: 'unknown' };
 
@@ -34,6 +42,12 @@ export function parseScenarioLink(url: string): ScenarioCommand | null {
   }
   if (path === 'analytics/clear') {
     return { type: 'analytics-clear' };
+  }
+  if (path === 'photo-picker') {
+    const result = parsed.searchParams.get('result');
+    return result !== null && PHOTO_PICKER_RESULTS.includes(result)
+      ? { type: 'photo-picker', result: result as ScenarioPhotoResult }
+      : UNKNOWN;
   }
   if (path !== 'kill-switch') {
     return UNKNOWN;
