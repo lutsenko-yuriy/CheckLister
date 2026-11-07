@@ -656,6 +656,26 @@ describe('useRuns photos', () => {
       expect(store.remove).toHaveBeenCalledWith(attachment);
     });
 
+    it('keeps the file of a completed run, which history still references', async () => {
+      const { result, store } = await setup();
+      await act(async () => result.current.startRun(checklist));
+      await act(async () => {
+        await result.current.attachPhoto({ type: 'run' }, 'library');
+      });
+      const id = result.current.activeRun!.photos[0].id;
+      await act(async () => {
+        result.current.activeRun!.items.forEach(i =>
+          result.current.toggleItem(i.id),
+        );
+      });
+      await act(async () => result.current.completeRun());
+
+      await act(async () => result.current.removePhoto(id));
+
+      expect(store.remove).not.toHaveBeenCalled();
+      expect(result.current.history[0].photos).toHaveLength(1);
+    });
+
     it('ignores an unknown id', async () => {
       const { result, store } = await setup();
       await act(async () => result.current.startRun(checklist));

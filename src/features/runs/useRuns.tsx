@@ -319,7 +319,8 @@ export function RunsProvider({
 
   const removePhoto = useCallback(async (attachmentId: string) => {
     const run = activeRunRef.current;
-    const found = run && findAttachment(run, attachmentId);
+    // A completed run's photos belong to its history entry.
+    const found = run && !run.completedAt && findAttachment(run, attachmentId);
     if (!found) {
       return;
     }
