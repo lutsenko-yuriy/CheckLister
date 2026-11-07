@@ -6,7 +6,7 @@ Generated from `bookmarks:` frontmatter in `docs/knowledge/notes/*.md`. Run `pyt
 
 ## Top themes
 
-- **scenario-suite-timing-flakiness** (6)
+- **scenario-suite-timing-flakiness** (7)
 - **real-device-only-bugs** (4)
 - **scenario-fixture-isolation** (3)
 - **agent-model-calibration** (2)
@@ -39,6 +39,7 @@ Generated from `bookmarks:` frontmatter in `docs/knowledge/notes/*.md`. Run `pyt
 - [CheL-104: Investigate Android equivalents for checklist-persistence-restart and run-gesture flows](CheL-104.md)
 - [CheL-105: Implement CheL-102 findings: local suite sharding + drag-reorder swipe-duration reduction](CheL-105.md)
 - [CheL-110: Android drag-activation race and cold-launch/relaunch race frequency: investigate root cause](CheL-110.md)
+- [CheL-115: Speed up the Android scenarios CI workflow (~20 min per run)](CheL-115.md)
 - [CheL-98: Scenario flows fail on first tap right after a text-entry step (run-complete, run-history, drag-reorder)](CheL-98.md)
 
 ## Reviewed — nothing noteworthy
@@ -47,6 +48,7 @@ Generated from `bookmarks:` frontmatter in `docs/knowledge/notes/*.md`. Run `pyt
 - [CheL-128: Add remote kill-switches (first: Run history)](CheL-128.md)
 - [CheL-14: UI polish: consistent color scheme, icons, and drag visual feedback](CheL-14.md)
 - [CheL-15: Clarify: checking items on the checklist template vs. within a run](CheL-15.md)
+- [CheL-158: Demo mode: clickable links and QR codes in the session](CheL-158.md)
 - [CheL-2: Checklist items](CheL-2.md)
 - [CheL-20: Remove the sections feature altogether](CheL-20.md)
 - [CheL-28: Smoke tests: checklist item editing on iOS](CheL-28.md)
@@ -70,3 +72,13 @@ Generated from `bookmarks:` frontmatter in `docs/knowledge/notes/*.md`. Run `pyt
 - [CheL-88: Auto-assign Testers group on TestFlight upload](CheL-88.md)
 - [CheL-92: Consolidated: TestFlight changelog fix, draft-release-notes skill, version-bump rule](CheL-92.md)
 - [CheL-93: TestFlight "What to Test" not set — skip_waiting_for_build_processing drops the changelog](CheL-93.md)
+
+## Not yet reviewed
+
+- [CheL-124: `build/` gitignore rule hides skills/build/implement](CheL-124.md)
+- [CheL-125: Run notes and checkup Python tests in CI](CheL-125.md)
+- [CheL-126: Add Firebase Analytics with opt-in consent](CheL-126.md)
+- [CheL-127: Add Settings screen with analytics toggle](CheL-127.md)
+- [CheL-130: Split the glossary into several files by term domain](CheL-130.md)
+- [CheL-147: Run scenarios against stubbed Firebase (kill-switches + analytics), not production](CheL-147.md)
+- [CheL-161: Attach photos to checklist run items and runs](CheL-161.md)
