@@ -33,7 +33,7 @@ packages/
 
 src/
 ├── navigation/
-│   ├── RootNavigator.tsx      # Native-stack routes: Home, ChecklistDetail, Run, RunHistory, ChecklistSelect, Settings
+│   ├── RootNavigator.tsx      # Native-stack routes: Home, ChecklistDetail, Run, RunHistory, ChecklistSelect, Settings (+ RunDetail, PhotoViewer, CheL-161)
 │   ├── ExternalLinkCoordinator.tsx # Incoming external-link URLs → dispatch by verb (run, select)
 │   ├── useExternalLinkQueue.ts     # Shared URL queue/bootstrap: Linking listener, getInitialURL, native drain, dedupe
 │   └── externalLinkNativeHandoff.ts # Native pending-URL handoff (module name: ExternalRunLinking, predates `select`)
@@ -57,13 +57,20 @@ src/
 │       ├── domain/
 │       │   ├── models.ts           # ChecklistRun, RunOrigin, RunHistoryEntry, RunItem + pure helpers
 │       │   ├── externalRunLinks.ts # Run-specific request/result types, built on shared/links primitives
-│       │   └── runRepository.ts    # Completed-run history persistence interface
+│       │   ├── runRepository.ts    # Completed-run history persistence interface
+│       │   ├── attachmentStore.ts  # AttachmentStore interface: photo files per run (CheL-161)
+│       │   └── photoPicker.ts      # PhotoPicker interface + PickResult (CheL-161)
 │       ├── data/
-│       │   └── asyncStorageRunRepository.ts
+│       │   ├── asyncStorageRunRepository.ts
+│       │   ├── fileSystemAttachmentStore.ts  # Photo files under <app data>/attachments/<runId>/ (CheL-161)
+│       │   └── imagePickerPhotoPicker.ts     # react-native-image-picker wrapper, never rejects (CheL-161)
 │       ├── ui/
 │       │   ├── RunScreen.tsx
 │       │   ├── RunHistoryScreen.tsx
-│       │   └── components/         # RunItemRow
+│       │   ├── RunDetailScreen.tsx   # Read-only past run (CheL-161)
+│       │   ├── PhotoViewerScreen.tsx # Full-screen photo; Remove for the active run only (CheL-161)
+│       │   ├── useAddPhoto.ts        # Add-photo sheet + denied/unavailable alerts + analytics (CheL-161)
+│       │   └── components/         # RunItemRow, PhotoThumbnail, RunPhotoRow
 │       └── useRuns.tsx             # Context + hook for ephemeral active run + durable completed history
 │   ├── debug/                  # Debug-only DebugScreen (CheL-128), absent from Release bundles
 │   └── settings/
@@ -320,6 +327,14 @@ or sent to analytics.
   `@react-navigation/native-stack`, with `react-native-screens` as a peer
   dependency) — screen navigation (Home → ChecklistDetail → Run, plus
   History). Installed.
+- [`react-native-image-picker`](https://github.com/react-native-image-picker/react-native-image-picker) (8.x) —
+  camera capture and the system photo picker (PHPicker on iOS, the Android Photo Picker)
+  for run photos (CheL-161). The library picker needs no permission on either platform;
+  Android's camera uses the system camera app and needs none as long as the app declares
+  no `CAMERA` permission; only the iOS camera prompts. Needs `pod install`.
+- [`@dr.pogodin/react-native-fs`](https://github.com/birdofpreyru/react-native-fs) —
+  moves a picked photo into app storage, deletes photos and run folders, and lists
+  folders for the launch cleanup (CheL-161). Needs `pod install`.
 - [`@react-native-async-storage/async-storage`](https://react-native-async-storage.github.io/async-storage/) —
   local, on-device persistence for checklists and run history. Installed.
 - [`react-native-reanimated-dnd`](https://github.com/entropyconquers/react-native-reanimated-dnd)
@@ -430,6 +445,45 @@ Release bundles (checked by grepping a Release bundle for `debug-screen` and
 `open-debug`). The screen uses English literals, not `t()`: it never ships, so it is
 exempt from localisation. Maestro installs Release, so the off state and overrides
 are covered by Jest only.
+
+## Run photos (CheL-161)
+
+Photos attach to a run item (at most one) or to the run itself (any number). They
+are files, not JSON: `AttachmentStore` (`runs/domain`) is implemented by
+`FileSystemAttachmentStore` (`runs/data`), the only code that touches the file
+system. Files live in `<app data dir>/attachments/<runId>/<attachmentId>.jpg`
+(iOS `Library/Application Support`, Android `files`), app-private and included in
+device backups. Original quality is kept; there is no resize. An `Attachment`
+stores its path relative to `attachments/`, because the iOS container path
+changes between app updates.
+
+**Model.** `RunItem.photo: Attachment | null` and `ChecklistRun.photos: Attachment[]`.
+`RunHistoryEntry` gains optional `items` and `photos`, filled when a run completes,
+under the existing `runHistory` key; a missing field means "not recorded", so older
+entries load unchanged and open as a summary with a note.
+
+**Lifecycle (owned by `useRuns`).** `attachPhoto` captures the run id, asks the
+`PhotoPicker`, imports the file, and dispatches only if that run is still active,
+not completed and (for an item) still without a photo; otherwise it deletes the
+imported file and returns `stale`. An in-flight guard rejects a second call, and
+"+" and Complete are disabled while one runs. Discarding or replacing an
+uncompleted run removes its folder; `RunScreen` calls `clearRun()` after
+completion, so `clearRun` removes the folder only when the run is not completed.
+A launch sweep, run once after history loads, removes folders that belong neither
+to a history run nor to the active run (orphans from a killed app).
+
+**Picker.** `PhotoPicker.pick('camera' | 'library')` resolves to picked, cancelled,
+denied, unavailable or failed; it never rejects. Scenario builds swap in
+`ScenarioPhotoPicker` (`src/scenarios`), set through
+`checklister://scenarios/photo-picker?result=...`, because simulators have no camera.
+
+**Kill-switch.** `photos` in `KILL_SWITCHES` (`kill_switch_photos`, same JSON and
+`min_version` rules as Run history). Off hides the "+" controls, thumbnails, the
+run photo row and the viewer everywhere, including past runs. Unlike Run history,
+a viewer that is already open closes. Files stay on disk and in history.
+
+**Routes.** `RunDetail { runId }` and `PhotoViewer { context, runId, attachmentId }`
+(`fullScreenModal`); params carry ids only.
 
 ## Scenario build (CheL-147)
 

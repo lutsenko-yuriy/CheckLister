@@ -97,6 +97,12 @@ Fired when the user presses "Complete the checklist" (only possible once every i
 | `checklist_id` | `string` | The checklist the run belongs to |
 | `item_count` | `number` | Total number of items in the completed run |
 
+<!-- Added for CheL-161: `run_completed` also carries the property below. -->
+
+| Property | Type | Description |
+|---|---|---|
+| `photo_count` | `number` | Total photos on the run when it was completed (item photos plus run photos) |
+
 <!-- Added for CheL-36: Externally started checklist runs -->
 
 ### `external_run_request_handled`
@@ -168,6 +174,45 @@ No properties.
 
 <!-- Added for CheL-127: also fired when the user switches analytics on from the Settings screen (off → on), once the choice is stored and collection is on. Switching off is not tracked: the consent gate has already dropped everything by then. -->
 
+<!-- Added for CheL-161: Photo attachments on runs. Photo content, file names/paths, EXIF and sizes are never logged. -->
+
+### `photo_attached`
+
+Fired when a photo was successfully saved to a run item or to the run.
+
+| Property | Type | Description |
+|---|---|---|
+| `checklist_id` | `string` | The checklist the run belongs to |
+| `target` | `string` | `item` or `run` |
+| `source` | `string` | `camera` or `library` |
+| `run_photo_count` | `number` | Photos on the run (not on items) after the add |
+
+### `photo_removed`
+
+Fired when the user removes a photo during an active run.
+
+| Property | Type | Description |
+|---|---|---|
+| `checklist_id` | `string` | The checklist the run belongs to |
+| `target` | `string` | `item` or `run` |
+
+### `photo_permission_denied`
+
+Fired when the user tries to attach a photo and access is denied, so the explanation is shown.
+
+| Property | Type | Description |
+|---|---|---|
+| `source` | `string` | `camera` or `library` |
+
+### `run_history_entry_opened`
+
+Fired when the user taps a Run history entry to open the past run.
+
+| Property | Type | Description |
+|---|---|---|
+| `checklist_id` | `string` | The checklist the run belonged to |
+| `has_photos` | `boolean` | Whether the run has any photos (`false` while the photos kill-switch is off, since they are hidden) |
+
 ---
 
 ## Screen Views
@@ -191,3 +236,5 @@ No properties.
 | `screen_run_history` | When the run history screen mounts, with `scope: string` (`all` or `checklist`), `entry_count: number`, and `checklist_id: string` when filtered to one checklist |
 | `screen_checklist_select` | When the external "Select checklist" picker mounts, with `checklist_count: number` (CheL-40) |
 | `screen_settings` | When the Settings screen mounts, no properties (CheL-127) |
+| `screen_run_detail` | When the read-only past-run screen opens from Run history, with `checklist_id: string`, `item_count: number`, `item_photo_count: number`, `run_photo_count: number` (CheL-161) |
+| `screen_photo_viewer` | When the full-screen photo opens, with `context: string` (`active_run` or `past_run`) and `target: string` (`item` or `run`) (CheL-161) |

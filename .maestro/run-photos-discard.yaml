@@ -1,0 +1,17 @@
+appId: ${APP_ID}
+name: Discarding a run deletes its photos
+tags:
+  - ios
+  - android
+---
+# CheL-161 WU0 stub: needs a scenario build (checklister://scenarios/... links).
+# Only answers the consent dialog until later work units fill in the steps below.
+- launchApp:
+    clearState: true
+- runFlow: helpers/answer-analytics-consent.yaml
+# TODO: create a checklist, start a run, set the photo picker to 'picked'
+# TODO: attach an item photo and a run photo
+# TODO: press back and confirm discarding — the checklist screen shows
+# TODO: start a new run — no thumbnails and no run photos
+# TODO: open Run history — no entry for the discarded run
+# TODO: delete the checklist (helpers/delete-checklist.yaml)

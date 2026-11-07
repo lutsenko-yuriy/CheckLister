@@ -1,0 +1,17 @@
+appId: ${APP_ID}
+name: Photo controls follow the scenario kill-switch
+tags:
+  - ios
+  - android
+---
+# CheL-161 WU0 stub: needs a scenario build (checklister://scenarios/... links).
+# Only answers the consent dialog until later work units fill in the steps below.
+- launchApp:
+    clearState: true
+- runFlow: helpers/answer-analytics-consent.yaml
+# TODO: complete a run that has an item photo and a run photo; start a second run and attach an item photo
+# TODO: open a photo so the viewer is showing
+# TODO: turn the switch off (checklister://scenarios/kill-switch?id=photos&enabled=false) — the viewer closes; all + controls, thumbnails and the run photo row disappear
+# TODO: open the past run from Run history — items and checked states show, no photos
+# TODO: turn the switch back on — photos reappear on both screens
+# TODO: reset the switch (checklister://scenarios/kill-switch/reset), discard the run, delete the checklist
