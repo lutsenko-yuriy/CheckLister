@@ -1,1 +1,3 @@
 "CFBundleDisplayName" = "CheckLister";
+"NSCameraUsageDescription" = "CheckLister utilise l’appareil photo pour joindre des photos à vos sessions de checklist.";
+"NSPhotoLibraryUsageDescription" = "CheckLister vous permet de choisir des photos à joindre à vos sessions de checklist.";
