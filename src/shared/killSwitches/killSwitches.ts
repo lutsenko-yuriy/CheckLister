@@ -1,5 +1,6 @@
 export const KILL_SWITCHES = {
   runHistory: { remoteKey: 'kill_switch_run_history', label: 'Run history' },
+  photos: { remoteKey: 'kill_switch_photos', label: 'Photos' },
 } as const;
 
 export type KillSwitchId = keyof typeof KILL_SWITCHES;
