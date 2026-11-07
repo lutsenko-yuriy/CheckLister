@@ -29,7 +29,11 @@ export class FileSystemAttachmentStore implements AttachmentStore {
     const source = toFilePath(sourceUri);
     const target = `${attachmentsRoot()}/${path}`;
 
-    await FileSystem.mkdir(`${attachmentsRoot()}/${runId}`);
+    // Android's mkdir rejects a folder that already exists (a run's second photo).
+    const folder = `${attachmentsRoot()}/${runId}`;
+    if (!(await FileSystem.exists(folder))) {
+      await FileSystem.mkdir(folder);
+    }
     try {
       await FileSystem.mv(source, target);
     } catch {

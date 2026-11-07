@@ -5,7 +5,7 @@ tags:
 ---
 - runFlow: helpers/create-checklist.yaml
 - tapOn: Start run
-- tapOn: .*Scenario first.*
+- tapOn: Scenario first
 - assertVisible: 1 of 2 checked
 - openLink: 'checklister://select?callbackUrl=missingcaller%3A%2F%2Fresult'
 - tapOn:

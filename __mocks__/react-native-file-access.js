@@ -10,7 +10,11 @@ const isUnder = (path, root) => path === root || path.startsWith(`${root}/`);
 const FileSystem = {
   exists: jest.fn(async path => files.has(path) || dirs.has(path)),
   isDir: jest.fn(async path => dirs.has(path)),
+  // Rejects an existing path, as Android does (EEXIST).
   mkdir: jest.fn(async path => {
+    if (files.has(path) || dirs.has(path)) {
+      throw new Error(`EEXIST: ${path}`);
+    }
     let current = path;
     while (current) {
       dirs.add(current);

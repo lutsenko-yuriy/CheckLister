@@ -7,8 +7,8 @@ tags:
 - runFlow: helpers/create-checklist.yaml
 - assertNotVisible: Run history
 - tapOn: Start run
-- tapOn: .*Scenario first.*
-- tapOn: .*Scenario second.*
+- tapOn: Scenario first
+- tapOn: Scenario second
 - tapOn: Complete the checklist
 - assertVisible: Start run
 - assertVisible: Run history
