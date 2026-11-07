@@ -15,6 +15,10 @@ use_frameworks! :linkage => linkage.to_sym
 # CheL-126: never link AdSupport/IDFA.
 $RNFirebaseAnalyticsWithoutAdIdSupport = true
 
+# CheL-161: react-native-file-access ships disk-space and file-timestamp calls we never
+# use; compile them out so the app needs no privacy-manifest reasons for them.
+$RNFANoPrivacyAPI = true
+
 target 'CheckLister' do
   config = use_native_modules!
 
