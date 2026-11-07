@@ -26,9 +26,6 @@ export function RunDetailScreen({ navigation, route }: Props) {
   const hasLoggedView = useRef(false);
 
   const photos = photosEnabled ? entry?.photos ?? [] : [];
-  const itemPhotoCount = photosEnabled
-    ? photoCount({ items: entry?.items })
-    : 0;
 
   useEffect(() => {
     if (!entry || hasLoggedView.current) {
@@ -38,10 +35,11 @@ export function RunDetailScreen({ navigation, route }: Props) {
     analytics.logScreenView('screen_run_detail', {
       checklist_id: entry.checklistId,
       item_count: entry.itemCount,
-      item_photo_count: itemPhotoCount,
-      run_photo_count: photosEnabled ? runPhotoCount(entry) : 0,
+      // Stored counts: the switch reads false until loaded, so it can't gate this once-only log.
+      item_photo_count: photoCount({ items: entry.items }),
+      run_photo_count: runPhotoCount(entry),
     });
-  }, [entry, itemPhotoCount, photosEnabled]);
+  }, [entry]);
 
   const openViewer = (attachmentId: string) =>
     navigation.navigate('PhotoViewer', {

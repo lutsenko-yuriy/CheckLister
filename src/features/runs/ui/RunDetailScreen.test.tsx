@@ -134,8 +134,8 @@ describe('RunDetailScreen', () => {
         {
           checklist_id: 'packing',
           item_count: 2,
-          item_photo_count: 0,
-          run_photo_count: 0,
+          item_photo_count: 1,
+          run_photo_count: 1,
         },
       ),
     );
