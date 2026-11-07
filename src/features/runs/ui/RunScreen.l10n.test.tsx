@@ -9,6 +9,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getCountry, getLocales } from 'react-native-localize';
 import { RunsProvider, useRuns } from '../useRuns';
+import { photoDeps } from '../testing/photoFakes';
 import { RunScreen } from './RunScreen';
 import { createChecklist, createItem } from '../../checklists/domain/models';
 import { AsyncStorageRunRepository } from '../data/asyncStorageRunRepository';
@@ -62,7 +63,7 @@ async function renderRun(itemTexts: string[]) {
   const utils = await render(
     <I18nProvider>
       <ThemeProvider>
-        <RunsProvider repository={runRepository}>
+        <RunsProvider repository={runRepository} {...photoDeps()}>
           <NavigationContainer
             ref={navigationRef}
             initialState={{

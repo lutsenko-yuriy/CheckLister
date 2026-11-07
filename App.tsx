@@ -18,6 +18,9 @@ import { ChecklistsProvider } from './src/features/checklists/useChecklists';
 import { ExternalSelectionProvider } from './src/features/checklists/useExternalSelection';
 import { RunsProvider } from './src/features/runs/useRuns';
 import { AsyncStorageRunRepository } from './src/features/runs/data/asyncStorageRunRepository';
+import { FileSystemAttachmentStore } from './src/features/runs/data/fileSystemAttachmentStore';
+import { ImagePickerPhotoPicker } from './src/features/runs/data/imagePickerPhotoPicker';
+import { PhotoPicker } from './src/features/runs/domain/photoPicker';
 import { RootNavigator } from './src/navigation/RootNavigator';
 import { ExternalLinkCoordinator } from './src/navigation/ExternalLinkCoordinator';
 import { RootStackParamList } from './src/navigation/types';
@@ -41,6 +44,12 @@ import { I18nProvider } from '@checklister/i18n';
 
 const checklistRepository = new AsyncStorageChecklistRepository();
 const runRepository = new AsyncStorageRunRepository();
+const attachmentStore = new FileSystemAttachmentStore();
+// Scenario builds pick from a scripted picker instead of the system UI (CheL-161);
+// the require() is folded away everywhere else.
+const photoPicker: PhotoPicker = __SCENARIO_BUILD__
+  ? require('./src/scenarios/ScenarioPhotoPicker').scenarioPhotoPicker
+  : new ImagePickerPhotoPicker();
 const analyticsConsentStore = new AsyncStorageAnalyticsConsentStore();
 // Scenario builds read pushed values instead of Remote Config (CheL-147); the
 // require() is folded away everywhere else. Release throttles real fetches to
@@ -91,7 +100,11 @@ function AppContent() {
           barStyle={scheme === 'dark' ? 'light-content' : 'dark-content'}
         />
         <ChecklistsProvider repository={checklistRepository}>
-          <RunsProvider repository={runRepository}>
+          <RunsProvider
+            repository={runRepository}
+            attachmentStore={attachmentStore}
+            photoPicker={photoPicker}
+          >
             <ExternalSelectionProvider>
               <NavigationContainer
                 ref={navigationRef}

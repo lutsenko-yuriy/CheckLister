@@ -12,6 +12,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { darkPalette, lightPalette } from '../../../shared/theme/palette';
 import { ThemeProvider } from '../../../shared/theme/useTheme';
 import { RunsProvider } from '../../runs/useRuns';
+import { photoDeps } from '../../runs/testing/photoFakes';
 import { AsyncStorageRunRepository } from '../../runs/data/asyncStorageRunRepository';
 import * as killSwitches from '../../../shared/killSwitches/useKillSwitches';
 import { analytics } from '../../../shared/analytics/AnalyticsService';
@@ -29,7 +30,7 @@ async function renderDetailScreen(
   const utils = await render(
     <ThemeProvider scheme={scheme}>
       <ChecklistsProvider repository={new AsyncStorageChecklistRepository()}>
-        <RunsProvider repository={runRepository}>
+        <RunsProvider repository={runRepository} {...photoDeps()}>
           <ChecklistDetailScreen
             navigation={navigation as any}
             route={{ params: { checklistId } } as any}

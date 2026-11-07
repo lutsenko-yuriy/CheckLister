@@ -5,6 +5,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { AsyncStorageRunRepository } from '../data/asyncStorageRunRepository';
 import { RunHistoryEntry } from '../domain/models';
 import { RunsProvider } from '../useRuns';
+import { photoDeps } from '../testing/photoFakes';
 import { RunHistoryScreen } from './RunHistoryScreen';
 import { ThemeProvider } from '../../../shared/theme/useTheme';
 import { formatDateTime, I18nProvider, translate } from '@checklister/i18n';
@@ -40,7 +41,7 @@ async function renderHistory(params: {
   const utils = await render(
     <I18nProvider>
       <ThemeProvider>
-        <RunsProvider repository={repository}>
+        <RunsProvider repository={repository} {...photoDeps()}>
           <RunHistoryScreen
             navigation={navigation as any}
             route={{ params } as any}
@@ -62,7 +63,7 @@ async function renderEmptyHistory(params: {
   const utils = await render(
     <I18nProvider>
       <ThemeProvider>
-        <RunsProvider repository={repository}>
+        <RunsProvider repository={repository} {...photoDeps()}>
           <RunHistoryScreen
             navigation={navigation as any}
             route={{ params } as any}

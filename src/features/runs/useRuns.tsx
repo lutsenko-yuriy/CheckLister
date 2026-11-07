@@ -6,17 +6,32 @@ import React, {
   useReducer,
   useEffect,
   useRef,
+  useState,
 } from 'react';
 import { Checklist } from '../checklists/domain/models';
 import {
+  Attachment,
   ChecklistRun,
+  addRunPhoto,
+  attachItemPhoto,
+  findAttachment,
+  removeItemPhoto,
+  removeRunPhoto,
   startRun as buildRun,
   toggleRunItem,
   completeRun as markRunComplete,
   RunHistoryEntry,
   toRunHistoryEntry,
 } from './domain/models';
+import { AttachmentStore } from './domain/attachmentStore';
+import { PhotoPicker, PhotoSource } from './domain/photoPicker';
 import { RunRepository } from './domain/runRepository';
+
+export type PhotoTarget = { type: 'item'; runItemId: string } | { type: 'run' };
+
+export type AttachPhotoResult =
+  | { type: 'attached'; target: 'item' | 'run' }
+  | { type: 'cancelled' | 'denied' | 'unavailable' | 'failed' | 'stale' };
 
 interface State {
   activeRun: ChecklistRun | null;
@@ -33,6 +48,13 @@ type Action =
       run: ChecklistRun;
       history: RunHistoryEntry[];
     }
+  | {
+      type: 'ATTACH_PHOTO';
+      runId: string;
+      target: PhotoTarget;
+      attachment: Attachment;
+    }
+  | { type: 'REMOVE_PHOTO'; attachmentId: string }
   | { type: 'CLEAR' };
 
 function reducer(state: State, action: Action): State {
@@ -56,6 +78,29 @@ function reducer(state: State, action: Action): State {
         history: action.history,
         historyLoading: false,
       };
+    case 'ATTACH_PHOTO': {
+      const run = state.activeRun;
+      if (!run || run.id !== action.runId) {
+        return state;
+      }
+      return {
+        ...state,
+        activeRun:
+          action.target.type === 'item'
+            ? attachItemPhoto(run, action.target.runItemId, action.attachment)
+            : addRunPhoto(run, action.attachment),
+      };
+    }
+    case 'REMOVE_PHOTO':
+      return state.activeRun
+        ? {
+            ...state,
+            activeRun: removeRunPhoto(
+              removeItemPhoto(state.activeRun, action.attachmentId),
+              action.attachmentId,
+            ),
+          }
+        : state;
     case 'CLEAR':
       return { ...state, activeRun: null };
     default:
@@ -64,6 +109,13 @@ function reducer(state: State, action: Action): State {
 }
 
 interface RunsContextValue extends State {
+  /** True while a photo is being picked or stored; further attaches are `stale`. */
+  attachingPhoto: boolean;
+  attachPhoto(
+    target: PhotoTarget,
+    source: PhotoSource,
+  ): Promise<AttachPhotoResult>;
+  removePhoto(attachmentId: string): Promise<void>;
   startRun(checklist: Checklist): void;
   startExternalRun(checklist: Checklist, callbackUrl: string): void;
   toggleItem(runItemId: string): void;
@@ -76,9 +128,13 @@ const RunsContext = createContext<RunsContextValue | null>(null);
 export function RunsProvider({
   children,
   repository,
+  attachmentStore,
+  photoPicker,
 }: {
   children: React.ReactNode;
   repository: RunRepository;
+  attachmentStore: AttachmentStore;
+  photoPicker: PhotoPicker;
 }) {
   const [state, dispatch] = useReducer(reducer, {
     activeRun: null,
@@ -88,6 +144,38 @@ export function RunsProvider({
   const historyRef = useRef<RunHistoryEntry[]>([]);
   const initialLoadRef = useRef<Promise<RunHistoryEntry[]> | null>(null);
   const completionQueueRef = useRef<Promise<void>>(Promise.resolve());
+  const activeRunRef = useRef<ChecklistRun | null>(null);
+  activeRunRef.current = state.activeRun;
+  const storeRef = useRef(attachmentStore);
+  storeRef.current = attachmentStore;
+  const pickerRef = useRef(photoPicker);
+  pickerRef.current = photoPicker;
+  const attachingRef = useRef(false);
+  const [attachingPhoto, setAttachingPhoto] = useState(false);
+
+  const discardFolder = useCallback((runId: string) => {
+    storeRef.current.removeRun(runId).catch(error => {
+      console.error('Failed to remove run photos', error);
+    });
+  }, []);
+
+  /** Orphan folders: no history entry and not the run in progress. */
+  const sweepOrphans = useCallback(async (isCancelled: () => boolean) => {
+    try {
+      for (const id of await storeRef.current.listRunIds()) {
+        if (
+          isCancelled() ||
+          activeRunRef.current?.id === id ||
+          historyRef.current.some(entry => entry.id === id)
+        ) {
+          continue;
+        }
+        await storeRef.current.removeRun(id);
+      }
+    } catch (error) {
+      console.error('Failed to sweep run photos', error);
+    }
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -98,6 +186,8 @@ export function RunsProvider({
         if (!cancelled) {
           historyRef.current = history;
           dispatch({ type: 'LOADED', history });
+          // Only after a successful load: an empty fallback would orphan everything.
+          sweepOrphans(() => cancelled);
         }
       })
       .catch(error => {
@@ -110,20 +200,29 @@ export function RunsProvider({
     return () => {
       cancelled = true;
     };
-  }, [repository]);
+  }, [repository, sweepOrphans]);
 
-  const startRun = useCallback((checklist: Checklist) => {
-    dispatch({ type: 'START', run: buildRun(checklist) });
-  }, []);
+  const beginRun = useCallback(
+    (run: ChecklistRun) => {
+      const previous = activeRunRef.current;
+      if (previous && !previous.completedAt) {
+        discardFolder(previous.id);
+      }
+      activeRunRef.current = run;
+      dispatch({ type: 'START', run });
+    },
+    [discardFolder],
+  );
+
+  const startRun = useCallback(
+    (checklist: Checklist) => beginRun(buildRun(checklist)),
+    [beginRun],
+  );
 
   const startExternalRun = useCallback(
-    (checklist: Checklist, callbackUrl: string) => {
-      dispatch({
-        type: 'START',
-        run: buildRun(checklist, { type: 'external', callbackUrl }),
-      });
-    },
-    [],
+    (checklist: Checklist, callbackUrl: string) =>
+      beginRun(buildRun(checklist, { type: 'external', callbackUrl })),
+    [beginRun],
   );
 
   const toggleItem = useCallback((runItemId: string) => {
@@ -160,19 +259,102 @@ export function RunsProvider({
   }, [repository, state.activeRun, state.historyLoading]);
 
   const clearRun = useCallback(() => {
+    const run = activeRunRef.current;
+    if (run && !run.completedAt) {
+      discardFolder(run.id);
+    }
+    activeRunRef.current = null;
     dispatch({ type: 'CLEAR' });
+  }, [discardFolder]);
+
+  const attachPhoto = useCallback(
+    async (
+      target: PhotoTarget,
+      source: PhotoSource,
+    ): Promise<AttachPhotoResult> => {
+      // Open run, and for an item target an item that exists with no photo yet.
+      const canAttach = (run: ChecklistRun | null): run is ChecklistRun =>
+        run !== null &&
+        run.completedAt === null &&
+        (target.type === 'run' ||
+          run.items.find(i => i.id === target.runItemId)?.photo === null);
+      const run = activeRunRef.current;
+      if (attachingRef.current || !canAttach(run)) {
+        return { type: 'stale' };
+      }
+
+      attachingRef.current = true;
+      setAttachingPhoto(true);
+      try {
+        const picked = await pickerRef.current.pick(source);
+        if (picked.type !== 'picked') {
+          return { type: picked.type };
+        }
+
+        let attachment: Attachment;
+        try {
+          attachment = await storeRef.current.importPhoto(run.id, picked.uri);
+        } catch (error) {
+          console.error('Failed to store photo', error);
+          return { type: 'failed' };
+        }
+
+        const current = activeRunRef.current;
+        if (current?.id !== run.id || !canAttach(current)) {
+          storeRef.current.remove(attachment).catch(error => {
+            console.error('Failed to remove stale photo', error);
+          });
+          return { type: 'stale' };
+        }
+
+        dispatch({ type: 'ATTACH_PHOTO', runId: run.id, target, attachment });
+        return { type: 'attached', target: target.type };
+      } finally {
+        attachingRef.current = false;
+        setAttachingPhoto(false);
+      }
+    },
+    [],
+  );
+
+  const removePhoto = useCallback(async (attachmentId: string) => {
+    const run = activeRunRef.current;
+    // A completed run's photos belong to its history entry.
+    const found = run && !run.completedAt && findAttachment(run, attachmentId);
+    if (!found) {
+      return;
+    }
+    dispatch({ type: 'REMOVE_PHOTO', attachmentId });
+    try {
+      await storeRef.current.remove(found.attachment);
+    } catch (error) {
+      console.error('Failed to remove photo', error);
+    }
   }, []);
 
   const value = useMemo(
     () => ({
       ...state,
+      attachingPhoto,
+      attachPhoto,
+      removePhoto,
       startRun,
       startExternalRun,
       toggleItem,
       completeRun,
       clearRun,
     }),
-    [state, startRun, startExternalRun, toggleItem, completeRun, clearRun],
+    [
+      state,
+      attachingPhoto,
+      attachPhoto,
+      removePhoto,
+      startRun,
+      startExternalRun,
+      toggleItem,
+      completeRun,
+      clearRun,
+    ],
   );
 
   return <RunsContext.Provider value={value}>{children}</RunsContext.Provider>;

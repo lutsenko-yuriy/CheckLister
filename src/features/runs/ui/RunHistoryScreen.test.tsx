@@ -4,6 +4,7 @@ import { analytics } from '../../../shared/analytics/AnalyticsService';
 import { AsyncStorageRunRepository } from '../data/asyncStorageRunRepository';
 import { RunHistoryEntry } from '../domain/models';
 import { RunsProvider } from '../useRuns';
+import { photoDeps } from '../testing/photoFakes';
 import { RunHistoryScreen } from './RunHistoryScreen';
 import { darkPalette } from '../../../shared/theme/palette';
 import { ThemeProvider } from '../../../shared/theme/useTheme';
@@ -38,7 +39,7 @@ async function renderHistory(
 
   const utils = await render(
     <ThemeProvider scheme={scheme}>
-      <RunsProvider repository={repository}>
+      <RunsProvider repository={repository} {...photoDeps()}>
         <RunHistoryScreen
           navigation={navigation as any}
           route={{ params } as any}

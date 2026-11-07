@@ -265,7 +265,11 @@ initialized from its repository on mount and persists on every mutation.
 `useRuns` keeps the single `activeRun` in memory because an unfinished run
 cannot be paused or resumed. It loads and persists immutable
 `RunHistoryEntry` summaries through `RunRepository`; completed history is
-therefore durable and independent of checklist deletion. Revisit state
+therefore durable and independent of checklist deletion. It also owns the photo
+lifecycle (CheL-161): `attachPhoto` (one at a time; a result for a run that is
+gone is `stale` and its file is deleted), `removePhoto`, deleting the run's photo
+folder when an unfinished run is discarded or replaced, and a launch sweep that
+deletes folders belonging to no history entry. Revisit state
 management itself if cross-feature coordination outgrows this.
 
 An active run also carries a discriminated local or external origin. External
