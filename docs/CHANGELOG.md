@@ -13,6 +13,13 @@ A record of all versioned releases. For planned work and known issues, see @docs
 - ...
 -->
 
+## [0.17.1] — 2026-11-08 (PR #171 merged)
+
+### Fixed
+
+- [app] CheL-170: iOS builds now declare `ITSAppUsesNonExemptEncryption = false` (the app only uses the encryption built into the OS), so TestFlight no longer asks the export-compliance question on every upload.
+- [test] CheL-170: the Android and iOS persistence scenarios tap `'(.+, )?Scenario second'` instead of `.*Scenario second.*`, which since CheL-161 WU3 also matched the "Add photo to Scenario second" button and made the run-state assertion flaky.
+
 ## [0.17.0] — 2026-11-07 (PR #166 merged)
 
 ### Added

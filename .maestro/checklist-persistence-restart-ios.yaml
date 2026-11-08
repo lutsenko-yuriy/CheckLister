@@ -57,7 +57,7 @@ tags:
 # in-memory only and must NOT be recovered: relaunching lands on Home, the
 # template is unaffected, and a freshly started run is fully unchecked.
 - tapOn: Start run
-- tapOn: .*Scenario second.*
+- tapOn: '(.+, )?Scenario second'
 - assertVisible: 1 of 2 checked
 - runFlow: helpers/relaunch-and-open-checklist.yaml
 - assertVisible: '.*Scenario second.*'
